@@ -4,7 +4,7 @@ include .env
 # Credits: https://github.com/sherifabdlnaby/elastdocker/
 
 # This for future release of Compose that will use Docker Buildkit, which is much efficient.
-COMPOSE_PREFIX_CMD := COMPOSE_DOCKER_CLI_BUILD=1
+COMPOSE_PREFIX_CMD := COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1
 
 COMPOSE_ALL_FILES := -f docker-compose.yml
 SERVICES          := db web proxy redis celery celery-beat ollama
@@ -23,11 +23,22 @@ certs:		    ## Generate certificates.
 setup:			## Generate certificates.
 	@make certs
 
+setup_devcontainer:		## Set up devcontainer environment.
+	@docker build -f .devcontainer/Dockerfile -t reconpoint-dev .
+
 up:				## Build and start all services.
 	${COMPOSE_PREFIX_CMD} ${DOCKER_COMPOSE} ${COMPOSE_ALL_FILES} up -d --build ${SERVICES}
 
 build:			## Build all services.
-	${COMPOSE_PREFIX_CMD} ${DOCKER_COMPOSE} ${COMPOSE_ALL_FILES} build ${SERVICES}
+	@echo "Setting up buildx for multi-platform support..."
+	@docker buildx create --use --name reconpoint-builder 2>/dev/null || docker buildx use reconpoint-builder
+	${COMPOSE_PREFIX_CMD} ${DOCKER_COMPOSE} ${COMPOSE_ALL_FILES} build --parallel ${SERVICES}
+
+build-multiplatform:	## Build all services for multiple platforms (amd64, arm64) and push to registry.
+	@echo "Building multi-platform images..."
+	@docker buildx create --use --name multiplatform-builder 2>/dev/null || docker buildx use multiplatform-builder
+	@docker buildx build --platform linux/amd64,linux/arm64 -t khulnasoft/reconpoint:latest --push ./web
+	@echo "Multi-platform build complete. Images pushed to registry."
 
 username:		## Generate Username (Use only after make up).
 ifeq ($(isNonInteractive), true)
@@ -60,6 +71,16 @@ rm:				## Remove all services containers.
 
 test:
 	${COMPOSE_PREFIX_CMD} ${DOCKER_COMPOSE} $(COMPOSE_ALL_FILES) exec celery python3 -m unittest tests/test_scan.py
+
+lint:			## Run linting checks (flake8).
+	${COMPOSE_PREFIX_CMD} ${DOCKER_COMPOSE} $(COMPOSE_ALL_FILES) exec web flake8 .
+
+format:			## Format code with black and isort.
+	${COMPOSE_PREFIX_CMD} ${DOCKER_COMPOSE} $(COMPOSE_ALL_FILES) exec web black .
+	${COMPOSE_PREFIX_CMD} ${DOCKER_COMPOSE} $(COMPOSE_ALL_FILES) exec web isort .
+
+type-check:		## Run mypy type checking.
+	${COMPOSE_PREFIX_CMD} ${DOCKER_COMPOSE} $(COMPOSE_ALL_FILES) exec web mypy .
 
 logs:			## Tail all logs with -n 1000.
 	${COMPOSE_PREFIX_CMD} ${DOCKER_COMPOSE} $(COMPOSE_ALL_FILES) logs --follow --tail=1000 ${SERVICES}

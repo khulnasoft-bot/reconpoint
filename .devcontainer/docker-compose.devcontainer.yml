@@ -1,0 +1,197 @@
+version: "3.9"
+
+# ============================================
+# DevContainer Docker Compose Override
+# Extends main docker-compose.yml with dev-specific services
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.devcontainer.yml up
+# ============================================
+
+services:
+  # ============================================
+  # PostgreSQL Database - Development
+  # ============================================
+  db:
+    # Override: Use more verbose logging for debugging
+    environment:
+      POSTGRES_INITDB_ARGS: "-c log_statement=all -c log_min_duration_statement=0"
+    volumes:
+      # Add init scripts for test data (optional)
+      - .devcontainer/postgres-init:/docker-entrypoint-initdb.d
+    # Keep data between restarts
+    restart: unless-stopped
+
+  # ============================================
+  # Redis - Development
+  # ============================================
+  redis:
+    restart: unless-stopped
+    # Enable monitoring commands
+    command: redis-server --loglevel debug --appendonly yes
+
+  # ============================================
+  # Neo4j - Development
+  # ============================================
+  neo4j:
+    restart: unless-stopped
+    environment:
+      # Dev-specific settings
+      NEO4J_dbms_logs_debug_level: "DEBUG"
+      NEO4J_dbms_security_bolt_listen__address: "0.0.0.0:7687"
+
+  # ============================================
+  # Django Web Server - Development
+  # ============================================
+  web:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    restart: unless-stopped
+    environment:
+      # Development-specific variables
+      DEBUG: "true"
+      TEMPLATE_DEBUG: "true"
+      # Disable security checks in dev
+      ALLOWED_HOSTS: "*"
+      SECURE_SSL_REDIRECT: "false"
+      SESSION_COOKIE_SECURE: "false"
+      CSRF_COOKIE_SECURE: "false"
+      # Enable dev tools
+      DJANGO_DEBUG_TOOLBAR_ENABLED: "true"
+      # Keep logs verbose
+      LOGLEVEL: "DEBUG"
+    command: >
+      bash -c " echo 'Waiting for PostgreSQL...' && while ! nc -z db 5432; do sleep 1; done && echo 'PostgreSQL is ready!' && echo 'Running migrations...' && python manage.py migrate --no-input && echo 'Creating superuser if not exists...' && python manage.py shell -c \"
+        from django.contrib.auth import get_user_model;
+        User = get_user_model();
+        if not User.objects.filter(username='reconpoint').exists():
+            User.objects.create_superuser('reconpoint', 'reconpoint@example.com', 'reconpoint');
+            print('Superuser created')
+        else:
+            print('Superuser already exists')
+      \" && echo 'Starting Django development server...' && python manage.py runserver 0.0.0.0:8000 "
+    volumes:
+      - ./web:/workspaces/reconpoint/web
+      - dev_cache:/dev_cache
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      neo4j:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health/", "||", "exit", "1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - reconpoint_network
+
+  # ============================================
+  # Celery Worker - Development
+  # ============================================
+  celery:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    restart: unless-stopped
+    environment:
+      DEBUG: "true"
+      LOGLEVEL: "DEBUG"
+    command: >
+      bash -c " echo 'Waiting for PostgreSQL...' && while ! nc -z db 5432; do sleep 1; done && echo 'PostgreSQL is ready!' && echo 'Starting Celery worker...' && celery -A reconPoint worker -l DEBUG --logfile=/tmp/celery.log --max-tasks-per-child=100 -c 4 "
+    volumes:
+      - ./web:/workspaces/reconpoint/web
+      - celery_logs:/tmp
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - reconpoint_network
+
+  # ============================================
+  # Celery Beat - Development
+  # ============================================
+  celery-beat:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    restart: unless-stopped
+    environment:
+      DEBUG: "true"
+      LOGLEVEL: "DEBUG"
+    command: >
+      bash -c " echo 'Waiting for PostgreSQL...' && while ! nc -z db 5432; do sleep 1; done && echo 'PostgreSQL is ready!' && echo 'Starting Celery Beat...' && celery -A reconPoint beat -l DEBUG --logfile=/tmp/celery-beat.log --scheduler django_celery_beat.schedulers:DatabaseScheduler "
+    volumes:
+      - ./web:/workspaces/reconpoint/web
+      - celery_logs:/tmp
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - reconpoint_network
+
+  # ============================================
+  # Flower - Celery Monitoring (Optional)
+  # ============================================
+  flower:
+    image: mher/flower:2.0
+    restart: unless-stopped
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    command: celery -A reconPoint flower --port=5555 --broker_api=redis://redis:6379/0
+    ports:
+      - "127.0.0.1:5555:5555"
+    depends_on:
+      - redis
+      - celery
+    networks:
+      - reconpoint_network
+
+  # ============================================
+  # Mailhog - Email Testing (Optional)
+  # ============================================
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+    networks:
+      - reconpoint_network
+
+  # ============================================
+  # Ollama - Local LLM (Optional)
+  # ============================================
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    networks:
+      - reconpoint_network
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  reconpoint_network:
+    name: reconpoint_network
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  dev_cache:
+  celery_logs:
+  ollama_data:

@@ -1,0 +1,202 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Django: Runserver",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/web/manage.py",
+            "args": [
+                "runserver",
+                "0.0.0.0:8000"
+            ],
+            "django": true,
+            "jinja": true,
+            "justMyCode": true,
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/web",
+                "DJANGO_SETTINGS_MODULE": "reconPoint.settings",
+                "DEBUG": "true"
+            },
+            "cwd": "${workspaceFolder}/web",
+            "presentation": {
+                "hidden": false,
+                "group": "Django",
+                "order": 1
+            }
+        },
+        {
+            "name": "Django: Shell Plus",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/web/manage.py",
+            "args": [
+                "shell_plus",
+                "--ipython"
+            ],
+            "django": true,
+            "jinja": true,
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/web",
+                "DJANGO_SETTINGS_MODULE": "reconPoint.settings"
+            },
+            "cwd": "${workspaceFolder}/web",
+            "presentation": {
+                "hidden": false,
+                "group": "Django",
+                "order": 2
+            }
+        },
+        {
+            "name": "Django: Tests",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/web/manage.py",
+            "args": [
+                "test",
+                "--verbosity=2"
+            ],
+            "django": true,
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/web",
+                "DJANGO_SETTINGS_MODULE": "reconPoint.settings"
+            },
+            "cwd": "${workspaceFolder}/web",
+            "presentation": {
+                "hidden": false,
+                "group": "Tests",
+                "order": 1
+            }
+        },
+        {
+            "name": "Pytest: All Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-v",
+                "--tb=short",
+                "web/tests/",
+                "web/dashboard/tests.py",
+                "web/startScan/tests.py"
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/web",
+                "DJANGO_SETTINGS_MODULE": "reconPoint.settings"
+            },
+            "cwd": "${workspaceFolder}",
+            "presentation": {
+                "hidden": false,
+                "group": "Tests",
+                "order": 2
+            }
+        },
+        {
+            "name": "Pytest: Current File",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-v",
+                "--tb=short",
+                "${file}"
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/web",
+                "DJANGO_SETTINGS_MODULE": "reconPoint.settings"
+            },
+            "cwd": "${workspaceFolder}",
+            "presentation": {
+                "hidden": false,
+                "group": "Tests",
+                "order": 3
+            }
+        },
+        {
+            "name": "Celery: Worker",
+            "type": "python",
+            "request": "launch",
+            "module": "celery",
+            "args": [
+                "-A",
+                "reconPoint",
+                "worker",
+                "-l",
+                "DEBUG"
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/web",
+                "DJANGO_SETTINGS_MODULE": "reconPoint.settings"
+            },
+            "cwd": "${workspaceFolder}/web",
+            "presentation": {
+                "hidden": false,
+                "group": "Celery",
+                "order": 1
+            }
+        },
+        {
+            "name": "Celery: Beat",
+            "type": "python",
+            "request": "launch",
+            "module": "celery",
+            "args": [
+                "-A",
+                "reconPoint",
+                "beat",
+                "-l",
+                "DEBUG",
+                "--scheduler",
+                "django_celery_beat.schedulers:DatabaseScheduler"
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/web",
+                "DJANGO_SETTINGS_MODULE": "reconPoint.settings"
+            },
+            "cwd": "${workspaceFolder}/web",
+            "presentation": {
+                "hidden": false,
+                "group": "Celery",
+                "order": 2
+            }
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/web"
+            },
+            "presentation": {
+                "hidden": false,
+                "group": "Python",
+                "order": 1
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full Stack (Django + Celery + Beat)",
+            "configurations": [
+                "Django: Runserver",
+                "Celery: Worker",
+                "Celery: Beat"
+            ],
+            "presentation": {
+                "hidden": false,
+                "group": "Compounds",
+                "order": 1
+            }
+        }
+    ]
+}

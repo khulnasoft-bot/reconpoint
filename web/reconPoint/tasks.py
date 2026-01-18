@@ -1335,7 +1335,7 @@ def port_scan(self, hosts=[], ctx={}, description=None):
 	cmd += f' -proxy "{proxy}"' if proxy else ''
 	cmd += f' -c {threads}' if threads else ''
 	cmd += f' -rate {rate_limit}' if rate_limit > 0 else ''
-	cmd += f' -timeout {timeout*1000}' if timeout > 0 else ''
+	cmd += f' -timeout {timeout}s' if timeout > 0 else ''
 	cmd += f' -passive' if passive else ''
 	cmd += f' -exclude-ports {exclude_ports_str}' if exclude_ports else ''
 	cmd += f' -silent'
@@ -3644,7 +3644,7 @@ def parse_nuclei_result(line):
 		'type': line['type'],
 		'severity': NUCLEI_SEVERITY_MAP[line['info'].get('severity', 'unknown')],
 		'template': line['template'],
-		'template_url': line['template-url'],
+		'template_url': line.get('template-url', []),
 		'template_id': line['template-id'],
 		'description': line['info'].get('description', ''),
 		'matcher_name': line.get('matcher-name', ''),
@@ -4215,12 +4215,16 @@ def get_and_save_dork_results(lookup_target, results_dir, type, lookup_keywords=
 	"""
 	results = []
 	gofuzz_command = f'{GOFUZZ_EXEC_PATH} -t {lookup_target} -d {delay} -p {page_count}'
+	proxy = get_random_proxy()
 
 	if lookup_extensions:
 		gofuzz_command += f' -e {lookup_extensions}'
 	elif lookup_keywords:
 		gofuzz_command += f' -w {lookup_keywords}'
 
+	if proxy:
+		gofuzz_command += f' -r {proxy}'
+		
 	output_file = f'{results_dir}/gofuzz.txt'
 	gofuzz_command += f' -o {output_file}'
 	history_file = f'{results_dir}/commands.txt'
@@ -4690,3 +4694,12 @@ def llm_vulnerability_description(vulnerability_id):
 			vuln.save()
 
 	return response
+
+
+@app.task(name='handle_scan_completion', bind=False, queue='default')
+def handle_scan_completion(scan_history_id):
+    """Handle scan completion event - trigger downstream processing."""
+    logger.info(f"Handling scan completion for scan {scan_history_id}")
+    # Example: Trigger GPT analysis or notifications
+    # For now, just log
+    pass

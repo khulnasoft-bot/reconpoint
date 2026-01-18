@@ -48,6 +48,7 @@ class ScanHistory(models.Model):
 	dorks = models.ManyToManyField('Dork', related_name='dorks', blank=True)
 	initiated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='initiated_scans', blank=True, null=True)
 	aborted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='aborted_scans')
+	tenant_id = models.CharField(max_length=100, blank=True, null=True)  # For multi-tenant isolation
 	# scan related configs, prefix config fields with cfg_
 	cfg_out_of_scope_subdomains = ArrayField(
 		models.CharField(max_length=200),
@@ -97,6 +98,12 @@ class ScanHistory(models.Model):
 		new_subdomains = scanned_host_q2.difference(scanned_host_q1).count()
 		removed_subdomains = scanned_host_q1.difference(scanned_host_q2).count()
 		return [new_subdomains, removed_subdomains]
+
+	class Meta:
+		indexes = [
+			models.Index(fields=['domain', 'scan_status']),
+			models.Index(fields=['start_scan_date']),
+		]
 
 
 	def get_endpoint_count(self):
@@ -329,6 +336,13 @@ class Subdomain(models.Model):
 			.count()
 		)
 
+	class Meta:
+		indexes = [
+			models.Index(fields=['scan_history', 'name']),
+			models.Index(fields=['target_domain']),
+			models.Index(fields=['http_status']),
+		]
+
 
 class SubScan(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -492,6 +506,8 @@ class Vulnerability(models.Model):
 	is_gpt_used = models.BooleanField(null=True, blank=True, default=False)
 	# used for subscans
 	vuln_subscan_ids = models.ManyToManyField('SubScan', related_name='vuln_subscan_ids', blank=True)
+	# ML false positive confidence score (0-1, higher means more likely false positive)
+	fp_confidence_score = models.FloatField(null=True, blank=True, default=None)
 
 	def __str__(self):
 		cve_str = ', '.join(f'`{cve.name}`' for cve in self.cve_ids.all())
@@ -515,6 +531,13 @@ class Vulnerability(models.Model):
 
 	def get_path(self):
 		return urlparse(self.http_url).path
+
+	class Meta:
+		indexes = [
+			models.Index(fields=['scan_history', 'severity']),
+			models.Index(fields=['name']),
+			models.Index(fields=['subdomain']),
+		]
 
 
 class ScanActivity(models.Model):

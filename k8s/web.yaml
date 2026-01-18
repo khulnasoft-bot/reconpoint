@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reconpoint-web
+  namespace: reconpoint
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: reconpoint-web
+  template:
+    metadata:
+      labels:
+        app: reconpoint-web
+    spec:
+      containers:
+      - name: reconpoint-web
+        image: khulnasoft/reconpoint:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: reconpoint-config
+        - secretRef:
+            name: reconpoint-secrets
+        volumeMounts:
+        - name: scan-results
+          mountPath: /usr/src/scan_results
+        - name: static-files
+          mountPath: /usr/src/app/staticfiles
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /login/
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /login/
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: scan-results
+        persistentVolumeClaim:
+          claimName: scan-results-pvc
+      - name: static-files
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reconpoint-web-service
+  namespace: reconpoint
+spec:
+  selector:
+    app: reconpoint-web
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: reconpoint-ingress
+  namespace: reconpoint
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - reconpoint.example.com
+    secretName: reconpoint-tls
+  rules:
+  - host: reconpoint.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: reconpoint-web-service
+            port:
+              number: 80

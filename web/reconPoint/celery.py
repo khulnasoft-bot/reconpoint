@@ -5,7 +5,7 @@ from celery import Celery
 from celery.signals import setup_logging
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reconPoint.settings')
-django.setup()
+
 
 # Celery app
 app = Celery('reconPoint')

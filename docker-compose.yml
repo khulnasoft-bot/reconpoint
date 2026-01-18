@@ -21,9 +21,23 @@ services:
     networks:
       - reconpoint_network
 
+  neo4j:
+    restart: always
+    image: "neo4j:5.18"
+    environment:
+      - NEO4J_AUTH=neo4j/password
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - reconpoint_network
+
   celery:
     build:
       context: ./web
+      dockerfile: Dockerfile.slim
     restart: always
     entrypoint: /usr/src/app/celery-entrypoint.sh
     # command: celery -A reconPoint worker --autoscale=${MAX_CONCURRENCY},${MIN_CONCURRENCY} -l INFO
@@ -55,7 +69,9 @@ services:
       - reconpoint_network
 
   celery-beat:
-    build: ./web
+    build:
+      context: ./web
+      dockerfile: Dockerfile.slim
     entrypoint: /usr/src/app/beat-entrypoint.sh
     command: celery -A reconPoint beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
     environment:
@@ -82,6 +98,7 @@ services:
   web:
     build:
       context: ./web
+      dockerfile: Dockerfile.slim
     entrypoint: /usr/src/app/entrypoint.sh
     restart: always
     image: khulnasoft/reconpoint:latest
@@ -155,6 +172,7 @@ networks:
 volumes:
   tool_config:
   postgres_data:
+  neo4j_data:
   gf_patterns:
   nuclei_templates:
   github_repos:

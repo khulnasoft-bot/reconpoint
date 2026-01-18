@@ -1,0 +1,195 @@
+{
+    "name": "ReconPoint Django Dev",
+    "description": "Production-ready development environment for ReconPoint Django project",
+    "dockerComposeFile": [
+        "docker-compose.yml",
+        "docker-compose.devcontainer.yml"
+    ],
+    "service": "web",
+    "workspaceFolder": "/workspaces/reconpoint",
+    // ============================================
+    // Container Runtime Configuration
+    // ============================================
+    "runArgs": [
+        "--name=reconpoint-dev",
+        "--cap-add=NET_ADMIN",
+        "--cap-add=NET_RAW"
+    ],
+    // ============================================
+    // VS Code Settings
+    // ============================================
+    "customizations": {
+        "vscode": {
+            "settings": {
+                // Python configuration
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": false,
+                "python.linting.flake8Enabled": true,
+                "python.linting.flake8Args": [
+                    "--max-line-length=88",
+                    "--extend-ignore=E203,W503"
+                ],
+                "python.formatting.provider": "black",
+                "python.formatting.blackArgs": [
+                    "--line-length=88"
+                ],
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.python",
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports": "explicit"
+                    }
+                },
+                // Django configuration
+                "django.pythonPath": "/usr/local/bin/python",
+                "django.projectPath": "web",
+                "django.enableDjangoShell": true,
+                "django.enableModelsShell": true,
+                // Editor settings
+                "editor.rulers": [
+                    88
+                ],
+                "editor.wordWrap": "on",
+                "editor.formatOnSave": true,
+                "files.trimTrailingWhitespace": true,
+                "files.insertFinalNewline": true,
+                // Database
+                "sqltools.connections": [
+                    {
+                        "name": "ReconPoint PostgreSQL",
+                        "driver": "PostgreSQL",
+                        "previewLimit": 50,
+                        "server": "db",
+                        "port": 5432,
+                        "database": "${POSTGRES_DB}",
+                        "username": "${POSTGRES_USER}",
+                        "password": "${POSTGRES_PASSWORD}",
+                        "isConnected": false,
+                        "group": "PostgreSQL",
+                        "dialect": "postgres"
+                    }
+                ]
+            },
+            // ============================================
+            // VS Code Extensions
+            // ============================================
+            "extensions": [
+                // Python & Django
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.debugpy",
+                "batisteo.vscode-django",
+                "ms-python.black-formatter",
+                "ms-python.flake8",
+                // Database & SQL
+                "mtxr.sqltools",
+                "mtxr.sqltools-driver-pg",
+                "cweijan.dbg-for-mysql",
+                // REST API Testing
+                "humao.rest-client",
+                "thunder-client.thunder-client",
+                // Version Control
+                "eamodio.gitlens",
+                "mhutchie.git-graph",
+                // Code Quality
+                "sonarsource.sonarlint-vscode",
+                "gruntfuggly.todo-tree",
+                "egghead.better-comments",
+                // Docker
+                "ms-azuretools.vscode-docker",
+                // Productivity
+                "ms-vscode.makefile-tools",
+                "ms-vscode-remote.remote-containers",
+                "ms-vscode.remote-explorer",
+                "charliermarsh.ruff",
+                "charliermarsh.ruff-lsp"
+            ]
+        }
+    },
+    // ============================================
+    // Environment Variables
+    // ============================================
+    "remoteEnv": {
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "DJANGO_SETTINGS_MODULE": "reconPoint.settings",
+        "DEBUG": "true",
+        "TEMPLATE_DEBUG": "true"
+    },
+    // ============================================
+    // Port Forwarding
+    // ============================================
+    "forwardPorts": [
+        8000,
+        5432,
+        6379,
+        7474,
+        7687,
+        11434
+    ],
+    "portsAttributes": {
+        "8000": {
+            "label": "Django Dev Server",
+            "onAutoForward": "notify"
+        },
+        "5432": {
+            "label": "PostgreSQL",
+            "onAutoForward": "silent"
+        },
+        "6379": {
+            "label": "Redis",
+            "onAutoForward": "silent"
+        },
+        "7474": {
+            "label": "Neo4j Browser",
+            "onAutoForward": "notify"
+        },
+        "7687": {
+            "label": "Neo4j Bolt",
+            "onAutoForward": "silent"
+        },
+        "11434": {
+            "label": "Ollama API",
+            "onAutoForward": "notify"
+        }
+    },
+    // ============================================
+    // Post-Creation Commands
+    // ============================================
+    "postCreateCommand": ".devcontainer/post-create.sh",
+    // ============================================
+    // Dev Container Features (optional, future use)
+    // ============================================
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {}
+    },
+    // ============================================
+    // Volume Mounts (in addition to docker-compose)
+    // ============================================
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/root/.ssh,readonly",
+        "source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,readonly",
+        "source=/var/run/docker.sock,target=/var/run/docker.sock"
+    ],
+    // ============================================
+    // Lifecycle Hooks
+    // ============================================
+    "initializeCommand": ".devcontainer/initialize.sh || true",
+    "onCreateCommand": "echo 'Dev container starting...'",
+    // ============================================
+    // Additional Configuration
+    // ============================================
+    "remoteUser": "app",
+    "overrideCommand": false,
+    "userEnvProbe": "interactiveShellLogin",
+    "remoteBaseImage": "python:3.10-slim",
+    // Uncomment to use a local Dockerfile instead
+    // "build": {
+    //   "dockerfile": "Dockerfile",
+    //   "context": ".",
+    //   "args": {
+    //     "VARIANT": "3.10"
+    //   }
+    // }
+}

@@ -155,6 +155,7 @@ class Domain(models.Model):
 	request_headers = models.JSONField(null=True, blank=True)
 	domain_info = models.ForeignKey(DomainInfo, on_delete=models.CASCADE, null=True, blank=True)
 	project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=False)
+	tenant_id = models.CharField(max_length=100, blank=True, null=True)  # For multi-tenant isolation
 
 	def get_organization(self):
 		return Organization.objects.filter(domains__id=self.id)

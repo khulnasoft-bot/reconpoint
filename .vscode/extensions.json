@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "batisteo.vscode-django",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "eamodio.gitlens",
+        "ms-vscode.vscode-json",
+        "ms-vscode-remote.remote-containers"
+    ]
+}

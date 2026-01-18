@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker
+  namespace: reconpoint
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: celery-worker
+  template:
+    metadata:
+      labels:
+        app: celery-worker
+    spec:
+      containers:
+      - name: celery-worker
+        image: khulnasoft/reconpoint:latest
+        command: ["celery", "-A", "reconPoint", "worker", "--autoscale=10,3", "-l", "INFO", "-Q", "celery"]
+        envFrom:
+        - configMapRef:
+            name: reconpoint-config
+        - secretRef:
+            name: reconpoint-secrets
+        volumeMounts:
+        - name: scan-results
+          mountPath: /usr/src/scan_results
+        - name: wordlists
+          mountPath: /usr/src/wordlist
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+      volumes:
+      - name: scan-results
+        persistentVolumeClaim:
+          claimName: scan-results-pvc
+      - name: wordlists
+        persistentVolumeClaim:
+          claimName: wordlists-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-beat
+  namespace: reconpoint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery-beat
+  template:
+    metadata:
+      labels:
+        app: celery-beat
+    spec:
+      containers:
+      - name: celery-beat
+        image: khulnasoft/reconpoint:latest
+        command: ["celery", "-A", "reconPoint", "beat", "-l", "INFO", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
+        envFrom:
+        - configMapRef:
+            name: reconpoint-config
+        - secretRef:
+            name: reconpoint-secrets
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neo4j
+  namespace: reconpoint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: neo4j
+  template:
+    metadata:
+      labels:
+        app: neo4j
+    spec:
+      containers:
+      - name: neo4j
+        image: neo4j:5.18
+        ports:
+        - containerPort: 7474
+        - containerPort: 7687
+        env:
+        - name: NEO4J_AUTH
+          value: "neo4j/password"
+        volumeMounts:
+        - name: neo4j-storage
+          mountPath: /data
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+      volumes:
+      - name: neo4j-storage
+        persistentVolumeClaim:
+          claimName: neo4j-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: neo4j-service
+  namespace: reconpoint
+spec:
+  selector:
+    app: neo4j
+  ports:
+  - name: http
+    port: 7474
+    targetPort: 7474
+  - name: bolt
+    port: 7687
+    targetPort: 7687

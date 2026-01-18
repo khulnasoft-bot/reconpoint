@@ -60,6 +60,7 @@ urlpatterns = [
         serve_protected_media, 
         name='serve_protected_media'
     ),
+    path('', include('two_factor.urls', 'two_factor')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 # ] + static(settings.MEDIA_URL, document_root=settings.RECONPOINT_RESULTS) + \
     

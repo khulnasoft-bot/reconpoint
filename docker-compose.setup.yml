@@ -1,6 +1,10 @@
 services:
   certs:
-    build: ./certs
+    build:
+      context: ./certs
+      platforms:
+        - linux/amd64
+        - linux/arm64
     environment:
       - AUTHORITY_NAME=${AUTHORITY_NAME:-CA}
       - AUTHORITY_PASSWORD=${AUTHORITY_PASSWORD:-CHANGE_IT}

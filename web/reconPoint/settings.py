@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 environ.Env.read_env(os.path.join(BASE_DIR, os.pardir, '.env'))
 
 # Root env vars
-RECONPOINT_HOME = env('RECONPOINT_HOME', default='/usr/src/app')
+RECONPOINT_HOME = env('RECONPOINT_HOME', default=os.path.join(BASE_DIR, os.pardir))
 RECONPOINT_RESULTS = env('RECONPOINT_RESULTS', default=f'{RECONPOINT_HOME}/scan_results')
 RECONPOINT_CACHE_ENABLED = env.bool('RECONPOINT_CACHE_ENABLED', default=False)
 RECONPOINT_RECORD_ENABLED = env.bool('RECONPOINT_RECORD_ENABLED', default=True)
@@ -67,10 +67,16 @@ DATABASES = {
         'PASSWORD': env('POSTGRES_PASSWORD'),
         'HOST': env('POSTGRES_HOST'),
         'PORT': env('POSTGRES_PORT'),
-        # 'OPTIONS':{
-        #     'sslmode':'verify-full',
-        #     'sslrootcert': os.path.join(BASE_DIR, 'ca-certificate.crt')
-        # }
+        'OPTIONS': {
+            'sslmode': 'prefer',  # Changed from verify-full for performance
+            # Performance optimizations
+            'keepalives': 1,
+            'keepalives_idle': 30,
+            'keepalives_interval': 10,
+            'keepalives_count': 5,
+        },
+        'CONN_MAX_AGE': 60,  # Reuse connections for 60 seconds
+        'AUTOCOMMIT': True,
     }
 }
 
@@ -94,7 +100,13 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'mathfilters',
     'drf_yasg',
-    'rolepermissions'
+    'rolepermissions',
+    'django_otp',
+    'django_otp.plugins.otp_totp',
+    'two_factor',
+    'channels',
+    'compliance.apps.ComplianceConfig',
+    'reconPoint.apps.ReconPointConfig',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -140,6 +152,16 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 500,
 }
 WSGI_APPLICATION = 'reconPoint.wsgi.application'
+ASGI_APPLICATION = 'reconPoint.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('redis', 6379)],
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -189,8 +211,26 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'onboarding'
 LOGOUT_REDIRECT_URL = 'login'
 
+# Session hardening
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 3600  # 1 hour
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+
 # Tool Location
 TOOL_LOCATION = '/usr/src/app/tools/'
+
+# Neo4j settings
+NEO4J_URI = env('NEO4J_URI', default='bolt://neo4j:7687')
+NEO4J_USER = env('NEO4J_USER', default='neo4j')
+NEO4J_PASSWORD = env('NEO4J_PASSWORD', default='password')
 
 # Number of endpoints that have the same content_length
 DELETE_DUPLICATES_THRESHOLD = 10
@@ -339,7 +379,15 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 '''
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': env('REDIS_URL', default='redis://redis:6379/1'),
         'TIMEOUT': 60 * 30,  # 30 minutes caching will be used
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 20,
+                'decode_responses': True,
+            },
+        }
     }
 }
