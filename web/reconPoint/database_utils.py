@@ -1,178 +1,183 @@
-import re
-import validators
 import logging
-
+import re
 from urllib.parse import urlparse
+
+import validators
 from django.db import transaction
 from django.utils import timezone
 
 from dashboard.models import Project
-from targetApp.models import Organization, Domain
-from startScan.models import EndPoint, IpAddress
 from reconPoint.common_func import *
+from startScan.models import EndPoint, IpAddress
+from targetApp.models import Domain, Organization
 
 logger = logging.getLogger(__name__)
 
+
 @transaction.atomic
 def bulk_import_targets(
-	targets: list[dict], 
-	project_slug: str, 
-	organization_name: str = None, 
-	org_description: str = None, 
-	h1_team_handle: str = None):
-	""" 
-		Used to import targets in reconPoint
+    targets: list[dict],
+    project_slug: str,
+    organization_name: str = None,
+    org_description: str = None,
+    h1_team_handle: str = None,
+):
+    """
+    Used to import targets in reconPoint
 
-		Args:
-			targets (list[dict]): list of targets to import, [{'target': 'target1.com', 'description': 'desc1'}, ...]
-			project_slug (str): slug of the project
-			organization_name (str): name of the organization to tag these targets
-			org_description (str): description of the organization
-			h1_team_handle (str): hackerone team handle (if imported from hackerone)
-	"""
-	new_targets_imported = False
-	project = Project.objects.get(slug=project_slug)
+    Args:
+            targets (list[dict]): list of targets to import, [{'target': 'target1.com', 'description': 'desc1'}, ...]
+            project_slug (str): slug of the project
+            organization_name (str): name of the organization to tag these targets
+            org_description (str): description of the organization
+            h1_team_handle (str): hackerone team handle (if imported from hackerone)
+    """
+    new_targets_imported = False
+    project = Project.objects.get(slug=project_slug)
 
-	all_targets = []
+    all_targets = []
 
-	for target in targets:
-		name = target.get('name', '').strip()
-		description = target.get('description', '')
-		
-		if not name:
-			logger.warning(f"Skipping target with empty name")
-			continue
-		
-		is_domain = validators.domain(name)
-		is_ip = validators.ipv4(name) or validators.ipv6(name)
-		is_url = validators.url(name)
+    for target in targets:
+        name = target.get("name", "").strip()
+        description = target.get("description", "")
 
-		logger.info(f'{name} | Domain? {is_domain} | IP? {is_ip} | URL? {is_url}')
+        if not name:
+            logger.warning(f"Skipping target with empty name")
+            continue
 
-		if is_domain:
-			target_obj = store_domain(name, project, description, h1_team_handle)
-		elif is_url:
-			target_obj = store_url(name, project, description, h1_team_handle)
-		elif is_ip:
-			target_obj = store_ip(name, project, description, h1_team_handle)
-		else:
-			logger.warning(f'{name} is not supported by reconPoint')
-			continue
+        is_domain = validators.domain(name)
+        is_ip = validators.ipv4(name) or validators.ipv6(name)
+        is_url = validators.url(name)
 
-		if target_obj:
-			all_targets.append(target_obj)
-			new_targets_imported = True
+        logger.info(f"{name} | Domain? {is_domain} | IP? {is_ip} | URL? {is_url}")
 
-		if organization_name and all_targets:
-			org_name = organization_name.strip()
-			org, created = Organization.objects.get_or_create(
-				name=org_name,
-				defaults={
-					'project': project,
-					'description': org_description or '',
-					'insert_date': timezone.now()
-				}
-			)
+        if is_domain:
+            target_obj = store_domain(name, project, description, h1_team_handle)
+        elif is_url:
+            target_obj = store_url(name, project, description, h1_team_handle)
+        elif is_ip:
+            target_obj = store_ip(name, project, description, h1_team_handle)
+        else:
+            logger.warning(f"{name} is not supported by reconPoint")
+            continue
 
-			if not created:
-				org.project = project
-				if org_description:
-					org.description = org_description
-				if org.insert_date is None:
-					org.insert_date = timezone.now()
-				org.save()
+        if target_obj:
+            all_targets.append(target_obj)
+            new_targets_imported = True
 
-			# Associate all targets with the organization
-			for target in all_targets:
-				org.domains.add(target)
+        if organization_name and all_targets:
+            org_name = organization_name.strip()
+            org, created = Organization.objects.get_or_create(
+                name=org_name,
+                defaults={
+                    "project": project,
+                    "description": org_description or "",
+                    "insert_date": timezone.now(),
+                },
+            )
 
-			logger.info(f"{'Created' if created else 'Updated'} organization {org_name} with {len(all_targets)} targets")
+            if not created:
+                org.project = project
+                if org_description:
+                    org.description = org_description
+                if org.insert_date is None:
+                    org.insert_date = timezone.now()
+                org.save()
 
-	return new_targets_imported
+            # Associate all targets with the organization
+            for target in all_targets:
+                org.domains.add(target)
 
+            logger.info(
+                f"{'Created' if created else 'Updated'} organization {org_name} with {len(all_targets)} targets"
+            )
+
+    return new_targets_imported
 
 
 def remove_wildcard(input_string):
-	"""
-		Remove wildcard (*) from the beginning of the input string.
-		In future, we may find the meaning of wildcards and try to use in target configs such as out of scope etc
-	"""
-	return re.sub(r'^\*\.', '', input_string)
+    """
+    Remove wildcard (*) from the beginning of the input string.
+    In future, we may find the meaning of wildcards and try to use in target configs such as out of scope etc
+    """
+    return re.sub(r"^\*\.", "", input_string)
+
 
 def store_domain(domain_name, project, description, h1_team_handle):
-	"""
-		This function is used to store domain in reconPoint
-	"""
-	existing_domain = Domain.objects.filter(name=domain_name).first()
+    """
+    This function is used to store domain in reconPoint
+    """
+    existing_domain = Domain.objects.filter(name=domain_name).first()
 
-	if existing_domain:
-		logger.info(f'Domain {domain_name} already exists. skipping.')
-		return
-	
-	current_time = timezone.now()
+    if existing_domain:
+        logger.info(f"Domain {domain_name} already exists. skipping.")
+        return
 
-	new_domain = Domain.objects.create(
-		name=domain_name,
-		description=description,
-		h1_team_handle=h1_team_handle,
-		project=project,
-		insert_date=current_time
-	)
+    current_time = timezone.now()
 
-	logger.info(f'Added new domain {new_domain.name}')
+    new_domain = Domain.objects.create(
+        name=domain_name,
+        description=description,
+        h1_team_handle=h1_team_handle,
+        project=project,
+        insert_date=current_time,
+    )
 
-	return new_domain
+    logger.info(f"Added new domain {new_domain.name}")
+
+    return new_domain
+
 
 def store_url(url, project, description, h1_team_handle):
-	parsed_url = urlparse(url)
-	http_url = parsed_url.geturl()
-	domain_name = parsed_url.netloc
+    parsed_url = urlparse(url)
+    http_url = parsed_url.geturl()
+    domain_name = parsed_url.netloc
 
-	domain = Domain.objects.filter(name=domain_name).first()
+    domain = Domain.objects.filter(name=domain_name).first()
 
-	if domain:
-		logger.info(f'Domain {domain_name} already exists. skipping...')
+    if domain:
+        logger.info(f"Domain {domain_name} already exists. skipping...")
 
-	else:
-		domain = Domain.objects.create(
-			name=domain_name,
-			description=description,
-			h1_team_handle=h1_team_handle,
-			project=project,
-			insert_date=timezone.now()
-		)
-		logger.info(f'Added new domain {domain.name}')
+    else:
+        domain = Domain.objects.create(
+            name=domain_name,
+            description=description,
+            h1_team_handle=h1_team_handle,
+            project=project,
+            insert_date=timezone.now(),
+        )
+        logger.info(f"Added new domain {domain.name}")
 
-	EndPoint.objects.get_or_create(
-		target_domain=domain,
-		http_url=sanitize_url(http_url)
-	)
+    EndPoint.objects.get_or_create(
+        target_domain=domain, http_url=sanitize_url(http_url)
+    )
 
-	return domain
+    return domain
+
 
 def store_ip(ip_address, project, description, h1_team_handle):
 
-	domain = Domain.objects.filter(name=ip_address).first()
-	
-	if domain:
-		logger.info(f'Domain {ip_address} already exists. skipping...')
-	else:
-		domain = Domain.objects.create(
-			name=ip_address,
-			description=description,
-			h1_team_handle=h1_team_handle,
-			project=project,
-			insert_date=timezone.now(),
-			ip_address_cidr=ip_address
-		)
-		logger.info(f'Added new domain {domain.name}')
-	
-	ip_data = get_ip_info(ip_address)
-	ip_data = get_ip_info(ip_address)
-	ip, created = IpAddress.objects.get_or_create(address=ip_address)
-	ip.reverse_pointer = ip_data.reverse_pointer
-	ip.is_private = ip_data.is_private
-	ip.version = ip_data.version
-	ip.save()
+    domain = Domain.objects.filter(name=ip_address).first()
 
-	return domain
+    if domain:
+        logger.info(f"Domain {ip_address} already exists. skipping...")
+    else:
+        domain = Domain.objects.create(
+            name=ip_address,
+            description=description,
+            h1_team_handle=h1_team_handle,
+            project=project,
+            insert_date=timezone.now(),
+            ip_address_cidr=ip_address,
+        )
+        logger.info(f"Added new domain {domain.name}")
+
+    ip_data = get_ip_info(ip_address)
+    ip_data = get_ip_info(ip_address)
+    ip, created = IpAddress.objects.get_or_create(address=ip_address)
+    ip.reverse_pointer = ip_data.reverse_pointer
+    ip.is_private = ip_data.is_private
+    ip.version = ip_data.version
+    ip.save()
+
+    return domain

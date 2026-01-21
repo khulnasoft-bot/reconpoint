@@ -18,147 +18,150 @@ mimetypes.add_type("text/css", ".css", True)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Take environment variables from .env file
-environ.Env.read_env(os.path.join(BASE_DIR, os.pardir, '.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, os.pardir, ".env"))
 
 # Root env vars
-RECONPOINT_HOME = env('RECONPOINT_HOME', default=os.path.join(BASE_DIR, os.pardir))
-RECONPOINT_RESULTS = env('RECONPOINT_RESULTS', default=f'{RECONPOINT_HOME}/scan_results')
-RECONPOINT_CACHE_ENABLED = env.bool('RECONPOINT_CACHE_ENABLED', default=False)
-RECONPOINT_RECORD_ENABLED = env.bool('RECONPOINT_RECORD_ENABLED', default=True)
-RECONPOINT_RAISE_ON_ERROR = env.bool('RECONPOINT_RAISE_ON_ERROR', default=False)
+RECONPOINT_HOME = env("RECONPOINT_HOME", default=os.path.join(BASE_DIR, os.pardir))
+RECONPOINT_RESULTS = env(
+    "RECONPOINT_RESULTS", default=f"{RECONPOINT_HOME}/scan_results"
+)
+RECONPOINT_CACHE_ENABLED = env.bool("RECONPOINT_CACHE_ENABLED", default=False)
+RECONPOINT_RECORD_ENABLED = env.bool("RECONPOINT_RECORD_ENABLED", default=True)
+RECONPOINT_RAISE_ON_ERROR = env.bool("RECONPOINT_RAISE_ON_ERROR", default=False)
 
 # Common env vars
-DEBUG = env.bool('DEBUG', default=False)
-DOMAIN_NAME = env('DOMAIN_NAME', default='localhost:8000')
-TEMPLATE_DEBUG = env.bool('TEMPLATE_DEBUG', default=False)
-SECRET_FILE = os.path.join(RECONPOINT_HOME, 'secret')
-DEFAULT_ENABLE_HTTP_CRAWL = env.bool('DEFAULT_ENABLE_HTTP_CRAWL', default=True)
-DEFAULT_RATE_LIMIT = env.int('DEFAULT_RATE_LIMIT', default=150) # requests / second
-DEFAULT_HTTP_TIMEOUT = env.int('DEFAULT_HTTP_TIMEOUT', default=5) # seconds
-DEFAULT_RETRIES = env.int('DEFAULT_RETRIES', default=1)
-DEFAULT_THREADS = env.int('DEFAULT_THREADS', default=30)
-DEFAULT_GET_GPT_REPORT = env.bool('DEFAULT_GET_GPT_REPORT', default=True)
+DEBUG = env.bool("DEBUG", default=False)
+DOMAIN_NAME = env("DOMAIN_NAME", default="localhost:8000")
+TEMPLATE_DEBUG = env.bool("TEMPLATE_DEBUG", default=False)
+SECRET_FILE = os.path.join(RECONPOINT_HOME, "secret")
+DEFAULT_ENABLE_HTTP_CRAWL = env.bool("DEFAULT_ENABLE_HTTP_CRAWL", default=True)
+DEFAULT_RATE_LIMIT = env.int("DEFAULT_RATE_LIMIT", default=150)  # requests / second
+DEFAULT_HTTP_TIMEOUT = env.int("DEFAULT_HTTP_TIMEOUT", default=5)  # seconds
+DEFAULT_RETRIES = env.int("DEFAULT_RETRIES", default=1)
+DEFAULT_THREADS = env.int("DEFAULT_THREADS", default=30)
+DEFAULT_GET_GPT_REPORT = env.bool("DEFAULT_GET_GPT_REPORT", default=True)
 
 # Globals
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 SECRET_KEY = first_run(SECRET_FILE, BASE_DIR)
 
 # Reconpoint version
 # reads current version from a file called .version
-VERSION_FILE = os.path.join(BASE_DIR, '.version')
+VERSION_FILE = os.path.join(BASE_DIR, ".version")
 if os.path.exists(VERSION_FILE):
-    with open(VERSION_FILE, 'r') as f:
+    with open(VERSION_FILE, "r") as f:
         _version = f.read().strip()
 else:
-    _version = 'unknown'
+    _version = "unknown"
 
 # removes v from _version if exists
-if _version.startswith('v'):
+if _version.startswith("v"):
     _version = _version[1:]
 
 RECONPOINT_CURRENT_VERSION = _version
 
 # Databases
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('POSTGRES_DB'),
-        'USER': env('POSTGRES_USER'),
-        'PASSWORD': env('POSTGRES_PASSWORD'),
-        'HOST': env('POSTGRES_HOST'),
-        'PORT': env('POSTGRES_PORT'),
-        'OPTIONS': {
-            'sslmode': 'prefer',  # Changed from verify-full for performance
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env("POSTGRES_DB"),
+        "USER": env("POSTGRES_USER"),
+        "PASSWORD": env("POSTGRES_PASSWORD"),
+        "HOST": env("POSTGRES_HOST"),
+        "PORT": env("POSTGRES_PORT"),
+        "OPTIONS": {
+            "sslmode": "prefer",  # Changed from verify-full for performance
             # Performance optimizations
-            'keepalives': 1,
-            'keepalives_idle': 30,
-            'keepalives_interval': 10,
-            'keepalives_count': 5,
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5,
         },
-        'CONN_MAX_AGE': 60,  # Reuse connections for 60 seconds
-        'AUTOCOMMIT': True,
+        "CONN_MAX_AGE": 60,  # Reuse connections for 60 seconds
+        "AUTOCOMMIT": True,
     }
 }
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    'rest_framework',
-    'rest_framework_datatables',
-    'dashboard.apps.DashboardConfig',
-    'targetApp.apps.TargetappConfig',
-    'scanEngine.apps.ScanengineConfig',
-    'startScan.apps.StartscanConfig',
-    'recon_note.apps.ReconNoteConfig',
-    'django_ace',
-    'django_celery_beat',
-    'mathfilters',
-    'drf_yasg',
-    'rolepermissions',
-    'django_otp',
-    'django_otp.plugins.otp_totp',
-    'two_factor',
-    'channels',
-    'compliance.apps.ComplianceConfig',
-    'reconPoint.apps.ReconPointConfig',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.humanize",
+    "rest_framework",
+    "rest_framework_datatables",
+    "dashboard.apps.DashboardConfig",
+    "targetApp.apps.TargetappConfig",
+    "scanEngine.apps.ScanengineConfig",
+    "startScan.apps.StartscanConfig",
+    "recon_note.apps.ReconNoteConfig",
+    "django_ace",
+    "django_celery_beat",
+    "mathfilters",
+    "drf_yasg",
+    "rolepermissions",
+    "django_otp",
+    "django_otp.plugins.otp_totp",
+    "two_factor",
+    "channels",
+    "compliance.apps.ComplianceConfig",
+    "reconPoint.apps.ReconPointConfig",
 ]
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'login_required.middleware.LoginRequiredMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'reconPoint.middleware.UserPreferencesMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "login_required.middleware.LoginRequiredMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "reconPoint.middleware.UserPreferencesMiddleware",
 ]
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [(os.path.join(BASE_DIR, 'templates'))],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'reconPoint.context_processors.projects',
-                'reconPoint.context_processors.version_context',
-                'reconPoint.context_processors.user_preferences',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [(os.path.join(BASE_DIR, "templates"))],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "reconPoint.context_processors.projects",
+                "reconPoint.context_processors.version_context",
+                "reconPoint.context_processors.user_preferences",
             ],
-    },
-}]
-ROOT_URLCONF = 'reconPoint.urls'
+        },
+    }
+]
+ROOT_URLCONF = "reconPoint.urls"
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-        'rest_framework_datatables.renderers.DatatablesRenderer',
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+        "rest_framework_datatables.renderers.DatatablesRenderer",
     ),
-    'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework_datatables.filters.DatatablesFilterBackend',
+    "DEFAULT_FILTER_BACKENDS": (
+        "rest_framework_datatables.filters.DatatablesFilterBackend",
     ),
-    'DEFAULT_PAGINATION_CLASS':(
-        'rest_framework_datatables.pagination.DatatablesPageNumberPagination'
+    "DEFAULT_PAGINATION_CLASS": (
+        "rest_framework_datatables.pagination.DatatablesPageNumberPagination"
     ),
-    'PAGE_SIZE': 500,
+    "PAGE_SIZE": 500,
 }
-WSGI_APPLICATION = 'reconPoint.wsgi.application'
-ASGI_APPLICATION = 'reconPoint.asgi.application'
+WSGI_APPLICATION = "reconPoint.wsgi.application"
+ASGI_APPLICATION = "reconPoint.asgi.application"
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [('redis', 6379)],
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
         },
     },
 }
@@ -167,49 +170,46 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.' +
-                'UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation."
+        + "UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.' +
-                'MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation." + "MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.' +
-                'CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation." + "CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.' +
-                'NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation." + "NumericPasswordValidator",
     },
 ]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = '/usr/src/scan_results/'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = "/usr/src/scan_results/"
 FILE_UPLOAD_MAX_MEMORY_SIZE = 100000000
 FILE_UPLOAD_PERMISSIONS = 0o644
-STATIC_URL = '/staticfiles/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = "/staticfiles/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
 LOGIN_REQUIRED_IGNORE_VIEW_NAMES = [
-    'login',
+    "login",
 ]
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'onboarding'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "onboarding"
+LOGOUT_REDIRECT_URL = "login"
 
 # Session hardening
 SESSION_COOKIE_SECURE = True
@@ -222,172 +222,149 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
+X_FRAME_OPTIONS = "DENY"
 
 # Tool Location
-TOOL_LOCATION = '/usr/src/app/tools/'
+TOOL_LOCATION = "/usr/src/app/tools/"
 
 # Neo4j settings
-NEO4J_URI = env('NEO4J_URI', default='bolt://neo4j:7687')
-NEO4J_USER = env('NEO4J_USER', default='neo4j')
-NEO4J_PASSWORD = env('NEO4J_PASSWORD', default='password')
+NEO4J_URI = env("NEO4J_URI", default="bolt://neo4j:7687")
+NEO4J_USER = env("NEO4J_USER", default="neo4j")
+NEO4J_PASSWORD = env("NEO4J_PASSWORD", default="password")
 
 # Number of endpoints that have the same content_length
 DELETE_DUPLICATES_THRESHOLD = 10
 
-'''
+"""
 CELERY settings
-'''
+"""
 CELERY_BROKER_URL = env("CELERY_BROKER", default="redis://redis:6379/0")
 CELERY_RESULT_BACKEND = env("CELERY_BROKER", default="redis://redis:6379/0")
 CELERY_ENABLE_UTC = False
-CELERY_TIMEZONE = 'UTC'
+CELERY_TIMEZONE = "UTC"
 CELERY_IGNORE_RESULTS = False
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_TRACK_STARTED = True
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-'''
+"""
 ROLES and PERMISSIONS
-'''
-ROLEPERMISSIONS_MODULE = 'reconPoint.roles'
+"""
+ROLEPERMISSIONS_MODULE = "reconPoint.roles"
 ROLEPERMISSIONS_REDIRECT_TO_LOGIN = True
 
-'''
+"""
 Cache settings
-'''
-RECONPOINT_TASK_IGNORE_CACHE_KWARGS = ['ctx']
+"""
+RECONPOINT_TASK_IGNORE_CACHE_KWARGS = ["ctx"]
 
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-'''
+"""
 LOGGING settings
-'''
+"""
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': 'errors.log',
+    "version": 1,
+    "disable_existing_loggers": True,
+    "handlers": {
+        "file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": "errors.log",
         },
-        'null': {
-            'class': 'logging.NullHandler'
+        "null": {"class": "logging.NullHandler"},
+        "default": {
+            "class": "logging.StreamHandler",
+            "formatter": "default",
         },
-        'default': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'default',
+        "brief": {"class": "logging.StreamHandler", "formatter": "brief"},
+        "console": {"class": "logging.StreamHandler", "formatter": "brief"},
+        "task": {"class": "logging.StreamHandler", "formatter": "task"},
+        "db": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "brief",
+            "filename": "db.log",
+            "maxBytes": 1024,
+            "backupCount": 3,
         },
-        'brief': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'brief'
-        },
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'brief'
-        },
-        'task': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'task'
-        },
-        'db': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'brief',
-            'filename': 'db.log',
-            'maxBytes': 1024,
-            'backupCount': 3
-        },
-        'celery': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'simple',
-            'filename': 'celery.log',
-            'maxBytes': 1024 * 1024 * 100,  # 100 mb
+        "celery": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "simple",
+            "filename": "celery.log",
+            "maxBytes": 1024 * 1024 * 100,  # 100 mb
         },
     },
-    'formatters': {
-        'default': {
-            'format': '%(message)s'
+    "formatters": {
+        "default": {"format": "%(message)s"},
+        "brief": {"format": "%(name)-10s | %(message)s"},
+        "task": {
+            "()": lambda: ReconpointTaskFormatter(
+                "%(task_name)-34s | %(levelname)s | %(message)s"
+            )
         },
-        'brief': {
-            'format': '%(name)-10s | %(message)s'
+        "simple": {
+            "format": "%(levelname)s %(message)s",
+            "datefmt": "%y %b %d, %H:%M:%S",
         },
-        'task': {
-            '()': lambda : ReconpointTaskFormatter('%(task_name)-34s | %(levelname)s | %(message)s')
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s',
-            'datefmt': '%y %b %d, %H:%M:%S',
-        }
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'ERROR' if DEBUG else 'CRITICAL',
-            'propagate': True,
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "ERROR" if DEBUG else "CRITICAL",
+            "propagate": True,
         },
-        '': {
-            'handlers': ['brief'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
-            'propagate': False
+        "": {
+            "handlers": ["brief"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
         },
-        'celery': {
-            'handlers': ['celery'],
-            'level': 'DEBUG' if DEBUG else 'ERROR',
+        "celery": {
+            "handlers": ["celery"],
+            "level": "DEBUG" if DEBUG else "ERROR",
         },
-        'celery.app.trace': {
-            'handlers': ['null'],
-            'propagate': False,
+        "celery.app.trace": {
+            "handlers": ["null"],
+            "propagate": False,
         },
-        'celery.task': {
-            'handlers': ['task'],
-            'propagate': False
+        "celery.task": {"handlers": ["task"], "propagate": False},
+        "celery.worker": {
+            "handlers": ["null"],
+            "propagate": False,
         },
-        'celery.worker': {
-            'handlers': ['null'],
-            'propagate': False,
+        "django.server": {"handlers": ["console"], "propagate": False},
+        "django.db.backends": {"handlers": ["db"], "level": "INFO", "propagate": False},
+        "reconPoint.tasks": {
+            "handlers": ["task"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
         },
-        'django.server': {
-            'handlers': ['console'],
-            'propagate': False
+        "api.views": {
+            "handlers": ["console"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
         },
-        'django.db.backends': {
-            'handlers': ['db'],
-            'level': 'INFO',
-            'propagate': False
-        },
-        'reconPoint.tasks': {
-            'handlers': ['task'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
-            'propagate': False
-        },
-        'api.views': {
-            'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
-            'propagate': False
-        }
     },
 }
 
-'''
+"""
 File upload settings
-'''
+"""
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
-'''
+"""
     Caching Settings
-'''
+"""
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': env('REDIS_URL', default='redis://redis:6379/1'),
-        'TIMEOUT': 60 * 30,  # 30 minutes caching will be used
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'CONNECTION_POOL_KWARGS': {
-                'max_connections': 20,
-                'decode_responses': True,
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": env("REDIS_URL", default="redis://redis:6379/1"),
+        "TIMEOUT": 60 * 30,  # 30 minutes caching will be used
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 20,
+                "decode_responses": True,
             },
-        }
+        },
     }
 }

@@ -1,15 +1,15 @@
 import os
+
 import django
 
 # Configure Django settings before importing models
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reconPoint.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "reconPoint.settings")
 django.setup()
 
 # Pytest configuration fixtures
 import pytest
 from django.contrib.auth import get_user_model
 from django.test.client import Client
-
 
 User = get_user_model()
 
@@ -30,9 +30,7 @@ def client():
 def user():
     """Create a test user."""
     return User.objects.create_user(
-        username='testuser',
-        email='testuser@example.com',
-        password='testpass123'
+        username="testuser", email="testuser@example.com", password="testpass123"
     )
 
 
@@ -40,9 +38,7 @@ def user():
 def admin_user():
     """Create a test admin user."""
     return User.objects.create_superuser(
-        username='admin',
-        email='admin@example.com',
-        password='adminpass123'
+        username="admin", email="admin@example.com", password="adminpass123"
     )
 
 

@@ -1,5 +1,6 @@
-from dashboard.models import *
 from django.contrib import admin
+
+from dashboard.models import *
 
 admin.site.register(SearchHistory)
 admin.site.register(Project)

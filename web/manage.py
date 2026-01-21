@@ -5,11 +5,11 @@ import sys
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reconPoint.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "reconPoint.settings")
     # show reconpoint artwork
-    f = open('art/reconPoint.txt', 'r')
+    f = open("art/reconPoint.txt", "r")
     file_contents = f.read()
-    print (file_contents)
+    print(file_contents)
     f.close()
     try:
         from django.core.management import execute_from_command_line
@@ -22,5 +22,5 @@ def main():
     execute_from_command_line(sys.argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
