@@ -1,8 +1,10 @@
-import os
 import mimetypes
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, Http404
+import os
+
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.http import Http404, HttpResponse
+
 
 @login_required
 def serve_protected_media(request, path):
@@ -12,9 +14,8 @@ def serve_protected_media(request, path):
     if os.path.exists(file_path):
         content_type, _ = mimetypes.guess_type(file_path)
         response = HttpResponse()
-        response['Content-Type'] = content_type
-        response['X-Accel-Redirect'] = f'/protected_media/{path}'
+        response["Content-Type"] = content_type
+        response["X-Accel-Redirect"] = f"/protected_media/{path}"
         return response
     else:
         raise Http404("File not found")
-

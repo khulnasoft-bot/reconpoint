@@ -1,97 +1,62 @@
 # syntax=docker/dockerfile:1
 
-# --- Base Stage ---
-FROM python:3.10-slim as base
+# --- Go Builder Stage ---
+FROM --platform=$BUILDPLATFORM golang:1.21-bullseye AS go-builder
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV DEBIAN_FRONTEND=noninteractive
+ARG TARGETARCH
+ENV GOOS=linux
+ENV GOARCH=$TARGETARCH
+ENV CGO_ENABLED=0
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    tini \
-    # required for psycopg2
-    libpq-dev \
-    # WeasyPrint dependencies
-    libcairo2 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libgdk-pixbuf-2.0-0 \
-    shared-mime-info \
-    libjpeg-dev \
-    zlib1g-dev \
-    libpng-dev \
-    libexif-dev \
-    libgobject-2.0-0 \
-    libffi-dev \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-tools \
-    gstreamer1.0-x \
-    # other dependencies
-    nmap \
-    # cleanup
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-# --- Builder Stage ---
-FROM base as builder
-
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    curl \
-    git \
-    libpcap-dev \
-    # cleanup
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install Go
-ARG GOVERSION=1.21.5
-RUN curl -s -L -o /tmp/go.tar.gz https://go.dev/dl/go${GOVERSION}.linux-amd64.tar.gz \
-    && tar -xzC /usr/local -f /tmp/go.tar.gz \
-    && rm /tmp/go.tar.gz
-ENV GOROOT="/usr/local/go"
-ENV GOPATH=$HOME/go
-ENV PATH="${PATH}:${GOROOT}/bin:${GOPATH}/bin"
-
-# Install Go packages
-WORKDIR /usr/src/app
-ENV GO111MODULE=on
-RUN set -eux; \
-    go install github.com/jaeles-project/gospider@latest; \
-    go install github.com/tomnomnom/gf@latest; \
-    go install github.com/tomnomnom/unfurl@latest; \
-    go install github.com/tomnomnom/waybackurls@latest; \
-    go install github.com/projectdiscovery/httpx/cmd/httpx@latest; \
-    go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest; \
-    go install github.com/projectdiscovery/chaos-client/cmd/chaos@latest; \
-    go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest; \
-    go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest; \
-    go install github.com/hakluke/hakrawler@latest; \
-    go install github.com/lc/gau/v2/cmd/gau@latest; \
-    go install github.com/owasp-amass/amass/v3/...; \
-    go install github.com/ffuf/ffuf@latest; \
-    go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest; \
-    go install github.com/hahwul/dalfox/v2@latest; \
-    go install github.com/projectdiscovery/katana/cmd/katana@latest; \
-    go install github.com/dwisiswant0/crlfuzz/cmd/crlfuzz@latest; \
-    go install github.com/sa7mon/s3scanner@latest; \
-    rm -rf /go/pkg/* && rm -rf /root/.cache/go-build
+# Install Go tools
+RUN printf "\
+    github.com/jaeles-project/gospider@latest\n\
+    github.com/tomnomnom/gf@latest\n\
+    github.com/tomnomnom/unfurl@latest\n\
+    github.com/tomnomnom/waybackurls@latest\n\
+    github.com/projectdiscovery/httpx/cmd/httpx@latest\n\
+    github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest\n\
+    github.com/projectdiscovery/chaos-client/cmd/chaos@latest\n\
+    github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest\n\
+    github.com/projectdiscovery/naabu/v2/cmd/naabu@latest\n\
+    github.com/hakluke/hakrawler@latest\n\
+    github.com/lc/gau/v2/cmd/gau@latest\n\
+    github.com/owasp-amass/amass/v3/...@latest\n\
+    github.com/ffuf/ffuf@latest\n\
+    github.com/projectdiscovery/tlsx/cmd/tlsx@latest\n\
+    github.com/hahwul/dalfox/v2@latest\n\
+    github.com/projectdiscovery/katana/cmd/katana@latest\n\
+    github.com/dwisiswant0/crlfuzz/cmd/crlfuzz@latest\n\
+    github.com/sa7mon/s3scanner@latest\n" | \
+    xargs -L1 -I {} sh -c 'go install -ldflags="-s -w" {}'
 
 # --- Final Stage ---
-FROM base as final
+FROM python:3.10-slim AS final
 
-LABEL \
-    name="reconPoint" \
-    author="KhulnaSoft Ltd <security@khulnasoft.com>" \
-    description="reconPoint is a automated pipeline of recon process, useful for information gathering during web application penetration testing."
+ARG TARGETARCH
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tini libpq-dev libcairo2 libpango-1.0-0 libpangocairo-1.0-0 \
+    libgdk-pixbuf-2.0-0 shared-mime-info libjpeg-dev zlib1g-dev \
+    libpng-dev libexif-dev libgobject-2.0-0 libffi-dev \
+    gstreamer1.0-plugins-base gstreamer1.0-tools gstreamer1.0-x \
+    nmap curl wget ca-certificates \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
 # Copy Go binaries from builder
-COPY --from=builder /go/bin/* /usr/local/bin/
+COPY --from=go-builder /go/bin/* /usr/local/bin/
 
 # Copy requirements
 COPY ./requirements.txt /tmp/requirements.txt
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 COPY . .
 
