@@ -20,6 +20,7 @@ class hybrid_property:
         self.exp = exp
         return self
 
+
 class EngineType(models.Model):
     id = models.AutoField(primary_key=True)
     engine_name = models.CharField(max_length=200)
@@ -37,6 +38,7 @@ class EngineType(models.Model):
         if not self.yaml_configuration or not yaml.safe_load(self.yaml_configuration):
             return []
         return list(yaml.safe_load(self.yaml_configuration).keys())
+
 
 class Wordlist(models.Model):
     id = models.AutoField(primary_key=True)
@@ -98,8 +100,8 @@ class Proxy(models.Model):
 class Hackerone(models.Model):
     id = models.AutoField(primary_key=True)
     # TODO: username and api_key fields will be deprecated in another major release, Instead HackerOneAPIKey model from dasbhboard/models.py will be used
-    username = models.CharField(max_length=100, null=True, blank=True) # unused
-    api_key = models.CharField(max_length=200, null=True, blank=True) # unused
+    username = models.CharField(max_length=100, null=True, blank=True)  # unused
+    api_key = models.CharField(max_length=200, null=True, blank=True)  # unused
     send_report = models.BooleanField(default=False, null=True, blank=True)
     send_critical = models.BooleanField(default=True)
     send_high = models.BooleanField(default=True)
@@ -109,8 +111,12 @@ class Hackerone(models.Model):
 
 class VulnerabilityReportSetting(models.Model):
     id = models.AutoField(primary_key=True)
-    primary_color = models.CharField(max_length=10, null=True, blank=True, default='#FFB74D')
-    secondary_color = models.CharField(max_length=10, null=True, blank=True, default='#212121')
+    primary_color = models.CharField(
+        max_length=10, null=True, blank=True, default="#FFB74D"
+    )
+    secondary_color = models.CharField(
+        max_length=10, null=True, blank=True, default="#212121"
+    )
     company_name = models.CharField(max_length=100, null=True, blank=True)
     company_address = models.CharField(max_length=200, null=True, blank=True)
     company_email = models.CharField(max_length=100, null=True, blank=True)
@@ -132,12 +138,16 @@ class InstalledExternalTool(models.Model):
     version_lookup_command = models.CharField(max_length=200, null=True, blank=True)
     update_command = models.CharField(max_length=200, null=True, blank=True)
     install_command = models.CharField(max_length=200)
-    version_match_regex = models.CharField(max_length=100, default=r'[vV]*(\d+\.)?(\d+\.)?(\*|\d+)', null=True, blank=True)
+    version_match_regex = models.CharField(
+        max_length=100, default=r"[vV]*(\d+\.)?(\d+\.)?(\*|\d+)", null=True, blank=True
+    )
     is_default = models.BooleanField(default=False)
     is_subdomain_gathering = models.BooleanField(default=False)
     is_github_cloned = models.BooleanField(default=False)
     github_clone_path = models.CharField(max_length=1500, null=True, blank=True)
-    subdomain_gathering_command = models.CharField(max_length=300, null=True, blank=True)
+    subdomain_gathering_command = models.CharField(
+        max_length=300, null=True, blank=True
+    )
 
     def __str__(self):
         return self.name

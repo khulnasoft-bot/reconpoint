@@ -5,92 +5,92 @@ import re
 ###############################################################################
 # TOOLS DEFINITIONS
 ###############################################################################
-logger = logging.getLogger('django')
+logger = logging.getLogger("django")
 
 ###############################################################################
 # TOOLS DEFINITIONS
 ###############################################################################
 
-EMAIL_REGEX = re.compile(r'[\w\.-]+@[\w\.-]+')
+EMAIL_REGEX = re.compile(r"[\w\.-]+@[\w\.-]+")
 
 ###############################################################################
 # YAML CONFIG DEFINITIONS
 ###############################################################################
 
-ALL = 'all'
-AMASS_WORDLIST = 'amass_wordlist'
-AUTO_CALIBRATION = 'auto_calibration'
-CUSTOM_HEADERS = 'custom_headers'
-CUSTOM_HEADER = 'custom_header'
-FETCH_GPT_REPORT = 'fetch_gpt_report'
-RUN_NUCLEI = 'run_nuclei'
-RUN_CRLFUZZ = 'run_crlfuzz'
-RUN_DALFOX = 'run_dalfox'
-RUN_S3SCANNER = 'run_s3scanner'
-DIR_FILE_FUZZ = 'dir_file_fuzz'
-FOLLOW_REDIRECT = 'follow_redirect'
-EXTENSIONS = 'extensions'
-EXCLUDED_SUBDOMAINS = 'exclude_subdomains'
-EXCLUDE_EXTENSIONS = 'exclude_extensions'
-EXCLUDE_TEXT = 'exclude_text'
-FETCH_URL = 'fetch_url'
-GF_PATTERNS = 'gf_patterns'
-HTTP_CRAWL = 'http_crawl'
-IGNORE_FILE_EXTENSION = 'ignore_file_extensions'
-INTENSITY = 'intensity'
-MATCH_HTTP_STATUS = 'match_http_status'
-MAX_TIME = 'max_time'
-NAABU_EXCLUDE_PORTS = 'exclude_ports'
-NAABU_EXCLUDE_SUBDOMAINS = 'exclude_subdomains'
-ENABLE_NMAP = 'enable_nmap'
-NMAP_COMMAND = 'nmap_cmd'
-NMAP_SCRIPT = 'nmap_script'
-NMAP_SCRIPT_ARGS = 'nmap_script_args'
-NAABU_PASSIVE = 'passive'
-NAABU_RATE = 'rate'
-NUCLEI_CUSTOM_TEMPLATE = 'custom_templates'
-NUCLEI_TAGS = 'tags'
-NUCLEI_TEMPLATE = 'templates'
-NUCLEI_SEVERITY = 'severities'
-NUCLEI_CONCURRENCY = 'concurrency'
-OSINT = 'osint'
-OSINT_DOCUMENTS_LIMIT = 'documents_limit'
-OSINT_DISCOVER = 'discover'
-OSINT_DORK = 'dorks'
-OSINT_CUSTOM_DORK = 'custom_dorks'
-PORT = 'port'
-PORTS = 'ports'
-RECURSIVE = 'recursive'
-RECURSIVE_LEVEL = 'recursive_level'
-PORT_SCAN = 'port_scan'
-RATE_LIMIT = 'rate_limit'
-RETRIES = 'retries'
-SCREENSHOT = 'screenshot'
-SUBDOMAIN_DISCOVERY = 'subdomain_discovery'
-STOP_ON_ERROR = 'stop_on_error'
-ENABLE_HTTP_CRAWL = 'enable_http_crawl'
-THREADS = 'threads'
-TIMEOUT = 'timeout'
-USE_AMASS_CONFIG = 'use_amass_config'
-USE_NAABU_CONFIG = 'use_naabu_config'
-USE_NUCLEI_CONFIG = 'use_nuclei_config'
-USE_SUBFINDER_CONFIG = 'use_subfinder_config'
-USES_TOOLS = 'uses_tools'
-VULNERABILITY_SCAN = 'vulnerability_scan'
-WAF_DETECTION = 'waf_detection'
-WORDLIST = 'wordlist_name'
-REMOVE_DUPLICATE_ENDPOINTS = 'remove_duplicate_endpoints'
-DUPLICATE_REMOVAL_FIELDS = 'duplicate_fields'
-DALFOX = 'dalfox'
-S3SCANNER = 's3scanner'
-NUCLEI = 'nuclei'
-NMAP = 'nmap'
-CRLFUZZ = 'crlfuzz'
-WAF_EVASION = 'waf_evasion'
-BLIND_XSS_SERVER = 'blind_xss_server'
-USER_AGENT = 'user_agent'
-DELAY = 'delay'
-PROVIDERS = 'providers'
+ALL = "all"
+AMASS_WORDLIST = "amass_wordlist"
+AUTO_CALIBRATION = "auto_calibration"
+CUSTOM_HEADERS = "custom_headers"
+CUSTOM_HEADER = "custom_header"
+FETCH_GPT_REPORT = "fetch_gpt_report"
+RUN_NUCLEI = "run_nuclei"
+RUN_CRLFUZZ = "run_crlfuzz"
+RUN_DALFOX = "run_dalfox"
+RUN_S3SCANNER = "run_s3scanner"
+DIR_FILE_FUZZ = "dir_file_fuzz"
+FOLLOW_REDIRECT = "follow_redirect"
+EXTENSIONS = "extensions"
+EXCLUDED_SUBDOMAINS = "exclude_subdomains"
+EXCLUDE_EXTENSIONS = "exclude_extensions"
+EXCLUDE_TEXT = "exclude_text"
+FETCH_URL = "fetch_url"
+GF_PATTERNS = "gf_patterns"
+HTTP_CRAWL = "http_crawl"
+IGNORE_FILE_EXTENSION = "ignore_file_extensions"
+INTENSITY = "intensity"
+MATCH_HTTP_STATUS = "match_http_status"
+MAX_TIME = "max_time"
+NAABU_EXCLUDE_PORTS = "exclude_ports"
+NAABU_EXCLUDE_SUBDOMAINS = "exclude_subdomains"
+ENABLE_NMAP = "enable_nmap"
+NMAP_COMMAND = "nmap_cmd"
+NMAP_SCRIPT = "nmap_script"
+NMAP_SCRIPT_ARGS = "nmap_script_args"
+NAABU_PASSIVE = "passive"
+NAABU_RATE = "rate"
+NUCLEI_CUSTOM_TEMPLATE = "custom_templates"
+NUCLEI_TAGS = "tags"
+NUCLEI_TEMPLATE = "templates"
+NUCLEI_SEVERITY = "severities"
+NUCLEI_CONCURRENCY = "concurrency"
+OSINT = "osint"
+OSINT_DOCUMENTS_LIMIT = "documents_limit"
+OSINT_DISCOVER = "discover"
+OSINT_DORK = "dorks"
+OSINT_CUSTOM_DORK = "custom_dorks"
+PORT = "port"
+PORTS = "ports"
+RECURSIVE = "recursive"
+RECURSIVE_LEVEL = "recursive_level"
+PORT_SCAN = "port_scan"
+RATE_LIMIT = "rate_limit"
+RETRIES = "retries"
+SCREENSHOT = "screenshot"
+SUBDOMAIN_DISCOVERY = "subdomain_discovery"
+STOP_ON_ERROR = "stop_on_error"
+ENABLE_HTTP_CRAWL = "enable_http_crawl"
+THREADS = "threads"
+TIMEOUT = "timeout"
+USE_AMASS_CONFIG = "use_amass_config"
+USE_NAABU_CONFIG = "use_naabu_config"
+USE_NUCLEI_CONFIG = "use_nuclei_config"
+USE_SUBFINDER_CONFIG = "use_subfinder_config"
+USES_TOOLS = "uses_tools"
+VULNERABILITY_SCAN = "vulnerability_scan"
+WAF_DETECTION = "waf_detection"
+WORDLIST = "wordlist_name"
+REMOVE_DUPLICATE_ENDPOINTS = "remove_duplicate_endpoints"
+DUPLICATE_REMOVAL_FIELDS = "duplicate_fields"
+DALFOX = "dalfox"
+S3SCANNER = "s3scanner"
+NUCLEI = "nuclei"
+NMAP = "nmap"
+CRLFUZZ = "crlfuzz"
+WAF_EVASION = "waf_evasion"
+BLIND_XSS_SERVER = "blind_xss_server"
+USER_AGENT = "user_agent"
+DELAY = "delay"
+PROVIDERS = "providers"
 
 ###############################################################################
 # Scan DEFAULTS
@@ -99,7 +99,7 @@ PROVIDERS = 'providers'
 LIVE_SCAN = 1
 SCHEDULED_SCAN = 0
 
-DEFAULT_SCAN_INTENSITY = 'normal'
+DEFAULT_SCAN_INTENSITY = "normal"
 
 ###############################################################################
 # Tools DEFAULTS
@@ -107,132 +107,129 @@ DEFAULT_SCAN_INTENSITY = 'normal'
 
 # amass
 AMASS_DEFAULT_WORDLIST_PATH = (
-    'wordlist/default_wordlist/deepmagic.com-prefixes-top50000.txt'
+    "wordlist/default_wordlist/deepmagic.com-prefixes-top50000.txt"
 )
 
 # dorks
 DORKS_DEFAULT_NAMES = [
-    'stackoverflow',
-    '3rdparty',
-    'social_media',
-    'project_management',
-    'code_sharing',
-    'config_files',
-    'jenkins',
-    'cloud_buckets',
-    'php_error',
-    'exposed_documents',
-    'struts_rce',
-    'db_files',
-    'traefik',
-    'git_exposed'
+    "stackoverflow",
+    "3rdparty",
+    "social_media",
+    "project_management",
+    "code_sharing",
+    "config_files",
+    "jenkins",
+    "cloud_buckets",
+    "php_error",
+    "exposed_documents",
+    "struts_rce",
+    "db_files",
+    "traefik",
+    "git_exposed",
 ]
 
 # ffuf
-FFUF_DEFAULT_WORDLIST_PATH = '/usr/src/wordlist/dicc.txt'
+FFUF_DEFAULT_WORDLIST_PATH = "/usr/src/wordlist/dicc.txt"
 FFUF_DEFAULT_MATCH_HTTP_STATUS = [200, 204]
 FFUF_DEFAULT_RECURSIVE_LEVEL = 2
 FFUF_DEFAULT_FOLLOW_REDIRECT = False
 
 # naabu
-NAABU_DEFAULT_PORTS = ['top-100']
+NAABU_DEFAULT_PORTS = ["top-100"]
 
 # nuclei
-NUCLEI_DEFAULT_TEMPLATES_PATH = '/root/nuclei-templates'
+NUCLEI_DEFAULT_TEMPLATES_PATH = "/root/nuclei-templates"
 NUCLEI_SEVERITY_MAP = {
-    'info': 0,
-    'low': 1,
-    'medium': 2,
-    'high': 3,
-    'critical': 4,
-    'unknown': -1,
+    "info": 0,
+    "low": 1,
+    "medium": 2,
+    "high": 3,
+    "critical": 4,
+    "unknown": -1,
 }
 NUCLEI_REVERSE_SEVERITY_MAP = {v: k for k, v in NUCLEI_SEVERITY_MAP.items()}
 NUCLEI_DEFAULT_SEVERITIES = list(NUCLEI_SEVERITY_MAP.keys())
 
 # s3scanner
-S3SCANNER_DEFAULT_PROVIDERS = ['gcp', 'aws', 'digitalocean', 'dreamhost', 'linode']
+S3SCANNER_DEFAULT_PROVIDERS = ["gcp", "aws", "digitalocean", "dreamhost", "linode"]
 
 # dalfox
 DALFOX_SEVERITY_MAP = {
-    'Low': 1,
-    'Medium': 2,
-    'High': 3,
-    'unknown': -1,
+    "Low": 1,
+    "Medium": 2,
+    "High": 3,
+    "unknown": -1,
 }
 
 # osint
-OSINT_DEFAULT_LOOKUPS = ['emails', 'metainfo', 'employees']
+OSINT_DEFAULT_LOOKUPS = ["emails", "metainfo", "employees"]
 OSINT_DEFAULT_DORKS = [
-    'stackoverflow',
-    '3rdparty',
-    'social_media',
-    'project_management',
-    'code_sharing',
-    'config_files',
-    'jenkins',
-    'wordpress_files',
-    'cloud_buckets',
-    'php_error',
-    'exposed_documents',
-    'struts_rce',
-    'db_files',
-    'traefik',
-    'git_exposed',
+    "stackoverflow",
+    "3rdparty",
+    "social_media",
+    "project_management",
+    "code_sharing",
+    "config_files",
+    "jenkins",
+    "wordpress_files",
+    "cloud_buckets",
+    "php_error",
+    "exposed_documents",
+    "struts_rce",
+    "db_files",
+    "traefik",
+    "git_exposed",
 ]
-OSINT_DEFAULT_CONFIG = {
-    'discover': OSINT_DEFAULT_LOOKUPS,
-    'dork': OSINT_DEFAULT_DORKS
-}
+OSINT_DEFAULT_CONFIG = {"discover": OSINT_DEFAULT_LOOKUPS, "dork": OSINT_DEFAULT_DORKS}
 
 # subdomain scan
-SUBDOMAIN_SCAN_DEFAULT_TOOLS = ['subfinder', 'ctfr', 'sublist3r', 'tlsx']
+SUBDOMAIN_SCAN_DEFAULT_TOOLS = ["subfinder", "ctfr", "sublist3r", "tlsx"]
 
 # endpoints scan
-ENDPOINT_SCAN_DEFAULT_TOOLS = ['gospider']
-ENDPOINT_SCAN_DEFAULT_DUPLICATE_FIELDS = ['content_length', 'page_title']
+ENDPOINT_SCAN_DEFAULT_TOOLS = ["gospider"]
+ENDPOINT_SCAN_DEFAULT_DUPLICATE_FIELDS = ["content_length", "page_title"]
 
 
 ###############################################################################
 # Logger DEFINITIONS
 ###############################################################################
 
-CONFIG_FILE_NOT_FOUND = 'Config file not found'
+CONFIG_FILE_NOT_FOUND = "Config file not found"
 
 ###############################################################################
 # Preferences DEFINITIONS
 ###############################################################################
 
-SMALL = '100px'
-MEDIM = '200px'
-LARGE = '400px'
-XLARGE = '500px'
+SMALL = "100px"
+MEDIM = "200px"
+LARGE = "400px"
+XLARGE = "500px"
 
 # Discord message colors
-DISCORD_INFO_COLOR = '0xfbbc00' # yellow
-DISCORD_WARNING_COLOR = '0xf75b00' # orange
-DISCORD_ERROR_COLOR = '0xf70000'
-DISCORD_SUCCESS_COLOR = '0x00ff78'
+DISCORD_INFO_COLOR = "0xfbbc00"  # yellow
+DISCORD_WARNING_COLOR = "0xf75b00"  # orange
+DISCORD_ERROR_COLOR = "0xf70000"
+DISCORD_SUCCESS_COLOR = "0x00ff78"
 DISCORD_SEVERITY_COLORS = {
-    'info': DISCORD_INFO_COLOR,
-    'warning': DISCORD_WARNING_COLOR,
-    'error': DISCORD_ERROR_COLOR,
-    'aborted': DISCORD_ERROR_COLOR,
-    'success': DISCORD_SUCCESS_COLOR
+    "info": DISCORD_INFO_COLOR,
+    "warning": DISCORD_WARNING_COLOR,
+    "error": DISCORD_ERROR_COLOR,
+    "aborted": DISCORD_ERROR_COLOR,
+    "success": DISCORD_SUCCESS_COLOR,
 }
 
 STATUS_TO_SEVERITIES = {
-    'RUNNING': 'info',
-    'SUCCESS': 'success',
-    'FAILED': 'error',
-    'ABORTED': 'error'
+    "RUNNING": "info",
+    "SUCCESS": "success",
+    "FAILED": "error",
+    "ABORTED": "error",
 }
 
 ###############################################################################
 # Interesting Subdomain DEFINITIONS
 ###############################################################################
-MATCHED_SUBDOMAIN = 'Subdomain'
-MATCHED_PAGE_TITLE = 'Page Title'
+MATCHED_SUBDOMAIN = "Subdomain"
+MATCHED_PAGE_TITLE = "Page Title"
 
 ###############################################################################
 # Celery Task Status CODES
@@ -244,11 +241,11 @@ SUCCESS_TASK = 2
 ABORTED_TASK = 3
 
 CELERY_TASK_STATUS_MAP = {
-    INITIATED_TASK: 'INITITATED',
-    FAILED_TASK: 'FAILED',
-    RUNNING_TASK: 'RUNNING',
-    SUCCESS_TASK: 'SUCCESS',
-    ABORTED_TASK: 'ABORTED'
+    INITIATED_TASK: "INITITATED",
+    FAILED_TASK: "FAILED",
+    RUNNING_TASK: "RUNNING",
+    SUCCESS_TASK: "SUCCESS",
+    ABORTED_TASK: "ABORTED",
 }
 
 CELERY_TASK_STATUSES = (
@@ -256,7 +253,7 @@ CELERY_TASK_STATUSES = (
     (FAILED_TASK, FAILED_TASK),
     (RUNNING_TASK, RUNNING_TASK),
     (SUCCESS_TASK, SUCCESS_TASK),
-    (ABORTED_TASK, ABORTED_TASK)
+    (ABORTED_TASK, ABORTED_TASK),
 )
 DYNAMIC_ID = -1
 
@@ -361,142 +358,142 @@ UNCOMMON_WEB_PORTS = [
 ###############################################################################
 
 IGNORE_WHOIS_RELATED_KEYWORD = [
-    'Registration Private',
-    'Domains By Proxy Llc',
-    'Redacted For Privacy',
-    'Digital Privacy Corporation',
-    'Private Registrant',
-    'Domain Administrator',
-    'Administrator',
+    "Registration Private",
+    "Domains By Proxy Llc",
+    "Redacted For Privacy",
+    "Digital Privacy Corporation",
+    "Private Registrant",
+    "Domain Administrator",
+    "Administrator",
 ]
 
 
 # Default FETCH URL params
 DEFAULT_IGNORE_FILE_EXTENSIONS = [
-    'png',
-    'jpg',
-    'jpeg',
-    'gif',
-    'mp4',
-    'mpeg',
-    'mp3',
+    "png",
+    "jpg",
+    "jpeg",
+    "gif",
+    "mp4",
+    "mpeg",
+    "mp3",
 ]
 
 DEFAULT_GF_PATTERNS = [
-    'debug_logic',
-    'idor',
-    'interestingEXT',
-    'interestingparams',
-    'interestingsubs',
-    'lfi',
-    'rce',
-    'redirect',
-    'sqli',
-    'ssrf',
-    'ssti',
-    'xss'
+    "debug_logic",
+    "idor",
+    "interestingEXT",
+    "interestingparams",
+    "interestingsubs",
+    "lfi",
+    "rce",
+    "redirect",
+    "sqli",
+    "ssrf",
+    "ssti",
+    "xss",
 ]
 
 
 # Default Dir File Fuzz Params
-DEFAULT_DIR_FILE_FUZZ_EXTENSIONS =  [
-    '.html',
-    '.php',
-    '.git',
-    '.yaml',
-    '.conf',
-    '.cnf',
-    '.config',
-    '.gz',
-    '.env',
-    '.log',
-    '.db',
-    '.mysql',
-    '.bak',
-    '.asp',
-    '.aspx',
-    '.txt',
-    '.conf',
-    '.sql',
-    '.json',
-    '.yml',
-    '.pdf',
+DEFAULT_DIR_FILE_FUZZ_EXTENSIONS = [
+    ".html",
+    ".php",
+    ".git",
+    ".yaml",
+    ".conf",
+    ".cnf",
+    ".config",
+    ".gz",
+    ".env",
+    ".log",
+    ".db",
+    ".mysql",
+    ".bak",
+    ".asp",
+    ".aspx",
+    ".txt",
+    ".conf",
+    ".sql",
+    ".json",
+    ".yml",
+    ".pdf",
 ]
 
 # Default Excluded Paths during Initate Scan
 # Mostly static files and directories
 DEFAULT_EXCLUDED_PATHS = [
     # Static assets (using regex patterns)
-    '/static/.*',
-    '/assets/.*',
-    '/css/.*',
-    '/js/.*',
-    '/images/.*',
-    '/img/.*',
-    '/fonts/.*',
-
+    "/static/.*",
+    "/assets/.*",
+    "/css/.*",
+    "/js/.*",
+    "/images/.*",
+    "/img/.*",
+    "/fonts/.*",
     # File types (using regex patterns)
-    r'.*\.ico',
+    r".*\.ico",
 ]
 
 # Roles and Permissions
-PERM_MODIFY_SYSTEM_CONFIGURATIONS = 'modify_system_configurations'
-PERM_MODIFY_SCAN_CONFIGURATIONS = 'modify_scan_configurations'
-PERM_MODIFY_TARGETS = 'modify_targets'
-PERM_MODIFY_SCAN_RESULTS = 'modify_scan_results'
-PERM_MODIFY_WORDLISTS = 'modify_wordlists'
-PERM_MODIFY_INTERESTING_LOOKUP = 'modify_interesting_lookup'
-PERM_MODIFY_SCAN_REPORT = 'modify_scan_report'
-PERM_INITATE_SCANS_SUBSCANS = 'initiate_scans_subscans'
+PERM_MODIFY_SYSTEM_CONFIGURATIONS = "modify_system_configurations"
+PERM_MODIFY_SCAN_CONFIGURATIONS = "modify_scan_configurations"
+PERM_MODIFY_TARGETS = "modify_targets"
+PERM_MODIFY_SCAN_RESULTS = "modify_scan_results"
+PERM_MODIFY_WORDLISTS = "modify_wordlists"
+PERM_MODIFY_INTERESTING_LOOKUP = "modify_interesting_lookup"
+PERM_MODIFY_SCAN_REPORT = "modify_scan_report"
+PERM_INITATE_SCANS_SUBSCANS = "initiate_scans_subscans"
+PERM_TRIGGER_AI_ANALYSIS = "trigger_ai_analysis"
+PERM_AUTONOMOUS_SCAN_EXECUTION = "autonomous_scan_execution"
 
 # 404 page url
-FOUR_OH_FOUR_URL = '/404/'
+FOUR_OH_FOUR_URL = "/404/"
 
 
 ###############################################################################
 # OLLAMA DEFINITIONS
 ###############################################################################
-OLLAMA_INSTANCE = 'http://ollama:11434'
+OLLAMA_INSTANCE = "http://ollama:11434"
 
 DEFAULT_GPT_MODELS = [
     {
-        'name': 'gpt-3',
-        'model': 'gpt-3',
-        'modified_at': '',
-        'details': {
-            'family': 'GPT',
-            'parameter_size': '~175B',
-        }
+        "name": "gpt-3",
+        "model": "gpt-3",
+        "modified_at": "",
+        "details": {
+            "family": "GPT",
+            "parameter_size": "~175B",
+        },
     },
     {
-        'name': 'gpt-3.5-turbo',
-        'model': 'gpt-3.5-turbo',
-        'modified_at': '',
-        'details': {
-            'family': 'GPT',
-            'parameter_size': '~7B',
-        }
+        "name": "gpt-3.5-turbo",
+        "model": "gpt-3.5-turbo",
+        "modified_at": "",
+        "details": {
+            "family": "GPT",
+            "parameter_size": "~7B",
+        },
     },
     {
-        'name': 'gpt-4',
-        'model': 'gpt-4',
-        'modified_at': '',
-        'details': {
-            'family': 'GPT',
-            'parameter_size': '~1.7T',
-        }
+        "name": "gpt-4",
+        "model": "gpt-4",
+        "modified_at": "",
+        "details": {
+            "family": "GPT",
+            "parameter_size": "~1.7T",
+        },
     },
     {
-        'name': 'gpt-4-turbo',
-        'model': 'gpt-4',
-        'modified_at': '',
-        'details': {
-            'family': 'GPT',
-            'parameter_size': '~1.7T',
-        }
-    }
+        "name": "gpt-4-turbo",
+        "model": "gpt-4",
+        "modified_at": "",
+        "details": {
+            "family": "GPT",
+            "parameter_size": "~1.7T",
+        },
+    },
 ]
-
 
 
 # GPT Vulnerability Report Generator
@@ -547,21 +544,21 @@ ATTACK_SUGGESTION_GPT_SYSTEM_PROMPT = """
 
 
 # OSINT GooFuzz Path
-GOFUZZ_EXEC_PATH = '/usr/src/github/goofuzz/GooFuzz'
+GOFUZZ_EXEC_PATH = "/usr/src/github/goofuzz/GooFuzz"
 
 
 # In App Notification Definitions
-SYSTEM_LEVEL_NOTIFICATION = 'system'
-PROJECT_LEVEL_NOTIFICATION = 'project'
+SYSTEM_LEVEL_NOTIFICATION = "system"
+PROJECT_LEVEL_NOTIFICATION = "project"
 NOTIFICATION_TYPES = (
-    ('system', SYSTEM_LEVEL_NOTIFICATION),
-    ('project', PROJECT_LEVEL_NOTIFICATION),
+    ("system", SYSTEM_LEVEL_NOTIFICATION),
+    ("project", PROJECT_LEVEL_NOTIFICATION),
 )
 NOTIFICATION_STATUS_TYPES = (
-    ('success', 'Success'),
-    ('info', 'Informational'),
-    ('warning', 'Warning'),
-    ('error', 'Error'),
+    ("success", "Success"),
+    ("info", "Informational"),
+    ("warning", "Warning"),
+    ("error", "Error"),
 )
 
 # Bountyhub Definitions

@@ -2,7 +2,7 @@
     "name": "ReconPoint Django Dev",
     "description": "Production-ready development environment for ReconPoint Django project",
     "dockerComposeFile": [
-        "docker-compose.yml",
+        "../docker-compose.yml",
         "docker-compose.devcontainer.yml"
     ],
     "service": "web",

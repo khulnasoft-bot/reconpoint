@@ -1,6 +1,7 @@
 from django.db import models
-from startScan.models import *
+
 from dashboard.models import Project
+from startScan.models import *
 
 
 class TodoNote(models.Model):
@@ -8,16 +9,10 @@ class TodoNote(models.Model):
     title = models.CharField(max_length=1000, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     scan_history = models.ForeignKey(
-        ScanHistory,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
+        ScanHistory, on_delete=models.CASCADE, null=True, blank=True
     )
     subdomain = models.ForeignKey(
-        Subdomain,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
+        Subdomain, on_delete=models.CASCADE, null=True, blank=True
     )
     is_done = models.BooleanField(default=False)
     is_important = models.BooleanField(default=False)

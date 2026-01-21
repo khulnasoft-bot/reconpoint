@@ -10,12 +10,6 @@ jobs:
   build:
     name: 🐳 Build Docker image
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
-          # - linux/arm/v7
     steps:
       - name: 📥 Checkout the git repo
         uses: actions/checkout@v4
@@ -41,9 +35,11 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: web/
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64,linux/arm64
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
+          cache-from: |
+            type=gha
+            type=registry,ref=khulnasoft/reconpoint:buildcache
           cache-to: type=gha,mode=max

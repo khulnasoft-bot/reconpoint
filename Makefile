@@ -35,10 +35,14 @@ build:			## Build all services.
 	${COMPOSE_PREFIX_CMD} ${DOCKER_COMPOSE} ${COMPOSE_ALL_FILES} build --parallel ${SERVICES}
 
 build-multiplatform:	## Build all services for multiple platforms (amd64, arm64) and push to registry.
-	@echo "Building multi-platform images..."
+	@echo "Building multi-platform images with remote caching..."
 	@docker buildx create --use --name multiplatform-builder 2>/dev/null || docker buildx use multiplatform-builder
-	@docker buildx build --platform linux/amd64,linux/arm64 -t khulnasoft/reconpoint:latest --push ./web
-	@echo "Multi-platform build complete. Images pushed to registry."
+	@docker buildx build --platform linux/amd64,linux/arm64 \
+		-t khulnasoft/reconpoint:latest \
+		--cache-from type=registry,ref=khulnasoft/reconpoint:buildcache \
+		--cache-to type=registry,ref=khulnasoft/reconpoint:buildcache,mode=max \
+		--push ./web
+	@echo "Multi-platform build complete. Images and cache pushed to registry."
 
 username:		## Generate Username (Use only after make up).
 ifeq ($(isNonInteractive), true)

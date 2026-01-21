@@ -6,7 +6,10 @@
 .sonarcloud.properties
 db.sqlite3
 Dockerfile
+Dockerfile.slim
 docker-compose.yml
+docker-compose.dev.yml
+docker-compose.setup.yml
 *.md
 _config.yml
 LICENSE
@@ -15,3 +18,10 @@ uploads
 logs
 venv
 secret
+**/.DS_Store
+web/node_modules
+web/__pycache__
+web/celery.log
+web/db.log
+web/errors.log
+staticfiles

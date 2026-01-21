@@ -1,5 +1,7 @@
 from rolepermissions.roles import AbstractUserRole
+
 from reconPoint.definitions import *
+
 
 class SysAdmin(AbstractUserRole):
     available_permissions = {
@@ -11,6 +13,8 @@ class SysAdmin(AbstractUserRole):
         PERM_MODIFY_SCAN_REPORT: True,
         PERM_INITATE_SCANS_SUBSCANS: True,
         PERM_MODIFY_TARGETS: True,
+        PERM_TRIGGER_AI_ANALYSIS: True,
+        PERM_AUTONOMOUS_SCAN_EXECUTION: True,
     }
 
 
@@ -24,6 +28,7 @@ class PenetrationTester(AbstractUserRole):
         PERM_MODIFY_SCAN_REPORT: True,
         PERM_INITATE_SCANS_SUBSCANS: True,
         PERM_MODIFY_TARGETS: True,
+        PERM_TRIGGER_AI_ANALYSIS: True,
     }
 
 

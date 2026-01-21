@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from startScan.models import *
 
 admin.site.register(ScanHistory)
