@@ -10,6 +10,10 @@ from api.consumers import (
     WorkerRefreshConsumer,
     WorkerStatusConsumer,
 )
+from api.consumers_realtime import (
+    LiveScanConsumer,
+    VulnerabilityAlertConsumer,
+)
 
 
 websocket_urlpatterns = [
@@ -20,6 +24,11 @@ websocket_urlpatterns = [
     re_path(r"^ws/worker-status/$", WorkerStatusConsumer.as_asgi()),
     re_path(r"^ws/worker-deploy/(?P<worker_id>\d+)/$", WorkerDeployConsumer.as_asgi()),
     re_path(r"^ws/worker-refresh/(?P<worker_id>\d+)/$", WorkerRefreshConsumer.as_asgi()),
+    re_path(r"^ws/live-scan/$", LiveScanConsumer.as_asgi()),
+    re_path(r"^ws/live-scan/(?P<scan_id>[\w\-\.]+)/$", LiveScanConsumer.as_asgi()),
+    re_path(r"^ws/live-scan/project/(?P<project_slug>[\w\-\.]+)/$", LiveScanConsumer.as_asgi()),
+    re_path(r"^ws/vuln-alerts/$", VulnerabilityAlertConsumer.as_asgi()),
+    re_path(r"^ws/vuln-alerts/project/(?P<project_slug>[\w\-\.]+)/$", VulnerabilityAlertConsumer.as_asgi()),
 ]
 
 application = ProtocolTypeRouter(
