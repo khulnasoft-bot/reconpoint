@@ -1,6 +1,14 @@
 from rest_framework import serializers
 
-from targetApp.models import *
+from targetApp.models import (
+    DNSRecord,
+    DomainRegistration,
+    HistoricalIP,
+    NameServer,
+    Registrar,
+    RelatedDomain,
+    WhoisStatus,
+)
 
 
 class HistoricalIPSerializer(serializers.ModelSerializer):
@@ -30,18 +38,7 @@ class DomainRegistrarSerializer(serializers.ModelSerializer):
 class DomainRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DomainRegistration
-        fields = [
-            "name",
-            "organization",
-            "address",
-            "city",
-            "state",
-            "zip_code",
-            "country",
-            "email",
-            "phone",
-            "fax",
-        ]
+        fields = ["name", "organization", "address", "city", "state", "zip_code", "country", "email", "phone", "fax"]
 
 
 class DomainWhoisStatusSerializer(serializers.ModelSerializer):

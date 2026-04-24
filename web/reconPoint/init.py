@@ -1,8 +1,10 @@
-import logging
 import os
 import secrets
 
-logger = logging.getLogger(__name__)
+from reconPoint.utilities.logger import get_module_logger
+
+
+logger = get_module_logger(__name__)
 
 
 """
