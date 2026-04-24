@@ -22,6 +22,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="domaininfo",
             name="historical_ips",
-            field=models.ManyToManyField(blank=True, related_name="similar_domains", to="targetApp.HistoricalIP"),
+            field=models.ManyToManyField(
+                blank=True, related_name="similar_domains", to="targetApp.HistoricalIP"
+            ),
         ),
     ]

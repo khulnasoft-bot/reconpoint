@@ -30,7 +30,15 @@ UNKNOWN_SECATOR_STATUS_FALLBACK = INITIATED_TASK
 
 # reconPoint status codes accepted when client sends numeric status instead of string.
 RECONPOINT_STATUS_CODES = frozenset(
-    {INITIATED_TASK, FAILED_TASK, RUNNING_TASK, SUCCESS_TASK, ABORTED_TASK, RUNNING_BACKGROUND, SKIPPED_TASK}
+    {
+        INITIATED_TASK,
+        FAILED_TASK,
+        RUNNING_TASK,
+        SUCCESS_TASK,
+        ABORTED_TASK,
+        RUNNING_BACKGROUND,
+        SKIPPED_TASK,
+    }
 )
 
 
@@ -148,7 +156,8 @@ class SecatorProgressSync:
             logger.log_line(
                 PREFIX_SECATOR_PROGRESS,
                 "CALC_PROGRESS",
-                "Error calculating workflow progress for scan %s: %s" % (scan_history_id, e),
+                "Error calculating workflow progress for scan %s: %s"
+                % (scan_history_id, e),
                 level="error",
             )
             return 0.0
@@ -166,7 +175,9 @@ class SecatorProgressSync:
         """
         try:
             if runner := (
-                SecatorRunner.objects.filter(scan_history_id=scan_history_id, runner_data__status="RUNNING")
+                SecatorRunner.objects.filter(
+                    scan_history_id=scan_history_id, runner_data__status="RUNNING"
+                )
                 .order_by("-updated_at")
                 .first()
             ):
@@ -187,7 +198,8 @@ class SecatorProgressSync:
             logger.log_line(
                 PREFIX_SECATOR_PROGRESS,
                 "GET_RUNNING_RUNNER",
-                "Error getting current running runner for scan %s: %s" % (scan_history_id, e),
+                "Error getting current running runner for scan %s: %s"
+                % (scan_history_id, e),
                 level="error",
             )
             return None
@@ -227,7 +239,9 @@ class SecatorProgressSync:
                 runner_done = runner_data.get("done", False)
 
                 # Map status
-                reconpoint_status = SecatorProgressSync.map_secator_status_to_reconpoint(runner_status)
+                reconpoint_status = (
+                    SecatorProgressSync.map_secator_status_to_reconpoint(runner_status)
+                )
 
                 # Update scan status if needed
                 if runner_status in ["RUNNING", "SUCCESS", "FAILURE", "FAILED"]:
@@ -238,7 +252,8 @@ class SecatorProgressSync:
                     logger.log_line(
                         PREFIX_SECATOR_PROGRESS,
                         "UPDATE_SCAN",
-                        "Updated scan %s status to %s" % (scan_history_id, reconpoint_status),
+                        "Updated scan %s status to %s"
+                        % (scan_history_id, reconpoint_status),
                         level="debug",
                     )
 
@@ -256,7 +271,8 @@ class SecatorProgressSync:
             logger.log_line(
                 PREFIX_SECATOR_PROGRESS,
                 "UPDATE_SCAN",
-                "Error updating scan history from runners for scan %s: %s" % (scan_history_id, e),
+                "Error updating scan history from runners for scan %s: %s"
+                % (scan_history_id, e),
                 level="error",
             )
             return False
@@ -277,9 +293,13 @@ class SecatorProgressSync:
             return None
 
     @staticmethod
-    def _sync_subscans_if_terminal(runner_id: Optional[int], runner_status: str, reconpoint_status: int) -> None:
+    def _sync_subscans_if_terminal(
+        runner_id: Optional[int], runner_status: str, reconpoint_status: int
+    ) -> None:
         if runner_id is not None and runner_status in TERMINAL_RUNNER_STATUSES:
-            ScanRepository().mark_subscans_finished_for_runner(runner_id, reconpoint_status)
+            ScanRepository().mark_subscans_finished_for_runner(
+                runner_id, reconpoint_status
+            )
 
     @staticmethod
     def _update_existing_activity(
@@ -301,11 +321,14 @@ class SecatorProgressSync:
         elif runner_status == "REVOKED":
             existing_activity.title = f"{activity_title} - Aborted"
         existing_activity.save(update_fields=["status", "time", "title"])
-        SecatorProgressSync._sync_subscans_if_terminal(runner_id, runner_status, reconpoint_status)
+        SecatorProgressSync._sync_subscans_if_terminal(
+            runner_id, runner_status, reconpoint_status
+        )
         logger.log_line(
             PREFIX_SECATOR_PROGRESS,
             "ACTIVITY",
-            "Updated ScanActivity %s for runner %s" % (existing_activity.id, runner_name),
+            "Updated ScanActivity %s for runner %s"
+            % (existing_activity.id, runner_name),
             level="debug",
         )
         return existing_activity.id
@@ -324,7 +347,9 @@ class SecatorProgressSync:
         from reconPoint.services.repositories.scan_repository import ScanRepository
 
         scan_repo = ScanRepository()
-        activity_id = scan_repo.create_activity(scan_history.id, activity_title, reconpoint_status)
+        activity_id = scan_repo.create_activity(
+            scan_history.id, activity_title, reconpoint_status
+        )
         if runner is not None:
             try:
                 new_activity = ScanActivity.objects.get(id=activity_id)
@@ -338,7 +363,9 @@ class SecatorProgressSync:
                     "Could not link runner to activity: %s" % (e,),
                     level="warning",
                 )
-        SecatorProgressSync._sync_subscans_if_terminal(runner_id, runner_status, reconpoint_status)
+        SecatorProgressSync._sync_subscans_if_terminal(
+            runner_id, runner_status, reconpoint_status
+        )
         logger.log_line(
             PREFIX_SECATOR_PROGRESS,
             "ACTIVITY",
@@ -370,11 +397,15 @@ class SecatorProgressSync:
         """
         try:
             scan_history = ScanHistory.objects.get(id=scan_history_id)
-            reconpoint_status = SecatorProgressSync.map_secator_status_to_reconpoint(runner_status)
+            reconpoint_status = SecatorProgressSync.map_secator_status_to_reconpoint(
+                runner_status
+            )
             activity_title = f"{runner_type.title()}: {runner_name}"
             runner = SecatorProgressSync._get_runner(runner_id)
             existing_activity = (
-                ScanActivity.objects.filter(scan_of=scan_history, name=runner_name, runner_id=runner)
+                ScanActivity.objects.filter(
+                    scan_of=scan_history, name=runner_name, runner_id=runner
+                )
                 .order_by("-time")
                 .first()
                 if runner

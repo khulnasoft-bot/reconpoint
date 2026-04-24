@@ -27,7 +27,9 @@ class TestEmployeeRepository(BaseTestCase):
             "url": "https://example.com/profile/john.doe",
         }
 
-        result = self.employee_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.username, "john.doe")
@@ -42,7 +44,9 @@ class TestEmployeeRepository(BaseTestCase):
             "site_name": "example.com",
             "_source": "linkedin_scraper",
         }
-        result = self.employee_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         result.refresh_from_db()
         self.assertEqual(result.source, "linkedin_scraper")
@@ -59,7 +63,9 @@ class TestEmployeeRepository(BaseTestCase):
             "url": "https://example.com/profile/john.doe",
         }
 
-        result = self.employee_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         # The code should work since email is provided
         # But if it returns None, it means the code has a bug or email validation fails
@@ -83,7 +89,9 @@ class TestEmployeeRepository(BaseTestCase):
             "url": "https://example.com/profile/john.doe",
         }
 
-        result = self.employee_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         # This should work since username is provided
         self.assertIsNotNone(result)
@@ -104,7 +112,9 @@ class TestEmployeeRepository(BaseTestCase):
             "url": "https://example.com/profile/john.doe",
         }
 
-        result = self.employee_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -125,13 +135,17 @@ class TestEmployeeRepository(BaseTestCase):
             "url": "https://test.example.com/profile/john.doe",
         }
 
-        result = self.employee_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.username, "john.doe")
         self.assertIsNone(result.endpoint_id)
         self.assertEqual(result.subdomain_id, subdomain.id)
-        endpoint = EndPoint.objects.filter(http_url=item["url"], scan_history_id=self.scan_history.id).first()
+        endpoint = EndPoint.objects.filter(
+            http_url=item["url"], scan_history_id=self.scan_history.id
+        ).first()
         self.assertIsNone(endpoint)
 
     def test_save_from_secator_with_endpoint_association(self):
@@ -158,13 +172,17 @@ class TestEmployeeRepository(BaseTestCase):
             "url": "https://test.example.com/profile/john.doe",
         }
 
-        result = self.employee_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.username, "john.doe")
         self.assertEqual(result.endpoint, endpoint)
 
-    def test_save_from_secator_missing_endpoint_falls_back_to_subdomain_association(self):
+    def test_save_from_secator_missing_endpoint_falls_back_to_subdomain_association(
+        self,
+    ):
         """UserAccount URL without existing endpoint associates employee to subdomain only."""
         host = "created-employee.example.com"
         subdomain = self.data_generator.create_subdomain(
@@ -181,10 +199,14 @@ class TestEmployeeRepository(BaseTestCase):
             "url": url,
         }
 
-        result = self.employee_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
-        endpoint = EndPoint.objects.filter(http_url=item["url"], scan_history_id=self.scan_history.id).first()
+        endpoint = EndPoint.objects.filter(
+            http_url=item["url"], scan_history_id=self.scan_history.id
+        ).first()
         self.assertIsNone(endpoint)
         self.assertEqual(result.subdomain_id, subdomain.id)
         self.assertIsNone(result.endpoint_id)
@@ -193,13 +215,19 @@ class TestEmployeeRepository(BaseTestCase):
         """Test get_or_create with existing employee by username and site."""
         # Create employee first
         employee1, created1 = self.employee_repo.get_or_create(
-            "john.doe", "john.doe@example.com", self.scan_history.id, site_name="example.com"
+            "john.doe",
+            "john.doe@example.com",
+            self.scan_history.id,
+            site_name="example.com",
         )
         self.assertTrue(created1)
 
         # Try to create same employee again
         employee2, created2 = self.employee_repo.get_or_create(
-            "john.doe", "john.doe@example.com", self.scan_history.id, site_name="example.com"
+            "john.doe",
+            "john.doe@example.com",
+            self.scan_history.id,
+            site_name="example.com",
         )
         self.assertFalse(created2)
         self.assertEqual(employee1.id, employee2.id)
@@ -207,17 +235,23 @@ class TestEmployeeRepository(BaseTestCase):
     def test_get_or_create_existing_employee_by_email(self):
         """Test get_or_create with existing employee by email."""
         # Create employee first
-        employee1, created1 = self.employee_repo.get_or_create("", "john.doe@example.com", self.scan_history.id)
+        employee1, created1 = self.employee_repo.get_or_create(
+            "", "john.doe@example.com", self.scan_history.id
+        )
         self.assertTrue(created1)
 
         # Try to create same employee again
-        employee2, created2 = self.employee_repo.get_or_create("", "john.doe@example.com", self.scan_history.id)
+        employee2, created2 = self.employee_repo.get_or_create(
+            "", "john.doe@example.com", self.scan_history.id
+        )
         self.assertFalse(created2)
         self.assertEqual(employee1.id, employee2.id)
 
     def test_get_or_create_new_employee(self):
         """Test get_or_create with new employee."""
-        employee, created = self.employee_repo.get_or_create("john.doe", "john.doe@example.com", self.scan_history.id)
+        employee, created = self.employee_repo.get_or_create(
+            "john.doe", "john.doe@example.com", self.scan_history.id
+        )
 
         self.assertIsNotNone(employee)
         self.assertTrue(created)
@@ -244,7 +278,9 @@ class TestEmployeeRepository(BaseTestCase):
             },
         ]
 
-        result = self.employee_repo.bulk_create(employees_data, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.bulk_create(
+            employees_data, self.scan_history.id, self.data_generator.target.id
+        )
 
         # bulk_create uses domain as key, not scan_history
         # So employees with same username but different scan_history can coexist
@@ -268,7 +304,9 @@ class TestEmployeeRepository(BaseTestCase):
             },
         ]
 
-        result = self.employee_repo.bulk_create(employees_data, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.bulk_create(
+            employees_data, self.scan_history.id, self.data_generator.target.id
+        )
 
         # bulk_create uses username + domain as unique key
         # So duplicate usernames should only create one employee
@@ -348,7 +386,9 @@ class TestEmployeeRepository(BaseTestCase):
             subdomain=subdomain,
         )
 
-        result = self.employee_repo.get_employees_for_subdomain("test.example.com", self.scan_history.id)
+        result = self.employee_repo.get_employees_for_subdomain(
+            "test.example.com", self.scan_history.id
+        )
 
         self.assertEqual(len(result), 2)
         usernames = [emp.username for emp in result]
@@ -371,7 +411,9 @@ class TestEmployeeRepository(BaseTestCase):
             },
         }
 
-        result = self.employee_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.employee_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.username, "john.doe")
@@ -433,7 +475,9 @@ class TestEmployeeRepository(BaseTestCase):
 
     def test_create_employees_in_bulk_empty_list(self):
         """Test _create_employees_in_bulk with empty list."""
-        result = self.employee_repo._create_employees_in_bulk(self.scan_history.id, self.data_generator.target.id, [])
+        result = self.employee_repo._create_employees_in_bulk(
+            self.scan_history.id, self.data_generator.target.id, []
+        )
 
         self.assertEqual(result, [])
 

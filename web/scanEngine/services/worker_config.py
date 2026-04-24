@@ -25,7 +25,13 @@ def get_container_script_base(worker: SecatorWorker) -> tuple[str, str]:
     base_cmd is either SECATOR_WORKER_CONTAINER_SCRIPT_BASE/scripts or deploy_path/scripts.
     """
     host_base = f"{worker.deploy_path.rstrip('/')}/{REMOTE_SCRIPTS_DIR}"
-    container_script_base = (getattr(settings, "SECATOR_WORKER_CONTAINER_SCRIPT_BASE", "") or "").strip()
-    base_cmd = f"{container_script_base.rstrip('/')}/{REMOTE_SCRIPTS_DIR}" if container_script_base else host_base
+    container_script_base = (
+        getattr(settings, "SECATOR_WORKER_CONTAINER_SCRIPT_BASE", "") or ""
+    ).strip()
+    base_cmd = (
+        f"{container_script_base.rstrip('/')}/{REMOTE_SCRIPTS_DIR}"
+        if container_script_base
+        else host_base
+    )
     python_exe = getattr(settings, "SECATOR_WORKER_CONTAINER_PYTHON", "python")
     return python_exe, base_cmd

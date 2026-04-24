@@ -40,7 +40,9 @@ def _migrate_rows(apps, django_app_label, model_class_name, ct_map, field_name):
     llm_attack_surface_model = apps.get_model("startScan", "LlmAttackSurfaceAnalysis")
     Model = apps.get_model(django_app_label, model_class_name)
     ct_id = ct_map[(django_app_label.lower(), model_class_name.lower())]
-    qs = Model.objects.exclude(**{f"{field_name}__isnull": True}).exclude(**{field_name: ""})
+    qs = Model.objects.exclude(**{f"{field_name}__isnull": True}).exclude(
+        **{field_name: ""}
+    )
     for row in qs.iterator(chunk_size=500):
         raw = getattr(row, field_name)
         llm_key, body = _legacy_model_key_and_body(raw)
@@ -59,7 +61,11 @@ def forwards(apps, schema_editor):
     content_type_model = apps.get_model("contenttypes", "ContentType")
 
     def cid(app_label, model_name_lower):
-        return content_type_model.objects.only("id").get(app_label=app_label, model=model_name_lower).id
+        return (
+            content_type_model.objects.only("id")
+            .get(app_label=app_label, model=model_name_lower)
+            .id
+        )
 
     # AppConfig.label values (not lowercased) match django_content_type.app_label.
     ct_map = {

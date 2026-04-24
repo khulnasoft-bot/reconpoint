@@ -41,7 +41,10 @@ class TestFormatExceptionForLog(BaseTestCase):
         """Result is never empty for common exception types."""
         for exc in [ValueError(), TypeError(""), RuntimeError("err")]:
             result = format_exception_for_log(exc)
-            self.assertTrue(len(result) > 0, "format_exception_for_log must never return empty string")
+            self.assertTrue(
+                len(result) > 0,
+                "format_exception_for_log must never return empty string",
+            )
             self.assertIn(":", result)
 
 

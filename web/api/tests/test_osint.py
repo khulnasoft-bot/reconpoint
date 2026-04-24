@@ -18,11 +18,15 @@ class TestListDorkTypes(BaseTestCase):
     def test_list_dork_types(self):
         """Test listing dork types for a scan."""
         url = reverse("api:queryDorkTypes")
-        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
+        response = self.client.get(
+            url, {"scan_id": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("dorks", response.data)
         self.assertGreaterEqual(len(response.data["dorks"]), 1)
-        self.assertEqual(response.data["dorks"][0]["type"], self.data_generator.dork.type)
+        self.assertEqual(
+            response.data["dorks"][0]["type"], self.data_generator.dork.type
+        )
 
 
 class TestListEmails(BaseTestCase):
@@ -36,7 +40,9 @@ class TestListEmails(BaseTestCase):
     def test_list_emails(self):
         """Test listing emails for a scan."""
         url = reverse("api:queryEmails")
-        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
+        response = self.client.get(
+            url, {"scan_id": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("emails", response.data)
         # The API might return empty list if no emails are associated
@@ -54,7 +60,9 @@ class TestListDorks(BaseTestCase):
     def test_list_dorks(self):
         """Test listing dorks for a scan."""
         url = reverse("api:queryDorks")
-        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
+        response = self.client.get(
+            url, {"scan_id": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("dorks", response.data)
         self.assertIn("Test Dork", response.data["dorks"])
@@ -76,7 +84,9 @@ class TestListEmployees(BaseTestCase):
     def test_list_employees(self):
         """Test listing employees for a scan."""
         url = reverse("api:queryEmployees")
-        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
+        response = self.client.get(
+            url, {"scan_id": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("employees", response.data)
         # The API might return empty list if no employees are associated
@@ -95,7 +105,9 @@ class TestListOsintUsers(BaseTestCase):
     def test_list_osint_users(self):
         """Test listing OSINT users for a scan."""
         url = reverse("api:queryMetadata")
-        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
+        response = self.client.get(
+            url, {"scan_id": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("metadata", response.data)
         self.assertGreaterEqual(len(response.data["metadata"]), 1)
@@ -116,7 +128,9 @@ class TestListMetadata(BaseTestCase):
     def test_list_metadata(self):
         """Test listing metadata for a scan."""
         url = reverse("api:queryMetadata")
-        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
+        response = self.client.get(
+            url, {"scan_id": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("metadata", response.data)
         self.assertGreaterEqual(len(response.data["metadata"]), 1)

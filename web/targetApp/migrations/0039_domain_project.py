@@ -14,6 +14,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="domain",
             name="project",
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to="dashboard.project"),
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="dashboard.project",
+            ),
         ),
     ]

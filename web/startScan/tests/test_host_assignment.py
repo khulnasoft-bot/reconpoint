@@ -12,7 +12,9 @@ class HostAssignmentTestCase(BaseTestCase):
         super().setUp()
         self.scan = self.data_generator.create_scan_history()
         self.domain = self.data_generator.create_domain(scan_history=self.scan)
-        self.sub = self.data_generator.create_subdomain(scan_history=self.scan, domain=self.domain)
+        self.sub = self.data_generator.create_subdomain(
+            scan_history=self.scan, domain=self.domain
+        )
         self.ip = IpAddress.objects.create(address="192.0.2.50", version=4, alive=True)
 
     def test_apply_endpoint_host_subdomain_clears_ip(self) -> None:
@@ -40,7 +42,12 @@ class HostAssignmentTestCase(BaseTestCase):
         self.assertIsNone(ep.subdomain_id)
 
     def test_apply_endpoint_host_rejects_both_or_neither(self) -> None:
-        ep = EndPoint(scan_history=self.scan, domain=self.domain, http_url="http://x/", discovered_date=timezone.now())
+        ep = EndPoint(
+            scan_history=self.scan,
+            domain=self.domain,
+            http_url="http://x/",
+            discovered_date=timezone.now(),
+        )
         with self.assertRaises(ValueError):
             apply_endpoint_host(ep)
         with self.assertRaises(ValueError):

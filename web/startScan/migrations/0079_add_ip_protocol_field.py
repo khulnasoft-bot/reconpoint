@@ -12,6 +12,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="ipaddress",
             name="protocol",
-            field=models.CharField(blank=True, help_text="IP protocol: IPv4 or IPv6", max_length=10, null=True),
+            field=models.CharField(
+                blank=True,
+                help_text="IP protocol: IPv4 or IPv6",
+                max_length=10,
+                null=True,
+            ),
         ),
     ]

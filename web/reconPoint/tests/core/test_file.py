@@ -441,7 +441,9 @@ class TestFileOperations(unittest.TestCase):
     def test_write_file_lines_parent_directory_creation(self):
         """Test write_file_lines creates parent directories safely."""
         # Test creating nested directories
-        nested_path = os.path.join(self.test_dir, "level1", "level2", "level3", "deep_file.txt")
+        nested_path = os.path.join(
+            self.test_dir, "level1", "level2", "level3", "deep_file.txt"
+        )
         result = write_file_lines(nested_path, ["deep content"])
         self.assertTrue(result)
         self.assertTrue(os.path.exists(nested_path))
@@ -497,14 +499,18 @@ class TestFileOperations(unittest.TestCase):
         # Test with valid Nuclei config using YAML format
         yaml_config = os.path.join(self.test_dir, "yaml.yaml")
         with open(yaml_config, "w") as f:
-            f.write("# This is a comment\ninfo:\n  name: test-template\n  severity: high\n")
+            f.write(
+                "# This is a comment\ninfo:\n  name: test-template\n  severity: high\n"
+            )
         result = is_nuclei_config_valid(yaml_config)
         self.assertTrue(result)
 
         # Test with invalid config containing only random text
         invalid_config = os.path.join(self.test_dir, "invalid.yaml")
         with open(invalid_config, "w") as f:
-            f.write("# This is a comment\nThis is just random text\nNot a valid configuration\n")
+            f.write(
+                "# This is a comment\nThis is just random text\nNot a valid configuration\n"
+            )
         result = is_nuclei_config_valid(invalid_config)
         self.assertFalse(result)
 
@@ -519,7 +525,9 @@ class TestFileOperations(unittest.TestCase):
         """Test is_nuclei_config_valid with mixed content."""
         mixed_config = os.path.join(self.test_dir, "mixed.yaml")
         with open(mixed_config, "w") as f:
-            f.write("# Comment line\n\nseverity=critical\ninfo:\n  name: test-template\n# Another comment\n")
+            f.write(
+                "# Comment line\n\nseverity=critical\ninfo:\n  name: test-template\n# Another comment\n"
+            )
         result = is_nuclei_config_valid(mixed_config)
         self.assertTrue(result)
 

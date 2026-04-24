@@ -7,7 +7,10 @@ This module provides:
 - RunnerLogger: Logger for Secator runner operations (outgoing data)
 """
 
-from reconPoint.utilities.logger.api_logger import SecatorAPILogger, get_secator_api_logger
+from reconPoint.utilities.logger.api_logger import (
+    SecatorAPILogger,
+    get_secator_api_logger,
+)
 from reconPoint.utilities.logger.base import BaseLogger
 from reconPoint.utilities.logger.module_logger import (
     ModuleLogger,

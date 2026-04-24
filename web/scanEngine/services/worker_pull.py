@@ -89,15 +89,17 @@ def _cleanup_old_terminal_commands(worker: SecatorWorker) -> None:
     ).delete()
 
 
-def worker_from_pull_request(request: Any, worker_id: int, token: str | None = None) -> Optional[SecatorWorker]:
+def worker_from_pull_request(
+    request: Any, worker_id: int, token: str | None = None
+) -> Optional[SecatorWorker]:
     """Return worker if pull token matches and pull mode is enabled."""
     token = token or extract_validated_pull_token_from_request(request)
     if not token:
         return None
     try:
-        worker = SecatorWorker.objects.only("id", "is_active", "https_pull_agent", "api_access_type", "pull_token").get(
-            pk=worker_id
-        )
+        worker = SecatorWorker.objects.only(
+            "id", "is_active", "https_pull_agent", "api_access_type", "pull_token"
+        ).get(pk=worker_id)
     except SecatorWorker.DoesNotExist:
         return None
     if not worker.is_active or not worker.uses_https_pull_agent():
@@ -132,7 +134,9 @@ def extract_validated_pull_token_from_request(request: Any) -> str | None:
     token = str(raw_token).strip()
     if not token:
         _log_invalid_pull_attempt(request, worker_id=None, reason="empty_header")
-        logger.warning("Worker pull request with empty token header %s", PULL_TOKEN_HEADER)
+        logger.warning(
+            "Worker pull request with empty token header %s", PULL_TOKEN_HEADER
+        )
         return None
 
     max_len = pull_token_max_length()
@@ -148,7 +152,10 @@ def extract_validated_pull_token_from_request(request: Any) -> str | None:
 
     if not _PULL_TOKEN_RE.fullmatch(token):
         _log_invalid_pull_attempt(request, worker_id=None, reason="invalid_token_chars")
-        logger.warning("Worker pull token contains invalid characters (header=%s)", PULL_TOKEN_HEADER)
+        logger.warning(
+            "Worker pull token contains invalid characters (header=%s)",
+            PULL_TOKEN_HEADER,
+        )
         return None
 
     return token
@@ -179,7 +186,9 @@ def _log_invalid_pull_attempt(request: Any, worker_id: int | None, reason: str) 
         )
 
 
-def enqueue_run_job(worker: SecatorWorker, job: dict, scan_history_id: int) -> uuid.UUID:
+def enqueue_run_job(
+    worker: SecatorWorker, job: dict, scan_history_id: int
+) -> uuid.UUID:
     """Create a pending run_job command; returns command id."""
     if not worker.uses_https_pull_agent():
         logger.warning(
@@ -231,7 +240,11 @@ def wait_for_command(
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             break
-        cmd = SecatorWorkerQueuedCommand.objects.filter(pk=command_id).only("status", "error_message").first()
+        cmd = (
+            SecatorWorkerQueuedCommand.objects.filter(pk=command_id)
+            .only("status", "error_message")
+            .first()
+        )
         if cmd is None:
             raise RuntimeError("Worker command was removed.")
         if cmd.status == SecatorWorkerQueuedCommand.STATUS_SUCCEEDED:
@@ -240,9 +253,15 @@ def wait_for_command(
             msg = (cmd.error_message or "").strip() or "Remote worker command failed."
             raise RuntimeError(msg)
         if cmd.status == SecatorWorkerQueuedCommand.STATUS_TIMED_OUT:
-            msg = (cmd.error_message or "").strip() or "Remote worker command timed out."
+            msg = (
+                cmd.error_message or ""
+            ).strip() or "Remote worker command timed out."
             raise RuntimeError(msg)
-        time.sleep(_compute_poll_sleep_seconds(poll_interval=poll_interval, remaining=remaining))
+        time.sleep(
+            _compute_poll_sleep_seconds(
+                poll_interval=poll_interval, remaining=remaining
+            )
+        )
 
     # Timeout: try to mark still-running command as TIMED_OUT and log for operators.
     try:
@@ -259,7 +278,9 @@ def wait_for_command(
             ):
                 cmd.status = SecatorWorkerQueuedCommand.STATUS_TIMED_OUT
                 if not (cmd.error_message or "").strip():
-                    cmd.error_message = "Remote worker command timed out while RUNNING or PENDING."
+                    cmd.error_message = (
+                        "Remote worker command timed out while RUNNING or PENDING."
+                    )
                 cmd.save(update_fields=["status", "error_message"])
 
             logger.warning(
@@ -280,7 +301,9 @@ def wait_for_command(
     except SecatorWorkerQueuedCommand.DoesNotExist:
         final_status = "missing"
 
-    raise RuntimeError(f"Remote worker command timed out (command_id={command_id}, status={final_status}).")
+    raise RuntimeError(
+        f"Remote worker command timed out (command_id={command_id}, status={final_status})."
+    )
 
 
 def claim_next_command(worker: SecatorWorker) -> Optional[SecatorWorkerQueuedCommand]:
@@ -313,13 +336,20 @@ def complete_command(
     """
     with transaction.atomic():
         try:
-            cmd = SecatorWorkerQueuedCommand.objects.select_for_update().get(pk=command_id, worker=worker)
+            cmd = SecatorWorkerQueuedCommand.objects.select_for_update().get(
+                pk=command_id, worker=worker
+            )
         except SecatorWorkerQueuedCommand.DoesNotExist:
             return False
-        if cmd.status not in (SecatorWorkerQueuedCommand.STATUS_RUNNING, SecatorWorkerQueuedCommand.STATUS_TIMED_OUT):
+        if cmd.status not in (
+            SecatorWorkerQueuedCommand.STATUS_RUNNING,
+            SecatorWorkerQueuedCommand.STATUS_TIMED_OUT,
+        ):
             return False
         cmd.status = (
-            SecatorWorkerQueuedCommand.STATUS_SUCCEEDED if succeeded else SecatorWorkerQueuedCommand.STATUS_FAILED
+            SecatorWorkerQueuedCommand.STATUS_SUCCEEDED
+            if succeeded
+            else SecatorWorkerQueuedCommand.STATUS_FAILED
         )
         cmd.completed_at = timezone.now()
         if succeeded:

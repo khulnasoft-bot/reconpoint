@@ -91,7 +91,9 @@ class TestSecatorFormHelpers(BaseTestCase):
 
     def test_parse_secator_profiles_all_disabled(self):
         """When all profile switches are disabled, profiles list should be empty."""
-        post = self._make_post("false", "use_speed_profile", "false", "use_evasion_profile")
+        post = self._make_post(
+            "false", "use_speed_profile", "false", "use_evasion_profile"
+        )
         post["use_general_profile"] = "false"
         post["use_network_profile"] = "false"
         post["speed_profile"] = "polite"
@@ -123,7 +125,9 @@ class TestSecatorFormHelpers(BaseTestCase):
 
     def test_parse_secator_profiles_single_enabled(self):
         """Single profile enabled should work correctly."""
-        post = self._make_post("true", "use_speed_profile", "aggressive", "speed_profile")
+        post = self._make_post(
+            "true", "use_speed_profile", "aggressive", "speed_profile"
+        )
         post["use_evasion_profile"] = "false"
         post["use_general_profile"] = "false"
         post["use_network_profile"] = "false"
@@ -198,7 +202,11 @@ class TestSecatorFormHelpers(BaseTestCase):
     def test_parse_secator_config_json_string(self):
         """secator_config as JSON string should be parsed correctly."""
         post = QueryDict("", mutable=True)
-        config_dict = {"delay": 3, "proxy": "http://proxy:8080", "profiles": ["profile1"]}
+        config_dict = {
+            "delay": 3,
+            "proxy": "http://proxy:8080",
+            "profiles": ["profile1"],
+        }
         post["secator_config"] = json.dumps(config_dict)
         cfg = parse_secator_config(post)
         self.assertEqual(cfg["delay"], 3)
@@ -220,13 +228,19 @@ class TestSecatorFormHelpers(BaseTestCase):
         post["execution_mode"] = "tasks"
         post.setlist("task_ids", ["1", "2"])
         post["secator_config"] = "{}"
-        post["selected_targets_per_task"] = json.dumps({"nmap": ["host1"], "httpx": ["host2"]})
+        post["selected_targets_per_task"] = json.dumps(
+            {"nmap": ["host1"], "httpx": ["host2"]}
+        )
         kwargs = build_start_secator_scan_kwargs(post)
         self.assertIn("selected_targets_per_task", kwargs)
-        self.assertEqual(kwargs["selected_targets_per_task"], {"nmap": ["host1"], "httpx": ["host2"]})
+        self.assertEqual(
+            kwargs["selected_targets_per_task"], {"nmap": ["host1"], "httpx": ["host2"]}
+        )
         self.assertNotIn("targets_override", kwargs)
 
-    def test_build_start_secator_scan_kwargs_tasks_precedence_per_task_over_selected_targets(self):
+    def test_build_start_secator_scan_kwargs_tasks_precedence_per_task_over_selected_targets(
+        self,
+    ):
         """When tasks mode and both selected_targets and selected_targets_per_task present, only per_task in kwargs."""
         post = QueryDict("", mutable=True)
         post["execution_mode"] = "tasks"
@@ -255,7 +269,9 @@ class TestSecatorFormHelpers(BaseTestCase):
         result[key2] = value2
         return result
 
-    def test_build_start_secator_scan_kwargs_invalid_selected_targets_per_task_raises(self):
+    def test_build_start_secator_scan_kwargs_invalid_selected_targets_per_task_raises(
+        self,
+    ):
         """build_start_secator_scan_kwargs should raise ValueError when selected_targets_per_task is invalid JSON."""
         post = QueryDict("", mutable=True)
         post["execution_mode"] = "tasks"
@@ -266,7 +282,9 @@ class TestSecatorFormHelpers(BaseTestCase):
             build_start_secator_scan_kwargs(post)
         self.assertIn("selected_targets_per_task", str(ctx.exception))
 
-    def test_build_start_secator_scan_kwargs_selected_targets_wrong_structure_raises(self):
+    def test_build_start_secator_scan_kwargs_selected_targets_wrong_structure_raises(
+        self,
+    ):
         """build_start_secator_scan_kwargs should raise ValueError when selected_targets is JSON but not an array."""
         post = self._make_post("workflow", "execution_mode", "1", "workflow_id")
         post["secator_config"] = "{}"
@@ -276,7 +294,9 @@ class TestSecatorFormHelpers(BaseTestCase):
         self.assertIn("selected_targets", str(ctx.exception))
         self.assertIn("array", str(ctx.exception).lower())
 
-    def test_build_start_secator_scan_kwargs_selected_targets_per_task_wrong_structure_raises(self):
+    def test_build_start_secator_scan_kwargs_selected_targets_per_task_wrong_structure_raises(
+        self,
+    ):
         """build_start_secator_scan_kwargs should raise ValueError when selected_targets_per_task is JSON but not an object."""
         post = QueryDict("", mutable=True)
         post["execution_mode"] = "tasks"
@@ -288,7 +308,9 @@ class TestSecatorFormHelpers(BaseTestCase):
         self.assertIn("selected_targets_per_task", str(ctx.exception))
         self.assertIn("object", str(ctx.exception).lower())
 
-    def test_build_start_secator_scan_kwargs_includes_scan_history_id_when_provided(self):
+    def test_build_start_secator_scan_kwargs_includes_scan_history_id_when_provided(
+        self,
+    ):
         """build_start_secator_scan_kwargs should include scan_history_id when present in POST."""
         post = self._make_post("workflow", "execution_mode", "1", "workflow_id")
         post["secator_config"] = "{}"
@@ -354,7 +376,9 @@ class TestSecatorFormHelpers(BaseTestCase):
 
     # --- Fix 4: profiles fallback condition ---
 
-    def test_build_start_secator_scan_kwargs_uses_parse_secator_profiles_when_json_blob_has_empty_profiles(self):
+    def test_build_start_secator_scan_kwargs_uses_parse_secator_profiles_when_json_blob_has_empty_profiles(
+        self,
+    ):
         """When secator_config JSON has profiles=[], the parsed checkbox profiles are applied."""
         post = QueryDict("", mutable=True)
         post["execution_mode"] = "tasks"

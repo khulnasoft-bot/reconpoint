@@ -60,7 +60,9 @@ def flip_todo_status(request, slug=None):
         Http404: If the specified todo note does not exist.
     """
     if request.method != "POST":
-        return JsonResponse({"status": False, "error": "Invalid request method."}, status=400)
+        return JsonResponse(
+            {"status": False, "error": "Invalid request method."}, status=400
+        )
 
     try:
         body_unicode = request.body.decode("utf-8")
@@ -85,7 +87,9 @@ def flip_todo_status(request, slug=None):
 
     note.is_done = not note.is_done
     note.save()
-    return JsonResponse({"status": True, "error": False, "is_done": note.is_done}, status=200)
+    return JsonResponse(
+        {"status": True, "error": False, "is_done": note.is_done}, status=200
+    )
 
 
 def flip_important_status(request, slug=None):
@@ -106,7 +110,9 @@ def flip_important_status(request, slug=None):
         Http404: If the specified todo note does not exist.
     """
     if request.method != "POST":
-        return JsonResponse({"status": False, "error": "Invalid request method."}, status=400)
+        return JsonResponse(
+            {"status": False, "error": "Invalid request method."}, status=400
+        )
 
     try:
         body_unicode = request.body.decode("utf-8")
@@ -131,7 +137,9 @@ def flip_important_status(request, slug=None):
 
     note.is_important = not note.is_important
     note.save()
-    return JsonResponse({"status": True, "error": False, "is_important": note.is_important}, status=200)
+    return JsonResponse(
+        {"status": True, "error": False, "is_important": note.is_important}, status=200
+    )
 
 
 def delete_note(request, slug=None):
@@ -151,7 +159,9 @@ def delete_note(request, slug=None):
         Http404: If the specified todo note does not exist.
     """
     if request.method != "POST":
-        return JsonResponse({"status": False, "error": "Invalid request method."}, status=400)
+        return JsonResponse(
+            {"status": False, "error": "Invalid request method."}, status=400
+        )
 
     try:
         body_unicode = request.body.decode("utf-8")

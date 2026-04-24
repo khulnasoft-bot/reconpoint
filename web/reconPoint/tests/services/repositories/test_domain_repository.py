@@ -106,7 +106,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.domain.refresh_from_db()
@@ -129,7 +131,9 @@ class TestDomainRepository(BaseTestCase):
                 "whois": whois,
             },
         }
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         result.refresh_from_db()
         self.assertEqual(result.source, "whois_go")
@@ -152,7 +156,9 @@ class TestDomainRepository(BaseTestCase):
             "extra_data": {"whois": whois},
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertIsNotNone(result.extra_data)
@@ -194,11 +200,17 @@ class TestDomainRepository(BaseTestCase):
             "technical_info": {"id": "ES6827-FRNIC"},
             "extra_data": {
                 "punycode": self.domain.name,
-                "name_servers": ["nsa.bookmyname.com", "nsb.bookmyname.com", "nsc.bookmyname.com"],
+                "name_servers": [
+                    "nsa.bookmyname.com",
+                    "nsb.bookmyname.com",
+                    "nsc.bookmyname.com",
+                ],
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.domain.refresh_from_db()
@@ -210,7 +222,10 @@ class TestDomainRepository(BaseTestCase):
         self.assertEqual(result.registrant.name, "easi services")
         self.assertEqual(result.registrant.id_str, "ES6827-FRNIC")
         name_servers = list(result.name_servers.values_list("name", flat=True))
-        self.assertEqual(set(name_servers), {"nsa.bookmyname.com", "nsb.bookmyname.com", "nsc.bookmyname.com"})
+        self.assertEqual(
+            set(name_servers),
+            {"nsa.bookmyname.com", "nsb.bookmyname.com", "nsc.bookmyname.com"},
+        )
 
     def test_save_from_secator_flat_prefers_registrant_over_admin(self):
         """Registrant-specific fields are used first; admin only as fallback."""
@@ -244,7 +259,9 @@ class TestDomainRepository(BaseTestCase):
             "extra_data": {"name_servers": []},
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertIsNotNone(result.registrant)
@@ -273,7 +290,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertIsNotNone(result.registrar)
@@ -308,7 +327,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertIsNotNone(result.registrant)
@@ -331,7 +352,9 @@ class TestDomainRepository(BaseTestCase):
                 "e-mail": "john@example.com",
             }
         }
-        registrant1 = self.domain_repo._get_or_create_registrant("Test Company", extra_data1)
+        registrant1 = self.domain_repo._get_or_create_registrant(
+            "Test Company", extra_data1
+        )
 
         # Create second registrant with same name but different id_str
         extra_data2 = {
@@ -341,7 +364,9 @@ class TestDomainRepository(BaseTestCase):
                 "e-mail": "jane@example.com",
             }
         }
-        registrant2 = self.domain_repo._get_or_create_registrant("Test Company", extra_data2)
+        registrant2 = self.domain_repo._get_or_create_registrant(
+            "Test Company", extra_data2
+        )
 
         # Verify they are different objects
         self.assertNotEqual(registrant1.id, registrant2.id)
@@ -359,7 +384,9 @@ class TestDomainRepository(BaseTestCase):
                 # No nic-hdl/id_str
             }
         }
-        registrant = self.domain_repo._get_or_create_registrant("Test Company", extra_data)
+        registrant = self.domain_repo._get_or_create_registrant(
+            "Test Company", extra_data
+        )
 
         self.assertIsNotNone(registrant)
         self.assertEqual(registrant.name, "Test Company")
@@ -368,7 +395,11 @@ class TestDomainRepository(BaseTestCase):
     def test_save_from_secator_with_name_servers(self):
         """Test saving domain info with name servers."""
         whois = self._build_whois_payload(
-            name_servers=["ns1.example-dns.co.uk", "ns2.example-dns.co.uk", "ns3.example-dns.co.uk"],
+            name_servers=[
+                "ns1.example-dns.co.uk",
+                "ns2.example-dns.co.uk",
+                "ns3.example-dns.co.uk",
+            ],
         )
         item = {
             "_type": "domain",
@@ -378,7 +409,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         name_servers = list(result.name_servers.all())
@@ -401,7 +434,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         statuses = list(result.status.all())
@@ -415,7 +450,9 @@ class TestDomainRepository(BaseTestCase):
         whois = self._build_whois_payload(
             dnssec={
                 "dnssec": "signed",
-                "dnssec_keys": [{"key_tag": "2456", "algorithm": "13 [ECDSAP256SHA256]"}],
+                "dnssec_keys": [
+                    {"key_tag": "2456", "algorithm": "13 [ECDSAP256SHA256]"}
+                ],
             },
         )
         item = {
@@ -426,7 +463,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertTrue(result.dnssec)
@@ -442,7 +481,9 @@ class TestDomainRepository(BaseTestCase):
             "extra_data": {"whois": whois},
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertIsNotNone(result.created)
@@ -459,7 +500,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.whois_server, "whois.nic.uk")
@@ -481,7 +524,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertIsNotNone(result.extra_data)
@@ -501,7 +546,9 @@ class TestDomainRepository(BaseTestCase):
             "extra_data": {"whois": whois},
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -515,7 +562,9 @@ class TestDomainRepository(BaseTestCase):
             "extra_data": {"whois": whois},
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
 
@@ -526,7 +575,9 @@ class TestDomainRepository(BaseTestCase):
             "registrar": "Example Registrar Ltd",
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -540,7 +591,9 @@ class TestDomainRepository(BaseTestCase):
             "extra_data": {"whois": whois},
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -554,7 +607,9 @@ class TestDomainRepository(BaseTestCase):
             "extra_data": {"whois": whois},
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -598,7 +653,9 @@ class TestDomainRepository(BaseTestCase):
             "extra_data": {"whois": whois},
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.id, initial_domain_info.id)
@@ -671,7 +728,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertIsNotNone(result.admin)
@@ -692,7 +751,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertIsNotNone(result.updated)
@@ -714,7 +775,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        admin = self.domain_repo._get_or_create_admin_tech("ADMIN123-GB", extra_data, "admin", self.domain)
+        admin = self.domain_repo._get_or_create_admin_tech(
+            "ADMIN123-GB", extra_data, "admin", self.domain
+        )
 
         self.assertIsNotNone(admin)
         self.assertEqual(admin.id_str, "ADMIN123-GB")
@@ -758,7 +821,9 @@ class TestDomainRepository(BaseTestCase):
             "country": "GB",
             "fax-no": "+44.2071234568",
         }
-        defaults = self.domain_repo._build_registrar_defaults(registrar_info, "Test Registrar")
+        defaults = self.domain_repo._build_registrar_defaults(
+            registrar_info, "Test Registrar"
+        )
 
         self.assertEqual(defaults["name"], "Test Registrar")
         self.assertEqual(defaults["phone"], "+44.2071234567")
@@ -797,7 +862,9 @@ class TestDomainRepository(BaseTestCase):
         """Test _update_registrar doesn't update when fields already have values."""
         from startScan.models import Registrar
 
-        registrar = Registrar.objects.create(name="Test Registrar", phone="existing", email="existing@example.com")
+        registrar = Registrar.objects.create(
+            name="Test Registrar", phone="existing", email="existing@example.com"
+        )
         registrar_info = {"phone": "+44.2071234567", "e-mail": "new@example.com"}
         address = ""
 
@@ -912,7 +979,9 @@ class TestDomainRepository(BaseTestCase):
             "fax-no": "+44.2071234568",
         }
 
-        updated = self.domain_repo._update_domain_registration(registration, nic_hdl, "John Doe", "TEST123-GB")
+        updated = self.domain_repo._update_domain_registration(
+            registration, nic_hdl, "John Doe", "TEST123-GB"
+        )
 
         self.assertTrue(updated)
         registration.refresh_from_db()
@@ -936,7 +1005,9 @@ class TestDomainRepository(BaseTestCase):
             "email": "admin@example.com",
         }
 
-        updated = self.domain_repo._update_object_fields_if_empty(field_mappings, registrar, False)
+        updated = self.domain_repo._update_object_fields_if_empty(
+            field_mappings, registrar, False
+        )
 
         self.assertTrue(updated)
         registrar.refresh_from_db()
@@ -950,7 +1021,9 @@ class TestDomainRepository(BaseTestCase):
         registrar = Registrar.objects.create(name="Test Registrar", phone="existing")
         field_mappings = {"phone": "+44.2071234567"}
 
-        updated = self.domain_repo._update_object_fields_if_empty(field_mappings, registrar, False)
+        updated = self.domain_repo._update_object_fields_if_empty(
+            field_mappings, registrar, False
+        )
 
         self.assertFalse(updated)
         registrar.refresh_from_db()
@@ -1004,14 +1077,18 @@ class TestDomainRepository(BaseTestCase):
         """Test _find_existing_contact method."""
         from startScan.models import DomainInfo, DomainRegistration
 
-        admin_contact = DomainRegistration.objects.create(name="Admin Contact", id_str="ADMIN123-GB")
+        admin_contact = DomainRegistration.objects.create(
+            name="Admin Contact", id_str="ADMIN123-GB"
+        )
         domain_info = DomainInfo.objects.create()
         domain_info.admin = admin_contact
         domain_info.save()
         self.domain.domain_info = domain_info
         self.domain.save()
 
-        result = self.domain_repo._find_existing_contact(self.domain, "admin", "ADMIN123-GB")
+        result = self.domain_repo._find_existing_contact(
+            self.domain, "admin", "ADMIN123-GB"
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.id, admin_contact.id)
@@ -1020,16 +1097,22 @@ class TestDomainRepository(BaseTestCase):
         """Test _find_existing_contact by id_str when not in domain_info."""
         from startScan.models import DomainRegistration
 
-        contact = DomainRegistration.objects.create(name="Tech Contact", id_str="TECH123-GB")
+        contact = DomainRegistration.objects.create(
+            name="Tech Contact", id_str="TECH123-GB"
+        )
 
-        result = self.domain_repo._find_existing_contact(self.domain, "tech", "TECH123-GB")
+        result = self.domain_repo._find_existing_contact(
+            self.domain, "tech", "TECH123-GB"
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.id, contact.id)
 
     def test_find_existing_contact_not_found(self):
         """Test _find_existing_contact when contact not found."""
-        result = self.domain_repo._find_existing_contact(self.domain, "admin", "NONEXISTENT-GB")
+        result = self.domain_repo._find_existing_contact(
+            self.domain, "admin", "NONEXISTENT-GB"
+        )
 
         self.assertIsNone(result)
 
@@ -1048,7 +1131,9 @@ class TestDomainRepository(BaseTestCase):
             "email": "john@example.com",
         }
 
-        result = self.domain_repo._create_contact(nic_hdl, "John Doe", "TEST123-GB", defaults, "admin")
+        result = self.domain_repo._create_contact(
+            nic_hdl, "John Doe", "TEST123-GB", defaults, "admin"
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.id_str, "TEST123-GB")
@@ -1063,7 +1148,9 @@ class TestDomainRepository(BaseTestCase):
             "type": "PERSON",
         }
 
-        result = self.domain_repo._create_contact(nic_hdl, "John Doe", "", defaults, "admin")
+        result = self.domain_repo._create_contact(
+            nic_hdl, "John Doe", "", defaults, "admin"
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.name, "John Doe")
@@ -1105,7 +1192,9 @@ class TestDomainRepository(BaseTestCase):
 
         domain_info = DomainInfo.objects.create()
 
-        self.domain_repo._add_status_to_domain_info(domain_info, "clientTransferProhibited")
+        self.domain_repo._add_status_to_domain_info(
+            domain_info, "clientTransferProhibited"
+        )
 
         statuses = list(domain_info.status.all())
         self.assertEqual(len(statuses), 1)
@@ -1129,7 +1218,9 @@ class TestDomainRepository(BaseTestCase):
 
         domain_info = DomainInfo.objects.create()
 
-        self.domain_repo._process_status_value(domain_info, ["clientTransferProhibited", "clientDeleteProhibited"])
+        self.domain_repo._process_status_value(
+            domain_info, ["clientTransferProhibited", "clientDeleteProhibited"]
+        )
 
         statuses = list(domain_info.status.all())
         self.assertEqual(len(statuses), 2)
@@ -1237,7 +1328,9 @@ class TestDomainRepository(BaseTestCase):
         self.domain_repo._store_remaining_data(domain_info, extra_data)
 
         self.assertIsNotNone(domain_info.extra_data)
-        self.assertEqual(domain_info.extra_data["chain"], ["whois.iana.org", "whois.nic.uk"])
+        self.assertEqual(
+            domain_info.extra_data["chain"], ["whois.iana.org", "whois.nic.uk"]
+        )
         self.assertEqual(domain_info.extra_data["raw"], "%% Test raw data")
         self.assertEqual(domain_info.extra_data["emails"], ["test@example.com"])
         self.assertEqual(domain_info.extra_data["key1-tag"], {"key1-tag": "2456"})
@@ -1303,7 +1396,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         statuses = list(result.status.all())
@@ -1325,7 +1420,9 @@ class TestDomainRepository(BaseTestCase):
             },
         }
 
-        result = self.domain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.domain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         name_servers = list(result.name_servers.all())
@@ -1341,7 +1438,9 @@ class DomainRepositoryFindingScopeFilterTest(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.data_generator.create_organization()
-        self.data_generator.create_scope(restrict_findings_to_target=True, allowed_finding_domains=[])
+        self.data_generator.create_scope(
+            restrict_findings_to_target=True, allowed_finding_domains=[]
+        )
         self.scope = self.data_generator.scope
         self.target = self.data_generator.target
         self.scan_history = self.data_generator.create_scan_history()

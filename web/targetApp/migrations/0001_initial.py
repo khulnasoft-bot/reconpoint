@@ -15,8 +15,14 @@ class Migration(migrations.Migration):
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 ("name", models.CharField(max_length=300, unique=True)),
-                ("h1_team_handle", models.CharField(blank=True, max_length=100, null=True)),
-                ("ip_address_cidr", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "h1_team_handle",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                (
+                    "ip_address_cidr",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 ("description", models.TextField(blank=True, null=True)),
                 ("insert_date", models.DateTimeField()),
                 ("start_scan_date", models.DateTimeField(null=True)),
@@ -25,7 +31,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="NameServerHistory",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("date", models.CharField(blank=True, max_length=10, null=True)),
                 ("action", models.CharField(blank=True, max_length=50, null=True)),
                 ("server", models.CharField(blank=True, max_length=100, null=True)),
@@ -34,7 +48,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="NSRecord",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("type", models.CharField(blank=True, max_length=10, null=True)),
                 ("hostname", models.CharField(blank=True, max_length=50, null=True)),
                 ("address", models.CharField(blank=True, max_length=50, null=True)),
@@ -46,23 +68,45 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="RegistrantInfo",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(blank=True, max_length=250, null=True)),
-                ("organization", models.CharField(blank=True, max_length=250, null=True)),
+                (
+                    "organization",
+                    models.CharField(blank=True, max_length=250, null=True),
+                ),
                 ("email", models.CharField(blank=True, max_length=250, null=True)),
                 ("address", models.CharField(blank=True, max_length=200, null=True)),
                 ("city", models.CharField(blank=True, max_length=50, null=True)),
                 ("state", models.CharField(blank=True, max_length=20, null=True)),
                 ("country", models.CharField(blank=True, max_length=50, null=True)),
                 ("country_iso", models.CharField(blank=True, max_length=4, null=True)),
-                ("phone_number", models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "phone_number",
+                    models.CharField(blank=True, max_length=50, null=True),
+                ),
                 ("fax", models.CharField(blank=True, max_length=50, null=True)),
             ],
         ),
         migrations.CreateModel(
             name="WhoisDetail",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("details", models.TextField(blank=True, null=True)),
                 (
                     "registrant",
@@ -82,25 +126,50 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=300, unique=True)),
                 ("description", models.TextField(blank=True, null=True)),
                 ("insert_date", models.DateTimeField()),
-                ("domains", models.ManyToManyField(related_name="domains", to="targetApp.Domain")),
+                (
+                    "domains",
+                    models.ManyToManyField(
+                        related_name="domains", to="targetApp.Domain"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name="DomainInfo",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("date_created", models.CharField(blank=True, max_length=300, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "date_created",
+                    models.CharField(blank=True, max_length=300, null=True),
+                ),
                 ("domain_age", models.CharField(blank=True, max_length=300, null=True)),
                 ("ip_address", models.CharField(blank=True, max_length=200, null=True)),
                 ("geolocation", models.CharField(blank=True, max_length=50, null=True)),
-                ("geolocation_iso", models.CharField(blank=True, max_length=4, null=True)),
+                (
+                    "geolocation_iso",
+                    models.CharField(blank=True, max_length=4, null=True),
+                ),
                 ("is_private", models.BooleanField(default=False)),
-                ("nameserver_history", models.ManyToManyField(to="targetApp.NameServerHistory")),
+                (
+                    "nameserver_history",
+                    models.ManyToManyField(to="targetApp.NameServerHistory"),
+                ),
                 ("nameserver_record", models.ManyToManyField(to="targetApp.NSRecord")),
                 (
                     "whois",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="targetApp.whoisdetail"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="targetApp.whoisdetail",
                     ),
                 ),
             ],
@@ -109,7 +178,10 @@ class Migration(migrations.Migration):
             model_name="domain",
             name="domain_info",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="targetApp.domaininfo"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="targetApp.domaininfo",
             ),
         ),
     ]

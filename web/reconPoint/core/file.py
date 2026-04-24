@@ -158,12 +158,16 @@ def _atomic_validate_and_delete(target_path: Path, base_path: Path) -> bool:
         # Re-validate path security immediately before deletion (TOCTOU protection)
         is_safe, error_msg = _validate_path_security(target_path)
         if not is_safe:
-            logger.error(f"TOCTOU protection: Security validation failed for '{target_path}': {error_msg}")
+            logger.error(
+                f"TOCTOU protection: Security validation failed for '{target_path}': {error_msg}"
+            )
             return False
 
         # Re-validate that target is within base directory
         if not _is_safe_path(base_path, target_path):
-            logger.error(f"TOCTOU protection: Target '{target_path}' is outside base directory '{base_path}'")
+            logger.error(
+                f"TOCTOU protection: Target '{target_path}' is outside base directory '{base_path}'"
+            )
             return False
 
         # Check if file still exists (might have been deleted by another process)
@@ -173,7 +177,9 @@ def _atomic_validate_and_delete(target_path: Path, base_path: Path) -> bool:
 
         # Re-check file type (might have been changed by attacker)
         if target_path.is_symlink():
-            logger.error(f"TOCTOU protection: Target '{target_path}' is a symlink - refusing to delete")
+            logger.error(
+                f"TOCTOU protection: Target '{target_path}' is a symlink - refusing to delete"
+            )
             return False
 
         # Perform deletion
@@ -184,7 +190,9 @@ def _atomic_validate_and_delete(target_path: Path, base_path: Path) -> bool:
             shutil.rmtree(target_path)
             logger.debug(f"Atomically removed directory: {target_path}")
         else:
-            logger.error(f"TOCTOU protection: Unknown file type for '{target_path}' - refusing to delete")
+            logger.error(
+                f"TOCTOU protection: Unknown file type for '{target_path}' - refusing to delete"
+            )
             return False
 
         return True
@@ -193,11 +201,15 @@ def _atomic_validate_and_delete(target_path: Path, base_path: Path) -> bool:
         logger.error(f"TOCTOU protection: Failed to delete '{target_path}': {e}")
         return False
     except Exception as e:
-        logger.error(f"TOCTOU protection: Unexpected error deleting '{target_path}': {e}")
+        logger.error(
+            f"TOCTOU protection: Unexpected error deleting '{target_path}': {e}"
+        )
         return False
 
 
-def remove_file_or_pattern(path: Union[str, Path], pattern: Optional[str] = None) -> bool:
+def remove_file_or_pattern(
+    path: Union[str, Path], pattern: Optional[str] = None
+) -> bool:
     """
     Safely removes a file/directory or pattern matching files.
     Uses pathlib for robust path handling and comprehensive security checks.
@@ -247,19 +259,25 @@ def remove_file_or_pattern(path: Union[str, Path], pattern: Optional[str] = None
                 # Validate each matched file path
                 is_safe, error_msg = _validate_path_security(file_path)
                 if not is_safe:
-                    logger.error(f"Security validation failed for file '{file_path}': {error_msg}")
+                    logger.error(
+                        f"Security validation failed for file '{file_path}': {error_msg}"
+                    )
                     all_deleted = False
                     continue
 
                 # Additional check: ensure file is within the base directory
                 if not _is_safe_path(path_obj, file_path):
-                    logger.error(f"File '{file_path}' is outside allowed directory '{path}'")
+                    logger.error(
+                        f"File '{file_path}' is outside allowed directory '{path}'"
+                    )
                     all_deleted = False
                     continue
 
                 # TOCTOU protection: Re-validate security immediately before deletion
                 if not _atomic_validate_and_delete(file_path, path_obj):
-                    logger.error(f"Atomic validation failed for '{file_path}' - skipping deletion")
+                    logger.error(
+                        f"Atomic validation failed for '{file_path}' - skipping deletion"
+                    )
                     all_deleted = False
             return all_deleted
         else:
@@ -269,7 +287,9 @@ def remove_file_or_pattern(path: Union[str, Path], pattern: Optional[str] = None
 
             # TOCTOU protection: Re-validate security immediately before deletion
             if not _atomic_validate_and_delete(path_obj, path_obj.parent):
-                logger.error(f"Atomic validation failed for '{path}' - skipping deletion")
+                logger.error(
+                    f"Atomic validation failed for '{path}' - skipping deletion"
+                )
                 return False
 
             return True
@@ -313,10 +333,14 @@ def is_nuclei_config_valid(config_path):
                     break
                 else:
                     # Log suspicious content for debugging
-                    logger.debug(f"Nuclei config line {line_num} doesn't appear to be valid config: '{line}'")
+                    logger.debug(
+                        f"Nuclei config line {line_num} doesn't appear to be valid config: '{line}'"
+                    )
 
         if not valid_config_found:
-            logger.warning(f"Nuclei config file {config_path} contains no valid configuration directives")
+            logger.warning(
+                f"Nuclei config file {config_path} contains no valid configuration directives"
+            )
 
         return valid_config_found
 
@@ -402,7 +426,9 @@ def read_file_lines(file_path, skip_empty=True, skip_comments=True):
         # Validate path security
         is_safe, error_msg = _validate_path_security(path_obj)
         if not is_safe:
-            logger.error(f"Security validation failed for file path '{file_path}': {error_msg}")
+            logger.error(
+                f"Security validation failed for file path '{file_path}': {error_msg}"
+            )
             return []
 
         # Check if file exists
@@ -464,7 +490,9 @@ def write_file_lines(file_path, lines, mode="w"):
         # Validate path security
         is_safe, error_msg = _validate_path_security(path_obj)
         if not is_safe:
-            logger.error(f"Security validation failed for file path '{file_path}': {error_msg}")
+            logger.error(
+                f"Security validation failed for file path '{file_path}': {error_msg}"
+            )
             return False
 
         # Ensure parent directory exists with safe permissions
@@ -480,7 +508,9 @@ def write_file_lines(file_path, lines, mode="w"):
         # Validate parent directory security
         is_parent_safe, parent_error_msg = _validate_path_security(parent_dir)
         if not is_parent_safe:
-            logger.error(f"Parent directory security validation failed for '{parent_dir}': {parent_error_msg}")
+            logger.error(
+                f"Parent directory security validation failed for '{parent_dir}': {parent_error_msg}"
+            )
             return False
 
         # Write file with atomic operation
@@ -519,7 +549,9 @@ def ensure_directory_exists(directory_path, mode=0o755):
         # Validate path security
         is_safe, error_msg = _validate_path_security(path_obj)
         if not is_safe:
-            logger.error(f"Security validation failed for directory path '{directory_path}': {error_msg}")
+            logger.error(
+                f"Security validation failed for directory path '{directory_path}': {error_msg}"
+            )
             return False
 
         # Check if directory already exists

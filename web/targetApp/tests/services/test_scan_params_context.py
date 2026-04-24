@@ -56,7 +56,9 @@ class BuildScanParamsFormContextTest(BaseTestCase):
     def test_header_initial_multiline_format(self) -> None:
         """When scan_params_values has header dict, header_initial is one line per header."""
         ctx = build_scan_params_form_context(
-            scan_params_values={"header": {"X-Api-Key": "secret", "Cookie": "session=abc"}}
+            scan_params_values={
+                "header": {"X-Api-Key": "secret", "Cookie": "session=abc"}
+            }
         )
         self.assertIn("header_initial", ctx)
         self.assertIn('"X-Api-Key": "secret"', ctx["header_initial"])

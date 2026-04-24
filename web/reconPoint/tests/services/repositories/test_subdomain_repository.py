@@ -29,7 +29,9 @@ class TestSubdomainRepository(BaseTestCase):
             "sources": ["subfinder", "amass"],
         }
 
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.name, "test.example.com")
@@ -45,7 +47,9 @@ class TestSubdomainRepository(BaseTestCase):
             "sources": ["subfinder"],
             "_source": "httpx",
         }
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.sources, ["subfinder", "httpx"])
 
@@ -56,7 +60,9 @@ class TestSubdomainRepository(BaseTestCase):
             "verified": True,
         }
 
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -67,7 +73,9 @@ class TestSubdomainRepository(BaseTestCase):
             "host": "invalid..domain..name",
         }
 
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -98,10 +106,14 @@ class TestSubdomainRepository(BaseTestCase):
     def test_get_or_create_from_host_idempotent(self):
         """Test get_or_create_from_host returns same subdomain on second call."""
         sub1 = self.subdomain_repo.get_or_create_from_host(
-            self.scan_history.id, self.data_generator.target.id, "idempotent.example.com"
+            self.scan_history.id,
+            self.data_generator.target.id,
+            "idempotent.example.com",
         )
         sub2 = self.subdomain_repo.get_or_create_from_host(
-            self.scan_history.id, self.data_generator.target.id, "idempotent.example.com"
+            self.scan_history.id,
+            self.data_generator.target.id,
+            "idempotent.example.com",
         )
         self.assertIsNotNone(sub1)
         self.assertIsNotNone(sub2)
@@ -110,10 +122,14 @@ class TestSubdomainRepository(BaseTestCase):
     def test_get_or_create_from_host_rejects_empty(self):
         """Test get_or_create_from_host returns None for empty/invalid host."""
         self.assertIsNone(
-            self.subdomain_repo.get_or_create_from_host(self.scan_history.id, self.data_generator.target.id, "")
+            self.subdomain_repo.get_or_create_from_host(
+                self.scan_history.id, self.data_generator.target.id, ""
+            )
         )
         self.assertIsNone(
-            self.subdomain_repo.get_or_create_from_host(self.scan_history.id, self.data_generator.target.id, "  ")
+            self.subdomain_repo.get_or_create_from_host(
+                self.scan_history.id, self.data_generator.target.id, "  "
+            )
         )
 
     def test_save_from_secator_accepts_lan_hostname(self):
@@ -123,7 +139,9 @@ class TestSubdomainRepository(BaseTestCase):
             "host": "reconpoint.lan",
             "verified": False,
         }
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.name, "reconpoint.lan")
 
@@ -135,7 +153,9 @@ class TestSubdomainRepository(BaseTestCase):
             "input": "example.com",
             "sources": ["chaos"],
         }
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.name, "example.com")
         self.assertEqual(result.sources, ["chaos"])
@@ -155,7 +175,9 @@ class TestSubdomainRepository(BaseTestCase):
             },
         }
 
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.http_url, "https://test.example.com")
@@ -174,10 +196,14 @@ class TestSubdomainRepository(BaseTestCase):
                 "technologies": ("TechAlpha", "TechBeta"),
             },
         }
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.technologies.count(), 0)
-        self.assertEqual(Technology.objects.filter(name__in=["TechAlpha", "TechBeta"]).count(), 0)
+        self.assertEqual(
+            Technology.objects.filter(name__in=["TechAlpha", "TechBeta"]).count(), 0
+        )
 
     def test_save_from_secator_extra_data_technologies_none_skips_without_error(self):
         """Explicit null technologies must not raise when iterating."""
@@ -186,7 +212,9 @@ class TestSubdomainRepository(BaseTestCase):
             "host": "tech-none.example.com",
             "extra_data": {"technologies": None},
         }
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.technologies.count(), 0)
 
@@ -197,7 +225,9 @@ class TestSubdomainRepository(BaseTestCase):
             "host": "tech-dict.example.com",
             "extra_data": {"technologies": {"not-a-tech-name": "x"}},
         }
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.technologies.count(), 0)
 
@@ -208,7 +238,9 @@ class TestSubdomainRepository(BaseTestCase):
             "host": "tech-str.example.com",
             "extra_data": {"technologies": "nginx"},
         }
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.technologies.count(), 0)
 
@@ -222,7 +254,9 @@ class TestSubdomainRepository(BaseTestCase):
                 "http_status": 200,
             },
         }
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         ip = result.ip_addresses.first()
         self.assertIsNotNone(ip)
@@ -241,7 +275,10 @@ class TestSubdomainRepository(BaseTestCase):
         }
 
         result = self.subdomain_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id, reconpoint_context=reconpoint_context
+            item,
+            self.scan_history.id,
+            self.data_generator.target.id,
+            reconpoint_context=reconpoint_context,
         )
 
         self.assertIsNotNone(result)
@@ -254,7 +291,9 @@ class TestSubdomainRepository(BaseTestCase):
             "host": "test.example.com",
         }
 
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertFalse(result.is_imported_subdomain)
@@ -276,7 +315,10 @@ class TestSubdomainRepository(BaseTestCase):
         item = {"_type": "subdomain", "host": "subscan-link.example.com"}
 
         result = self.subdomain_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id, reconpoint_context=reconpoint_context
+            item,
+            self.scan_history.id,
+            self.data_generator.target.id,
+            reconpoint_context=reconpoint_context,
         )
 
         self.assertIsNotNone(result)
@@ -389,9 +431,15 @@ class TestSubdomainRepository(BaseTestCase):
 
     def test_bulk_create_subdomains(self):
         """Test bulk creation of subdomains."""
-        subdomain_names = ["test1.example.com", "test2.example.com", "test3.example.com"]
+        subdomain_names = [
+            "test1.example.com",
+            "test2.example.com",
+            "test3.example.com",
+        ]
 
-        result = self.subdomain_repo.bulk_create(subdomain_names, self.scan_history.id, self.data_generator.domain.id)
+        result = self.subdomain_repo.bulk_create(
+            subdomain_names, self.scan_history.id, self.data_generator.domain.id
+        )
 
         self.assertEqual(len(result), 3)
         created_names = [sub.name for sub in result]
@@ -406,7 +454,9 @@ class TestSubdomainRepository(BaseTestCase):
             "test2.example.com",
         ]
 
-        result = self.subdomain_repo.bulk_create(subdomain_names, self.scan_history.id, self.data_generator.domain.id)
+        result = self.subdomain_repo.bulk_create(
+            subdomain_names, self.scan_history.id, self.data_generator.domain.id
+        )
 
         # Should only create valid subdomains
         self.assertEqual(len(result), 2)
@@ -416,7 +466,9 @@ class TestSubdomainRepository(BaseTestCase):
 
     def test_bulk_create_empty_list(self):
         """Test bulk creation with empty list."""
-        result = self.subdomain_repo.bulk_create([], self.scan_history.id, self.data_generator.domain.id)
+        result = self.subdomain_repo.bulk_create(
+            [], self.scan_history.id, self.data_generator.domain.id
+        )
 
         self.assertEqual(result, [])
 
@@ -428,7 +480,9 @@ class TestSubdomainRepository(BaseTestCase):
             "verified": True,
             "sources": ["amass"],
         }
-        result = self.subdomain_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.subdomain_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.name, "myhost.example.com")
         self.assertTrue(result.verified)
@@ -483,13 +537,17 @@ class SubdomainRepositoryFindingScopeFilterTest(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.data_generator.create_organization()
-        self.data_generator.create_scope(restrict_findings_to_target=True, allowed_finding_domains=[])
+        self.data_generator.create_scope(
+            restrict_findings_to_target=True, allowed_finding_domains=[]
+        )
         self.scope = self.data_generator.scope
         self.target = self.data_generator.target
         self.scan_history = self.data_generator.create_scan_history()
         self.subdomain_repo = SubdomainRepository()
 
-    def test_get_or_create_from_host_out_of_scope_raises_finding_out_of_scope_error(self):
+    def test_get_or_create_from_host_out_of_scope_raises_finding_out_of_scope_error(
+        self,
+    ):
         """When scope restricts findings, host (domain) not in allowed list raises FindingOutOfScopeError."""
         from reconPoint.core.exceptions import FindingOutOfScopeError
 

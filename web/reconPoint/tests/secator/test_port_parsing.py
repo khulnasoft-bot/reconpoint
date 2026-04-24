@@ -27,7 +27,12 @@ class TestPortParsing(unittest.TestCase):
 
     def test_parse_port_with_version(self):
         """Test port parsing with service version."""
-        port_data = {"port": 443, "service": "https", "version": "nginx/1.18.0", "state": "open"}
+        port_data = {
+            "port": 443,
+            "service": "https",
+            "version": "nginx/1.18.0",
+            "state": "open",
+        }
 
         result = self.parser._parse_port(port_data)
 
@@ -37,7 +42,12 @@ class TestPortParsing(unittest.TestCase):
 
     def test_parse_port_with_banner(self):
         """Test port parsing with service banner."""
-        port_data = {"port": 22, "service": "ssh", "banner": "SSH-2.0-OpenSSH_8.0", "state": "open"}
+        port_data = {
+            "port": 22,
+            "service": "ssh",
+            "banner": "SSH-2.0-OpenSSH_8.0",
+            "state": "open",
+        }
 
         result = self.parser._parse_port(port_data)
 
@@ -77,7 +87,12 @@ class TestPortParsing(unittest.TestCase):
 
     def test_parse_port_with_protocol(self):
         """Test port parsing with protocol information."""
-        port_data = {"port": 53, "service": "domain", "protocol": "udp", "state": "open"}
+        port_data = {
+            "port": 53,
+            "service": "domain",
+            "protocol": "udp",
+            "state": "open",
+        }
 
         result = self.parser._parse_port(port_data)
 
@@ -140,7 +155,14 @@ class TestPortParsing(unittest.TestCase):
 
     def test_parse_port_with_state_variations(self):
         """Test port parsing with different state values."""
-        states = ["open", "closed", "filtered", "unfiltered", "open|filtered", "closed|filtered"]
+        states = [
+            "open",
+            "closed",
+            "filtered",
+            "unfiltered",
+            "open|filtered",
+            "closed|filtered",
+        ]
 
         for state in states:
             with self.subTest(state=state):

@@ -7,10 +7,15 @@ from dashboard.utils import get_user_projects  # Assuming this function exists
 
 
 def project_context(request):
-    current_project = getattr(request, "current_project", None)  # Get the project from the request
+    current_project = getattr(
+        request, "current_project", None
+    )  # Get the project from the request
     project_slug_from_url = ""
 
-    if getattr(request, "resolver_match", None) and "slug" in request.resolver_match.kwargs:
+    if (
+        getattr(request, "resolver_match", None)
+        and "slug" in request.resolver_match.kwargs
+    ):
         raw_slug = request.resolver_match.kwargs.get("slug")
         if raw_slug:
             project_slug_from_url = str(raw_slug)
@@ -47,5 +52,7 @@ def project_context(request):
     if current_project:
         from api.helpers.datatables import get_datatable_action_urls
 
-        context["datatable_action_urls"] = get_datatable_action_urls(current_project.slug)
+        context["datatable_action_urls"] = get_datatable_action_urls(
+            current_project.slug
+        )
     return context

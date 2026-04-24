@@ -84,7 +84,9 @@ def determine_target_type(target_name):
         'custom_text'
     """
     # Check if it's an IP address
-    if validators.ip_address.ipv4(target_name) or validators.ip_address.ipv6(target_name):
+    if validators.ip_address.ipv4(target_name) or validators.ip_address.ipv6(
+        target_name
+    ):
         return "ip_address"
 
     # Check if it's an IP range (format: 192.168.1.0_28)

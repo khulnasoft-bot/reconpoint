@@ -9,7 +9,9 @@ from django.template.loader import render_to_string
 from scanEngine.models import SecatorScan, SecatorTask, SecatorWorkflow
 
 
-_INVALID_EXECUTION_MODE_HTML = '<div class="alert alert-warning">Invalid execution mode</div>'
+_INVALID_EXECUTION_MODE_HTML = (
+    '<div class="alert alert-warning">Invalid execution mode</div>'
+)
 _SECATOR_SELECTION_CACHE_TIMEOUT = 300
 
 
@@ -28,7 +30,9 @@ class SecatorSelectionContext(TypedDict, total=False):
     ]  # scan mode: list of {"scan": SecatorScan, "workflows": [{"workflow", "structured_tasks", "tasks_count"}, ...]}
 
 
-def get_secator_selection_template_and_context(execution_mode: str) -> tuple[str, SecatorSelectionContext]:
+def get_secator_selection_template_and_context(
+    execution_mode: str,
+) -> tuple[str, SecatorSelectionContext]:
     """
     Build the template name and context for Secator selection UIs (workflow/tasks/scan).
 

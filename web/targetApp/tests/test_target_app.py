@@ -34,7 +34,14 @@ from django.urls import reverse
 from django.utils import timezone
 
 from reconPoint.secator.services.target_builder_service import TargetBuilderService
-from startScan.models import Domain, DomainInfo, IpAddress, RelatedDomain, ScanHistory, Subdomain
+from startScan.models import (
+    Domain,
+    DomainInfo,
+    IpAddress,
+    RelatedDomain,
+    ScanHistory,
+    Subdomain,
+)
 from targetApp.models import Organization, Target
 from targetApp.views import _AggregatedDomainInfo
 from utils.test_base import BaseTestCase
@@ -76,7 +83,9 @@ class TestTargetAppViews(BaseTestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
-        target = Target.objects.filter(project=self.data_generator.project, value="example.com").first()
+        target = Target.objects.filter(
+            project=self.data_generator.project, value="example.com"
+        ).first()
         self.assertIsNotNone(target)
         self.assertEqual(target.target_type, "host")
 
@@ -87,7 +96,9 @@ class TestTargetAppViews(BaseTestCase):
         Domain.objects.all().delete()
 
         # Create test host data in the new format
-        host_data_1 = json.dumps({"ip": "192.168.1.1", "domain": "www.example.local", "is_alive": True})
+        host_data_1 = json.dumps(
+            {"ip": "192.168.1.1", "domain": "www.example.local", "is_alive": True}
+        )
 
         response = self.client.post(
             reverse("add_target", kwargs={"slug": self.data_generator.project.slug}),
@@ -104,18 +115,26 @@ class TestTargetAppViews(BaseTestCase):
         )
         self.assertEqual(response.status_code, 302)
 
-        target = Target.objects.filter(project=self.data_generator.project, value="example.local").first()
+        target = Target.objects.filter(
+            project=self.data_generator.project, value="example.local"
+        ).first()
         self.assertIsNotNone(target)
         self.assertEqual(target.target_type, "host")
         scan = ScanHistory.objects.filter(target=target).first()
         self.assertIsNotNone(scan)
         self.assertEqual(scan.scan_config.get("seed_source"), "ip_discovery")
-        self.assertTrue(Domain.objects.filter(scan_history=scan, name="example.local").exists())
-        sub = Subdomain.objects.filter(scan_history=scan, name="www.example.local").first()
+        self.assertTrue(
+            Domain.objects.filter(scan_history=scan, name="example.local").exists()
+        )
+        sub = Subdomain.objects.filter(
+            scan_history=scan, name="www.example.local"
+        ).first()
         self.assertIsNotNone(sub)
         self.assertTrue(IpAddress.objects.filter(address="192.168.1.1").exists())
         self.assertTrue(sub.ip_addresses.filter(address="192.168.1.1").exists())
-        flat = TargetBuilderService(target_id=target.id).build_flat_targets(["host", "ip"])
+        flat = TargetBuilderService(target_id=target.id).build_flat_targets(
+            ["host", "ip"]
+        )
         self.assertIn("www.example.local", flat)
         self.assertIn("192.168.1.1", flat)
 
@@ -138,17 +157,25 @@ class TestTargetAppViews(BaseTestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
-        target = Target.objects.get(project=self.data_generator.project, value="example.local")
+        target = Target.objects.get(
+            project=self.data_generator.project, value="example.local"
+        )
         scan = ScanHistory.objects.filter(target=target).first()
         self.assertIsNotNone(scan)
-        self.assertTrue(Domain.objects.filter(scan_history=scan, name="example.local").exists())
+        self.assertTrue(
+            Domain.objects.filter(scan_history=scan, name="example.local").exists()
+        )
 
     def test_add_ip_named_target_seeds_domain_and_ip_without_domain_checkbox(self):
         """Explicit apex + IP-only selections still create Domain + IpAddress on the seed scan."""
-        Target.objects.filter(project=self.data_generator.project, value="ray.local").delete()
+        Target.objects.filter(
+            project=self.data_generator.project, value="ray.local"
+        ).delete()
         Domain.objects.all().delete()
         ScanHistory.objects.all().delete()
-        ip_row = json.dumps({"ip": "192.168.1.50", "domain": "192.168.1.50", "is_alive": True})
+        ip_row = json.dumps(
+            {"ip": "192.168.1.50", "domain": "192.168.1.50", "is_alive": True}
+        )
         response = self.client.post(
             reverse("add_target", kwargs={"slug": self.data_generator.project.slug}),
             {
@@ -160,18 +187,26 @@ class TestTargetAppViews(BaseTestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
-        target = Target.objects.get(project=self.data_generator.project, value="ray.local")
+        target = Target.objects.get(
+            project=self.data_generator.project, value="ray.local"
+        )
         scan = ScanHistory.objects.filter(target=target).first()
         self.assertIsNotNone(scan)
-        self.assertTrue(Domain.objects.filter(scan_history=scan, name="ray.local").exists())
+        self.assertTrue(
+            Domain.objects.filter(scan_history=scan, name="ray.local").exists()
+        )
         self.assertTrue(IpAddress.objects.filter(address="192.168.1.50").exists())
 
     def test_add_ip_named_target_imports_selected_hostname_even_if_apex_differs(self):
         """Selected hosts are imported into the named target without apex restriction."""
-        Target.objects.filter(project=self.data_generator.project, value="ray.local").delete()
+        Target.objects.filter(
+            project=self.data_generator.project, value="ray.local"
+        ).delete()
         Domain.objects.all().delete()
         ScanHistory.objects.all().delete()
-        host_row = json.dumps({"ip": "10.0.0.2", "domain": "nas.local", "is_alive": True})
+        host_row = json.dumps(
+            {"ip": "10.0.0.2", "domain": "nas.local", "is_alive": True}
+        )
         response = self.client.post(
             reverse("add_target", kwargs={"slug": self.data_generator.project.slug}),
             {
@@ -183,17 +218,23 @@ class TestTargetAppViews(BaseTestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
-        target = Target.objects.get(project=self.data_generator.project, value="ray.local")
+        target = Target.objects.get(
+            project=self.data_generator.project, value="ray.local"
+        )
         scan = ScanHistory.objects.filter(target=target).first()
         self.assertIsNotNone(scan)
-        self.assertTrue(Subdomain.objects.filter(scan_history=scan, name="nas.local").exists())
+        self.assertTrue(
+            Subdomain.objects.filter(scan_history=scan, name="nas.local").exists()
+        )
         self.assertTrue(IpAddress.objects.filter(address="10.0.0.2").exists())
 
     def test_add_ip_discovery_requires_target_name(self):
         """
         DNS discovery import rejects submission when targetName is missing.
         """
-        host_data = json.dumps({"ip": "192.168.1.2", "domain": "host.lab.local", "is_alive": True})
+        host_data = json.dumps(
+            {"ip": "192.168.1.2", "domain": "host.lab.local", "is_alive": True}
+        )
 
         response = self.client.post(
             reverse("add_target", kwargs={"slug": self.data_generator.project.slug}),
@@ -220,7 +261,9 @@ class TestTargetAppViews(BaseTestCase):
 
         with open("domains.txt", "rb") as file:
             response = self.client.post(
-                reverse("add_target", kwargs={"slug": self.data_generator.project.slug}),
+                reverse(
+                    "add_target", kwargs={"slug": self.data_generator.project.slug}
+                ),
                 {
                     "txtFile": file,
                     "import-txt-target": "Upload",
@@ -230,7 +273,9 @@ class TestTargetAppViews(BaseTestCase):
 
         self.assertEqual(response.status_code, 302)
         for name in ("example.local", "other-example.local"):
-            target = Target.objects.filter(project=self.data_generator.project, value=name).first()
+            target = Target.objects.filter(
+                project=self.data_generator.project, value=name
+            ).first()
             self.assertIsNotNone(target, msg=f"Target {name} should exist")
             self.assertEqual(target.target_type, "host")
         os.remove("domains.txt")
@@ -245,7 +290,9 @@ class TestTargetAppViews(BaseTestCase):
 
         with open("empty_file.txt", "rb") as file:
             response = self.client.post(
-                reverse("add_target", kwargs={"slug": self.data_generator.project.slug}),
+                reverse(
+                    "add_target", kwargs={"slug": self.data_generator.project.slug}
+                ),
                 {
                     "txtFile": file,
                     "import-txt-target": "Upload",
@@ -259,11 +306,16 @@ class TestTargetAppViews(BaseTestCase):
         # Check the returned message
         messages_list = list(get_messages(response.wsgi_request))
         self.assertIn(
-            "The uploaded file is empty. Please upload a valid file.", [str(message) for message in messages_list]
+            "The uploaded file is empty. Please upload a valid file.",
+            [str(message) for message in messages_list],
         )
 
         # Check that no new target was created
-        self.assertFalse(Target.objects.filter(project=self.data_generator.project, value="example.local").exists())
+        self.assertFalse(
+            Target.objects.filter(
+                project=self.data_generator.project, value="example.local"
+            ).exists()
+        )
 
         # Clean up the empty file
         os.remove("empty_file.txt")
@@ -272,7 +324,9 @@ class TestTargetAppViews(BaseTestCase):
         """
         Tests the list target view to ensure it returns the correct status code and template.
         """
-        response = self.client.get(reverse("list_target", kwargs={"slug": self.data_generator.project.slug}))
+        response = self.client.get(
+            reverse("list_target", kwargs={"slug": self.data_generator.project.slug})
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "target/list.html")
 
@@ -284,7 +338,10 @@ class TestTargetAppViews(BaseTestCase):
         self.data_generator.create_scan_history()
         target = self.data_generator.target
         response = self.client.get(
-            reverse("target_summary", kwargs={"slug": self.data_generator.project.slug, "id": target.id})
+            reverse(
+                "target_summary",
+                kwargs={"slug": self.data_generator.project.slug, "id": target.id},
+            )
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "target/summary.html")
@@ -308,7 +365,10 @@ class TestTargetAppViews(BaseTestCase):
             scan_history=scan_history,
         )
         response = self.client.get(
-            reverse("target_summary", kwargs={"slug": self.data_generator.project.slug, "id": target.id})
+            reverse(
+                "target_summary",
+                kwargs={"slug": self.data_generator.project.slug, "id": target.id},
+            )
         )
         self.assertEqual(response.status_code, 200)
         self.assertGreater(response.context["exploit_count"], 0)
@@ -324,7 +384,10 @@ class TestTargetAppViews(BaseTestCase):
         target = self.data_generator.target
         self.assertIsNone(self.data_generator.domain.domain_info_id)
         response = self.client.get(
-            reverse("target_summary", kwargs={"slug": self.data_generator.project.slug, "id": target.id})
+            reverse(
+                "target_summary",
+                kwargs={"slug": self.data_generator.project.slug, "id": target.id},
+            )
         )
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.context["domain_info"])
@@ -364,7 +427,10 @@ class TestTargetAppViews(BaseTestCase):
         info2.related_domains.add(rd3)
 
         response = self.client.get(
-            reverse("target_summary", kwargs={"slug": self.data_generator.project.slug, "id": target.id})
+            reverse(
+                "target_summary",
+                kwargs={"slug": self.data_generator.project.slug, "id": target.id},
+            )
         )
         self.assertEqual(response.status_code, 200)
         domain_info = response.context["domain_info"]
@@ -406,11 +472,18 @@ class TestTargetAppViews(BaseTestCase):
             ),
         )
         response = self.client.get(
-            reverse("target_summary", kwargs={"slug": self.data_generator.project.slug, "id": target.id})
+            reverse(
+                "target_summary",
+                kwargs={"slug": self.data_generator.project.slug, "id": target.id},
+            )
         )
         self.assertEqual(response.status_code, 200)
         domains = response.context["domains"]
-        self.assertEqual(len(domains), 1, "Expected one domain when name is example.com in multiple scans")
+        self.assertEqual(
+            len(domains),
+            1,
+            "Expected one domain when name is example.com in multiple scans",
+        )
         self.assertEqual(domains[0].name, "example.com")
 
     def test_delete_target_view(self):
@@ -421,7 +494,10 @@ class TestTargetAppViews(BaseTestCase):
         target = self.data_generator.target
         target_id = target.id
         response = self.client.post(
-            reverse("delete_target", kwargs={"id": target_id, "slug": self.data_generator.project.slug})
+            reverse(
+                "delete_target",
+                kwargs={"id": target_id, "slug": self.data_generator.project.slug},
+            )
         )
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Target.objects.filter(id=target_id).exists())
@@ -433,7 +509,10 @@ class TestTargetAppViews(BaseTestCase):
         self.data_generator.create_scan_history()
         target = self.data_generator.target
         response = self.client.post(
-            reverse("update_target", kwargs={"slug": self.data_generator.project.slug, "id": target.id}),
+            reverse(
+                "update_target",
+                kwargs={"slug": self.data_generator.project.slug, "id": target.id},
+            ),
             {"description": "Updated description", "h1_team_handle": "Updated Handle"},
         )
         self.assertEqual(response.status_code, 302)
@@ -457,7 +536,10 @@ class TestTargetAppViews(BaseTestCase):
         response = self.client.post(
             reverse(
                 "update_organization",
-                kwargs={"slug": self.data_generator.project.slug, "id": self.data_generator.organization.id},
+                kwargs={
+                    "slug": self.data_generator.project.slug,
+                    "id": self.data_generator.organization.id,
+                },
             ),
             invalid_data,
         )
@@ -471,7 +553,9 @@ class TestTargetAppViews(BaseTestCase):
         # Verify that the organization data has not changed
         self.data_generator.organization.refresh_from_db()
         self.assertEqual(self.data_generator.organization.name, original_name)
-        self.assertEqual(self.data_generator.organization.description or "", original_description)
+        self.assertEqual(
+            self.data_generator.organization.description or "", original_description
+        )
 
     def test_delete_non_existent_target(self):
         """
@@ -480,7 +564,13 @@ class TestTargetAppViews(BaseTestCase):
         non_existent_id = 999999
 
         response = self.client.post(
-            reverse("delete_target", kwargs={"id": non_existent_id, "slug": self.data_generator.project.slug}),
+            reverse(
+                "delete_target",
+                kwargs={
+                    "id": non_existent_id,
+                    "slug": self.data_generator.project.slug,
+                },
+            ),
             follow=True,
         )
 
@@ -489,7 +579,9 @@ class TestTargetAppViews(BaseTestCase):
         messages_list = list(get_messages(response.wsgi_request))
         self.assertIn("Target not found.", [str(message) for message in messages_list])
 
-        self.assertTrue(Domain.objects.filter(id=self.data_generator.domain.id).exists())
+        self.assertTrue(
+            Domain.objects.filter(id=self.data_generator.domain.id).exists()
+        )
 
     def test_add_organization_view(self):
         """
@@ -497,7 +589,9 @@ class TestTargetAppViews(BaseTestCase):
         """
         Organization.objects.all().delete()
         response = self.client.post(
-            reverse("add_organization", kwargs={"slug": self.data_generator.project.slug}),
+            reverse(
+                "add_organization", kwargs={"slug": self.data_generator.project.slug}
+            ),
             {
                 "name": "New Organization",
                 "description": "New Org Description",
@@ -511,7 +605,11 @@ class TestTargetAppViews(BaseTestCase):
         """
         Tests the list organization view to ensure it returns the correct status code and template.
         """
-        response = self.client.get(reverse("list_organization", kwargs={"slug": self.data_generator.project.slug}))
+        response = self.client.get(
+            reverse(
+                "list_organization", kwargs={"slug": self.data_generator.project.slug}
+            )
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "organization/list.html")
 
@@ -522,11 +620,16 @@ class TestTargetAppViews(BaseTestCase):
         response = self.client.post(
             reverse(
                 "delete_organization",
-                kwargs={"id": self.data_generator.organization.id, "slug": self.data_generator.project.slug},
+                kwargs={
+                    "id": self.data_generator.organization.id,
+                    "slug": self.data_generator.project.slug,
+                },
             )
         )
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(Organization.objects.filter(id=self.data_generator.organization.id).exists())
+        self.assertFalse(
+            Organization.objects.filter(id=self.data_generator.organization.id).exists()
+        )
 
     def test_update_organization_view(self):
         """
@@ -535,7 +638,10 @@ class TestTargetAppViews(BaseTestCase):
         response = self.client.post(
             reverse(
                 "update_organization",
-                kwargs={"slug": self.data_generator.project.slug, "id": self.data_generator.organization.id},
+                kwargs={
+                    "slug": self.data_generator.project.slug,
+                    "id": self.data_generator.organization.id,
+                },
             ),
             {
                 "name": "Updated Organization",
@@ -546,7 +652,9 @@ class TestTargetAppViews(BaseTestCase):
         self.assertEqual(response.status_code, 302)
         self.data_generator.organization.refresh_from_db()
         self.assertEqual(self.data_generator.organization.name, "Updated Organization")
-        self.assertEqual(self.data_generator.organization.description, "Updated Org Description")
+        self.assertEqual(
+            self.data_generator.organization.description, "Updated Org Description"
+        )
 
     def test_update_organization_with_invalid_data(self):
         """
@@ -558,7 +666,10 @@ class TestTargetAppViews(BaseTestCase):
         response = self.client.post(
             reverse(
                 "update_organization",
-                kwargs={"slug": self.data_generator.project.slug, "id": self.data_generator.organization.id},
+                kwargs={
+                    "slug": self.data_generator.project.slug,
+                    "id": self.data_generator.organization.id,
+                },
             ),
             {
                 "name": "",  # Invalid: name cannot be empty
@@ -576,7 +687,9 @@ class TestTargetAppViews(BaseTestCase):
         # Verify that the organization data has not changed
         self.data_generator.organization.refresh_from_db()
         self.assertEqual(self.data_generator.organization.name, original_name)
-        self.assertEqual(self.data_generator.organization.description or "", original_description)
+        self.assertEqual(
+            self.data_generator.organization.description or "", original_description
+        )
 
     def test_add_organization_with_duplicate_name(self):
         """
@@ -595,7 +708,9 @@ class TestTargetAppViews(BaseTestCase):
             scan_history=extra_scan,
         )
         response = self.client.post(
-            reverse("add_organization", kwargs={"slug": self.data_generator.project.slug}),
+            reverse(
+                "add_organization", kwargs={"slug": self.data_generator.project.slug}
+            ),
             {
                 "name": existing_name,
                 "description": "New Org Description",
@@ -620,7 +735,13 @@ class TestTargetAppViews(BaseTestCase):
         non_existent_id = self.data_generator.organization.id + 999
 
         response = self.client.post(
-            reverse("delete_organization", kwargs={"id": non_existent_id, "slug": self.data_generator.project.slug}),
+            reverse(
+                "delete_organization",
+                kwargs={
+                    "id": non_existent_id,
+                    "slug": self.data_generator.project.slug,
+                },
+            ),
             follow=True,  # Follow the redirect after deletion
         )
 
@@ -628,10 +749,14 @@ class TestTargetAppViews(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
         messages_list = list(get_messages(response.wsgi_request))
-        self.assertIn("Organization not found.", [str(message) for message in messages_list])
+        self.assertIn(
+            "Organization not found.", [str(message) for message in messages_list]
+        )
 
         # Verify that the existing organization is still present
-        self.assertTrue(Organization.objects.filter(id=self.data_generator.organization.id).exists())
+        self.assertTrue(
+            Organization.objects.filter(id=self.data_generator.organization.id).exists()
+        )
 
 
 class TestValidateDNSServers(BaseTestCase):
@@ -655,21 +780,27 @@ class TestValidateDNSServers(BaseTestCase):
 
     def test_validate_valid_ipv4_with_port(self):
         """Test validation with valid IPv4 addresses including port."""
-        is_valid, error_msg, cleaned = self.validate_dns_servers("8.8.8.8:53,1.1.1.1:5353")
+        is_valid, error_msg, cleaned = self.validate_dns_servers(
+            "8.8.8.8:53,1.1.1.1:5353"
+        )
         self.assertTrue(is_valid)
         self.assertIsNone(error_msg)
         self.assertEqual(cleaned, "8.8.8.8:53,1.1.1.1:5353")
 
     def test_validate_valid_ipv6_servers(self):
         """Test validation with valid IPv6 addresses."""
-        is_valid, error_msg, cleaned = self.validate_dns_servers("2001:4860:4860::8888,2001:4860:4860::8844")
+        is_valid, error_msg, cleaned = self.validate_dns_servers(
+            "2001:4860:4860::8888,2001:4860:4860::8844"
+        )
         self.assertTrue(is_valid)
         self.assertIsNone(error_msg)
         self.assertEqual(cleaned, "2001:4860:4860::8888,2001:4860:4860::8844")
 
     def test_validate_valid_hostnames(self):
         """Test validation with valid hostnames."""
-        is_valid, error_msg, cleaned = self.validate_dns_servers("dns.google.com,one.one.one.one")
+        is_valid, error_msg, cleaned = self.validate_dns_servers(
+            "dns.google.com,one.one.one.one"
+        )
         self.assertTrue(is_valid)
         self.assertIsNone(error_msg)
         self.assertEqual(cleaned, "dns.google.com,one.one.one.one")
@@ -690,14 +821,18 @@ class TestValidateDNSServers(BaseTestCase):
 
     def test_validate_with_extra_whitespace(self):
         """Test validation with extra whitespace around servers."""
-        is_valid, error_msg, cleaned = self.validate_dns_servers("  8.8.8.8  ,  1.1.1.1  ")
+        is_valid, error_msg, cleaned = self.validate_dns_servers(
+            "  8.8.8.8  ,  1.1.1.1  "
+        )
         self.assertTrue(is_valid)
         self.assertIsNone(error_msg)
         self.assertEqual(cleaned, "8.8.8.8,1.1.1.1")
 
     def test_validate_with_extra_commas(self):
         """Test validation with extra commas."""
-        is_valid, error_msg, cleaned = self.validate_dns_servers("8.8.8.8,,1.1.1.1,,,9.9.9.9")
+        is_valid, error_msg, cleaned = self.validate_dns_servers(
+            "8.8.8.8,,1.1.1.1,,,9.9.9.9"
+        )
         self.assertTrue(is_valid)
         self.assertIsNone(error_msg)
         self.assertEqual(cleaned, "8.8.8.8,1.1.1.1,9.9.9.9")
@@ -718,7 +853,9 @@ class TestValidateDNSServers(BaseTestCase):
 
     def test_validate_mixed_valid_invalid(self):
         """Test validation with mix of valid and invalid servers."""
-        is_valid, error_msg, cleaned = self.validate_dns_servers("8.8.8.8,invalid!@#,1.1.1.1")
+        is_valid, error_msg, cleaned = self.validate_dns_servers(
+            "8.8.8.8,invalid!@#,1.1.1.1"
+        )
         self.assertFalse(is_valid)
         self.assertIn("Invalid DNS server address", error_msg)
         self.assertIsNone(cleaned)
@@ -739,14 +876,18 @@ class TestValidateDNSServers(BaseTestCase):
 
     def test_validate_sql_injection_attempt(self):
         """Test validation rejects SQL injection attempts."""
-        is_valid, error_msg, cleaned = self.validate_dns_servers("8.8.8.8; DROP TABLE domains;")
+        is_valid, error_msg, cleaned = self.validate_dns_servers(
+            "8.8.8.8; DROP TABLE domains;"
+        )
         self.assertFalse(is_valid)
         self.assertIn("Invalid DNS server address", error_msg)
         self.assertIsNone(cleaned)
 
     def test_validate_xss_attempt(self):
         """Test validation rejects XSS attempts."""
-        is_valid, error_msg, cleaned = self.validate_dns_servers("<script>alert('xss')</script>")
+        is_valid, error_msg, cleaned = self.validate_dns_servers(
+            "<script>alert('xss')</script>"
+        )
         self.assertFalse(is_valid)
         self.assertIn("Invalid DNS server address", error_msg)
         self.assertIsNone(cleaned)
@@ -762,7 +903,9 @@ class TestValidateDNSServers(BaseTestCase):
         """Test adding a target with invalid DNS servers."""
         Domain.objects.all().delete()
 
-        host_data = json.dumps({"ip": "192.168.1.1", "domain": "example.local", "is_alive": True})
+        host_data = json.dumps(
+            {"ip": "192.168.1.1", "domain": "example.local", "is_alive": True}
+        )
 
         response = self.client.post(
             reverse("add_target", kwargs={"slug": self.data_generator.project.slug}),
@@ -781,7 +924,11 @@ class TestValidateDNSServers(BaseTestCase):
 
         # Check for error message
         messages_list = list(get_messages(response.wsgi_request))
-        self.assertTrue(any("Invalid DNS servers configuration" in str(msg) for msg in messages_list))
+        self.assertTrue(
+            any(
+                "Invalid DNS servers configuration" in str(msg) for msg in messages_list
+            )
+        )
 
         self.assertFalse(Domain.objects.filter(name="example.local").exists())
 
@@ -789,7 +936,9 @@ class TestValidateDNSServers(BaseTestCase):
         """Test adding a target with valid DNS servers."""
         Domain.objects.all().delete()
 
-        host_data = json.dumps({"ip": "192.168.1.1", "domain": "example.local", "is_alive": True})
+        host_data = json.dumps(
+            {"ip": "192.168.1.1", "domain": "example.local", "is_alive": True}
+        )
 
         response = self.client.post(
             reverse("add_target", kwargs={"slug": self.data_generator.project.slug}),
@@ -806,11 +955,15 @@ class TestValidateDNSServers(BaseTestCase):
         # Should redirect on success
         self.assertEqual(response.status_code, 302)
 
-        target = Target.objects.filter(project=self.data_generator.project, value="example.local").first()
+        target = Target.objects.filter(
+            project=self.data_generator.project, value="example.local"
+        ).first()
         self.assertIsNotNone(target)
         scan = ScanHistory.objects.filter(target=target).first()
         self.assertIsNotNone(scan)
-        self.assertTrue(Domain.objects.filter(scan_history=scan, name="example.local").exists())
+        self.assertTrue(
+            Domain.objects.filter(scan_history=scan, name="example.local").exists()
+        )
 
     def test_add_single_target_by_type(self):
         """
@@ -840,7 +993,9 @@ class TestValidateDNSServers(BaseTestCase):
         ).first()
         self.assertIsNotNone(target)
         self.assertEqual(target.description, "Test URL target")
-        self.assertFalse(Domain.objects.filter(scan_history__target_id=target.id).exists())
+        self.assertFalse(
+            Domain.objects.filter(scan_history__target_id=target.id).exists()
+        )
 
     def test_add_single_target_cidr_invalid(self):
         """Invalid CIDR when adding single target returns redirect with error."""

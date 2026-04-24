@@ -39,7 +39,15 @@ class TargetAdmin(admin.ModelAdmin):
         ),
         (
             "Optional",
-            {"fields": ("port", "custom_dns_servers", "h1_team_handle", "insert_date", "start_scan_date")},
+            {
+                "fields": (
+                    "port",
+                    "custom_dns_servers",
+                    "h1_team_handle",
+                    "insert_date",
+                    "start_scan_date",
+                )
+            },
         ),
         (
             "Advanced",
@@ -121,7 +129,17 @@ class ScopeAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Basic Information",
-            {"fields": ("organization", "name", "scope_type", "description", "start_date", "end_date", "insert_date")},
+            {
+                "fields": (
+                    "organization",
+                    "name",
+                    "scope_type",
+                    "description",
+                    "start_date",
+                    "end_date",
+                    "insert_date",
+                )
+            },
         ),
         (
             "Targets & Workers",

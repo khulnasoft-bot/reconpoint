@@ -87,11 +87,19 @@ class RunnerLogger(BaseLogger):
 
         # DEBUG level - full details
         prefix_colored = self._colorize(self.PREFIX, self.PREFIX_COLOR)
-        action_colored = self._colorize("CREATE", self.COLOR_VIOLET)  # DEBUG level color
+        action_colored = self._colorize(
+            "CREATE", self.COLOR_VIOLET
+        )  # DEBUG level color
 
-        self._logger.debug(f"{prefix_colored} {action_colored} | Runner type: {runner_type}")
-        self._logger.debug(f"{prefix_colored} {action_colored} | Runner name: {runner_name}")
-        self._logger.debug(f"{prefix_colored} {action_colored} | Targets ({len(targets)}): {targets}")
+        self._logger.debug(
+            f"{prefix_colored} {action_colored} | Runner type: {runner_type}"
+        )
+        self._logger.debug(
+            f"{prefix_colored} {action_colored} | Runner name: {runner_name}"
+        )
+        self._logger.debug(
+            f"{prefix_colored} {action_colored} | Targets ({len(targets)}): {targets}"
+        )
 
         if config:
             self._logger.debug(
@@ -110,10 +118,14 @@ class RunnerLogger(BaseLogger):
 
         if hooks:
             hook_keys = list(hooks.keys()) if isinstance(hooks, dict) else []
-            self._logger.debug(f"{prefix_colored} {action_colored} | Hooks available: {hook_keys}")
+            self._logger.debug(
+                f"{prefix_colored} {action_colored} | Hooks available: {hook_keys}"
+            )
             if hook_keys:
                 hooks_dict = {str(k): str(type(v).__name__) for k, v in hooks.items()}
-                self._logger.debug(f"{prefix_colored} {action_colored} | Hooks: {json.dumps(hooks_dict, indent=2)}")
+                self._logger.debug(
+                    f"{prefix_colored} {action_colored} | Hooks: {json.dumps(hooks_dict, indent=2)}"
+                )
 
     def log_config_preparation(
         self,
@@ -162,7 +174,9 @@ class RunnerLogger(BaseLogger):
 
         # DEBUG level - full configuration details
         prefix_colored = self._colorize(self.PREFIX, self.PREFIX_COLOR)
-        action_colored = self._colorize("PREPARE", self.COLOR_VIOLET)  # DEBUG level color
+        action_colored = self._colorize(
+            "PREPARE", self.COLOR_VIOLET
+        )  # DEBUG level color
 
         self._logger.debug(
             f"{prefix_colored} {action_colored} | Base config: {json.dumps(base_config, indent=2, default=str)}"
@@ -201,8 +215,12 @@ class RunnerLogger(BaseLogger):
 
         # DEBUG level - full target list
         prefix_colored = self._colorize(self.PREFIX, self.PREFIX_COLOR)
-        action_colored = self._colorize("TARGETS", self.COLOR_VIOLET)  # DEBUG level color
-        self._logger.debug(f"{prefix_colored} {action_colored} | Target list: {targets}")
+        action_colored = self._colorize(
+            "TARGETS", self.COLOR_VIOLET
+        )  # DEBUG level color
+        self._logger.debug(
+            f"{prefix_colored} {action_colored} | Target list: {targets}"
+        )
 
     def log_run_opts(self, run_opts: Dict[str, Any]) -> None:
         """
@@ -225,8 +243,12 @@ class RunnerLogger(BaseLogger):
             context: Context dictionary
         """
         prefix_colored = self._colorize(self.PREFIX, self.PREFIX_COLOR)
-        action_colored = self._colorize("CONTEXT", self.COLOR_VIOLET)  # DEBUG level color
-        self._logger.debug(f"{prefix_colored} {action_colored} | Context: {json.dumps(context, indent=2, default=str)}")
+        action_colored = self._colorize(
+            "CONTEXT", self.COLOR_VIOLET
+        )  # DEBUG level color
+        self._logger.debug(
+            f"{prefix_colored} {action_colored} | Context: {json.dumps(context, indent=2, default=str)}"
+        )
 
     def log_hooks(self, hooks: Dict[str, Any]) -> None:
         """
@@ -240,9 +262,13 @@ class RunnerLogger(BaseLogger):
 
         if hooks:
             hook_keys = list(hooks.keys())
-            self._logger.debug(f"{prefix_colored} {action_colored} | Hooks available: {hook_keys}")
+            self._logger.debug(
+                f"{prefix_colored} {action_colored} | Hooks available: {hook_keys}"
+            )
             hooks_dict = {str(k): str(type(v).__name__) for k, v in hooks.items()}
-            self._logger.debug(f"{prefix_colored} {action_colored} | Hooks: {json.dumps(hooks_dict, indent=2)}")
+            self._logger.debug(
+                f"{prefix_colored} {action_colored} | Hooks: {json.dumps(hooks_dict, indent=2)}"
+            )
         else:
             self._logger.debug(f"{prefix_colored} {action_colored} | No hooks provided")
 
@@ -308,13 +334,17 @@ class RunnerLogger(BaseLogger):
         # DEBUG level - result details if available
         if result is not None:
             prefix_colored = self._colorize(self.PREFIX, self.PREFIX_COLOR)
-            action_colored = self._colorize("EXECUTE", self.COLOR_VIOLET)  # DEBUG level color
+            action_colored = self._colorize(
+                "EXECUTE", self.COLOR_VIOLET
+            )  # DEBUG level color
             if isinstance(result, (dict, list)):
                 self._logger.debug(
                     f"{prefix_colored} {action_colored} | Result: {json.dumps(result, indent=2, default=str)}"
                 )
             else:
-                self._logger.debug(f"{prefix_colored} {action_colored} | Result: {result}")
+                self._logger.debug(
+                    f"{prefix_colored} {action_colored} | Result: {result}"
+                )
 
     def log_runner_error(
         self,

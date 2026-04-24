@@ -41,7 +41,10 @@ class EngineTypeAdmin(admin.ModelAdmin):
         "engine_name",
     ]
     fieldsets = (
-        ("Basic Information", {"fields": ("engine_name", "scan_type", "default_engine")}),
+        (
+            "Basic Information",
+            {"fields": ("engine_name", "scan_type", "default_engine")},
+        ),
         FIELDSET_CONFIGURATION_YAML,
     )
 
@@ -280,7 +283,9 @@ class SecatorWorkflowAdmin(TimestampedModelAdminMixin, admin.ModelAdmin):
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         """Override form field for alias to use TextInput instead of Select."""
         if db_field.name == "alias":
-            kwargs["widget"] = forms.TextInput(attrs={"placeholder": "e.g., subdomain_recon, cidr_recon"})
+            kwargs["widget"] = forms.TextInput(
+                attrs={"placeholder": "e.g., subdomain_recon, cidr_recon"}
+            )
             kwargs["help_text"] = "Enter the workflow alias from Secator (optional)"
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
@@ -310,7 +315,10 @@ class SecatorTaskAdmin(TimestampedModelAdminMixin, admin.ModelAdmin):
         "description",
     ]
     fieldsets = build_fieldsets_with_timestamps(
-        ("Basic Information", {"fields": ("name", "task_type", "description", "is_builtin")}),
+        (
+            "Basic Information",
+            {"fields": ("name", "task_type", "description", "is_builtin")},
+        ),
         FIELDSET_CONFIGURATION_YAML,
         model=SecatorTask,
     )
@@ -343,7 +351,10 @@ class SecatorScanAdmin(TimestampedModelAdminMixin, admin.ModelAdmin):
         "description",
     ]
     fieldsets = build_fieldsets_with_timestamps(
-        ("Basic Information", {"fields": ("name", "description", "scan_type", "is_default")}),
+        (
+            "Basic Information",
+            {"fields": ("name", "description", "scan_type", "is_default")},
+        ),
         (
             "Configuration",
             {
@@ -378,7 +389,15 @@ class HackeroneAdmin(admin.ModelAdmin):
 class SecatorProfileAdmin(admin.ModelAdmin):
     """Admin interface for SecatorProfile model."""
 
-    list_display = ["id", "name", "category", "profile_type", "is_active", "is_default", "created_at"]
+    list_display = [
+        "id",
+        "name",
+        "category",
+        "profile_type",
+        "is_active",
+        "is_default",
+        "created_at",
+    ]
     list_display_links = ["name"]
     list_filter = ["category", "profile_type", "is_active", "is_default"]
     ordering = ["name"]
@@ -401,6 +420,12 @@ class SecatorWorkerAdmin(admin.ModelAdmin):
         "last_status_at",
     ]
     list_display_links = ["name"]
-    list_filter = ["is_active", "ssh_ok", "container_running", "api_reachable", "api_access_type"]
+    list_filter = [
+        "is_active",
+        "ssh_ok",
+        "container_running",
+        "api_reachable",
+        "api_access_type",
+    ]
     ordering = ["name"]
     search_fields = ["name", "ssh_host", "ssh_user"]

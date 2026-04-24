@@ -27,7 +27,10 @@ class TestScanOrchestrator(BaseTestCase):
     @patch("reconPoint.secator.orchestrator.SecatorRunner.run_workflow")
     def test_execute_scan_workflow_mode(self, mock_run_workflow):
         """Test executing scan in workflow mode."""
-        mock_run_workflow.return_value = {"status": "success", "message": "Workflow executed successfully"}
+        mock_run_workflow.return_value = {
+            "status": "success",
+            "message": "Workflow executed successfully",
+        }
 
         config = {"workflow_name": "test_workflow"}
         targets = ["example.com"]
@@ -55,7 +58,10 @@ class TestScanOrchestrator(BaseTestCase):
     @patch("reconPoint.secator.orchestrator.SecatorRunner.run_tasks")
     def test_execute_scan_tasks_mode(self, mock_run_tasks):
         """Test executing scan in tasks mode."""
-        mock_run_tasks.return_value = {"status": "success", "message": "Tasks executed successfully"}
+        mock_run_tasks.return_value = {
+            "status": "success",
+            "message": "Tasks executed successfully",
+        }
 
         config = {"tasks": ["subfinder", "httpx", "nuclei"]}
         targets = ["example.com"]
@@ -202,7 +208,9 @@ class TestScanOrchestrator(BaseTestCase):
             )
 
         self.assertIn("Workflow execution failed", str(context.exception))
-        mock_mark_failed.assert_called_once_with(self.scan_history.id, "Workflow execution failed")
+        mock_mark_failed.assert_called_once_with(
+            self.scan_history.id, "Workflow execution failed"
+        )
 
     @patch("reconPoint.secator.orchestrator.SecatorRunner.run_tasks")
     @patch("reconPoint.secator.orchestrator.ScanRepository.mark_scan_failed")
@@ -223,7 +231,9 @@ class TestScanOrchestrator(BaseTestCase):
             )
 
         self.assertIn("Tasks execution failed", str(context.exception))
-        mock_mark_failed.assert_called_once_with(self.scan_history.id, "Tasks execution failed")
+        mock_mark_failed.assert_called_once_with(
+            self.scan_history.id, "Tasks execution failed"
+        )
 
     @patch("reconPoint.secator.orchestrator.ScanRepository.mark_scan_failed")
     def test_execute_scan_value_error_handling(self, mock_mark_failed):

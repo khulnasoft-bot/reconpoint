@@ -13,7 +13,10 @@ class Migration(migrations.Migration):
             model_name="secatorworkflow",
             name="display_name",
             field=models.CharField(
-                blank=True, help_text="User-friendly display name for the workflow", max_length=200, null=True
+                blank=True,
+                help_text="User-friendly display name for the workflow",
+                max_length=200,
+                null=True,
             ),
         ),
         migrations.AlterField(

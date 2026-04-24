@@ -82,7 +82,9 @@ class TestSecatorAPIBase(BaseTestCase):
     def test_validate_request_data_with_prefix(self):
         """Test validation of request data with custom prefix."""
         data = "not a dict"
-        is_valid, error_response = self.base.validate_request_data(data, prefix=self.base.logger.PREFIX_FINDING)
+        is_valid, error_response = self.base.validate_request_data(
+            data, prefix=self.base.logger.PREFIX_FINDING
+        )
         self.assertFalse(is_valid)
         self.assertIsInstance(error_response, Response)
         self.assertEqual(error_response.status_code, 400)
@@ -90,11 +92,13 @@ class TestSecatorAPIBase(BaseTestCase):
     def test_validate_scan_context_with_prefix(self):
         """Test validation of scan context with custom prefix."""
         target_id = self.data_generator.target.id
-        is_valid, error_response, scan_history, target = self.base.validate_scan_context(
-            self.data_generator.scan_history.id,
-            target_id,
-            "subdomain",
-            prefix=self.base.logger.PREFIX_RUNNER,
+        is_valid, error_response, scan_history, target = (
+            self.base.validate_scan_context(
+                self.data_generator.scan_history.id,
+                target_id,
+                "subdomain",
+                prefix=self.base.logger.PREFIX_RUNNER,
+            )
         )
         self.assertTrue(is_valid)
         self.assertIsNone(error_response)
@@ -133,11 +137,19 @@ class TestSecatorAPIBase(BaseTestCase):
         context = self.base.extract_finding_context(finding_data)
         self.assertEqual(context["runner_id"], 99)
 
-    def test_extract_finding_context_runner_id_prefers_task_over_workflow_over_scan(self):
+    def test_extract_finding_context_runner_id_prefers_task_over_workflow_over_scan(
+        self,
+    ):
         """Test that task_id takes precedence over workflow_id and scan_id."""
         finding_data = {
             "_type": "url",
-            "_context": {"scan_history_id": 1, "target_id": 1, "task_id": 1, "workflow_id": 2, "scan_id": 3},
+            "_context": {
+                "scan_history_id": 1,
+                "target_id": 1,
+                "task_id": 1,
+                "workflow_id": 2,
+                "scan_id": 3,
+            },
         }
         context = self.base.extract_finding_context(finding_data)
         self.assertEqual(context["runner_id"], 1)
@@ -145,8 +157,10 @@ class TestSecatorAPIBase(BaseTestCase):
     def test_validate_scan_context_success(self):
         """Test successful validation of scan context."""
         target_id = self.data_generator.target.id
-        is_valid, error_response, scan_history, target = self.base.validate_scan_context(
-            self.data_generator.scan_history.id, target_id, "subdomain"
+        is_valid, error_response, scan_history, target = (
+            self.base.validate_scan_context(
+                self.data_generator.scan_history.id, target_id, "subdomain"
+            )
         )
         self.assertTrue(is_valid)
         self.assertIsNone(error_response)
@@ -157,15 +171,19 @@ class TestSecatorAPIBase(BaseTestCase):
     def test_validate_scan_context_missing_scan_history_id(self):
         """Test validation with missing scan_history_id."""
         target_id = self.data_generator.target.id
-        is_valid, error_response, scan_history, target = self.base.validate_scan_context(None, target_id, "subdomain")
+        is_valid, error_response, scan_history, target = (
+            self.base.validate_scan_context(None, target_id, "subdomain")
+        )
         self.assertFalse(is_valid)
         self.assertIsInstance(error_response, Response)
         self.assertEqual(error_response.status_code, 400)
 
     def test_validate_scan_context_missing_target_id(self):
         """Test validation when target_id is missing in context."""
-        is_valid, error_response, scan_history, target = self.base.validate_scan_context(
-            self.data_generator.scan_history.id, None, "tag"
+        is_valid, error_response, scan_history, target = (
+            self.base.validate_scan_context(
+                self.data_generator.scan_history.id, None, "tag"
+            )
         )
         self.assertFalse(is_valid)
         self.assertIsInstance(error_response, Response)
@@ -174,15 +192,19 @@ class TestSecatorAPIBase(BaseTestCase):
     def test_validate_scan_context_scan_history_not_found(self):
         """Test validation when scan history doesn't exist."""
         target_id = self.data_generator.target.id
-        is_valid, error_response, scan_history, target = self.base.validate_scan_context(99999, target_id, "subdomain")
+        is_valid, error_response, scan_history, target = (
+            self.base.validate_scan_context(99999, target_id, "subdomain")
+        )
         self.assertFalse(is_valid)
         self.assertIsInstance(error_response, Response)
         self.assertEqual(error_response.status_code, 404)
 
     def test_validate_scan_context_target_not_found(self):
         """Test validation when target doesn't exist."""
-        is_valid, error_response, scan_history, target = self.base.validate_scan_context(
-            self.data_generator.scan_history.id, 99999, "subdomain"
+        is_valid, error_response, scan_history, target = (
+            self.base.validate_scan_context(
+                self.data_generator.scan_history.id, 99999, "subdomain"
+            )
         )
         self.assertFalse(is_valid)
         self.assertIsInstance(error_response, Response)
@@ -190,7 +212,9 @@ class TestSecatorAPIBase(BaseTestCase):
 
     def test_get_repository_for_finding_type(self):
         """Test getting repository for finding type."""
-        from reconPoint.services.repositories.subdomain_repository import SubdomainRepository
+        from reconPoint.services.repositories.subdomain_repository import (
+            SubdomainRepository,
+        )
 
         repo_class = self.base.get_repository_for_finding_type("subdomain")
         self.assertEqual(repo_class, SubdomainRepository)

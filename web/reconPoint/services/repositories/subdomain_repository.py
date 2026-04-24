@@ -21,7 +21,10 @@ from reconPoint.core.validators import is_valid_domain, is_valid_ip
 from reconPoint.secator.source_extraction import merge_subdomain_sources_from_item
 from reconPoint.utilities.domain import get_domain_by_id, resolve_domain_for_scan
 from reconPoint.utilities.logger import format_exception_for_log, get_module_logger
-from reconPoint.utilities.url import is_acceptable_subdomain_name, normalize_subdomain_host
+from reconPoint.utilities.url import (
+    is_acceptable_subdomain_name,
+    normalize_subdomain_host,
+)
 from startScan.models import Domain, ScanHistory, Subdomain
 from targetApp.models import Target
 from targetApp.services.scope_params import get_finding_scope_filter_host_for_target
@@ -31,7 +34,9 @@ PREFIX_SUBDOMAIN_REPO = "[SUBDOMAIN_REPO]"
 logger = get_module_logger(__name__)
 
 
-def _host_scope_filter(reconpoint_context: Optional[Dict[str, Any]], target_id: int) -> Optional[Callable[[str], bool]]:
+def _host_scope_filter(
+    reconpoint_context: Optional[Dict[str, Any]], target_id: int
+) -> Optional[Callable[[str], bool]]:
     """Resolve host filter from context or from target_id."""
     if reconpoint_context:
         filters = reconpoint_context.get("finding_scope_filters") or {}
@@ -45,7 +50,11 @@ class SubdomainRepository:
     """Repository for subdomain-related database operations."""
 
     def save_from_secator(
-        self, item: Dict[str, Any], scan_history_id: int, target_id: int, reconpoint_context: Dict[str, Any] = None
+        self,
+        item: Dict[str, Any],
+        scan_history_id: int,
+        target_id: int,
+        reconpoint_context: Dict[str, Any] = None,
     ) -> Optional[Subdomain]:
         """
         Save subdomain from Secator result with enriched data.
@@ -60,14 +69,19 @@ class SubdomainRepository:
             Subdomain: Saved subdomain object or None
         """
         try:
-            return self._process_secator_subdomain_item(item, scan_history_id, target_id, reconpoint_context)
+            return self._process_secator_subdomain_item(
+                item, scan_history_id, target_id, reconpoint_context
+            )
         except FindingOutOfScopeError as e:
             reason = format_exception_for_log(e)
-            host = (item.get("host") or item.get("target") or item.get("name") or "?").strip()
+            host = (
+                item.get("host") or item.get("target") or item.get("name") or "?"
+            ).strip()
             logger.log_line(
                 PREFIX_SUBDOMAIN_REPO,
                 "SAVE",
-                "Skipped (out of scope): host=%s | %s scan_id=%s" % (host, reason, scan_history_id),
+                "Skipped (out of scope): host=%s | %s scan_id=%s"
+                % (host, reason, scan_history_id),
                 level="info",
             )
             raise
@@ -102,7 +116,9 @@ class SubdomainRepository:
             logger.log_line(
                 PREFIX_SUBDOMAIN_REPO,
                 "SAVE",
-                "Subdomain name empty after normalization" if raw_name else "Subdomain item missing name field",
+                "Subdomain name empty after normalization"
+                if raw_name
+                else "Subdomain item missing name field",
                 level="warning",
             )
             return None
@@ -117,18 +133,24 @@ class SubdomainRepository:
             return None
 
         subdomain = self.get_or_create_from_host(
-            scan_history_id, target_id, subdomain_name, reconpoint_context=reconpoint_context
+            scan_history_id,
+            target_id,
+            subdomain_name,
+            reconpoint_context=reconpoint_context,
         )
         if not subdomain:
             logger.log_line(
                 PREFIX_SUBDOMAIN_REPO,
                 "SAVE",
-                "Could not get or create subdomain for target_id=%s, subdomain=%s" % (target_id, subdomain_name),
+                "Could not get or create subdomain for target_id=%s, subdomain=%s"
+                % (target_id, subdomain_name),
                 level="warning",
             )
             return None
 
-        is_imported = self._is_imported_subdomain(subdomain_name, reconpoint_context or {})
+        is_imported = self._is_imported_subdomain(
+            subdomain_name, reconpoint_context or {}
+        )
 
         update_fields = []
         if item.get("verified", False) != subdomain.verified:
@@ -176,8 +198,13 @@ class SubdomainRepository:
         self, scan_history_id: int, target_id: int, subdomain_name: str
     ) -> Optional[Domain]:
         """Resolve Domain for this scan and subdomain using TLD extraction."""
-        target_value = Target.objects.filter(id=target_id).values_list("value", flat=True).first() or ""
-        return resolve_domain_for_scan(scan_history_id, subdomain_name, target_value, create=True)
+        target_value = (
+            Target.objects.filter(id=target_id).values_list("value", flat=True).first()
+            or ""
+        )
+        return resolve_domain_for_scan(
+            scan_history_id, subdomain_name, target_value, create=True
+        )
 
     def get_or_create_from_host(
         self,
@@ -210,12 +237,20 @@ class SubdomainRepository:
             logger.log_line(
                 PREFIX_SUBDOMAIN_REPO,
                 "GET_OR_CREATE",
-                "Skipped (out of scope): hostname=%s | restrict_findings_to_target" % (normalized,),
+                "Skipped (out of scope): hostname=%s | restrict_findings_to_target"
+                % (normalized,),
                 level="info",
             )
-            raise FindingOutOfScopeError("Host out of scope (restrict_findings_to_target)")
-        target_value = Target.objects.filter(id=target_id).values_list("value", flat=True).first() or ""
-        domain = resolve_domain_for_scan(scan_history_id, normalized, target_value, create=True)
+            raise FindingOutOfScopeError(
+                "Host out of scope (restrict_findings_to_target)"
+            )
+        target_value = (
+            Target.objects.filter(id=target_id).values_list("value", flat=True).first()
+            or ""
+        )
+        domain = resolve_domain_for_scan(
+            scan_history_id, normalized, target_value, create=True
+        )
         if not domain:
             return None
         try:
@@ -223,7 +258,13 @@ class SubdomainRepository:
         except ObjectDoesNotExist:
             return None
 
-        if existing := Subdomain.objects.filter(name=normalized, scan_history=scan_history).order_by("id").first():
+        if (
+            existing := Subdomain.objects.filter(
+                name=normalized, scan_history=scan_history
+            )
+            .order_by("id")
+            .first()
+        ):
             return existing
 
         defaults = {
@@ -239,9 +280,15 @@ class SubdomainRepository:
             )
             return subdomain
         except MultipleObjectsReturned:
-            return Subdomain.objects.filter(name=normalized, scan_history=scan_history).order_by("id").first()
+            return (
+                Subdomain.objects.filter(name=normalized, scan_history=scan_history)
+                .order_by("id")
+                .first()
+            )
 
-    def _map_extra_data_to_subdomain_fields(self, extra_data: Dict[str, Any], defaults: Dict[str, Any]) -> None:
+    def _map_extra_data_to_subdomain_fields(
+        self, extra_data: Dict[str, Any], defaults: Dict[str, Any]
+    ) -> None:
         # Map common extra data fields to subdomain fields
         if "http_url" in extra_data:
             defaults["http_url"] = extra_data["http_url"]
@@ -340,7 +387,9 @@ class SubdomainRepository:
                 for name in subdomains
                 if is_valid_domain(name)
             ]:
-                created = Subdomain.objects.bulk_create(subdomain_objects, ignore_conflicts=True)
+                created = Subdomain.objects.bulk_create(
+                    subdomain_objects, ignore_conflicts=True
+                )
                 logger.log_line(
                     PREFIX_SUBDOMAIN_REPO,
                     "BULK_CREATE",
@@ -418,12 +467,18 @@ class SubdomainRepository:
 
         # Clean and normalize the subdomain name
         subdomain_clean = subdomain_name.strip().lower()
-        imported_clean = [s.strip().lower() for s in imported_subdomains if s and s.strip()]
+        imported_clean = [
+            s.strip().lower() for s in imported_subdomains if s and s.strip()
+        ]
 
         return subdomain_clean in imported_clean
 
     def _associate_ip_addresses(
-        self, subdomain: Subdomain, item: Dict[str, Any], scan_history_id: int, target_id: int
+        self,
+        subdomain: Subdomain,
+        item: Dict[str, Any],
+        scan_history_id: int,
+        target_id: int,
     ) -> None:
         """
         Associate IP addresses with subdomain and ensure an endpoint exists for each IP.
@@ -437,7 +492,9 @@ class SubdomainRepository:
             if not ip_addresses and isinstance(ip_addresses, list):
                 return
 
-            from reconPoint.services.repositories.endpoint_repository import EndpointRepository
+            from reconPoint.services.repositories.endpoint_repository import (
+                EndpointRepository,
+            )
             from reconPoint.services.repositories.ip_repository import IpRepository
 
             endpoint_repo = EndpointRepository()
@@ -449,7 +506,9 @@ class SubdomainRepository:
             for ip_address in ip_addresses:
                 if is_valid_ip(ip_address):
                     if target_id:
-                        ip_obj, _ = ip_repo.get_or_create_for_scan(sid, target_id, ip_address)
+                        ip_obj, _ = ip_repo.get_or_create_for_scan(
+                            sid, target_id, ip_address
+                        )
                     else:
                         ip_obj, _ = ip_repo.get_or_create(ip_address)
                     if not ip_obj:

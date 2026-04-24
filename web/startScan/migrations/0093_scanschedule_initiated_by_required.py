@@ -12,13 +12,17 @@ def backfill_null_initiated_by(apps, schema_editor):
     if null_count == 0:
         return
     User = apps.get_model(settings.AUTH_USER_MODEL)
-    fallback_user = User.objects.filter(is_superuser=True).first() or User.objects.first()
+    fallback_user = (
+        User.objects.filter(is_superuser=True).first() or User.objects.first()
+    )
     if fallback_user is None:
         raise ValueError(
             "Cannot backfill ScanSchedule.initiated_by: no user in database. "
             "Create a user or fix NULL initiated_by_id rows before migrating."
         )
-    ScanSchedule.objects.filter(initiated_by__isnull=True).update(initiated_by=fallback_user)
+    ScanSchedule.objects.filter(initiated_by__isnull=True).update(
+        initiated_by=fallback_user
+    )
 
 
 class Migration(migrations.Migration):

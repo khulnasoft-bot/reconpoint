@@ -38,7 +38,9 @@ def is_all_runners_completed(scan_history_id: int, logger: Any) -> bool:
         True if all runners are done, False otherwise
     """
     runners_list = list(
-        SecatorRunner.objects.filter(scan_history_id=scan_history_id).only("runner_name", "runner_type", "runner_data")
+        SecatorRunner.objects.filter(scan_history_id=scan_history_id).only(
+            "runner_name", "runner_type", "runner_data"
+        )
     )
     if not runners_list:
         logger.log_debug(
@@ -53,10 +55,16 @@ def is_all_runners_completed(scan_history_id: int, logger: Any) -> bool:
         if runner.runner_data:
             done = runner.runner_data.get("done", False)
             status = runner.runner_data.get("status", "").upper()
-            runner_name = runner.runner_name or runner.runner_data.get("name", "Unknown")
-            runner_type = runner.runner_type or runner.runner_data.get("config", {}).get("type", "unknown")
+            runner_name = runner.runner_name or runner.runner_data.get(
+                "name", "Unknown"
+            )
+            runner_type = runner.runner_type or runner.runner_data.get(
+                "config", {}
+            ).get("type", "unknown")
             if not done or status == "RUNNING":
-                incomplete_runners.append(f"{runner_name} (type={runner_type}, status={status}, done={done})")
+                incomplete_runners.append(
+                    f"{runner_name} (type={runner_type}, status={status}, done={done})"
+                )
 
     if incomplete_runners:
         logger.log_debug(
@@ -74,7 +82,9 @@ def is_all_runners_completed(scan_history_id: int, logger: Any) -> bool:
     return True
 
 
-def sync_runner_with_scan_history(secator_runner: SecatorRunner, runner_data: dict, logger: Any) -> None:
+def sync_runner_with_scan_history(
+    secator_runner: SecatorRunner, runner_data: dict, logger: Any
+) -> None:
     """
     Synchronize runner data with ScanHistory and create/update ScanActivity.
 
@@ -87,7 +97,9 @@ def sync_runner_with_scan_history(secator_runner: SecatorRunner, runner_data: di
     runner_status = runner_data.get("status", "").upper()
     runner_done = runner_data.get("done", False)
     runner_name = runner_data.get("name") or secator_runner.runner_name or "Unknown"
-    runner_type = runner_data.get("config", {}).get("type", "") or secator_runner.runner_type
+    runner_type = (
+        runner_data.get("config", {}).get("type", "") or secator_runner.runner_type
+    )
 
     status_map = {
         "RUNNING": RUNNING_TASK,
@@ -163,7 +175,9 @@ def _runner_can_update_scan_status(scan_history_id: int, runner_type: str) -> bo
     has_workflow_or_scan = SecatorRunner.objects.filter(
         scan_history_id=scan_history_id, runner_type__in=["workflow", "scan"]
     ).exists()
-    return runner_type in {"workflow", "scan"} or (runner_type == "task" and not has_workflow_or_scan)
+    return runner_type in {"workflow", "scan"} or (
+        runner_type == "task" and not has_workflow_or_scan
+    )
 
 
 def _apply_scan_history_status(
@@ -198,7 +212,9 @@ def _apply_scan_history_status(
         return
 
     if runner_status == "SUCCESS":
-        _apply_success_status(scan_history, runner_done, runner_name, runner_type, runner_status, logger)
+        _apply_success_status(
+            scan_history, runner_done, runner_name, runner_type, runner_status, logger
+        )
     elif runner_status in {"RUNNING", "FAILURE", "FAILED", "REVOKED"}:
         _apply_terminal_or_running_status(
             scan_history,
@@ -212,7 +228,12 @@ def _apply_scan_history_status(
 
 
 def _apply_success_status(
-    scan_history, runner_done: bool, runner_name: str, runner_type: str, runner_status: str, logger: Any
+    scan_history,
+    runner_done: bool,
+    runner_name: str,
+    runner_type: str,
+    runner_status: str,
+    logger: Any,
 ) -> None:
     """Apply SUCCESS runner status to ScanHistory (completed or keep running)."""
     logger.log_debug(
@@ -280,9 +301,15 @@ def _apply_terminal_or_running_status(
             f"Unexpected runner status {runner_status} for runner {runner_name} (type={runner_type}), scan_id={scan_history.id}; mapping to FAILED",
             {"prefix": logger.PREFIX_SYNC, "action": "UPDATED"},
         )
-    scan_status_value = runner_status_to_scan_status.get(runner_status, SCAN_STATUS_FAILED)
+    scan_status_value = runner_status_to_scan_status.get(
+        runner_status, SCAN_STATUS_FAILED
+    )
     scan_history.scan_status = scan_status_value
-    if runner_done and runner_status in {"FAILURE", "FAILED"} and not scan_history.stop_scan_date:
+    if (
+        runner_done
+        and runner_status in {"FAILURE", "FAILED"}
+        and not scan_history.stop_scan_date
+    ):
         scan_history.stop_scan_date = timezone.now()
     scan_history.save(update_fields=["scan_status", "stop_scan_date"])
     logger.log_runner_sync(
@@ -317,7 +344,9 @@ def _sync_scan_activity(
     activity_title = f"{runner_type.title()}: {runner_name}"
 
     existing_activity = (
-        ScanActivity.objects.filter(scan_of=scan_history, name=runner_name, runner_id=secator_runner)
+        ScanActivity.objects.filter(
+            scan_of=scan_history, name=runner_name, runner_id=secator_runner
+        )
         .order_by("-time")
         .first()
     )
@@ -339,7 +368,9 @@ def _sync_scan_activity(
         )
         return existing_activity.id
 
-    activity_id_for_command = scan_repo.create_activity(scan_history.id, activity_title, reconpoint_status)
+    activity_id_for_command = scan_repo.create_activity(
+        scan_history.id, activity_title, reconpoint_status
+    )
     try:
         new_activity = ScanActivity.objects.get(id=activity_id_for_command)
         new_activity.runner_id = secator_runner
@@ -377,15 +408,23 @@ def _finalize_runner_sync(
     """Sync subscans, log sync, save command, and log websocket send."""
     from reconPoint.secator import SecatorProgressSync
 
-    SecatorProgressSync._sync_subscans_if_terminal(secator_runner.id, runner_status, reconpoint_status)
-    logger.log_runner_sync("SYNC", runner_name, runner_type, runner_status, scan_history.id, {})
+    SecatorProgressSync._sync_subscans_if_terminal(
+        secator_runner.id, runner_status, reconpoint_status
+    )
+    logger.log_runner_sync(
+        "SYNC", runner_name, runner_type, runner_status, scan_history.id, {}
+    )
 
     try:
-        from reconPoint.services.repositories.command_repository import CommandRepository
+        from reconPoint.services.repositories.command_repository import (
+            CommandRepository,
+        )
 
         command_repo = CommandRepository()
         if activity_id_for_command is not None:
-            command_repo.save_from_secator(runner_data, scan_history.id, activity_id_for_command)
+            command_repo.save_from_secator(
+                runner_data, scan_history.id, activity_id_for_command
+            )
     except Exception as e:
         logger.log_warning(
             f"Error saving command log for runner {runner_name}: {e}",

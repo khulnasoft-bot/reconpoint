@@ -14,7 +14,10 @@ class Migration(migrations.Migration):
             model_name="ipaddress",
             name="subscan",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.subscan"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.subscan",
             ),
         ),
     ]

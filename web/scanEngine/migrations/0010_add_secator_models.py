@@ -32,7 +32,10 @@ class Migration(migrations.Migration):
                 (
                     "scan_type",
                     models.CharField(
-                        choices=[("internet", "Internet"), ("internal_network", "Internal Network")],
+                        choices=[
+                            ("internet", "Internet"),
+                            ("internal_network", "Internal Network"),
+                        ],
                         default="internet",
                         help_text="Type of scan this workflow is designed for",
                         max_length=20,
@@ -44,7 +47,8 @@ class Migration(migrations.Migration):
             model_name="installedexternaltool",
             name="is_legacy",
             field=models.BooleanField(
-                default=True, help_text="Whether this is a legacy scan engine (deprecated in favor of Secator)"
+                default=True,
+                help_text="Whether this is a legacy scan engine (deprecated in favor of Secator)",
             ),
         ),
         migrations.CreateModel(
@@ -54,10 +58,19 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=200)),
                 (
                     "task_type",
-                    models.CharField(help_text="Secator task type (e.g., subfinder, nuclei)", max_length=100),
+                    models.CharField(
+                        help_text="Secator task type (e.g., subfinder, nuclei)",
+                        max_length=100,
+                    ),
                 ),
                 ("description", models.TextField(blank=True, null=True)),
-                ("is_builtin", models.BooleanField(default=False, help_text="Whether this is a built-in Secator task")),
+                (
+                    "is_builtin",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Whether this is a built-in Secator task",
+                    ),
+                ),
                 ("yaml_configuration", models.TextField(blank=True, null=True)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -75,7 +88,10 @@ class Migration(migrations.Migration):
                 (
                     "scan_type",
                     models.CharField(
-                        choices=[("internet", "Internet"), ("internal_network", "Internal Network")],
+                        choices=[
+                            ("internet", "Internet"),
+                            ("internal_network", "Internal Network"),
+                        ],
                         default="internet",
                         help_text="Type of scan this configuration is designed for",
                         max_length=20,
@@ -84,7 +100,10 @@ class Migration(migrations.Migration):
                 (
                     "execution_mode",
                     models.CharField(
-                        choices=[("workflow", "Workflow"), ("tasks", "Individual Tasks")],
+                        choices=[
+                            ("workflow", "Workflow"),
+                            ("tasks", "Individual Tasks"),
+                        ],
                         default="workflow",
                         help_text="Whether to run a workflow or individual tasks",
                         max_length=20,

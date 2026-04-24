@@ -34,7 +34,9 @@ class TestNormalizeSecatorIdPrefix(BaseTestCase):
 
     def test_normalize_preserves_underscores(self):
         """Already-underscore prefix is unchanged."""
-        self.assertEqual(normalize_secator_id_prefix("start_multi_scan"), "start_multi_scan")
+        self.assertEqual(
+            normalize_secator_id_prefix("start_multi_scan"), "start_multi_scan"
+        )
 
 
 class TestGetSecatorSelectionContextScan(BaseTestCase):
@@ -122,7 +124,11 @@ class TestRenderSecatorSelectionJson(BaseTestCase):
         data = json.loads(response.content)
         self.assertIn("html", data)
         self.assertIsInstance(data["html"], str)
-        secator_calls = [c for c in mock_set.call_args_list if c[0][0].startswith("secator_selection:")]
+        secator_calls = [
+            c
+            for c in mock_set.call_args_list
+            if c[0][0].startswith("secator_selection:")
+        ]
         self.assertEqual(len(secator_calls), 1)
         self.assertEqual(secator_calls[0][0][1], {"html": data["html"]})
         self.assertEqual(secator_calls[0][0][2], 300)

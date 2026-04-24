@@ -14,8 +14,12 @@ from reconPoint.tests.services.repositories.test_exploit_repository import (
     TestExploitRepository,
 )
 from reconPoint.tests.services.repositories.test_ip_repository import TestIpRepository
-from reconPoint.tests.services.repositories.test_port_repository import TestPortRepository
-from reconPoint.tests.services.repositories.test_scan_repository import TestScanRepository
+from reconPoint.tests.services.repositories.test_port_repository import (
+    TestPortRepository,
+)
+from reconPoint.tests.services.repositories.test_scan_repository import (
+    TestScanRepository,
+)
 from reconPoint.tests.services.repositories.test_subdomain_display_properties import (
     SubdomainDisplayPropertiesTestCase,
 )

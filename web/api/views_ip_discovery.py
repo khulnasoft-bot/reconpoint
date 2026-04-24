@@ -77,7 +77,9 @@ class CidrDiscoveryToolView(APIView):
                 status=400,
             )
         except Exception as exc:
-            logger.log_line(PREFIX, "CIDR_DISCOVERY", "Discovery failed: %s" % (exc,), level="error")
+            logger.log_line(
+                PREFIX, "CIDR_DISCOVERY", "Discovery failed: %s" % (exc,), level="error"
+            )
             return Response(
                 {
                     "status": False,
@@ -102,7 +104,9 @@ class CidrDiscoveryToolView(APIView):
         use_fb = bool(body.get("use_system_fallback", True))
 
         if not ip_address:
-            return Response({"status": False, "message": "ip_address is required"}, status=400)
+            return Response(
+                {"status": False, "message": "ip_address is required"}, status=400
+            )
 
         try:
             dns_raw = dns_servers if isinstance(dns_servers, str) else None
@@ -130,7 +134,9 @@ class CidrDiscoveryToolView(APIView):
                 status=400,
             )
         except Exception as exc:
-            logger.log_line(PREFIX, "CIDR_DISCOVERY", "Discovery failed: %s" % (exc,), level="error")
+            logger.log_line(
+                PREFIX, "CIDR_DISCOVERY", "Discovery failed: %s" % (exc,), level="error"
+            )
             return Response(
                 {
                     "status": False,
@@ -187,7 +193,9 @@ def _ping_worker(cache_key: str, ip_list: list[str], scan_id: str | None) -> Non
             },
         )
     except Exception as exc:
-        logger.log_line(PREFIX, "PING_V2", "Ping worker failed: %s" % (exc,), level="error")
+        logger.log_line(
+            PREFIX, "PING_V2", "Ping worker failed: %s" % (exc,), level="error"
+        )
         cache.set(
             cache_key,
             {
@@ -218,7 +226,9 @@ class PingHostsV2ToolView(APIView):
         scan_id = (body.get("scan_id") or "").strip() or None
 
         if not isinstance(ip_list, list):
-            return Response({"status": False, "message": "ip_list must be a list"}, status=400)
+            return Response(
+                {"status": False, "message": "ip_list must be a list"}, status=400
+            )
 
         try:
             normalized = ipd.normalize_ip_list_for_ping(ip_list)
@@ -226,7 +236,10 @@ class PingHostsV2ToolView(APIView):
             return Response({"status": False, "message": str(exc)}, status=400)
 
         if not normalized:
-            return Response({"status": False, "message": "No valid IP addresses in ip_list"}, status=400)
+            return Response(
+                {"status": False, "message": "No valid IP addresses in ip_list"},
+                status=400,
+            )
 
         task_id = str(uuid.uuid4())
         cache_key = PING_CACHE_KEY % (task_id,)
@@ -248,12 +261,16 @@ class PingHostsV2ToolView(APIView):
     def get(self, request, *args: Any, **kwargs: Any) -> Response:
         task_id = (request.query_params.get("task_id") or "").strip()
         if not task_id:
-            return Response({"status": False, "message": "task_id is required"}, status=400)
+            return Response(
+                {"status": False, "message": "task_id is required"}, status=400
+            )
 
         cache_key = PING_CACHE_KEY % (task_id,)
         entry = cache.get(cache_key)
         if not entry:
-            return Response({"status": False, "message": "Unknown or expired task_id"}, status=404)
+            return Response(
+                {"status": False, "message": "Unknown or expired task_id"}, status=404
+            )
 
         return Response(
             {

@@ -40,7 +40,9 @@ class TestContextProcessors(TestCase):
         context = version(request)
 
         self.assertIn("RECONPOINT_CURRENT_VERSION", context)
-        self.assertEqual(context["RECONPOINT_CURRENT_VERSION"], settings.RECONPOINT_CURRENT_VERSION)
+        self.assertEqual(
+            context["RECONPOINT_CURRENT_VERSION"], settings.RECONPOINT_CURRENT_VERSION
+        )
 
     @patch("reconPoint.context_processors.requests.get")
     def test_get_external_ip_with_fallback_success_first_service(self, mock_get):
@@ -192,15 +194,23 @@ class TestUserPreferencesContextProcessor(TestCase):
         """Anonymous user gets classic display and use_datatables_scroller False."""
         from django.contrib.auth.models import AnonymousUser
 
-        from dashboard.models import DATATABLES_PAGE_LENGTH_DEFAULT, DATATABLES_PAGE_LENGTH_MENU_VALUES
+        from dashboard.models import (
+            DATATABLES_PAGE_LENGTH_DEFAULT,
+            DATATABLES_PAGE_LENGTH_MENU_VALUES,
+        )
 
         request = self.factory.get("/")
         request.user = AnonymousUser()
         context = user_preferences(request)
         self.assertEqual(context["datatables_display"], "classic")
         self.assertFalse(context["use_datatables_scroller"])
-        self.assertEqual(context["datatables_page_length"], DATATABLES_PAGE_LENGTH_DEFAULT)
-        self.assertEqual(context["datatables_page_length_menu_values"], DATATABLES_PAGE_LENGTH_MENU_VALUES)
+        self.assertEqual(
+            context["datatables_page_length"], DATATABLES_PAGE_LENGTH_DEFAULT
+        )
+        self.assertEqual(
+            context["datatables_page_length_menu_values"],
+            DATATABLES_PAGE_LENGTH_MENU_VALUES,
+        )
 
     def test_user_preferences_authenticated_default_classic(self):
         """Authenticated user with no preference gets classic and default page length."""
@@ -211,7 +221,9 @@ class TestUserPreferencesContextProcessor(TestCase):
         context = user_preferences(request)
         self.assertEqual(context["datatables_display"], "classic")
         self.assertFalse(context["use_datatables_scroller"])
-        self.assertEqual(context["datatables_page_length"], DATATABLES_PAGE_LENGTH_DEFAULT)
+        self.assertEqual(
+            context["datatables_page_length"], DATATABLES_PAGE_LENGTH_DEFAULT
+        )
 
     def test_user_preferences_authenticated_scroller(self):
         """Authenticated user with scroller preference gets scroller and use_datatables_scroller True."""

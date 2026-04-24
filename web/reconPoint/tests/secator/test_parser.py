@@ -73,7 +73,11 @@ class TestSecatorParser(unittest.TestCase):
 
     def test_parse_vulnerability_basic(self):
         """Test basic vulnerability parsing."""
-        vuln_data = {"name": "SQL Injection", "severity": "high", "url": "https://example.com/vulnerable"}
+        vuln_data = {
+            "name": "SQL Injection",
+            "severity": "high",
+            "url": "https://example.com/vulnerable",
+        }
 
         result = self.parser._parse_vulnerability(vuln_data)
 
@@ -83,7 +87,11 @@ class TestSecatorParser(unittest.TestCase):
 
     def test_parse_vulnerability_invalid_severity(self):
         """Test vulnerability parsing with invalid severity."""
-        vuln_data = {"name": "Test Vulnerability", "severity": "invalid_severity", "url": "https://example.com/test"}
+        vuln_data = {
+            "name": "Test Vulnerability",
+            "severity": "invalid_severity",
+            "url": "https://example.com/test",
+        }
 
         result = self.parser._parse_vulnerability(vuln_data)
 
@@ -157,7 +165,10 @@ class TestSecatorParser(unittest.TestCase):
 
     def test_parse_batch_with_items(self):
         """Test parsing batch with items."""
-        batch_data = [{"type": "subdomain", "target": "example.com"}, {"type": "url", "url": "https://example.com"}]
+        batch_data = [
+            {"type": "subdomain", "target": "example.com"},
+            {"type": "url", "url": "https://example.com"},
+        ]
 
         result = self.parser.parse_batch(batch_data)
 

@@ -14,7 +14,9 @@ class ProjectForm(forms.ModelForm):
     users = forms.ModelMultipleChoiceField(
         queryset=User.objects.all(), widget=forms.CheckboxSelectMultiple, required=False
     )
-    description = forms.CharField(widget=forms.Textarea(attrs={"rows": 4}), required=False)
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={"rows": 4}), required=False
+    )
 
     class Meta:
         model = Project
@@ -22,11 +24,16 @@ class ProjectForm(forms.ModelForm):
 
 
 DATATABLES_DISPLAY_CHOICES = [
-    (DATATABLES_DISPLAY_CLASSIC, "Classic pagination (with page info and action buttons)"),
+    (
+        DATATABLES_DISPLAY_CLASSIC,
+        "Classic pagination (with page info and action buttons)",
+    ),
     (DATATABLES_DISPLAY_SCROLLER, "Scroller (virtual scroll, no page info)"),
 ]
 
-DATATABLES_PAGE_LENGTH_FORM_CHOICES = [(v, str(v)) for v in DATATABLES_PAGE_LENGTH_CHOICES]
+DATATABLES_PAGE_LENGTH_FORM_CHOICES = [
+    (v, str(v)) for v in DATATABLES_PAGE_LENGTH_CHOICES
+]
 
 
 class InterfaceSettingsForm(forms.Form):

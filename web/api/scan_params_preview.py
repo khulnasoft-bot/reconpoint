@@ -36,7 +36,12 @@ def _merge_draft_into_config(config: dict[str, Any], draft: dict[str, Any]) -> N
 
 def _preview_config_organization(
     draft: dict[str, Any],
-) -> tuple[dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None]:
+) -> tuple[
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+]:
     """Organization level: draft is the only config (org_config)."""
     return (draft, None, None, None)
 
@@ -45,7 +50,12 @@ def _preview_config_scope(
     data: dict[str, Any],
     draft: dict[str, Any],
     normalize_scan_config: Any,
-) -> tuple[dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None]:
+) -> tuple[
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+]:
     """Scope level: load org and scope, merge draft into scope_config."""
     project_slug = (data.get("project_slug") or "").strip()
     if not project_slug:
@@ -53,15 +63,23 @@ def _preview_config_scope(
     organization_id = data.get("organization_id")
     scope_id = data.get("scope_id")
     try:
-        organization = Organization.objects.get(id=organization_id, project__slug=project_slug)
+        organization = Organization.objects.get(
+            id=organization_id, project__slug=project_slug
+        )
     except (Organization.DoesNotExist, TypeError, ValueError):
         organization = None
-    org_config = normalize_scan_config(getattr(organization, "scan_config", None) if organization else None)
+    org_config = normalize_scan_config(
+        getattr(organization, "scan_config", None) if organization else None
+    )
     scope_config_merged = {}
     if scope_id:
         try:
-            scope = Scope.objects.get(id=scope_id, organization__project__slug=project_slug)
-            scope_config_merged = normalize_scan_config(getattr(scope, "scan_config", None))
+            scope = Scope.objects.get(
+                id=scope_id, organization__project__slug=project_slug
+            )
+            scope_config_merged = normalize_scan_config(
+                getattr(scope, "scan_config", None)
+            )
         except (Scope.DoesNotExist, TypeError, ValueError):
             pass
     _merge_draft_into_config(scope_config_merged, draft)
@@ -72,7 +90,12 @@ def _preview_config_target(
     data: dict[str, Any],
     draft: dict[str, Any],
     normalize_scan_config: Any,
-) -> tuple[dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None]:
+) -> tuple[
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+]:
     """Target level: load target -> scope -> org, merge draft into target_config."""
     project_slug = (data.get("project_slug") or "").strip()
     if not project_slug:
@@ -89,9 +112,15 @@ def _preview_config_target(
     if target:
         scope = get_scope_for_target(target)
         organization = scope.organization if scope else None
-    org_config = normalize_scan_config(getattr(organization, "scan_config", None) if organization else None)
-    scope_config = normalize_scan_config(getattr(scope, "scan_config", None) if scope else None)
-    target_config_merged = normalize_scan_config(getattr(target, "scan_config", None) if target else None)
+    org_config = normalize_scan_config(
+        getattr(organization, "scan_config", None) if organization else None
+    )
+    scope_config = normalize_scan_config(
+        getattr(scope, "scan_config", None) if scope else None
+    )
+    target_config_merged = normalize_scan_config(
+        getattr(target, "scan_config", None) if target else None
+    )
     _merge_draft_into_config(target_config_merged, draft)
     return (org_config, scope_config, target_config_merged, None)
 
@@ -100,7 +129,12 @@ def _preview_config_scan(
     data: dict[str, Any],
     draft: dict[str, Any],
     normalize_scan_config: Any,
-) -> tuple[dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None]:
+) -> tuple[
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+    dict[str, Any] | None,
+]:
     """Scan level: load target/org, user_override = draft."""
     project_slug = (data.get("project_slug") or "").strip()
     if not project_slug:
@@ -120,11 +154,19 @@ def _preview_config_scan(
             organization = scope.organization if scope else None
     if organization is None and organization_id:
         try:
-            organization = Organization.objects.get(id=organization_id, project__slug=project_slug)
+            organization = Organization.objects.get(
+                id=organization_id, project__slug=project_slug
+            )
         except (Organization.DoesNotExist, TypeError, ValueError):
             pass
-    org_config = normalize_scan_config(getattr(organization, "scan_config", None) if organization else None)
-    scope_config = normalize_scan_config(getattr(scope, "scan_config", None) if scope else None)
-    target_config = normalize_scan_config(getattr(target, "scan_config", None) if target else None)
+    org_config = normalize_scan_config(
+        getattr(organization, "scan_config", None) if organization else None
+    )
+    scope_config = normalize_scan_config(
+        getattr(scope, "scan_config", None) if scope else None
+    )
+    target_config = normalize_scan_config(
+        getattr(target, "scan_config", None) if target else None
+    )
     user_override = {k: v for k, v in draft.items() if v is not None and v != ""}
     return (org_config, scope_config, target_config, user_override)

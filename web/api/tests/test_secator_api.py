@@ -12,7 +12,14 @@ from rest_framework import status
 
 from dashboard.models import UserAPIKey
 from reconPoint.definitions import RUNNING_TASK, SUCCESS_TASK
-from startScan.models import Domain, IpAddress, ScanHistory, SecatorRunner, Subdomain, SubScan
+from startScan.models import (
+    Domain,
+    IpAddress,
+    ScanHistory,
+    SecatorRunner,
+    Subdomain,
+    SubScan,
+)
 from utils.test_base import BaseTestCase
 
 
@@ -37,7 +44,9 @@ class TestSecatorRunnerCreate(BaseTestCase):
     def test_create_runner_success(self):
         """Test successful runner creation."""
         runner_data = self._build_runner_payload()
-        response = self.client.post(self.url, runner_data, content_type="application/json")
+        response = self.client.post(
+            self.url, runner_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         self.assertIn("id", response.data)
@@ -47,7 +56,9 @@ class TestSecatorRunnerCreate(BaseTestCase):
         runner_data = {
             "config": {"type": "task", "name": "test_task"},
         }
-        response = self.client.post(self.url, runner_data, content_type="application/json")
+        response = self.client.post(
+            self.url, runner_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
 
@@ -72,7 +83,9 @@ class TestSecatorRunnerCreate(BaseTestCase):
             },
             "status": "RUNNING",
         }
-        response = self.client.post(self.url, runner_data, content_type="application/json")
+        response = self.client.post(
+            self.url, runner_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         runner_id = response.data["id"]
@@ -83,7 +96,9 @@ class TestSecatorRunnerCreate(BaseTestCase):
     def test_create_runner_invalid_data(self):
         """Test runner creation with invalid data format."""
         runner_data = "not a dict"
-        response = self.client.post(self.url, runner_data, content_type="application/json")
+        response = self.client.post(
+            self.url, runner_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(response.data["status"])
 
@@ -93,12 +108,16 @@ class TestSecatorRunnerCreate(BaseTestCase):
         Endpoint must not return login redirect HTML (302) for anonymous requests.
         """
         anon_client = Client()
-        response = anon_client.post(self.url, data="{}", content_type="application/json")
+        response = anon_client.post(
+            self.url, data="{}", content_type="application/json"
+        )
         self.assertNotEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_create_runner_with_valid_api_key_without_session(self):
         """Valid API key must authenticate API calls without requiring session login."""
-        api_key_obj, raw_key = UserAPIKey.objects.create_key(name="secator-hook", user=self.user, is_active=True)
+        api_key_obj, raw_key = UserAPIKey.objects.create_key(
+            name="secator-hook", user=self.user, is_active=True
+        )
         self.assertIsNotNone(api_key_obj)
         anon_client = Client()
         response = anon_client.post(
@@ -120,7 +139,10 @@ class TestSecatorRunnerCreate(BaseTestCase):
             HTTP_AUTHORIZATION="Api-Key invalid-key",
         )
         self.assertNotEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertIn(response.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+        self.assertIn(
+            response.status_code,
+            (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN),
+        )
 
 
 class TestSecatorRunnerUpdate(BaseTestCase):
@@ -217,7 +239,9 @@ class TestSecatorFindingCreate(BaseTestCase):
         finding_data = {
             "name": "test_finding",
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(response.data["status"])
         self.assertIn("error", response.data)
@@ -228,7 +252,9 @@ class TestSecatorFindingCreate(BaseTestCase):
             "_type": "unknown_type",
             "name": "test_finding",
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         self.assertIn("unknown_type_", response.data["id"])
@@ -248,7 +274,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": self.data_generator.target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         mock_save_from_secator.assert_called_once()
@@ -269,7 +297,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": self.data_generator.target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         mock_save_from_secator.assert_called_once()
@@ -288,7 +318,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": self.data_generator.target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         mock_save_from_secator.assert_called_once()
@@ -299,7 +331,9 @@ class TestSecatorFindingCreate(BaseTestCase):
             "_type": "subdomain",
             "name": "test.example.com",
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(response.data["status"])
         self.assertIn("error", response.data)
@@ -318,11 +352,15 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": self.data_generator.target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
         self.assertFalse(response.data["status"])
         self.assertIn("error", response.data)
-        self.assertIn("Invalid or rejected hostname for subdomain finding", response.data["error"])
+        self.assertIn(
+            "Invalid or rejected hostname for subdomain finding", response.data["error"]
+        )
         mock_save_from_secator.assert_called_once()
 
     def test_create_tag_whois_success(self):
@@ -338,7 +376,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": self.data_generator.target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         self.assertIn("id", response.data)
@@ -348,7 +388,9 @@ class TestSecatorFindingCreate(BaseTestCase):
 
     def test_create_tag_url_pattern_success(self):
         """Tag url_pattern (gf) is routed to EndPoint.matched_gf_patterns and returns 200."""
-        target_value = getattr(self.data_generator.target, "value", None) or "example.com"
+        target_value = (
+            getattr(self.data_generator.target, "value", None) or "example.com"
+        )
         http_url = "https://%s/path?q=1" % (target_value,)
         finding_data = {
             "_type": "tag",
@@ -361,7 +403,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": self.data_generator.target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         self.assertIn("id", response.data)
@@ -382,7 +426,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": self.data_generator.target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         self.assertIn("id", response.data)
@@ -390,7 +436,9 @@ class TestSecatorFindingCreate(BaseTestCase):
     def test_create_subdomain_out_of_scope_returns_200_skipped(self):
         """Subdomain with host out of scope (restrict_findings_to_target) returns 200 with synthetic id (skipped)."""
         self.data_generator.create_organization()
-        self.data_generator.create_scope(restrict_findings_to_target=True, allowed_finding_domains=[])
+        self.data_generator.create_scope(
+            restrict_findings_to_target=True, allowed_finding_domains=[]
+        )
         target = self.data_generator.target
         scan_history = self.data_generator.create_scan_history()
         finding_data = {
@@ -401,7 +449,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIs(response.data["status"], True)
         self.assertIs(response.data["skipped"], True)
@@ -411,7 +461,9 @@ class TestSecatorFindingCreate(BaseTestCase):
     def test_create_tag_whois_out_of_scope_returns_200_skipped(self):
         """Tag whois (jswhois) with domain out of scope returns 200 with synthetic id (skipped)."""
         self.data_generator.create_organization()
-        self.data_generator.create_scope(restrict_findings_to_target=True, allowed_finding_domains=[])
+        self.data_generator.create_scope(
+            restrict_findings_to_target=True, allowed_finding_domains=[]
+        )
         target = self.data_generator.target
         scan_history = self.data_generator.create_scan_history()
         finding_data = {
@@ -425,7 +477,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIs(response.data["status"], True)
         self.assertIs(response.data["skipped"], True)
@@ -435,7 +489,9 @@ class TestSecatorFindingCreate(BaseTestCase):
     def test_create_certificate_out_of_scope_returns_200_skipped(self):
         """Certificate (e.g. testssl) with host out of scope returns 200 with synthetic id (skipped)."""
         self.data_generator.create_organization()
-        self.data_generator.create_scope(restrict_findings_to_target=True, allowed_finding_domains=[])
+        self.data_generator.create_scope(
+            restrict_findings_to_target=True, allowed_finding_domains=[]
+        )
         target = self.data_generator.target
         scan_history = self.data_generator.create_scan_history()
         finding_data = {
@@ -452,7 +508,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIs(response.data["status"], True)
         self.assertIs(response.data["skipped"], True)
@@ -462,7 +520,9 @@ class TestSecatorFindingCreate(BaseTestCase):
     def test_create_record_out_of_scope_returns_200_skipped(self):
         """Record (e.g. dnsx) with host out of scope returns 200 with synthetic id (skipped)."""
         self.data_generator.create_organization()
-        self.data_generator.create_scope(restrict_findings_to_target=True, allowed_finding_domains=[])
+        self.data_generator.create_scope(
+            restrict_findings_to_target=True, allowed_finding_domains=[]
+        )
         target = self.data_generator.target
         scan_history = self.data_generator.create_scan_history()
         finding_data = {
@@ -475,7 +535,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIs(response.data["status"], True)
         self.assertIs(response.data["skipped"], True)
@@ -496,7 +558,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": self.data_generator.target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         self.assertIn("id", response.data)
@@ -515,7 +579,9 @@ class TestSecatorFindingCreate(BaseTestCase):
                 "target_id": self.data_generator.target.id,
             },
         }
-        response = self.client.post(self.url, finding_data, content_type="application/json")
+        response = self.client.post(
+            self.url, finding_data, content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         self.assertIn("id", response.data)
@@ -586,7 +652,9 @@ class TestSecatorAPIAuthentication(BaseTestCase):
     def setUp(self):
         """Set up test environment."""
         super().setUp()
-        with patch("dashboard.views.messages.add_message", lambda *args, **kwargs: None):
+        with patch(
+            "dashboard.views.messages.add_message", lambda *args, **kwargs: None
+        ):
             self.client.logout()
 
     def test_runner_create_unauthenticated(self):
@@ -594,14 +662,20 @@ class TestSecatorAPIAuthentication(BaseTestCase):
         url = reverse("api:secator_runner_create")
         runner_data = {"config": {"type": "workflow", "name": "test"}}
         response = self.client.post(url, runner_data, content_type="application/json")
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def test_finding_create_unauthenticated(self):
         """Test finding creation without authentication."""
         url = reverse("api:secator_finding_create")
         finding_data = {"_type": "subdomain", "name": "test.example.com"}
         response = self.client.post(url, finding_data, content_type="application/json")
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
 
 class TestGetSecatorInputTypesAndTargets(BaseTestCase):
@@ -645,7 +719,9 @@ class TestGetSecatorInputTypesAndTargets(BaseTestCase):
         )
         self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types")
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types"
+    )
     def test_success_with_workflow_id_and_target_id(self, mock_get_input_types):
         """API returns input_types and proposed_targets when workflow_id and target_id provided."""
         mock_get_input_types.return_value = ["host"]
@@ -663,7 +739,9 @@ class TestGetSecatorInputTypesAndTargets(BaseTestCase):
         self.assertIn("targets_by_type", response.data)
         self.assertIn("total_count", response.data)
 
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types")
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types"
+    )
     def test_success_with_scan_name_and_target_id(self, mock_get_input_types):
         """API returns data when scan_name and target_id provided."""
         mock_get_input_types.return_value = ["domain"]
@@ -677,7 +755,9 @@ class TestGetSecatorInputTypesAndTargets(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["input_types"], ["domain"])
 
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types")
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types"
+    )
     def test_resolves_target_id_from_subdomain_ids(self, mock_get_input_types):
         """API resolves target_id from subdomain_ids when target_id not provided."""
         mock_get_input_types.return_value = ["host"]
@@ -691,8 +771,12 @@ class TestGetSecatorInputTypesAndTargets(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("input_types", response.data)
 
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types")
-    def test_resolves_target_id_from_subdomain_ids_same_target_different_domains(self, mock_get_input_types):
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types"
+    )
+    def test_resolves_target_id_from_subdomain_ids_same_target_different_domains(
+        self, mock_get_input_types
+    ):
         """API returns 200 when subdomain_ids span multiple domains but same target."""
         mock_get_input_types.return_value = ["host"]
         scan2 = ScanHistory.objects.create(
@@ -741,11 +825,17 @@ class TestGetSecatorInputTypesAndTargets(BaseTestCase):
         self.assertIn("error", response.data)
         self.assertIn("same target", response.data["error"].lower())
 
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types")
-    def test_success_with_workflow_id_and_target_id_includes_scan_history_ip(self, mock_get_input_types):
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types"
+    )
+    def test_success_with_workflow_id_and_target_id_includes_scan_history_ip(
+        self, mock_get_input_types
+    ):
         """API includes IpAddress rows scoped by scan_history->target in proposed_targets."""
         mock_get_input_types.return_value = ["host", "ip"]
-        ip_row = IpAddress.objects.create(address="198.51.100.19", scan_history=self.subdomain.scan_history)
+        ip_row = IpAddress.objects.create(
+            address="198.51.100.19", scan_history=self.subdomain.scan_history
+        )
         response = self.client.get(
             self.url,
             {
@@ -760,11 +850,17 @@ class TestGetSecatorInputTypesAndTargets(BaseTestCase):
         self.assertIn("198.51.100.19", response.data["targets_by_type"]["ip"])
         self.assertEqual(ip_row.scan_history_id, self.subdomain.scan_history_id)
 
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types")
-    def test_success_with_workflow_id_and_ip_address_ids_in_scan_history_mode(self, mock_get_input_types):
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types"
+    )
+    def test_success_with_workflow_id_and_ip_address_ids_in_scan_history_mode(
+        self, mock_get_input_types
+    ):
         """API resolves proposed targets for explicit ip_address_ids using IpAddress.scan_history."""
         mock_get_input_types.return_value = ["ip"]
-        ip_row = IpAddress.objects.create(address="198.51.100.20", scan_history=self.subdomain.scan_history)
+        ip_row = IpAddress.objects.create(
+            address="198.51.100.20", scan_history=self.subdomain.scan_history
+        )
         response = self.client.get(
             self.url,
             {
@@ -777,11 +873,17 @@ class TestGetSecatorInputTypesAndTargets(BaseTestCase):
         self.assertIn("proposed_targets", response.data)
         self.assertIn("198.51.100.20", response.data["proposed_targets"])
 
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types")
-    def test_ip_address_ids_with_scan_history_id_equal_to_target_id_falls_back_to_target(self, mock_get_input_types):
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types"
+    )
+    def test_ip_address_ids_with_scan_history_id_equal_to_target_id_falls_back_to_target(
+        self, mock_get_input_types
+    ):
         """When scan_history_id carries a target id, API falls back to target validation."""
         mock_get_input_types.return_value = ["ip"]
-        ip_row = IpAddress.objects.create(address="198.51.100.21", scan_history=self.subdomain.scan_history)
+        ip_row = IpAddress.objects.create(
+            address="198.51.100.21", scan_history=self.subdomain.scan_history
+        )
         response = self.client.get(
             self.url,
             {
@@ -795,8 +897,12 @@ class TestGetSecatorInputTypesAndTargets(BaseTestCase):
         self.assertIn("proposed_targets", response.data)
         self.assertIn("198.51.100.21", response.data["proposed_targets"])
 
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types")
-    def test_ip_address_ids_with_existing_scan_history_does_not_fallback_to_target(self, mock_get_input_types):
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types"
+    )
+    def test_ip_address_ids_with_existing_scan_history_does_not_fallback_to_target(
+        self, mock_get_input_types
+    ):
         """When scan_history exists but IP is out of scan scope, API must not fallback to target mode."""
         mock_get_input_types.return_value = ["ip"]
         other_target = self.data_generator.create_target()
@@ -807,7 +913,9 @@ class TestGetSecatorInputTypesAndTargets(BaseTestCase):
             is_legacy_scan=False,
             tasks=["subdomain_discovery"],
         )
-        other_ip = IpAddress.objects.create(address="198.51.100.31", scan_history=other_scan)
+        other_ip = IpAddress.objects.create(
+            address="198.51.100.31", scan_history=other_scan
+        )
         response = self.client.get(
             self.url,
             {
@@ -839,7 +947,9 @@ class PostScanParamsEffectivePreviewTest(BaseTestCase):
         }
         response = self.client.post(self.url, payload, content_type="application/json")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get("Content-Type", "").split(";")[0].strip(), "text/html")
+        self.assertEqual(
+            response.get("Content-Type", "").split(";")[0].strip(), "text/html"
+        )
         self.assertIn(b"scan-params-effective-container", response.content)
         self.assertIn(b"12", response.content)
         self.assertIn(b"80", response.content)

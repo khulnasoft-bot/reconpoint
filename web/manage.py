@@ -19,7 +19,13 @@ def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "reconPoint.settings")
 
     # List of commands that should not display the reconpoint artwork (avoids duplicate in container: entrypoint_setup + background run_scheduled_scans; avoids polluting stdout when scripts capture output e.g. generate_secator_api_key --raw-key)
-    skip_art_commands = ["test", "dumpdata", "entrypoint_setup", "run_scheduled_scans", "generate_secator_api_key"]
+    skip_art_commands = [
+        "test",
+        "dumpdata",
+        "entrypoint_setup",
+        "run_scheduled_scans",
+        "generate_secator_api_key",
+    ]
 
     if all(cmd not in sys.argv for cmd in skip_art_commands):
         # show reconpoint artwork

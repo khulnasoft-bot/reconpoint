@@ -20,14 +20,20 @@ class EndpointPortResolutionTestCase(BaseTestCase):
 
     def test_resolve_subdomain_unique_candidate(self) -> None:
         m = {(10, 8080): 5, (11, 8080): 5}
-        self.assertEqual(resolve_port_id_for_subdomain_from_ip_port_map(m, {10, 11}, 8080), 5)
+        self.assertEqual(
+            resolve_port_id_for_subdomain_from_ip_port_map(m, {10, 11}, 8080), 5
+        )
 
     def test_resolve_subdomain_ambiguous_returns_none(self) -> None:
         m = {(10, 8080): 5, (11, 8080): 6}
-        self.assertIsNone(resolve_port_id_for_subdomain_from_ip_port_map(m, {10, 11}, 8080))
+        self.assertIsNone(
+            resolve_port_id_for_subdomain_from_ip_port_map(m, {10, 11}, 8080)
+        )
 
     def test_extract_port_explicit_and_defaults(self) -> None:
-        self.assertEqual(extract_port_number_from_http_url("https://x.example:8443/"), 8443)
+        self.assertEqual(
+            extract_port_number_from_http_url("https://x.example:8443/"), 8443
+        )
         self.assertEqual(extract_port_number_from_http_url("https://x.example/"), 443)
         self.assertEqual(extract_port_number_from_http_url("http://x.example/"), 80)
         self.assertIsNone(extract_port_number_from_http_url(""))

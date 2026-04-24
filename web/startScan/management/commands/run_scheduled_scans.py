@@ -20,7 +20,9 @@ PREFIX_SCHEDULED = "[SCHEDULED_SCANS]"
 logger = get_module_logger(__name__)
 
 
-def _error_message_from_secator_result(result: dict, default: str = "Scheduled Secator scan failed") -> str:
+def _error_message_from_secator_result(
+    result: dict, default: str = "Scheduled Secator scan failed"
+) -> str:
     """Build a single error message from a Secator result dict (validation_errors or error key)."""
     if isinstance(result, dict) and "validation_errors" in result:
         return str(result.get("validation_errors", default))
@@ -41,7 +43,9 @@ def _run_secator_with_secator_kwargs(
     url_filter = kwargs_copy.pop("url_filter", "") or ""
     selected_targets_per_task = kwargs_copy.pop("selected_targets_per_task", None)
     kwargs_copy.pop("scan_history_id", None)
-    use_per_task = bool(selected_targets_per_task and kwargs_copy.get("execution_mode") == "tasks")
+    use_per_task = bool(
+        selected_targets_per_task and kwargs_copy.get("execution_mode") == "tasks"
+    )
 
     if use_per_task:
         result = run_per_task_secator_scans(
@@ -121,13 +125,19 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now = timezone.now()
-        due = ScanSchedule.objects.filter(enabled=True, next_run__lte=now).order_by("next_run")
+        due = ScanSchedule.objects.filter(enabled=True, next_run__lte=now).order_by(
+            "next_run"
+        )
         dry_run = options["dry_run"]
 
         if dry_run:
             for schedule in due:
-                self.stdout.write(f"Would run: id={schedule.id} name={schedule.name} next_run={schedule.next_run}")
-            self.stdout.write(self.style.SUCCESS(f"Dry run: {due.count()} schedule(s) due."))
+                self.stdout.write(
+                    f"Would run: id={schedule.id} name={schedule.name} next_run={schedule.next_run}"
+                )
+            self.stdout.write(
+                self.style.SUCCESS(f"Dry run: {due.count()} schedule(s) due.")
+            )
             return
 
         run_count = 0
@@ -141,15 +151,22 @@ class Command(BaseCommand):
                 logger.log_line(
                     PREFIX_SCHEDULED,
                     "SCHEDULED_SCANS",
-                    "run_scheduled_scans failed for schedule id=%s name=%r: %s" % (schedule_id, schedule_name, e),
+                    "run_scheduled_scans failed for schedule id=%s name=%r: %s"
+                    % (schedule_id, schedule_name, e),
                     level="error",
                     exc_info=True,
                 )
                 tb = traceback.format_exc()
-                self.stderr.write(self.style.ERROR(f"Schedule id={schedule_id} name={schedule_name!r}: {e}\n{tb}"))
+                self.stderr.write(
+                    self.style.ERROR(
+                        f"Schedule id={schedule_id} name={schedule_name!r}: {e}\n{tb}"
+                    )
+                )
 
         if run_count:
-            self.stdout.write(self.style.SUCCESS(f"Started {run_count} scheduled scan(s)."))
+            self.stdout.write(
+                self.style.SUCCESS(f"Started {run_count} scheduled scan(s).")
+            )
 
     def _run_schedule(self, schedule: ScanSchedule) -> None:
         if schedule.initiated_by_id is None:
@@ -170,7 +187,10 @@ class Command(BaseCommand):
         now = timezone.now()
         schedule.last_run_at = now
         schedule.total_run_count = (schedule.total_run_count or 0) + 1
-        if schedule.schedule_mode == ScanSchedule.SCHEDULE_MODE_PERIODIC and schedule.frequency_value:
+        if (
+            schedule.schedule_mode == ScanSchedule.SCHEDULE_MODE_PERIODIC
+            and schedule.frequency_value
+        ):
             schedule.next_run = ScanSchedule.compute_next_run_from_frequency(
                 now, schedule.frequency_value, schedule.frequency_type
             )

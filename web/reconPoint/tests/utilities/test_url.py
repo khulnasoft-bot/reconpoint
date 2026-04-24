@@ -15,7 +15,9 @@ class TestNormalizeSubdomainHost(BaseTestCase):
 
     def test_strips_leading_dot(self):
         self.assertEqual(normalize_subdomain_host(".example.com"), "example.com")
-        self.assertEqual(normalize_subdomain_host(".hackertarget.com"), "hackertarget.com")
+        self.assertEqual(
+            normalize_subdomain_host(".hackertarget.com"), "hackertarget.com"
+        )
 
     def test_strips_multiple_leading_dots(self):
         self.assertEqual(normalize_subdomain_host("...example.com"), "example.com")

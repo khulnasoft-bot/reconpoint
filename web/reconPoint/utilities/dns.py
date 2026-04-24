@@ -117,13 +117,17 @@ def trigger_batch_geolocalization():
     from reconPoint.tasks.geo import geo_localize_batch
 
     if not hasattr(_thread_local, "geo_ip_collection"):
-        logger.log_line(PREFIX_DNS, "GEO", "No IPs collected for geolocalization", level="debug")
+        logger.log_line(
+            PREFIX_DNS, "GEO", "No IPs collected for geolocalization", level="debug"
+        )
         return None
 
     collected_ips = list(_thread_local.geo_ip_collection)
 
     if not collected_ips:
-        logger.log_line(PREFIX_DNS, "GEO", "No IPs collected for geolocalization", level="debug")
+        logger.log_line(
+            PREFIX_DNS, "GEO", "No IPs collected for geolocalization", level="debug"
+        )
         return None
 
     _thread_local.geo_ip_collection.clear()
@@ -355,7 +359,9 @@ def _create_failed_resolution_result(ip):
     }
 
 
-def resolve_ip_chunk(ip_chunk, dns_servers, use_system_fallback=False, dns_resolution_timeout=10):
+def resolve_ip_chunk(
+    ip_chunk, dns_servers, use_system_fallback=False, dns_resolution_timeout=10
+):
     """
     Resolve a chunk of IPs in parallel (Interface Segregation)
 
@@ -373,7 +379,10 @@ def resolve_ip_chunk(ip_chunk, dns_servers, use_system_fallback=False, dns_resol
     # Use ThreadPoolExecutor for chunk-level parallelization
     with ThreadPoolExecutor(max_workers=DEFAULT_THREADS) as executor:
         future_to_ip = {
-            executor.submit(resolve_ip_with_dns, str(ip), dns_servers, use_system_fallback): ip for ip in ip_chunk
+            executor.submit(
+                resolve_ip_with_dns, str(ip), dns_servers, use_system_fallback
+            ): ip
+            for ip in ip_chunk
         }
 
         for future in as_completed(future_to_ip):
@@ -385,7 +394,8 @@ def resolve_ip_chunk(ip_chunk, dns_servers, use_system_fallback=False, dns_resol
                 logger.log_line(
                     PREFIX_DNS,
                     "RESOLVE_CHUNK",
-                    "DNS resolution timeout for %s after %ss: %s" % (ip, dns_resolution_timeout, e),
+                    "DNS resolution timeout for %s after %ss: %s"
+                    % (ip, dns_resolution_timeout, e),
                     level="debug",
                 )
                 results.append(_create_failed_resolution_result(ip))

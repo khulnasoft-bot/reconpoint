@@ -49,11 +49,14 @@ class EngineType(models.Model):
         help_text="Type of scan this engine is designed for",
     )
     is_legacy = models.BooleanField(
-        default=True, help_text="Whether this is a legacy scan engine (deprecated in favor of Secator)"
+        default=True,
+        help_text="Whether this is a legacy scan engine (deprecated in favor of Secator)",
     )
 
     class Meta:
-        indexes = [models.Index(fields=["default_engine"], name="se_enginetype_default_idx")]
+        indexes = [
+            models.Index(fields=["default_engine"], name="se_enginetype_default_idx")
+        ]
 
     def __str__(self):
         return self.engine_name
@@ -79,7 +82,10 @@ class EngineType(models.Model):
         """Override save to automatically update scan_type from YAML if not explicitly set"""
         # Only update scan_type from YAML if it's not explicitly set in the form
         # This allows form submissions to override YAML scan_type
-        if not hasattr(self, "_scan_type_explicitly_set") or not self._scan_type_explicitly_set:
+        if (
+            not hasattr(self, "_scan_type_explicitly_set")
+            or not self._scan_type_explicitly_set
+        ):
             # Extract scan_type from YAML configuration
             self.scan_type = self.get_scan_type_from_yaml()
         super().save(*args, **kwargs)
@@ -173,7 +179,11 @@ class EngineType(models.Model):
             elif len(value) <= 3:
                 return "[" + ", ".join(str(item) for item in value) + "]"
             else:
-                return "[" + ", ".join(str(item) for item in value[:3]) + f", ... ({len(value)} items)]"
+                return (
+                    "["
+                    + ", ".join(str(item) for item in value[:3])
+                    + f", ... ({len(value)} items)]"
+                )
         elif isinstance(value, str) and len(value) > 50:
             return f"{value[:50]}..."
         elif isinstance(value, bool):
@@ -251,8 +261,12 @@ class Hackerone(models.Model):
 
 class VulnerabilityReportSetting(models.Model):
     id = models.AutoField(primary_key=True)
-    primary_color = models.CharField(max_length=10, null=True, blank=True, default="#FFB74D")
-    secondary_color = models.CharField(max_length=10, null=True, blank=True, default="#212121")
+    primary_color = models.CharField(
+        max_length=10, null=True, blank=True, default="#FFB74D"
+    )
+    secondary_color = models.CharField(
+        max_length=10, null=True, blank=True, default="#212121"
+    )
     company_name = models.CharField(max_length=100, null=True, blank=True)
     company_address = models.CharField(max_length=255, null=True, blank=True)
     company_email = models.CharField(max_length=100, null=True, blank=True)
@@ -400,9 +414,18 @@ class SecatorWorkflow(models.Model):
                     group_tasks = list(value.keys())
 
                 # Extract display name: remove "_group" prefix and any following "/" or ":"
-                display_name = key.replace("_group", "", 1).lstrip("/:").strip() or "tasks"
+                display_name = (
+                    key.replace("_group", "", 1).lstrip("/:").strip() or "tasks"
+                )
 
-                structured.append({"type": "group", "name": key, "display_name": display_name, "tasks": group_tasks})
+                structured.append(
+                    {
+                        "type": "group",
+                        "name": key,
+                        "display_name": display_name,
+                        "tasks": group_tasks,
+                    }
+                )
             else:
                 # This is an individual task
                 structured.append({"type": "task", "name": key, "group": None})
@@ -420,7 +443,9 @@ class SecatorWorkflow(models.Model):
             return self._precomputed_tasks_count
 
         structured = self.get_structured_tasks()
-        return sum(len(item["tasks"]) if item["type"] == "group" else 1 for item in structured)
+        return sum(
+            len(item["tasks"]) if item["type"] == "group" else 1 for item in structured
+        )
 
     def can_modify(self):
         """Check if this workflow can be modified"""
@@ -467,7 +492,9 @@ class SecatorWorkflow(models.Model):
 
     class Meta:
         ordering = ["workflow_type", "name"]
-        indexes = [models.Index(fields=["is_active"], name="se_secatorworkflow_active_idx")]
+        indexes = [
+            models.Index(fields=["is_active"], name="se_secatorworkflow_active_idx")
+        ]
 
 
 class SecatorTask(models.Model):
@@ -475,7 +502,9 @@ class SecatorTask(models.Model):
 
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=200, unique=True)
-    task_type = models.CharField(max_length=100, help_text="Secator task type (e.g., subfinder, nuclei)")
+    task_type = models.CharField(
+        max_length=100, help_text="Secator task type (e.g., subfinder, nuclei)"
+    )
     tags = ArrayField(
         models.CharField(max_length=50, blank=True),
         default=list,
@@ -483,9 +512,13 @@ class SecatorTask(models.Model):
         help_text="Secator task tags for filtering and grouping (e.g. url, fuzz, dns)",
     )
     description = models.TextField(blank=True, null=True)
-    is_builtin = models.BooleanField(default=True, help_text="Whether this is a built-in Secator task")
+    is_builtin = models.BooleanField(
+        default=True, help_text="Whether this is a built-in Secator task"
+    )
     yaml_configuration = models.TextField(blank=True, null=True)
-    is_active = models.BooleanField(default=True, help_text="Whether this task is available for use")
+    is_active = models.BooleanField(
+        default=True, help_text="Whether this task is available for use"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -599,7 +632,9 @@ class SecatorScan(models.Model):
         help_text="Denormalized list of workflow identifiers (aliases/names) from YAML for DB-side filtering.",
     )
     is_default = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True, help_text="Whether this scan configuration is available for use")
+    is_active = models.BooleanField(
+        default=True, help_text="Whether this scan configuration is available for use"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     scan_type = models.CharField(
@@ -669,7 +704,9 @@ class SecatorScan(models.Model):
             try:
                 orig = SecatorScan.objects.get(pk=self.pk)
                 if orig.scan_config_type == "builtin":
-                    raise PermissionDenied("Built-in scan configurations cannot be modified!")
+                    raise PermissionDenied(
+                        "Built-in scan configurations cannot be modified!"
+                    )
             except SecatorScan.DoesNotExist as e:
                 logger.log_line(
                     PREFIX_SCANENGINE,
@@ -734,7 +771,9 @@ class SecatorProfile(models.Model):
         default="custom",
         help_text="Type of profile: built-in from Secator or custom",
     )
-    is_active = models.BooleanField(default=True, help_text="Whether this profile is available for use")
+    is_active = models.BooleanField(
+        default=True, help_text="Whether this profile is available for use"
+    )
     is_default = models.BooleanField(
         default=False,
         help_text="Whether this profile is the default for its category (only one default per category allowed)",
@@ -785,7 +824,11 @@ class SecatorProfile(models.Model):
         profile YAML: type, name, category, description, enforce, opts.
         """
         parsed = self._parse_opts()
-        if isinstance(parsed, dict) and "opts" in parsed and isinstance(parsed["opts"], dict):
+        if (
+            isinstance(parsed, dict)
+            and "opts" in parsed
+            and isinstance(parsed["opts"], dict)
+        ):
             opts = parsed["opts"]
         else:
             opts = parsed if isinstance(parsed, dict) else {}
@@ -879,12 +922,19 @@ class SecatorProfile(models.Model):
         defaults_by_category = {row["category"]: row["name"] for row in qs}
 
         return {
-            category: defaults_by_category.get(category, fallback_defaults.get(category, "")) for category in categories
+            category: defaults_by_category.get(
+                category, fallback_defaults.get(category, "")
+            )
+            for category in categories
         }
 
     class Meta:
         ordering = ["profile_type", "category", "name"]
-        indexes = [models.Index(fields=["name", "profile_type"], name="se_secatorprofile_nametype_idx")]
+        indexes = [
+            models.Index(
+                fields=["name", "profile_type"], name="se_secatorprofile_nametype_idx"
+            )
+        ]
         constraints = [
             models.UniqueConstraint(
                 fields=["category"],
@@ -943,7 +993,9 @@ class SecatorWorker(models.Model):
     ssh_host = models.CharField(max_length=255)
     ssh_port = models.PositiveIntegerField(default=22)
     ssh_user = models.CharField(max_length=255)
-    ssh_auth_type = models.CharField(max_length=20, choices=SSH_AUTH_CHOICES, default=AUTH_KEY)
+    ssh_auth_type = models.CharField(
+        max_length=20, choices=SSH_AUTH_CHOICES, default=AUTH_KEY
+    )
     ssh_key_path = models.CharField(max_length=1024, null=True, blank=True)
     ssh_password_encrypted = models.TextField(null=True, blank=True)
     deploy_path = models.CharField(max_length=1024)
@@ -1007,19 +1059,25 @@ class SecatorWorker(models.Model):
         self._prepare_pull_token_for_save(kwargs)
         super().save(*args, **kwargs)
 
-    def _should_generate_pull_token(self, update_fields: list[str] | tuple[str, ...] | None) -> bool:
+    def _should_generate_pull_token(
+        self, update_fields: list[str] | tuple[str, ...] | None
+    ) -> bool:
         """Return True when pull_token must be generated for this save call."""
         return self.pk is None or update_fields is None or "pull_token" in update_fields
 
     @staticmethod
-    def _append_pull_token_update_field(update_fields: list[str] | tuple[str, ...]) -> tuple[str, ...]:
+    def _append_pull_token_update_field(
+        update_fields: list[str] | tuple[str, ...],
+    ) -> tuple[str, ...]:
         """Return update_fields with pull_token appended without mutating caller data."""
         return tuple(update_fields) + ("pull_token",)
 
     def _restore_pull_token_from_db(self) -> bool:
         """Restore pull_token from DB for partial updates that don't include pull_token."""
         try:
-            self.pull_token = self.__class__.objects.only("pull_token").get(pk=self.pk).pull_token
+            self.pull_token = (
+                self.__class__.objects.only("pull_token").get(pk=self.pk).pull_token
+            )
             return True
         except self.__class__.DoesNotExist:
             return False
@@ -1041,13 +1099,17 @@ class SecatorWorker(models.Model):
         if self.pk is None:
             self.pull_token = secrets.token_urlsafe(32)
             if update_fields is not None and "pull_token" not in update_fields:
-                kwargs["update_fields"] = self._append_pull_token_update_field(update_fields)
+                kwargs["update_fields"] = self._append_pull_token_update_field(
+                    update_fields
+                )
             return
 
         if self._should_generate_pull_token(update_fields):
             self.pull_token = secrets.token_urlsafe(32)
             if update_fields is not None and "pull_token" not in update_fields:
-                kwargs["update_fields"] = self._append_pull_token_update_field(update_fields)
+                kwargs["update_fields"] = self._append_pull_token_update_field(
+                    update_fields
+                )
             return
 
         # Existing row + partial update without `pull_token`: restore persisted
@@ -1058,7 +1120,9 @@ class SecatorWorker(models.Model):
         # Fallback for unexpected deletes or inconsistent state.
         self.pull_token = secrets.token_urlsafe(32)
         if update_fields is not None and "pull_token" not in update_fields:
-            kwargs["update_fields"] = self._append_pull_token_update_field(update_fields)
+            kwargs["update_fields"] = self._append_pull_token_update_field(
+                update_fields
+            )
 
     def save_partial(self, update_fields: list[str] | tuple[str, ...]) -> None:
         """
@@ -1077,10 +1141,15 @@ class SecatorWorker(models.Model):
 
     def uses_https_pull_agent(self) -> bool:
         """True when this worker runs scans via the pull agent (HTTPS classic, no inbound SSH)."""
-        return bool(self.https_pull_agent) and self.api_access_type == self.API_ACCESS_CLASSIC
+        return (
+            bool(self.https_pull_agent)
+            and self.api_access_type == self.API_ACCESS_CLASSIC
+        )
 
     @classmethod
-    def uses_https_pull_agent_from(cls, api_access_type: str, https_pull_agent: bool) -> bool:
+    def uses_https_pull_agent_from(
+        cls, api_access_type: str, https_pull_agent: bool
+    ) -> bool:
         """Same as uses_https_pull_agent() for use with raw values (e.g. form cleaned_data)."""
         return bool(https_pull_agent) and api_access_type == cls.API_ACCESS_CLASSIC
 
@@ -1093,7 +1162,14 @@ class SecatorWorker(models.Model):
             parsed = urlparse(base_url.strip().rstrip("/"))
             new_netloc = f"host.docker.internal:{self.api_tunnel_port}"
             return urlunparse(
-                (parsed.scheme or "https", new_netloc, parsed.path or "/", parsed.params, parsed.query, parsed.fragment)
+                (
+                    parsed.scheme or "https",
+                    new_netloc,
+                    parsed.path or "/",
+                    parsed.params,
+                    parsed.query,
+                    parsed.fragment,
+                )
             ).rstrip("/")
         return (self.api_url or "").strip().rstrip("/")
 
@@ -1126,7 +1202,9 @@ class SecatorWorkerQueuedCommand(models.Model):
     )
     kind = models.CharField(max_length=16, choices=KIND_CHOICES)
     payload = models.JSONField(default=dict)
-    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_PENDING, db_index=True)
+    status = models.CharField(
+        max_length=16, choices=STATUS_CHOICES, default=STATUS_PENDING, db_index=True
+    )
     error_message = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)

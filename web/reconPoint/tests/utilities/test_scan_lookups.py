@@ -40,7 +40,9 @@ class TestScanLookupsModelRelations(BaseTestCase):
         """IpAddress must have reverse relation ip_addresses from Subdomain M2M for ip_addresses__scan_history_id."""
         fields = [f for f in IpAddress._meta.get_fields() if f.name == "ip_addresses"]
         self.assertEqual(
-            len(fields), 1, "IpAddress must have relation 'ip_addresses' (reverse of Subdomain.ip_addresses)"
+            len(fields),
+            1,
+            "IpAddress must have relation 'ip_addresses' (reverse of Subdomain.ip_addresses)",
         )
         self.assertEqual(fields[0].related_model, Subdomain)
 

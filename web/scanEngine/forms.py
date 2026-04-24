@@ -45,13 +45,19 @@ class AddEngineForm(forms.ModelForm):
     engine_name = forms.CharField(
         required=True,
         widget=forms.TextInput(
-            attrs={"class": "form-control form-control-lg", "id": "scan_engine_name", "placeholder": "Engine Name"}
+            attrs={
+                "class": "form-control form-control-lg",
+                "id": "scan_engine_name",
+                "placeholder": "Engine Name",
+            }
         ),
     )
     scan_type = forms.ChoiceField(
         choices=EngineType.SCAN_TYPE_CHOICES,
         required=True,
-        widget=forms.Select(attrs={"class": "form-control form-control-lg", "id": "scan_type"}),
+        widget=forms.Select(
+            attrs={"class": "form-control form-control-lg", "id": "scan_type"}
+        ),
         help_text="Select the type of scan this engine is designed for",
     )
     yaml_configuration = forms.CharField(
@@ -84,13 +90,19 @@ class UpdateEngineForm(forms.ModelForm):
     engine_name = forms.CharField(
         required=True,
         widget=forms.TextInput(
-            attrs={"class": "form-control form-control-lg", "id": "scan_engine_name", "placeholder": "Custom Engine"}
+            attrs={
+                "class": "form-control form-control-lg",
+                "id": "scan_engine_name",
+                "placeholder": "Custom Engine",
+            }
         ),
     )
     scan_type = forms.ChoiceField(
         choices=EngineType.SCAN_TYPE_CHOICES,
         required=True,
-        widget=forms.Select(attrs={"class": "form-control form-control-lg", "id": "scan_type"}),
+        widget=forms.Select(
+            attrs={"class": "form-control form-control-lg", "id": "scan_type"}
+        ),
         help_text="Select the type of scan this engine is designed for",
     )
     yaml_configuration = forms.CharField(
@@ -210,19 +222,29 @@ class InterestingLookupForm(forms.ModelForm):
         ),
     )
 
-    custom_type = forms.BooleanField(required=False, widget=forms.HiddenInput(attrs={"value": "true"}))
+    custom_type = forms.BooleanField(
+        required=False, widget=forms.HiddenInput(attrs={"value": "true"})
+    )
 
     title_lookup = forms.BooleanField(
-        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input", "id": "title_lookup"})
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "title_lookup"}
+        ),
     )
 
     url_lookup = forms.BooleanField(
-        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input", "id": "url_lookup"})
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "url_lookup"}
+        ),
     )
 
     condition_200_http_lookup = forms.BooleanField(
         required=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input", "id": "condition_200_http_lookup"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "condition_200_http_lookup"}
+        ),
     )
 
     def set_value(self, key):
@@ -547,7 +569,8 @@ class HackeroneForm(forms.ModelForm):
     )
 
     report_template = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"id": "vulnerability-report-template"})
+        required=False,
+        widget=forms.Textarea(attrs={"id": "vulnerability-report-template"}),
     )
 
     def set_value(self, key):
@@ -679,15 +702,18 @@ class ReportForm(forms.ModelForm):
     )
 
     executive_summary_description = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"id": "executive_summary_description"})
+        required=False,
+        widget=forms.Textarea(attrs={"id": "executive_summary_description"}),
     )
 
     primary_color = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"id": "primary_color", "hidden": "true"})
+        required=False,
+        widget=forms.TextInput(attrs={"id": "primary_color", "hidden": "true"}),
     )
 
     secondary_color = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"id": "secondary_color", "hidden": "true"})
+        required=False,
+        widget=forms.TextInput(attrs={"id": "secondary_color", "hidden": "true"}),
     )
 
     def set_value(self, key):
@@ -697,7 +723,9 @@ class ReportForm(forms.ModelForm):
         self.initial["company_email"] = key.company_email
         self.initial["show_reconpoint_banner"] = key.show_reconpoint_banner
         self.initial["show_executive_summary"] = key.show_executive_summary
-        self.initial["executive_summary_description"] = key.executive_summary_description
+        self.initial["executive_summary_description"] = (
+            key.executive_summary_description
+        )
         self.initial["show_footer"] = key.show_footer
         self.initial["footer_text"] = key.footer_text
         self.initial["primary_color"] = key.primary_color
@@ -746,7 +774,9 @@ class SecatorWorkflowForm(forms.ModelForm):
         required=False,
         delimiter=",",
         help_text="Comma-separated tags (e.g. http, recon, fuzz)",
-        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "e.g. http, recon, fuzz"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "e.g. http, recon, fuzz"}
+        ),
     )
 
     class Meta:
@@ -808,7 +838,9 @@ class SecatorWorkflowForm(forms.ModelForm):
     scan_type = forms.ChoiceField(
         choices=EngineType.SCAN_TYPE_CHOICES,
         required=True,
-        widget=forms.Select(attrs={"class": "form-control form-control-lg", "id": "scan_type"}),
+        widget=forms.Select(
+            attrs={"class": "form-control form-control-lg", "id": "scan_type"}
+        ),
         help_text="Select the type of scan this workflow is designed for",
     )
     yaml_configuration = forms.CharField(
@@ -826,7 +858,9 @@ class SecatorWorkflowForm(forms.ModelForm):
     )
     is_active = forms.BooleanField(
         required=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input", "id": "is_active"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "is_active"}
+        ),
     )
 
     def clean_yaml_configuration(self):
@@ -841,12 +875,18 @@ class SecatorWorkflowForm(forms.ModelForm):
 
             # Schema validation: check for required fields
             if not isinstance(parsed_yaml, dict):
-                raise ValidationError("YAML configuration must be a mapping (dictionary) at the top level.")
+                raise ValidationError(
+                    "YAML configuration must be a mapping (dictionary) at the top level."
+                )
 
             # Required top-level fields
             required_fields = ["name", "description", "type", "tags"]
-            if missing_fields := [field for field in required_fields if field not in parsed_yaml]:
-                raise ValidationError(f"Missing required field(s) in YAML configuration: {', '.join(missing_fields)}")
+            if missing_fields := [
+                field for field in required_fields if field not in parsed_yaml
+            ]:
+                raise ValidationError(
+                    f"Missing required field(s) in YAML configuration: {', '.join(missing_fields)}"
+                )
 
             # Validate field types and values
             self._validate_yaml_field_types(parsed_yaml)
@@ -860,18 +900,26 @@ class SecatorWorkflowForm(forms.ModelForm):
     def _validate_yaml_field_types(self, parsed_yaml):
         """Validate types and values of YAML fields."""
         # Validate name field
-        if not isinstance(parsed_yaml.get("name"), str) or not parsed_yaml.get("name").strip():
+        if (
+            not isinstance(parsed_yaml.get("name"), str)
+            or not parsed_yaml.get("name").strip()
+        ):
             raise ValidationError("Field 'name' must be a non-empty string.")
 
         # Validate description field
-        if not isinstance(parsed_yaml.get("description"), str) or not parsed_yaml.get("description").strip():
+        if (
+            not isinstance(parsed_yaml.get("description"), str)
+            or not parsed_yaml.get("description").strip()
+        ):
             raise ValidationError("Field 'description' must be a non-empty string.")
 
         # Validate type field
         valid_types = ["workflow"]
         config_type = parsed_yaml.get("type")
         if not isinstance(config_type, str) or config_type not in valid_types:
-            raise ValidationError(f"Field 'type' must be one of: {', '.join(valid_types)}")
+            raise ValidationError(
+                f"Field 'type' must be one of: {', '.join(valid_types)}"
+            )
 
         # # Validate workflow_type field
         # valid_workflow_types = ["builtin", "custom"]
@@ -889,19 +937,30 @@ class SecatorWorkflowForm(forms.ModelForm):
 
         for task_name, task in tasks.items():
             if not isinstance(task, (dict, str)):
-                raise ValidationError(f"Task '{task_name}' must be a dictionary or string.")
+                raise ValidationError(
+                    f"Task '{task_name}' must be a dictionary or string."
+                )
             if isinstance(task, str):
                 continue
             if task_name.startswith("_"):
                 continue
             # Required task fields
             required_task_fields = ["description"]
-            if missing_task_fields := [field for field in required_task_fields if field not in task]:
-                raise ValidationError(f"Task '{task_name}' missing required field(s): {', '.join(missing_task_fields)}")
+            if missing_task_fields := [
+                field for field in required_task_fields if field not in task
+            ]:
+                raise ValidationError(
+                    f"Task '{task_name}' missing required field(s): {', '.join(missing_task_fields)}"
+                )
 
             # Validate task field types
-            if not isinstance(task.get("description"), str) or not task.get("description").strip():
-                raise ValidationError(f"Task '{task_name}': field 'description' must be a non-empty string.")
+            if (
+                not isinstance(task.get("description"), str)
+                or not task.get("description").strip()
+            ):
+                raise ValidationError(
+                    f"Task '{task_name}': field 'description' must be a non-empty string."
+                )
 
     def clean_name(self):
         """Validate workflow name uniqueness."""
@@ -943,7 +1002,9 @@ class SecatorWorkflowForm(forms.ModelForm):
         instance = super().save(commit=False)
         instance.workflow_type = "custom"
         instance.alias = re.sub(r"[_-]", "", instance.name or "")
-        instance.yaml_configuration = _sync_yaml_name(instance.yaml_configuration, instance.name)
+        instance.yaml_configuration = _sync_yaml_name(
+            instance.yaml_configuration, instance.name
+        )
         if commit:
             instance.save()
         return instance
@@ -957,23 +1018,45 @@ class SecatorTaskForm(forms.ModelForm):
         required=False,
         delimiter=",",
         help_text="Comma-separated tags (e.g. url, fuzz, dns)",
-        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "e.g. url, fuzz, dns"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "e.g. url, fuzz, dns"}
+        ),
     )
 
     class Meta:
         model = SecatorTask
-        fields = ["name", "task_type", "tags", "description", "yaml_configuration", "is_active"]
+        fields = [
+            "name",
+            "task_type",
+            "tags",
+            "description",
+            "yaml_configuration",
+            "is_active",
+        ]
         widgets = {
-            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter task name"}),
+            "name": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Enter task name"}
+            ),
             "task_type": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "e.g., subfinder, nuclei, httpx"}
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "e.g., subfinder, nuclei, httpx",
+                }
             ),
             "description": forms.Textarea(
-                attrs={"class": "form-control", "rows": 3, "placeholder": "Enter task description"}
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Enter task description",
+                }
             ),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "yaml_configuration": forms.Textarea(
-                attrs={"class": "form-control", "rows": 10, "placeholder": "Enter YAML configuration (optional)"}
+                attrs={
+                    "class": "form-control",
+                    "rows": 10,
+                    "placeholder": "Enter YAML configuration (optional)",
+                }
             ),
         }
 
@@ -1009,7 +1092,9 @@ class SecatorTaskForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
         instance.is_builtin = False
-        instance.yaml_configuration = _sync_yaml_name(instance.yaml_configuration, instance.name)
+        instance.yaml_configuration = _sync_yaml_name(
+            instance.yaml_configuration, instance.name
+        )
         if commit:
             instance.save()
         return instance
@@ -1029,9 +1114,18 @@ class SecatorScanForm(forms.ModelForm):
             "is_active",
         ]
         widgets = {
-            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter scan configuration name"}),
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter scan configuration name",
+                }
+            ),
             "description": forms.Textarea(
-                attrs={"class": "form-control", "rows": 3, "placeholder": "Enter scan description"}
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Enter scan description",
+                }
             ),
             "scan_type": forms.Select(attrs={"class": "form-control"}),
             "yaml_configuration": AceWidget(
@@ -1079,14 +1173,20 @@ class SecatorScanForm(forms.ModelForm):
 
         # Required top-level fields
         required_fields = ["name", "description", "type"]
-        if missing_fields := [field for field in required_fields if field not in parsed_yaml]:
-            raise ValidationError(f"Missing required fields in YAML: {', '.join(missing_fields)}")
+        if missing_fields := [
+            field for field in required_fields if field not in parsed_yaml
+        ]:
+            raise ValidationError(
+                f"Missing required fields in YAML: {', '.join(missing_fields)}"
+            )
 
         # Validate type field
         valid_types = ["scan"]
         scan_type = parsed_yaml.get("type")
         if not isinstance(scan_type, str) or scan_type not in valid_types:
-            raise ValidationError(f"Field 'type' must be one of: {', '.join(valid_types)}")
+            raise ValidationError(
+                f"Field 'type' must be one of: {', '.join(valid_types)}"
+            )
 
     def clean(self):
         """Validate scan configuration."""
@@ -1101,7 +1201,9 @@ class SecatorScanForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
         instance.scan_config_type = "custom"
-        instance.yaml_configuration = _sync_yaml_name(instance.yaml_configuration, instance.name)
+        instance.yaml_configuration = _sync_yaml_name(
+            instance.yaml_configuration, instance.name
+        )
         if commit:
             instance.save()
         return instance
@@ -1112,18 +1214,32 @@ class SecatorProfileForm(forms.ModelForm):
 
     class Meta:
         model = SecatorProfile
-        fields = ["name", "category", "description", "enforce", "opts", "is_default", "is_active"]
+        fields = [
+            "name",
+            "category",
+            "description",
+            "enforce",
+            "opts",
+            "is_default",
+            "is_active",
+        ]
 
     name = forms.CharField(
         required=True,
         widget=forms.TextInput(
-            attrs={"class": "form-control form-control-lg", "id": "profile_name", "placeholder": "Profile Name"}
+            attrs={
+                "class": "form-control form-control-lg",
+                "id": "profile_name",
+                "placeholder": "Profile Name",
+            }
         ),
     )
     category = forms.ChoiceField(
         choices=SecatorProfile.CATEGORY_CHOICES,
         required=True,
-        widget=forms.Select(attrs={"class": "form-control form-control-lg", "id": "profile_category"}),
+        widget=forms.Select(
+            attrs={"class": "form-control form-control-lg", "id": "profile_category"}
+        ),
         help_text="Select the category of the profile",
     )
     description = forms.CharField(
@@ -1139,7 +1255,9 @@ class SecatorProfileForm(forms.ModelForm):
     )
     enforce = forms.BooleanField(
         required=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input", "id": "profile_enforce"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "profile_enforce"}
+        ),
         help_text="Whether this profile should enforce its options (handled by Secator)",
     )
     opts = forms.CharField(
@@ -1158,12 +1276,16 @@ class SecatorProfileForm(forms.ModelForm):
     )
     is_default = forms.BooleanField(
         required=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input", "id": "profile_is_default"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "profile_is_default"}
+        ),
         initial=False,
     )
     is_active = forms.BooleanField(
         required=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input", "id": "profile_is_active"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "profile_is_active"}
+        ),
         initial=True,
     )
 
@@ -1223,12 +1345,19 @@ class SecatorWorkerForm(forms.ModelForm):
     name = forms.CharField(
         required=True,
         max_length=255,
-        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Worker name (e.g. worker-1)"}),
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Worker name (e.g. worker-1)",
+            }
+        ),
     )
     ssh_host = forms.CharField(
         required=False,
         max_length=255,
-        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Hostname or IP"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Hostname or IP"}
+        ),
     )
     ssh_port = forms.IntegerField(
         required=True,
@@ -1240,7 +1369,9 @@ class SecatorWorkerForm(forms.ModelForm):
     ssh_user = forms.CharField(
         required=False,
         max_length=255,
-        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "SSH user"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "SSH user"}
+        ),
     )
     ssh_auth_type = forms.ChoiceField(
         choices=SecatorWorker.SSH_AUTH_CHOICES,
@@ -1250,18 +1381,26 @@ class SecatorWorkerForm(forms.ModelForm):
     ssh_password_encrypted = forms.CharField(
         required=False,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Password", "autocomplete": "new-password"}
+            attrs={
+                "class": "form-control",
+                "placeholder": "Password",
+                "autocomplete": "new-password",
+            }
         ),
     )
     deploy_path = forms.CharField(
         required=True,
         max_length=1024,
-        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "/opt/secator-worker"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "/opt/secator-worker"}
+        ),
     )
     container_name = forms.CharField(
         required=False,
         max_length=255,
-        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "secator-worker (optional)"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "secator-worker (optional)"}
+        ),
     )
     api_access_type = forms.ChoiceField(
         choices=SecatorWorker.API_ACCESS_CHOICES,
@@ -1273,7 +1412,9 @@ class SecatorWorkerForm(forms.ModelForm):
         min_value=1,
         max_value=65535,
         initial=8443,
-        widget=forms.NumberInput(attrs={"class": "form-control", "placeholder": "8443"}),
+        widget=forms.NumberInput(
+            attrs={"class": "form-control", "placeholder": "8443"}
+        ),
     )
     api_url = forms.CharField(
         required=False,
@@ -1288,14 +1429,18 @@ class SecatorWorkerForm(forms.ModelForm):
     https_pull_agent = forms.BooleanField(
         required=False,
         initial=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input", "id": "id_https_pull_agent"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "id_https_pull_agent"}
+        ),
     )
     https_pull_verify_ssl = forms.BooleanField(
         required=False,
         initial=True,
         label="Verify reconPoint TLS certificate (pull agent)",
         help_text="Uncheck if reconPoint HTTPS uses a self-signed certificate.",
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input", "id": "id_https_pull_verify_ssl"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "id_https_pull_verify_ssl"}
+        ),
     )
     regenerate_pull_token = forms.BooleanField(
         required=False,
@@ -1310,10 +1455,16 @@ class SecatorWorkerForm(forms.ModelForm):
         widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
     )
 
-    def _is_pull_classic(self, api_access: str | None, https_pull_agent: object) -> bool:
-        return SecatorWorker.uses_https_pull_agent_from(api_access or "", bool(https_pull_agent))
+    def _is_pull_classic(
+        self, api_access: str | None, https_pull_agent: object
+    ) -> bool:
+        return SecatorWorker.uses_https_pull_agent_from(
+            api_access or "", bool(https_pull_agent)
+        )
 
-    def _apply_pull_classic_ssh_defaults(self, cleaned_data: dict[str, object], pull_classic: bool) -> None:
+    def _apply_pull_classic_ssh_defaults(
+        self, cleaned_data: dict[str, object], pull_classic: bool
+    ) -> None:
         """In pull-classic mode, SSH fields are irrelevant for execution (pull agent)."""
         if not pull_classic:
             return
@@ -1335,8 +1486,13 @@ class SecatorWorkerForm(forms.ModelForm):
         else:
             cleaned_data["ssh_user"] = "not-used-pull-agent"
 
-    def _require_ssh_fields_for_non_pull_api(self, cleaned_data: dict[str, object], api_access: str | None) -> None:
-        if api_access not in (SecatorWorker.API_ACCESS_CLASSIC, SecatorWorker.API_ACCESS_TUNNEL):
+    def _require_ssh_fields_for_non_pull_api(
+        self, cleaned_data: dict[str, object], api_access: str | None
+    ) -> None:
+        if api_access not in (
+            SecatorWorker.API_ACCESS_CLASSIC,
+            SecatorWorker.API_ACCESS_TUNNEL,
+        ):
             return
 
         if not (cleaned_data.get("ssh_host") or "").strip():
@@ -1375,7 +1531,9 @@ class SecatorWorkerForm(forms.ModelForm):
             and not cleaned_data.get("ssh_password_encrypted")
             and (not self.instance or not self.instance.ssh_password_encrypted)
         ):
-            raise ValidationError("Password is required when using password authentication.")
+            raise ValidationError(
+                "Password is required when using password authentication."
+            )
 
     def _validate_api_access_fields(
         self,
@@ -1386,19 +1544,33 @@ class SecatorWorkerForm(forms.ModelForm):
         if api_access == SecatorWorker.API_ACCESS_CLASSIC:
             api_url = (cleaned_data.get("api_url") or "").strip()
             if not api_url:
-                raise ValidationError({"api_url": "API URL is required when using classic (HTTPS) access."})
+                raise ValidationError(
+                    {
+                        "api_url": "API URL is required when using classic (HTTPS) access."
+                    }
+                )
         if api_access == SecatorWorker.API_ACCESS_TUNNEL:
             port = cleaned_data.get("api_tunnel_port")
             if port is None:
-                raise ValidationError({"api_tunnel_port": "API tunnel port is required when using tunnel access."})
+                raise ValidationError(
+                    {
+                        "api_tunnel_port": "API tunnel port is required when using tunnel access."
+                    }
+                )
             if port < 1 or port > 65535:
-                raise ValidationError({"api_tunnel_port": "Port must be between 1 and 65535."})
+                raise ValidationError(
+                    {"api_tunnel_port": "Port must be between 1 and 65535."}
+                )
             if auth_type == SecatorWorker.AUTH_PASSWORD:
                 raise ValidationError(
-                    {"ssh_auth_type": "Password authentication is not supported when using API tunnel access."}
+                    {
+                        "ssh_auth_type": "Password authentication is not supported when using API tunnel access."
+                    }
                 )
 
-    def _validate_https_pull_agent_flag(self, cleaned_data: dict[str, object], pull_classic: bool) -> None:
+    def _validate_https_pull_agent_flag(
+        self, cleaned_data: dict[str, object], pull_classic: bool
+    ) -> None:
         if cleaned_data.get("https_pull_agent") and not pull_classic:
             raise ValidationError(
                 {
@@ -1406,7 +1578,9 @@ class SecatorWorkerForm(forms.ModelForm):
                 }
             )
 
-    def _apply_https_pull_verify_ssl_default(self, cleaned_data: dict[str, object], pull_classic: bool) -> None:
+    def _apply_https_pull_verify_ssl_default(
+        self, cleaned_data: dict[str, object], pull_classic: bool
+    ) -> None:
         # Preserve the posted preference even when pull-agent is disabled.
         # At runtime, we only use this preference when pull-agent is actually enabled.
         return
@@ -1416,14 +1590,24 @@ class SecatorWorkerForm(forms.ModelForm):
         api_access = cleaned_data.get("api_access_type")
         # Pull-classic mode: we normalize SSH fields for form consistency and we
         # skip SSH-required validation because execution is handled via pull-agent.
-        pull_classic = self._is_pull_classic(api_access, cleaned_data.get("https_pull_agent"))
+        pull_classic = self._is_pull_classic(
+            api_access, cleaned_data.get("https_pull_agent")
+        )
         self._apply_pull_classic_ssh_defaults(cleaned_data, pull_classic=pull_classic)
-        self._require_ssh_fields_for_non_pull_api(cleaned_data, api_access=None if pull_classic else api_access)
+        self._require_ssh_fields_for_non_pull_api(
+            cleaned_data, api_access=None if pull_classic else api_access
+        )
         auth_type = cleaned_data.get("ssh_auth_type")
-        self._validate_password_auth(cleaned_data, pull_classic=pull_classic, auth_type=auth_type)
-        self._validate_api_access_fields(cleaned_data, api_access=api_access, auth_type=auth_type)
+        self._validate_password_auth(
+            cleaned_data, pull_classic=pull_classic, auth_type=auth_type
+        )
+        self._validate_api_access_fields(
+            cleaned_data, api_access=api_access, auth_type=auth_type
+        )
         self._validate_https_pull_agent_flag(cleaned_data, pull_classic=pull_classic)
-        self._apply_https_pull_verify_ssl_default(cleaned_data, pull_classic=pull_classic)
+        self._apply_https_pull_verify_ssl_default(
+            cleaned_data, pull_classic=pull_classic
+        )
         return cleaned_data
 
     def save(self, commit=True):

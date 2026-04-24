@@ -37,7 +37,11 @@ class TestScanEngineViews(BaseTestCase):
         """
         response = self.client.post(
             reverse("add_engine"),
-            {"engine_name": "New Engine", "yaml_configuration": "new: config", "scan_type": "internet"},
+            {
+                "engine_name": "New Engine",
+                "yaml_configuration": "new: config",
+                "scan_type": "internet",
+            },
         )
         self.assertEqual(response.status_code, 302)
         engine = EngineType.objects.filter(engine_name="New Engine").first()
@@ -48,9 +52,15 @@ class TestScanEngineViews(BaseTestCase):
         """
         Tests the delete engine view to ensure an engine is deleted successfully.
         """
-        response = self.client.post(reverse("delete_engine_url", kwargs={"id": self.data_generator.engine_type.id}))
+        response = self.client.post(
+            reverse(
+                "delete_engine_url", kwargs={"id": self.data_generator.engine_type.id}
+            )
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(EngineType.objects.filter(id=self.data_generator.engine_type.id).exists())
+        self.assertFalse(
+            EngineType.objects.filter(id=self.data_generator.engine_type.id).exists()
+        )
 
     def test_update_engine_view(self):
         """
@@ -58,7 +68,11 @@ class TestScanEngineViews(BaseTestCase):
         """
         response = self.client.post(
             reverse("update_engine", kwargs={"id": self.data_generator.engine_type.id}),
-            {"engine_name": "Updated Engine", "yaml_configuration": "updated: config", "scan_type": "internal_network"},
+            {
+                "engine_name": "Updated Engine",
+                "yaml_configuration": "updated: config",
+                "scan_type": "internal_network",
+            },
         )
         self.assertEqual(response.status_code, 302)
         self.data_generator.engine_type.refresh_from_db()
@@ -81,7 +95,8 @@ class TestScanEngineViews(BaseTestCase):
             f.write("test\nword\nlist")
         with open("test_wordlist.txt", "rb") as f:
             response = self.client.post(
-                reverse("add_wordlist"), {"name": "New Wordlist", "short_name": "new", "upload_file": f}
+                reverse("add_wordlist"),
+                {"name": "New Wordlist", "short_name": "new", "upload_file": f},
             )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Wordlist.objects.filter(name="New Wordlist").exists())
@@ -90,18 +105,27 @@ class TestScanEngineViews(BaseTestCase):
         """
         Tests the delete wordlist view to ensure a wordlist is deleted successfully.
         """
-        response = self.client.post(reverse("delete_wordlist", kwargs={"id": self.data_generator.wordlist.id}))
+        response = self.client.post(
+            reverse("delete_wordlist", kwargs={"id": self.data_generator.wordlist.id})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(Wordlist.objects.filter(id=self.data_generator.wordlist.id).exists())
+        self.assertFalse(
+            Wordlist.objects.filter(id=self.data_generator.wordlist.id).exists()
+        )
 
     def test_interesting_lookup_view(self):
         """
         Tests the interesting lookup view to ensure it updates keywords successfully.
         """
-        response = self.client.post(reverse("interesting_lookup"), {"custom_type": True, "keywords": "test,lookup"})
+        response = self.client.post(
+            reverse("interesting_lookup"),
+            {"custom_type": True, "keywords": "test,lookup"},
+        )
         self.assertEqual(response.status_code, 302)
         self.data_generator.interesting_lookup_model.refresh_from_db()
-        self.assertEqual(self.data_generator.interesting_lookup_model.keywords, "test,lookup")
+        self.assertEqual(
+            self.data_generator.interesting_lookup_model.keywords, "test,lookup"
+        )
 
     def test_tool_specific_settings_view(self):
         """
@@ -146,7 +170,10 @@ class TestScanEngineViews(BaseTestCase):
         """
         Tests the Hackerone settings view to ensure it updates settings successfully.
         """
-        response = self.client.post(reverse("hackerone_settings"), {"username": "newuser", "api_key": "newapikey"})
+        response = self.client.post(
+            reverse("hackerone_settings"),
+            {"username": "newuser", "api_key": "newapikey"},
+        )
         self.assertEqual(response.status_code, 302)
         self.data_generator.hackerone.refresh_from_db()
         self.assertEqual(self.data_generator.hackerone.username, "newuser")
@@ -156,7 +183,8 @@ class TestScanEngineViews(BaseTestCase):
         Tests the report settings view to ensure it updates settings successfully.
         """
         response = self.client.post(
-            reverse("report_settings"), {"primary_color": "#FFFFFF", "secondary_color": "#000000"}
+            reverse("report_settings"),
+            {"primary_color": "#FFFFFF", "secondary_color": "#000000"},
         )
         self.assertEqual(response.status_code, 302)
         self.data_generator.report_setting.refresh_from_db()
@@ -167,7 +195,8 @@ class TestScanEngineViews(BaseTestCase):
         Tests the API vault view to ensure it updates API keys successfully.
         """
         response = self.client.post(
-            reverse("api_vault"), {"key_openai": "test_openai_key", "key_netlas": "test_netlas_key"}
+            reverse("api_vault"),
+            {"key_openai": "test_openai_key", "key_netlas": "test_netlas_key"},
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "scanEngine/settings/api.html")
@@ -188,7 +217,9 @@ class TestScanEngineViews(BaseTestCase):
         # Should return 200 with form errors (validation failure)
         self.assertEqual(response.status_code, 200)
         # Engine should not be created due to validation error
-        engine = EngineType.objects.filter(engine_name="Invalid Scan Type Engine").first()
+        engine = EngineType.objects.filter(
+            engine_name="Invalid Scan Type Engine"
+        ).first()
         self.assertIsNone(engine)
 
     def test_add_engine_missing_scan_type(self):
@@ -207,7 +238,9 @@ class TestScanEngineViews(BaseTestCase):
         # Should return 200 with form errors (validation failure)
         self.assertEqual(response.status_code, 200)
         # Engine should not be created due to validation error
-        engine = EngineType.objects.filter(engine_name="Missing Scan Type Engine").first()
+        engine = EngineType.objects.filter(
+            engine_name="Missing Scan Type Engine"
+        ).first()
         self.assertIsNone(engine)
 
     def test_add_engine_empty_scan_type(self):
@@ -217,7 +250,11 @@ class TestScanEngineViews(BaseTestCase):
         # Test with empty scan_type value
         response = self.client.post(
             reverse("add_engine"),
-            {"engine_name": "Empty Scan Type Engine", "yaml_configuration": "new: config", "scan_type": ""},
+            {
+                "engine_name": "Empty Scan Type Engine",
+                "yaml_configuration": "new: config",
+                "scan_type": "",
+            },
         )
         # Should return 200 with form errors (validation failure)
         self.assertEqual(response.status_code, 200)
@@ -274,7 +311,9 @@ port_scan: {
         self.assertEqual(response.status_code, 200)
         # Engine should not be updated due to validation error
         self.data_generator.engine_type.refresh_from_db()
-        self.assertNotEqual(self.data_generator.engine_type.engine_name, "Updated Engine Invalid")
+        self.assertNotEqual(
+            self.data_generator.engine_type.engine_name, "Updated Engine Invalid"
+        )
 
     def test_update_engine_missing_scan_type(self):
         """
@@ -293,7 +332,9 @@ port_scan: {
         self.assertEqual(response.status_code, 200)
         # Engine should not be updated due to validation error
         self.data_generator.engine_type.refresh_from_db()
-        self.assertNotEqual(self.data_generator.engine_type.engine_name, "Updated Engine Missing")
+        self.assertNotEqual(
+            self.data_generator.engine_type.engine_name, "Updated Engine Missing"
+        )
 
     def test_engine_model_scan_type_validation(self):
         """
@@ -301,7 +342,9 @@ port_scan: {
         """
         # Test creating engine with invalid scan_type
         engine = EngineType.objects.create(
-            engine_name="Test Invalid Scan Type", yaml_configuration="test: config", scan_type="invalid_type"
+            engine_name="Test Invalid Scan Type",
+            yaml_configuration="test: config",
+            scan_type="invalid_type",
         )
         # The model should handle this gracefully
         self.assertIn(engine.scan_type, ["internet", "internal_network"])
@@ -335,7 +378,9 @@ custom_header: {
 scan_type: 'internal_network'
 custom_header: {}
 """
-        engine = EngineType.objects.create(engine_name="Test Valid YAML", yaml_configuration=yaml_config_valid)
+        engine = EngineType.objects.create(
+            engine_name="Test Valid YAML", yaml_configuration=yaml_config_valid
+        )
         self.assertEqual(engine.get_scan_type_from_yaml(), "internal_network")
 
         # Test with invalid scan_type in YAML
@@ -343,7 +388,9 @@ custom_header: {}
 scan_type: 'invalid_type'
 custom_header: {}
 """
-        engine = EngineType.objects.create(engine_name="Test Invalid YAML", yaml_configuration=yaml_config_invalid)
+        engine = EngineType.objects.create(
+            engine_name="Test Invalid YAML", yaml_configuration=yaml_config_invalid
+        )
         # Should return the invalid value as-is (validation happens elsewhere)
         self.assertEqual(engine.get_scan_type_from_yaml(), "invalid_type")
 
@@ -352,18 +399,23 @@ custom_header: {}
 custom_header: {}
 port_scan: {}
 """
-        engine = EngineType.objects.create(engine_name="Test Missing YAML", yaml_configuration=yaml_config_missing)
+        engine = EngineType.objects.create(
+            engine_name="Test Missing YAML", yaml_configuration=yaml_config_missing
+        )
         # Should return default fallback
         self.assertEqual(engine.get_scan_type_from_yaml(), "internet")
 
         # Test with malformed YAML
         engine = EngineType.objects.create(
-            engine_name="Test Malformed YAML", yaml_configuration="invalid: yaml: content: ["
+            engine_name="Test Malformed YAML",
+            yaml_configuration="invalid: yaml: content: [",
         )
         # Should return default fallback
         self.assertEqual(engine.get_scan_type_from_yaml(), "internet")
 
         # Test with empty YAML
-        engine = EngineType.objects.create(engine_name="Test Empty YAML", yaml_configuration="")
+        engine = EngineType.objects.create(
+            engine_name="Test Empty YAML", yaml_configuration=""
+        )
         # Should return default fallback
         self.assertEqual(engine.get_scan_type_from_yaml(), "internet")

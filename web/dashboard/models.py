@@ -72,7 +72,8 @@ class UserAPIKey(AbstractAPIKey):
     last_used = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_system = models.BooleanField(
-        default=False, help_text="System keys cannot be deleted through the UI and are managed by reconPoint internally"
+        default=False,
+        help_text="System keys cannot be deleted through the UI and are managed by reconPoint internally",
     )
 
     def get_url_id(self):

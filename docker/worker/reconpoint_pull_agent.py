@@ -162,13 +162,19 @@ def _dump_payload_snapshot(command_id: str, kind: str, payload: dict) -> None:
             ),
             encoding="utf-8",
         )
-        logger.info("payload snapshot written command_id=%s path=%s", command_id, file_path)
+        logger.info(
+            "payload snapshot written command_id=%s path=%s", command_id, file_path
+        )
     except OSError as exc:
-        logger.warning("failed to write payload snapshot command_id=%s error=%s", command_id, exc)
+        logger.warning(
+            "failed to write payload snapshot command_id=%s error=%s", command_id, exc
+        )
 
 
 def _max_consecutive_claim_failures() -> int:
-    raw = _env(ENV_PULL_MAX_CONSECUTIVE_FAILURES, str(DEFAULT_PULL_MAX_CONSECUTIVE_FAILURES))
+    raw = _env(
+        ENV_PULL_MAX_CONSECUTIVE_FAILURES, str(DEFAULT_PULL_MAX_CONSECUTIVE_FAILURES)
+    )
     try:
         return max(1, int(raw))
     except ValueError:
@@ -176,14 +182,18 @@ def _max_consecutive_claim_failures() -> int:
 
 
 def _failure_backoff_max_delay() -> float:
-    raw = _env(ENV_PULL_FAILURE_BACKOFF_MAX_DELAY, str(DEFAULT_PULL_FAILURE_BACKOFF_MAX_DELAY))
+    raw = _env(
+        ENV_PULL_FAILURE_BACKOFF_MAX_DELAY, str(DEFAULT_PULL_FAILURE_BACKOFF_MAX_DELAY)
+    )
     try:
         return max(2.0, float(raw))
     except ValueError:
         return DEFAULT_PULL_FAILURE_BACKOFF_MAX_DELAY
 
 
-def _compute_backoff_delay(consecutive_failures: int, base_delay: float, max_delay: float) -> float:
+def _compute_backoff_delay(
+    consecutive_failures: int, base_delay: float, max_delay: float
+) -> float:
     """
     Exponential backoff with a cap.
 
@@ -232,7 +242,9 @@ def _token() -> str:
 
 def _poll_interval() -> float:
     try:
-        return max(2.0, float(_env(ENV_PULL_POLL_INTERVAL, str(DEFAULT_PULL_POLL_INTERVAL))))
+        return max(
+            2.0, float(_env(ENV_PULL_POLL_INTERVAL, str(DEFAULT_PULL_POLL_INTERVAL)))
+        )
     except ValueError:
         return DEFAULT_PULL_POLL_INTERVAL
 
@@ -240,7 +252,14 @@ def _poll_interval() -> float:
 def _revoke_timeout() -> int:
     """Timeout in seconds for the revoke subprocess; aligned with server-side wait."""
     try:
-        return max(10, int(_env(ENV_PULL_REVOKE_WAIT_SECONDS, str(DEFAULT_PULL_REVOKE_WAIT_SECONDS))))
+        return max(
+            10,
+            int(
+                _env(
+                    ENV_PULL_REVOKE_WAIT_SECONDS, str(DEFAULT_PULL_REVOKE_WAIT_SECONDS)
+                )
+            ),
+        )
     except ValueError:
         return DEFAULT_PULL_REVOKE_WAIT_SECONDS
 
@@ -371,7 +390,9 @@ def _ssl_context() -> ssl.SSLContext | None:
 def _request_timeout() -> float:
     """Return per-request HTTP timeout in seconds."""
     try:
-        return max(1.0, float(_env(ENV_PULL_HTTP_TIMEOUT, str(DEFAULT_PULL_HTTP_TIMEOUT))))
+        return max(
+            1.0, float(_env(ENV_PULL_HTTP_TIMEOUT, str(DEFAULT_PULL_HTTP_TIMEOUT)))
+        )
     except ValueError:
         return DEFAULT_PULL_HTTP_TIMEOUT
 
@@ -398,12 +419,16 @@ def _request(method: str, url: str, body: bytes | None = None) -> tuple[int, byt
 def _complete(command_id: str, ok: bool, error: str = "") -> None:
     wid = _worker_id()
     url = f"{_api_base()}/secator/workers/{wid}/pull/complete/"
-    payload = json.dumps({"command_id": command_id, "ok": ok, "error": error[:2000]}).encode("utf-8")
+    payload = json.dumps(
+        {"command_id": command_id, "ok": ok, "error": error[:2000]}
+    ).encode("utf-8")
     code, data = _request("POST", url, payload)
     if code == 200:
         logger.info("complete ok command_id=%s ok=%s", command_id, ok)
         return
-    logger.warning("complete failed %s: %s", code, data.decode("utf-8", errors="replace")[:500])
+    logger.warning(
+        "complete failed %s: %s", code, data.decode("utf-8", errors="replace")[:500]
+    )
 
 
 def _checkin(
@@ -516,9 +541,17 @@ def _maybe_run_periodic_checkin(
         logger.warning("checkin failed with unexpected exception: %s", exc)
         checkin_ok = False
     if checkin_ok:
-        logger.info("periodic checkin ok worker_id=%s api_reachable=%s", worker_id, api_reachable)
+        logger.info(
+            "periodic checkin ok worker_id=%s api_reachable=%s",
+            worker_id,
+            api_reachable,
+        )
     updated_failures = 0 if checkin_ok else consecutive_checkin_failures + 1
-    next_checkin_at = time.monotonic() + checkin_interval_seconds if checkin_interval_seconds > 0 else 0.0
+    next_checkin_at = (
+        time.monotonic() + checkin_interval_seconds
+        if checkin_interval_seconds > 0
+        else 0.0
+    )
     return CheckinScheduleState(
         consecutive_failures=updated_failures,
         next_checkin_at=next_checkin_at,
@@ -564,7 +597,9 @@ def _run_subprocess(argv: list[str], timeout: int | None) -> tuple[int, str, str
                 )
                 proc.terminate()
                 try:
-                    out, err = proc.communicate(timeout=_SUBPROCESS_TERMINATE_GRACE_SECONDS)
+                    out, err = proc.communicate(
+                        timeout=_SUBPROCESS_TERMINATE_GRACE_SECONDS
+                    )
                 except subprocess.TimeoutExpired:
                     logger.warning(
                         "subprocess did not terminate after %.1fs; sending kill cmd=%s",
@@ -581,11 +616,18 @@ def _run_subprocess(argv: list[str], timeout: int | None) -> tuple[int, str, str
 
         out, err = proc.communicate()
         elapsed = time.monotonic() - start
-        logger.info("subprocess finished rc=%s elapsed=%.2fs cmd=%s", proc.returncode, elapsed, cmd_repr)
+        logger.info(
+            "subprocess finished rc=%s elapsed=%.2fs cmd=%s",
+            proc.returncode,
+            elapsed,
+            cmd_repr,
+        )
         return proc.returncode, out or "", err or ""
     except Exception as exc:  # pragma: no cover - defensive guardrail
         elapsed = time.monotonic() - start
-        logger.exception("subprocess failed elapsed=%.2fs cmd=%s error=%s", elapsed, cmd_repr, exc)
+        logger.exception(
+            "subprocess failed elapsed=%.2fs cmd=%s error=%s", elapsed, cmd_repr, exc
+        )
         return TIMEOUT_EXIT_CODE, "", f"subprocess failed: {exc}"
 
 
@@ -643,7 +685,9 @@ def _handle_revoke(
         logger.warning("revoke stderr command_id=%s output=%s", command_id, err[-2000:])
     logger.info("revoke finished command_id=%s rc=%s", command_id, rc)
     if rc == TIMEOUT_EXIT_CODE:
-        _complete(command_id, False, f"revoke command timed out: {(err or out or '')[:1900]}")
+        _complete(
+            command_id, False, f"revoke command timed out: {(err or out or '')[:1900]}"
+        )
         return
     _complete(command_id, rc == 0, (err or out or "")[:2000])
 
@@ -702,7 +746,9 @@ def _handle_run_job(
     if out:
         logger.info("run_job stdout command_id=%s output=%s", command_id, out[-3000:])
     if err:
-        logger.warning("run_job stderr command_id=%s output=%s", command_id, err[-3000:])
+        logger.warning(
+            "run_job stderr command_id=%s output=%s", command_id, err[-3000:]
+        )
     logger.info(
         "run_job finished command_id=%s rc=%s stdout_len=%s stderr_len=%s",
         command_id,
@@ -764,9 +810,14 @@ def main() -> None:
         ENV_PULL_PYTHON,
         "/home/secator/.local/share/pipx/venvs/secator/bin/python",
     )
-    runner_script = Path(_env(ENV_PULL_RUNNER_SCRIPT, str(scripts_dir / "run_secator_job.py")))
+    runner_script = Path(
+        _env(ENV_PULL_RUNNER_SCRIPT, str(scripts_dir / "run_secator_job.py"))
+    )
     if not runner_script.is_file():
-        logger.error("RECONPOINT_PULL_RUNNER_SCRIPT is misconfigured or missing: %s", runner_script)
+        logger.error(
+            "RECONPOINT_PULL_RUNNER_SCRIPT is misconfigured or missing: %s",
+            runner_script,
+        )
         sys.exit(2)
 
     runtime_config = _load_runtime_config()
@@ -796,7 +847,9 @@ def main() -> None:
 
     while True:
         now = time.monotonic()
-        should_checkin = runtime_config.checkin_interval_seconds > 0 and now >= next_checkin_at
+        should_checkin = (
+            runtime_config.checkin_interval_seconds > 0 and now >= next_checkin_at
+        )
         poll_interval = runtime_config.poll_interval
         try:
             code, data = _request("POST", claim_url, b"{}")
@@ -808,7 +861,9 @@ def main() -> None:
             checkin_api_reachable = False
             checkin_last_error = last_claim_error
             consecutive_empty_claims = 0
-            delay = _compute_backoff_delay(consecutive_claim_failures, poll_interval, backoff_max_delay)
+            delay = _compute_backoff_delay(
+                consecutive_claim_failures, poll_interval, backoff_max_delay
+            )
             logger.warning(
                 "claim request error (%s/%s); retrying in %.1fs: %s",
                 consecutive_claim_failures,
@@ -870,7 +925,9 @@ def main() -> None:
         if code != 200:
             consecutive_claim_failures += 1
             consecutive_empty_claims = 0
-            delay = _compute_backoff_delay(consecutive_claim_failures, poll_interval, backoff_max_delay)
+            delay = _compute_backoff_delay(
+                consecutive_claim_failures, poll_interval, backoff_max_delay
+            )
             last_claim_http_code = code
             last_claim_body_preview = data.decode("utf-8", errors="replace")[:500]
             last_claim_error = ""
@@ -914,10 +971,16 @@ def main() -> None:
             msg = json.loads(data.decode("utf-8"))
         except json.JSONDecodeError as e:
             consecutive_claim_failures += 1
-            delay = _compute_backoff_delay(consecutive_claim_failures, poll_interval, backoff_max_delay)
+            delay = _compute_backoff_delay(
+                consecutive_claim_failures, poll_interval, backoff_max_delay
+            )
             raw_preview_len = 500
             raw_body = data.decode("utf-8", errors="replace")
-            preview = raw_body[:raw_preview_len] if len(raw_body) > raw_preview_len else raw_body
+            preview = (
+                raw_body[:raw_preview_len]
+                if len(raw_body) > raw_preview_len
+                else raw_body
+            )
             if len(raw_body) > raw_preview_len:
                 preview += f"... [truncated, total {len(raw_body)} chars]"
             last_claim_http_code = code

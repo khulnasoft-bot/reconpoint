@@ -55,8 +55,16 @@ class ScanHistory(models.Model):
     start_scan_date = models.DateTimeField()
     scan_status = models.IntegerField(choices=SCAN_STATUSES, default=-1)
     results_dir = models.CharField(max_length=255, blank=True)
-    target = models.ForeignKey(Target, on_delete=models.CASCADE, null=True, blank=True, related_name="scan_histories")
-    scan_type = models.ForeignKey(EngineType, on_delete=models.CASCADE, null=True, blank=True)
+    target = models.ForeignKey(
+        Target,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="scan_histories",
+    )
+    scan_type = models.ForeignKey(
+        EngineType, on_delete=models.CASCADE, null=True, blank=True
+    )
     tasks = ArrayField(models.CharField(max_length=200), null=True)
     stop_scan_date = models.DateTimeField(null=True, blank=True)
     used_gf_patterns = models.CharField(max_length=500, null=True, blank=True)
@@ -66,11 +74,22 @@ class ScanHistory(models.Model):
     buckets = models.ManyToManyField("S3Bucket", related_name="buckets", blank=True)
     dorks = models.ManyToManyField("Dork", related_name="dorks", blank=True)
     initiated_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="initiated_scans", blank=True, null=True
+        User,
+        on_delete=models.CASCADE,
+        related_name="initiated_scans",
+        blank=True,
+        null=True,
     )
-    aborted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="aborted_scans")
+    aborted_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="aborted_scans",
+    )
     is_legacy_scan = models.BooleanField(
-        default=False, help_text="Whether this scan uses legacy EngineType (True) or new SecatorScan (False)"
+        default=False,
+        help_text="Whether this scan uses legacy EngineType (True) or new SecatorScan (False)",
     )
     scan_config = models.JSONField(
         null=True,
@@ -98,8 +117,16 @@ class ScanHistory(models.Model):
         )
         if last_scan_obj is None:
             return [0, 0]
-        names_q1 = set(Subdomain.objects.filter(scan_history_id=self.id).values_list("name", flat=True))
-        names_q2 = set(Subdomain.objects.filter(scan_history__id=last_scan_obj.id).values_list("name", flat=True))
+        names_q1 = set(
+            Subdomain.objects.filter(scan_history_id=self.id).values_list(
+                "name", flat=True
+            )
+        )
+        names_q2 = set(
+            Subdomain.objects.filter(scan_history__id=last_scan_obj.id).values_list(
+                "name", flat=True
+            )
+        )
         new_subdomains = len(names_q2 - names_q1)
         removed_subdomains = len(names_q1 - names_q2)
         return [new_subdomains, removed_subdomains]
@@ -130,28 +157,52 @@ class ScanHistory(models.Model):
         return self.discovered_domains.count()
 
     def get_unknown_vulnerability_count(self):
-        return Vulnerability.objects.filter(scan_history__id=self.id).filter(severity=-1).count()
+        return (
+            Vulnerability.objects.filter(scan_history__id=self.id)
+            .filter(severity=-1)
+            .count()
+        )
 
     def get_info_vulnerability_count(self):
-        return Vulnerability.objects.filter(scan_history__id=self.id).filter(severity=0).count()
+        return (
+            Vulnerability.objects.filter(scan_history__id=self.id)
+            .filter(severity=0)
+            .count()
+        )
 
     def get_low_vulnerability_count(self):
-        return Vulnerability.objects.filter(scan_history__id=self.id).filter(severity=1).count()
+        return (
+            Vulnerability.objects.filter(scan_history__id=self.id)
+            .filter(severity=1)
+            .count()
+        )
 
     def get_medium_vulnerability_count(self):
         if hasattr(self, "vuln_medium_count"):
             return self.vuln_medium_count
-        return Vulnerability.objects.filter(scan_history__id=self.id).filter(severity=2).count()
+        return (
+            Vulnerability.objects.filter(scan_history__id=self.id)
+            .filter(severity=2)
+            .count()
+        )
 
     def get_high_vulnerability_count(self):
         if hasattr(self, "vuln_high_count"):
             return self.vuln_high_count
-        return Vulnerability.objects.filter(scan_history__id=self.id).filter(severity=3).count()
+        return (
+            Vulnerability.objects.filter(scan_history__id=self.id)
+            .filter(severity=3)
+            .count()
+        )
 
     def get_critical_vulnerability_count(self):
         if hasattr(self, "vuln_critical_count"):
             return self.vuln_critical_count
-        return Vulnerability.objects.filter(scan_history__id=self.id).filter(severity=4).count()
+        return (
+            Vulnerability.objects.filter(scan_history__id=self.id)
+            .filter(severity=4)
+            .count()
+        )
 
     def get_progress(self):
         """Calculate scan progress percentage based on completed steps vs total steps."""
@@ -181,7 +232,9 @@ class ScanHistory(models.Model):
 
         # Get unique completed task names (avoid counting duplicates if tasks are retried)
         completed_task_names = (
-            self.scanactivity_set.filter(status=SUCCESS_TASK).values_list("name", flat=True).distinct()
+            self.scanactivity_set.filter(status=SUCCESS_TASK)
+            .values_list("name", flat=True)
+            .distinct()
         )
         steps_completed = len(completed_task_names)
 
@@ -272,10 +325,16 @@ class ScanHistory(models.Model):
         else:
             has_secator = SecatorRunner.objects.filter(scan_history=self).exists()
         if has_secator:
-            if current_runner := SecatorProgressSync.get_current_running_runner(self.id):
-                runner_name = current_runner.runner_name or current_runner.runner_data.get("name", "Unknown")
-                runner_type = current_runner.runner_type or current_runner.runner_data.get("config", {}).get(
-                    "type", "task"
+            if current_runner := SecatorProgressSync.get_current_running_runner(
+                self.id
+            ):
+                runner_name = (
+                    current_runner.runner_name
+                    or current_runner.runner_data.get("name", "Unknown")
+                )
+                runner_type = (
+                    current_runner.runner_type
+                    or current_runner.runner_data.get("config", {}).get("type", "task")
                 )
                 # Format for display
                 if runner_type in ["workflow", "scan"]:
@@ -283,7 +342,11 @@ class ScanHistory(models.Model):
                 else:
                     return f"Task: {runner_name}"
 
-        if current_activity := self.scanactivity_set.filter(status=RUNNING_TASK).order_by("-time").first():
+        if (
+            current_activity := self.scanactivity_set.filter(status=RUNNING_TASK)
+            .order_by("-time")
+            .first()
+        ):
             # Format task name for display
             task_name = current_activity.name
 
@@ -306,7 +369,9 @@ class ScanHistory(models.Model):
                 "post_crawl": "Post-crawl Analysis",
             }
 
-            return task_display_names.get(task_name, task_name.replace("_", " ").title())
+            return task_display_names.get(
+                task_name, task_name.replace("_", " ").title()
+            )
 
         return None
 
@@ -334,13 +399,21 @@ class ScanHistory(models.Model):
         if not hasattr(self, "_cached_main_runner"):
             prefetched = getattr(self, "_prefetched_objects_cache", None)
             if prefetched and "secatorrunner_set" in prefetched:
-                runners = [r for r in self.secatorrunner_set.all() if r.runner_type in ("workflow", "scan")]
-                self._cached_main_runner = min(runners, key=lambda r: r.id) if runners else None
+                runners = [
+                    r
+                    for r in self.secatorrunner_set.all()
+                    if r.runner_type in ("workflow", "scan")
+                ]
+                self._cached_main_runner = (
+                    min(runners, key=lambda r: r.id) if runners else None
+                )
             else:
                 from startScan.models import SecatorRunner
 
                 main_runner = (
-                    SecatorRunner.objects.filter(scan_history=self, runner_type__in=["workflow", "scan"])
+                    SecatorRunner.objects.filter(
+                        scan_history=self, runner_type__in=["workflow", "scan"]
+                    )
                     .select_related("worker")
                     .order_by("id")
                     .first()
@@ -389,7 +462,9 @@ class ScanHistory(models.Model):
         # Import here to avoid circular import
         from startScan.models import SecatorRunner
 
-        runners = SecatorRunner.objects.filter(scan_history=self, runner_type="task").order_by("id")
+        runners = SecatorRunner.objects.filter(
+            scan_history=self, runner_type="task"
+        ).order_by("id")
 
         names: list[str] = []
         seen: set[str] = set()
@@ -494,14 +569,20 @@ class ScanHistory(models.Model):
         if self.is_legacy_scan:
             return "Local"
         main_runner = self._get_main_runner()
-        if main_runner and main_runner.worker_id and getattr(main_runner, "worker", None):
+        if (
+            main_runner
+            and main_runner.worker_id
+            and getattr(main_runner, "worker", None)
+        ):
             return main_runner.worker.name or "Local"
         prefetched = getattr(self, "_prefetched_objects_cache", None)
         if prefetched and "secatorrunner_set" in prefetched:
             if task_runners := [
                 runner
                 for runner in self.secatorrunner_set.all()
-                if runner.runner_type == "task" and runner.worker_id and getattr(runner, "worker", None)
+                if runner.runner_type == "task"
+                and runner.worker_id
+                and getattr(runner, "worker", None)
             ]:
                 task_runner = min(task_runners, key=lambda runner: runner.id)
                 return task_runner.worker.name or "Local"
@@ -509,7 +590,9 @@ class ScanHistory(models.Model):
             from startScan.models import SecatorRunner
 
             task_runner = (
-                SecatorRunner.objects.filter(scan_history=self, runner_type="task", worker__isnull=False)
+                SecatorRunner.objects.filter(
+                    scan_history=self, runner_type="task", worker__isnull=False
+                )
                 .select_related("worker")
                 .order_by("id")
                 .first()
@@ -549,7 +632,9 @@ class ScanHistory(models.Model):
             running=Count("id", filter=models.Q(scan_status=SCAN_STATUS_RUNNING)),
             completed=Count("id", filter=models.Q(scan_status=SCAN_STATUS_COMPLETED)),
             failed=Count("id", filter=models.Q(scan_status=SCAN_STATUS_FAILED)),
-            running_background=Count("id", filter=models.Q(scan_status=SCAN_STATUS_RUNNING_BACKGROUND)),
+            running_background=Count(
+                "id", filter=models.Q(scan_status=SCAN_STATUS_RUNNING_BACKGROUND)
+            ),
         )
 
     @classmethod
@@ -726,7 +811,9 @@ class DomainInfoDnsRecordsThrough(models.Model):
 
 class DomainInfoRelatedDomainsThrough(models.Model):
     domaininfo = models.ForeignKey("DomainInfo", on_delete=models.CASCADE)
-    relateddomain = models.ForeignKey(RelatedDomain, on_delete=models.CASCADE, related_name="+")
+    relateddomain = models.ForeignKey(
+        RelatedDomain, on_delete=models.CASCADE, related_name="+"
+    )
 
     class Meta:
         managed = False
@@ -735,7 +822,9 @@ class DomainInfoRelatedDomainsThrough(models.Model):
 
 class DomainInfoRelatedTldsThrough(models.Model):
     domaininfo = models.ForeignKey("DomainInfo", on_delete=models.CASCADE)
-    relateddomain = models.ForeignKey(RelatedDomain, on_delete=models.CASCADE, related_name="+")
+    relateddomain = models.ForeignKey(
+        RelatedDomain, on_delete=models.CASCADE, related_name="+"
+    )
 
     class Meta:
         managed = False
@@ -744,7 +833,9 @@ class DomainInfoRelatedTldsThrough(models.Model):
 
 class DomainInfoSimilarDomainsThrough(models.Model):
     domaininfo = models.ForeignKey("DomainInfo", on_delete=models.CASCADE)
-    relateddomain = models.ForeignKey(RelatedDomain, on_delete=models.CASCADE, related_name="+")
+    relateddomain = models.ForeignKey(
+        RelatedDomain, on_delete=models.CASCADE, related_name="+"
+    )
 
     class Meta:
         managed = False
@@ -767,7 +858,9 @@ class DomainInfo(models.Model):
     updated = models.DateTimeField(null=True, blank=True)
     expires = models.DateTimeField(null=True, blank=True)
     geolocation_iso = models.CharField(max_length=10, null=True, blank=True)
-    registrar = models.ForeignKey(Registrar, blank=True, on_delete=models.CASCADE, null=True)
+    registrar = models.ForeignKey(
+        Registrar, blank=True, on_delete=models.CASCADE, null=True
+    )
     registrant = models.ForeignKey(
         DomainRegistration,
         blank=True,
@@ -855,7 +948,9 @@ class Domain(models.Model):
     description = models.TextField(blank=True, null=True)
     insert_date = models.DateTimeField(null=True)
     request_headers = models.JSONField(null=True, blank=True)
-    domain_info = models.ForeignKey(DomainInfo, on_delete=models.CASCADE, null=True, blank=True)
+    domain_info = models.ForeignKey(
+        DomainInfo, on_delete=models.CASCADE, null=True, blank=True
+    )
     scan_history = models.ForeignKey(
         ScanHistory,
         on_delete=models.CASCADE,
@@ -889,7 +984,9 @@ class Domain(models.Model):
 
     def get_dns_servers(self):
         if self.custom_dns_servers:
-            return [dns.strip() for dns in self.custom_dns_servers.split(",") if dns.strip()]
+            return [
+                dns.strip() for dns in self.custom_dns_servers.split(",") if dns.strip()
+            ]
         return []
 
     def set_dns_servers(self, dns_servers):
@@ -909,7 +1006,9 @@ class Domain(models.Model):
 
     @classmethod
     def get_project_counts(cls, project):
-        return cls.get_all_counts(cls.objects.filter(scan_history__target__project=project))
+        return cls.get_all_counts(
+            cls.objects.filter(scan_history__target__project=project)
+        )
 
     @classmethod
     def get_project_data(cls, project):
@@ -933,7 +1032,9 @@ class Domain(models.Model):
     @classmethod
     def get_project_timeline(cls, project, date_range):
         raw_data = cls.get_counts_by_date(
-            cls.objects.filter(scan_history__target__project=project), "insert_date", date_range[0]
+            cls.objects.filter(scan_history__target__project=project),
+            "insert_date",
+            date_range[0],
         )
         results = []
         for date in date_range:
@@ -945,7 +1046,9 @@ class Domain(models.Model):
 class Subdomain(models.Model):
     # TODO: Add endpoint property instead of replicating endpoint fields here
     id = models.AutoField(primary_key=True)
-    scan_history = models.ForeignKey(ScanHistory, on_delete=models.CASCADE, null=True, blank=True)
+    scan_history = models.ForeignKey(
+        ScanHistory, on_delete=models.CASCADE, null=True, blank=True
+    )
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=1000)
     is_imported_subdomain = models.BooleanField(default=False)
@@ -968,8 +1071,12 @@ class Subdomain(models.Model):
         related_name="technologies",
         blank=True,
     )
-    ip_addresses = models.ManyToManyField("IPAddress", related_name="ip_addresses", blank=True)
-    directories = models.ManyToManyField("DirectoryScan", related_name="directories", blank=True)
+    ip_addresses = models.ManyToManyField(
+        "IPAddress", related_name="ip_addresses", blank=True
+    )
+    directories = models.ManyToManyField(
+        "DirectoryScan", related_name="directories", blank=True
+    )
     waf = models.ManyToManyField("Waf", related_name="waf", blank=True)
     verified = models.BooleanField(default=False, null=True, blank=True)
     sources = ArrayField(models.CharField(max_length=200), null=True, blank=True)
@@ -1018,8 +1125,16 @@ class Subdomain(models.Model):
 
     @property
     def get_vulnerabilities(self):
-        vulns = Vulnerability.objects.filter(subdomain__name=self.name).prefetch_related(
-            "cve_ids", "cwe_ids", "tags", "subdomain", "endpoint", "domain", "scan_history"
+        vulns = Vulnerability.objects.filter(
+            subdomain__name=self.name
+        ).prefetch_related(
+            "cve_ids",
+            "cwe_ids",
+            "tags",
+            "subdomain",
+            "endpoint",
+            "domain",
+            "scan_history",
         )
         if self.scan_history:
             vulns = vulns.filter(scan_history=self.scan_history)
@@ -1030,7 +1145,15 @@ class Subdomain(models.Model):
         vulns = (
             Vulnerability.objects.filter(subdomain__name=self.name)
             .exclude(severity=0)
-            .prefetch_related("cve_ids", "cwe_ids", "tags", "subdomain", "endpoint", "domain", "scan_history")
+            .prefetch_related(
+                "cve_ids",
+                "cwe_ids",
+                "tags",
+                "subdomain",
+                "endpoint",
+                "domain",
+                "scan_history",
+            )
         )
         if self.scan_history:
             vulns = vulns.filter(scan_history=self.scan_history)
@@ -1040,7 +1163,9 @@ class Subdomain(models.Model):
     def get_directories_count(self):
         subdomains = Subdomain.objects.filter(id=self.id)
         dirscan = DirectoryScan.objects.filter(directories__in=subdomains)
-        return DirectoryFile.objects.filter(directory_files__in=dirscan).distinct().count()
+        return (
+            DirectoryFile.objects.filter(directory_files__in=dirscan).distinct().count()
+        )
 
     @property
     def get_todos(self):
@@ -1067,7 +1192,11 @@ class Subdomain(models.Model):
         Uses a single Port queryset to avoid N+1 queries.
         """
         ip_qs = self.ip_addresses.all()
-        port_numbers = Port.objects.filter(ip_address__in=ip_qs).values_list("number", flat=True).distinct()
+        port_numbers = (
+            Port.objects.filter(ip_address__in=ip_qs)
+            .values_list("number", flat=True)
+            .distinct()
+        )
         return sorted(port_numbers)
 
     @property
@@ -1081,7 +1210,11 @@ class Subdomain(models.Model):
         result = {ip.address: {"ports": [], "is_cdn": ip.is_cdn} for ip in ip_qs}
         if not result:
             return {}
-        port_list = Port.objects.filter(ip_address__in=ip_qs).select_related("ip_address").order_by("number")
+        port_list = (
+            Port.objects.filter(ip_address__in=ip_qs)
+            .select_related("ip_address")
+            .order_by("number")
+        )
         for port in port_list:
             addr = port.ip_address.address if port.ip_address else None
             if addr is not None and addr in result:
@@ -1103,7 +1236,9 @@ class Subdomain(models.Model):
         """
         if not hasattr(self, "_cached_default_endpoint"):
             if self.scan_history and not self.scan_history.is_legacy_scan:
-                self._cached_default_endpoint = EndPoint.objects.filter(subdomain=self, is_default=True).first()
+                self._cached_default_endpoint = EndPoint.objects.filter(
+                    subdomain=self, is_default=True
+                ).first()
             else:
                 self._cached_default_endpoint = None
         return self._cached_default_endpoint
@@ -1190,7 +1325,9 @@ class Subdomain(models.Model):
             alive=Count("id", filter=~Q(http_status=0)),
         )
 
-        vuln_counts_raw = Vulnerability.objects.filter(subdomain__in=subdomain_ids).aggregate(
+        vuln_counts_raw = Vulnerability.objects.filter(
+            subdomain__in=subdomain_ids
+        ).aggregate(
             vuln_info=Count("id", filter=Q(severity=0)),
             vuln_low=Count("id", filter=Q(severity=1)),
             vuln_medium=Count("id", filter=Q(severity=2)),
@@ -1247,7 +1384,9 @@ class Subdomain(models.Model):
     def get_project_timeline(cls, project, date_range):
         """Get subdomain timeline data for a specific project"""
         raw_data = cls.get_counts_by_date(
-            cls.objects.filter(scan_history__target__project=project), "discovered_date", date_range[0]
+            cls.objects.filter(scan_history__target__project=project),
+            "discovered_date",
+            date_range[0],
         )
 
         results = []
@@ -1259,7 +1398,10 @@ class Subdomain(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["scan_history_id", "content_length"], name="ss_sub_scan_content_len"),
+            models.Index(
+                fields=["scan_history_id", "content_length"],
+                name="ss_sub_scan_content_len",
+            ),
         ]
 
 
@@ -1269,7 +1411,9 @@ class SubScan(models.Model):
     start_scan_date = models.DateTimeField()
     status = models.IntegerField()
     scan_history = models.ForeignKey(ScanHistory, on_delete=models.CASCADE)
-    subdomain = models.ForeignKey(Subdomain, on_delete=models.CASCADE, null=True, blank=True)
+    subdomain = models.ForeignKey(
+        Subdomain, on_delete=models.CASCADE, null=True, blank=True
+    )
     ip_address = models.ForeignKey(
         "IpAddress",
         on_delete=models.CASCADE,
@@ -1279,8 +1423,12 @@ class SubScan(models.Model):
     )
     stop_scan_date = models.DateTimeField(null=True, blank=True)
     error_message = models.CharField(max_length=300, blank=True, null=True)
-    engine = models.ForeignKey(EngineType, on_delete=models.CASCADE, blank=True, null=True)
-    subdomain_subscan_ids = models.ManyToManyField("Subdomain", related_name="subdomain_subscan_ids", blank=True)
+    engine = models.ForeignKey(
+        EngineType, on_delete=models.CASCADE, blank=True, null=True
+    )
+    subdomain_subscan_ids = models.ManyToManyField(
+        "Subdomain", related_name="subdomain_subscan_ids", blank=True
+    )
     secator_runner = models.OneToOneField(
         "SecatorRunner",
         on_delete=models.SET_NULL,
@@ -1299,7 +1447,10 @@ class SubScan(models.Model):
         ]
         indexes = [
             models.Index(fields=["scan_history_id", "status"]),
-            models.Index(fields=["scan_history_id", "stop_scan_date"], name="ss_subscan_scan_stop_idx"),
+            models.Index(
+                fields=["scan_history_id", "stop_scan_date"],
+                name="ss_subscan_scan_stop_idx",
+            ),
         ]
 
     def get_completed_ago(self):
@@ -1367,7 +1518,11 @@ class SubScan(models.Model):
         if not self.scan_history:
             return "Local"
         main_runner = self.scan_history._get_main_runner()
-        if main_runner and main_runner.worker_id and getattr(main_runner, "worker", None):
+        if (
+            main_runner
+            and main_runner.worker_id
+            and getattr(main_runner, "worker", None)
+        ):
             return main_runner.worker.name or "Local"
         return "Local"
 
@@ -1464,7 +1619,9 @@ class SubScan(models.Model):
     @classmethod
     def get_project_counts(cls, project):
         """Get subscan statistics for a specific project"""
-        return cls.get_all_counts(cls.objects.filter(scan_history__target__project=project))
+        return cls.get_all_counts(
+            cls.objects.filter(scan_history__target__project=project)
+        )
 
     @staticmethod
     def get_counts_by_date(queryset, date_field, since_date):
@@ -1499,9 +1656,13 @@ class SubScan(models.Model):
 
 class EndPoint(models.Model):
     id = models.AutoField(primary_key=True)
-    scan_history = models.ForeignKey(ScanHistory, on_delete=models.CASCADE, null=True, blank=True)
+    scan_history = models.ForeignKey(
+        ScanHistory, on_delete=models.CASCADE, null=True, blank=True
+    )
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True, blank=True)
-    subdomain = models.ForeignKey(Subdomain, on_delete=models.CASCADE, null=True, blank=True)
+    subdomain = models.ForeignKey(
+        Subdomain, on_delete=models.CASCADE, null=True, blank=True
+    )
     ip_address = models.ForeignKey(
         "IpAddress",
         on_delete=models.CASCADE,
@@ -1530,14 +1691,29 @@ class EndPoint(models.Model):
     screenshot_path = models.CharField(max_length=1000, null=True, blank=True)
     techs = models.ManyToManyField("Technology", related_name="techs", blank=True)
     # used for subscans
-    endpoint_subscan_ids = models.ManyToManyField("SubScan", related_name="endpoint_subscan_ids", blank=True)
+    endpoint_subscan_ids = models.ManyToManyField(
+        "SubScan", related_name="endpoint_subscan_ids", blank=True
+    )
     # Secator fields
-    method = models.CharField(max_length=10, null=True, blank=True, help_text="HTTP method: GET, POST, etc.")
-    words = models.IntegerField(default=0, null=True, blank=True, help_text="Number of words in the response")
-    lines = models.IntegerField(default=0, null=True, blank=True, help_text="Number of lines in the response")
-    headers = models.JSONField(null=True, blank=True, help_text="HTTP headers (response_headers and request_headers)")
+    method = models.CharField(
+        max_length=10, null=True, blank=True, help_text="HTTP method: GET, POST, etc."
+    )
+    words = models.IntegerField(
+        default=0, null=True, blank=True, help_text="Number of words in the response"
+    )
+    lines = models.IntegerField(
+        default=0, null=True, blank=True, help_text="Number of lines in the response"
+    )
+    headers = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="HTTP headers (response_headers and request_headers)",
+    )
     is_directory = models.BooleanField(
-        null=True, blank=True, default=False, help_text="Whether the endpoint is a directory listing"
+        null=True,
+        blank=True,
+        default=False,
+        help_text="Whether the endpoint is a directory listing",
     )
     stored_response_path = models.CharField(
         max_length=1000, null=True, blank=True, help_text="Path to stored response file"
@@ -1560,7 +1736,10 @@ class EndPoint(models.Model):
     @classmethod
     def get_counts(cls, queryset):
         """Get endpoint counts in a single query"""
-        return {"total": queryset.count(), "alive": queryset.filter(http_status__gt=0).count()}
+        return {
+            "total": queryset.count(),
+            "alive": queryset.filter(http_status__gt=0).count(),
+        }
 
     @classmethod
     def get_project_counts(cls, project):
@@ -1594,7 +1773,9 @@ class EndPoint(models.Model):
     def get_project_timeline(cls, project, date_range):
         """Get vulnerability timeline data for a specific project"""
         raw_data = cls.get_counts_by_date(
-            cls.objects.filter(scan_history__target__project=project), "discovered_date", date_range[0]
+            cls.objects.filter(scan_history__target__project=project),
+            "discovered_date",
+            date_range[0],
         )
 
         results = []
@@ -1615,10 +1796,21 @@ class EndPoint(models.Model):
             ),
         ]
         indexes = [
-            models.Index(fields=["scan_history_id", "content_length"], name="ss_ep_scan_content_len"),
-            models.Index(fields=["subdomain_id", "port_id", "is_default"], name="ss_ep_sub_port_def_idx"),
-            models.Index(fields=["ip_address_id", "port_id", "is_default"], name="ss_ep_ip_port_def_idx"),
-            models.Index(fields=["scan_history_id", "port_id"], name="ss_ep_scan_port_idx"),
+            models.Index(
+                fields=["scan_history_id", "content_length"],
+                name="ss_ep_scan_content_len",
+            ),
+            models.Index(
+                fields=["subdomain_id", "port_id", "is_default"],
+                name="ss_ep_sub_port_def_idx",
+            ),
+            models.Index(
+                fields=["ip_address_id", "port_id", "is_default"],
+                name="ss_ep_ip_port_def_idx",
+            ),
+            models.Index(
+                fields=["scan_history_id", "port_id"], name="ss_ep_scan_port_idx"
+            ),
         ]
 
 
@@ -1748,10 +1940,16 @@ class LLMVulnerabilityReport(models.Model):
 
 class Vulnerability(models.Model):
     id = models.AutoField(primary_key=True)
-    scan_history = models.ForeignKey(ScanHistory, on_delete=models.CASCADE, null=True, blank=True)
+    scan_history = models.ForeignKey(
+        ScanHistory, on_delete=models.CASCADE, null=True, blank=True
+    )
     source = models.CharField(max_length=200, null=True, blank=True)
-    subdomain = models.ForeignKey(Subdomain, on_delete=models.CASCADE, null=True, blank=True)
-    endpoint = models.ForeignKey(EndPoint, on_delete=models.CASCADE, blank=True, null=True)
+    subdomain = models.ForeignKey(
+        Subdomain, on_delete=models.CASCADE, null=True, blank=True
+    )
+    endpoint = models.ForeignKey(
+        EndPoint, on_delete=models.CASCADE, blank=True, null=True
+    )
     ip_address = models.ForeignKey(
         "IpAddress",
         on_delete=models.CASCADE,
@@ -1777,9 +1975,13 @@ class Vulnerability(models.Model):
     impact = models.TextField(null=True, blank=True)
     remediation = models.TextField(null=True, blank=True)
 
-    extracted_results = ArrayField(models.CharField(max_length=5000), blank=True, null=True)
+    extracted_results = ArrayField(
+        models.CharField(max_length=5000), blank=True, null=True
+    )
 
-    tags = models.ManyToManyField("VulnerabilityTags", related_name="vuln_tags", blank=True)
+    tags = models.ManyToManyField(
+        "VulnerabilityTags", related_name="vuln_tags", blank=True
+    )
     references = models.TextField(null=True, blank=True)
     cve_ids = models.ManyToManyField("CveId", related_name="cve_ids", blank=True)
     cwe_ids = models.ManyToManyField("CweId", related_name="cwe_ids", blank=True)
@@ -1796,7 +1998,9 @@ class Vulnerability(models.Model):
     response = models.TextField(blank=True, null=True)
     is_llm_used = models.BooleanField(null=True, blank=True, default=False)
     # used for subscans
-    vuln_subscan_ids = models.ManyToManyField("SubScan", related_name="vuln_subscan_ids", blank=True)
+    vuln_subscan_ids = models.ManyToManyField(
+        "SubScan", related_name="vuln_subscan_ids", blank=True
+    )
     cvss_vec = models.CharField(max_length=200, null=True, blank=True)
     epss_score = models.FloatField(null=True, blank=True)
     confidence_nb = models.IntegerField(default=0, null=True, blank=True)
@@ -1830,11 +2034,13 @@ class Vulnerability(models.Model):
     @classmethod
     def get_project_data(cls, project):
         """Get vulnerability data for a specific project"""
-        queryset = cls.objects.filter(scan_history__target__project=project).order_by("-discovered_date")[:50]
+        queryset = cls.objects.filter(scan_history__target__project=project).order_by(
+            "-discovered_date"
+        )[:50]
 
-        feed = queryset.select_related("subdomain", "endpoint", "domain", "scan_history").prefetch_related(
-            "cve_ids", "cwe_ids", "tags"
-        )
+        feed = queryset.select_related(
+            "subdomain", "endpoint", "domain", "scan_history"
+        ).prefetch_related("cve_ids", "cwe_ids", "tags")
 
         return {
             "feed": feed,
@@ -1860,7 +2066,9 @@ class Vulnerability(models.Model):
     def get_project_timeline(cls, project, date_range):
         """Get vulnerability timeline data for a specific project"""
         raw_data = cls.get_counts_by_date(
-            cls.objects.filter(scan_history__target__project=project), "discovered_date", date_range[0]
+            cls.objects.filter(scan_history__target__project=project),
+            "discovered_date",
+            date_range[0],
         )
 
         results = []
@@ -1900,11 +2108,20 @@ class Vulnerability(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["scan_history_id", "cvss_score"], name="ss_vuln_scan_cvss_idx"),
-            models.Index(fields=["scan_history_id", "severity"], name="ss_vuln_scan_severity_idx"),
-            models.Index(fields=["scan_history_id", "name"], name="ss_vuln_scan_name_idx"),
+            models.Index(
+                fields=["scan_history_id", "cvss_score"], name="ss_vuln_scan_cvss_idx"
+            ),
+            models.Index(
+                fields=["scan_history_id", "severity"], name="ss_vuln_scan_severity_idx"
+            ),
+            models.Index(
+                fields=["scan_history_id", "name"], name="ss_vuln_scan_name_idx"
+            ),
             models.Index(fields=["domain_id", "name"], name="ss_vuln_target_name_idx"),
-            models.Index(fields=["subdomain_id", "severity"], name="ss_vuln_subdomain_severity_idx"),
+            models.Index(
+                fields=["subdomain_id", "severity"],
+                name="ss_vuln_subdomain_severity_idx",
+            ),
         ]
 
 
@@ -1931,7 +2148,9 @@ class Secret(models.Model):
 
 class ScanActivity(models.Model):
     id = models.AutoField(primary_key=True)
-    scan_of = models.ForeignKey(ScanHistory, on_delete=models.CASCADE, blank=True, null=True)
+    scan_of = models.ForeignKey(
+        ScanHistory, on_delete=models.CASCADE, blank=True, null=True
+    )
     title = models.CharField(max_length=1000)
     name = models.CharField(max_length=1000)
     time = models.DateTimeField()
@@ -2028,8 +2247,12 @@ class ScanActivity(models.Model):
 
 class Command(models.Model):
     id = models.AutoField(primary_key=True)
-    scan_history = models.ForeignKey(ScanHistory, on_delete=models.CASCADE, blank=True, null=True)
-    activity = models.ForeignKey(ScanActivity, on_delete=models.CASCADE, blank=True, null=True)
+    scan_history = models.ForeignKey(
+        ScanHistory, on_delete=models.CASCADE, blank=True, null=True
+    )
+    activity = models.ForeignKey(
+        ScanActivity, on_delete=models.CASCADE, blank=True, null=True
+    )
     command = models.TextField(blank=True, null=True)
     return_code = models.IntegerField(blank=True, null=True)
     output = models.TextField(blank=True, null=True)
@@ -2047,7 +2270,12 @@ class Command(models.Model):
     workflow_name = models.CharField(max_length=200, blank=True, null=True)
     node_id = models.CharField(max_length=500, blank=True, null=True)
     ancestor_id = models.CharField(max_length=500, blank=True, null=True)
-    scan_type = models.CharField(max_length=50, blank=True, null=True, help_text="Scan type from run_opts.scan_type")
+    scan_type = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="Scan type from run_opts.scan_type",
+    )
 
     class Meta:
         indexes = [
@@ -2072,7 +2300,11 @@ class Command(models.Model):
         if self.activity and self.activity.runner_id and self.activity.runner_id.status:
             return str(self.activity.runner_id.status).upper()
         # Fallback: try to get from activity's runner_data
-        if self.activity and self.activity.runner_id and self.activity.runner_id.runner_data:
+        if (
+            self.activity
+            and self.activity.runner_id
+            and self.activity.runner_id.runner_data
+        ):
             return str(self.activity.runner_id.runner_data.get("status", "")).upper()
         # Final fallback: use the field value
         status_value = self._get_status_field_value()
@@ -2146,7 +2378,9 @@ class Technology(models.Model):
     @classmethod
     def get_project_data(cls, project):
         """Get technology data for a specific project"""
-        subdomain_ids = Subdomain.objects.filter(scan_history__target__project=project).values_list("id", flat=True)
+        subdomain_ids = Subdomain.objects.filter(
+            scan_history__target__project=project
+        ).values_list("id", flat=True)
 
         return {
             "most_used": cls.objects.filter(technologies__in=subdomain_ids)
@@ -2214,7 +2448,9 @@ class CountryISO(models.Model):
     @classmethod
     def get_project_data(cls, project):
         """Get country data for a specific project - OPTIMIZED"""
-        subdomains = Subdomain.objects.filter(scan_history__target__project=project).values_list("id", flat=True)
+        subdomains = Subdomain.objects.filter(
+            scan_history__target__project=project
+        ).values_list("id", flat=True)
 
         ip_addresses = IpAddress.objects.filter(ip_addresses__in=subdomains).distinct()
 
@@ -2223,17 +2459,27 @@ class CountryISO(models.Model):
     @classmethod
     def get_asset_countries(cls, ip_addresses):
         """Get countries for assets"""
-        return cls.objects.filter(ipaddress__in=ip_addresses).annotate(count=Count("iso")).order_by("-count")
+        return (
+            cls.objects.filter(ipaddress__in=ip_addresses)
+            .annotate(count=Count("iso"))
+            .order_by("-count")
+        )
 
 
 class IpAddress(models.Model):
     id = models.AutoField(primary_key=True)
     scan_history = models.ForeignKey(
-        ScanHistory, on_delete=models.SET_NULL, null=True, blank=True, related_name="ip_rows"
+        ScanHistory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ip_rows",
     )
     address = models.CharField(max_length=100, blank=True, null=True)
     is_cdn = models.BooleanField(default=False)
-    geo_iso = models.ForeignKey(CountryISO, on_delete=models.CASCADE, null=True, blank=True)
+    geo_iso = models.ForeignKey(
+        CountryISO, on_delete=models.CASCADE, null=True, blank=True
+    )
     version = models.IntegerField(blank=True, null=True)
     is_private = models.BooleanField(default=False)
     reverse_pointer = models.CharField(max_length=100, blank=True, null=True)
@@ -2241,9 +2487,15 @@ class IpAddress(models.Model):
     ip_subscan_ids = models.ManyToManyField("SubScan", related_name="ip_subscan_ids")
     alive = models.BooleanField(default=False, null=True, blank=True)
     protocol = models.CharField(
-        max_length=10, null=True, blank=True, choices=IP_PROTOCOL_CHOICES, help_text="IP protocol: IPv4 or IPv6"
+        max_length=10,
+        null=True,
+        blank=True,
+        choices=IP_PROTOCOL_CHOICES,
+        help_text="IP protocol: IPv4 or IPv6",
     )
-    extra_data = models.JSONField(null=True, blank=True, help_text="Optional data e.g. ASN from getasn")
+    extra_data = models.JSONField(
+        null=True, blank=True, help_text="Optional data e.g. ASN from getasn"
+    )
     source = models.CharField(max_length=200, null=True, blank=True, db_index=True)
     is_important = models.BooleanField(default=False, null=True, blank=True)
 
@@ -2253,11 +2505,16 @@ class IpAddress(models.Model):
     @classmethod
     def get_project_data(cls, project):
         """Get IP address data for a specific project"""
-        subdomains = Subdomain.objects.filter(scan_history__target__project=project).values_list("id", flat=True)
+        subdomains = Subdomain.objects.filter(
+            scan_history__target__project=project
+        ).values_list("id", flat=True)
 
         base_query = cls.objects.filter(ip_addresses__in=subdomains).distinct()
 
-        return {"total_count": base_query.count(), "most_used": cls.get_most_used(base_query)}
+        return {
+            "total_count": base_query.count(),
+            "most_used": cls.get_most_used(base_query),
+        }
 
     @classmethod
     def get_counts(cls, queryset):
@@ -2271,14 +2528,17 @@ class IpAddress(models.Model):
         if not scan_id_list:
             return {"total": 0, "alive": 0}
         queryset = cls.objects.filter(
-            Q(ip_addresses__scan_history_id__in=scan_id_list) | Q(ip_endpoints__scan_history_id__in=scan_id_list)
+            Q(ip_addresses__scan_history_id__in=scan_id_list)
+            | Q(ip_endpoints__scan_history_id__in=scan_id_list)
         ).distinct()
         return cls.get_counts(queryset)
 
     @classmethod
     def get_project_counts(cls, project):
         """Distinct IP counts for all scans in the project (same semantics as EndPoint.get_project_counts)."""
-        scan_ids = ScanHistory.objects.filter(target__project=project).values_list("id", flat=True)
+        scan_ids = ScanHistory.objects.filter(target__project=project).values_list(
+            "id", flat=True
+        )
         return cls.get_counts_for_scan_histories(scan_ids)
 
     @classmethod
@@ -2311,7 +2571,9 @@ class IpAddress(models.Model):
     def get_most_used(cls, queryset, subdomains=None, limit=7):
         """Get most common IP addresses with count annotation"""
         return (
-            queryset.annotate(count=Count("ip_addresses")).order_by("-count").exclude(ip_addresses__isnull=True)[:limit]
+            queryset.annotate(count=Count("ip_addresses"))
+            .order_by("-count")
+            .exclude(ip_addresses__isnull=True)[:limit]
         )
 
 
@@ -2321,7 +2583,13 @@ class Port(models.Model):
     is_uncommon = models.BooleanField(default=False)
     service_name = models.CharField(max_length=255, blank=True, null=True)
     description = models.CharField(max_length=1000, blank=True, null=True)
-    ip_address = models.ForeignKey("IpAddress", on_delete=models.CASCADE, related_name="ports", null=True, blank=True)
+    ip_address = models.ForeignKey(
+        "IpAddress",
+        on_delete=models.CASCADE,
+        related_name="ports",
+        null=True,
+        blank=True,
+    )
     state = models.CharField(max_length=50, null=True, blank=True)
     cpes = ArrayField(models.CharField(max_length=500), null=True, blank=True)
     protocol = models.CharField(max_length=10, null=True, blank=True)
@@ -2349,7 +2617,9 @@ class Port(models.Model):
     @classmethod
     def get_project_data(cls, project):
         """Get port data for a specific project"""
-        subdomains = Subdomain.objects.filter(scan_history__target__project=project).values_list("id", flat=True)
+        subdomains = Subdomain.objects.filter(
+            scan_history__target__project=project
+        ).values_list("id", flat=True)
 
         ip_addresses = IpAddress.objects.filter(ip_addresses__in=subdomains).distinct()
 
@@ -2390,17 +2660,25 @@ class DirectoryFile(models.Model):
 class DirectoryScan(models.Model):
     id = models.AutoField(primary_key=True)
     command_line = models.CharField(max_length=5000, blank=True, null=True)
-    directory_files = models.ManyToManyField("DirectoryFile", related_name="directory_files", blank=True)
+    directory_files = models.ManyToManyField(
+        "DirectoryFile", related_name="directory_files", blank=True
+    )
     scanned_date = models.DateTimeField(null=True)
     # this is used for querying which ip was discovered during subcan
-    dir_subscan_ids = models.ManyToManyField("SubScan", related_name="dir_subscan_ids", blank=True)
+    dir_subscan_ids = models.ManyToManyField(
+        "SubScan", related_name="dir_subscan_ids", blank=True
+    )
 
 
 class MetaFinderDocument(models.Model):
     id = models.AutoField(primary_key=True)
-    scan_history = models.ForeignKey(ScanHistory, on_delete=models.CASCADE, null=True, blank=True)
+    scan_history = models.ForeignKey(
+        ScanHistory, on_delete=models.CASCADE, null=True, blank=True
+    )
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True, blank=True)
-    subdomain = models.ForeignKey(Subdomain, on_delete=models.CASCADE, null=True, blank=True)
+    subdomain = models.ForeignKey(
+        Subdomain, on_delete=models.CASCADE, null=True, blank=True
+    )
     doc_name = models.CharField(max_length=1000, null=True, blank=True)
     url = models.CharField(max_length=10000, null=True, blank=True)
     title = models.CharField(max_length=1000, null=True, blank=True)
@@ -2428,10 +2706,16 @@ class Employee(models.Model):
     site_name = models.CharField(max_length=500, null=True, blank=True)
     url = models.CharField(max_length=10000, null=True, blank=True)
     # Associations
-    scan_history = models.ForeignKey(ScanHistory, on_delete=models.CASCADE, null=True, blank=True)
+    scan_history = models.ForeignKey(
+        ScanHistory, on_delete=models.CASCADE, null=True, blank=True
+    )
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True, blank=True)
-    subdomain = models.ForeignKey(Subdomain, on_delete=models.CASCADE, null=True, blank=True)
-    endpoint = models.ForeignKey(EndPoint, on_delete=models.CASCADE, null=True, blank=True)
+    subdomain = models.ForeignKey(
+        Subdomain, on_delete=models.CASCADE, null=True, blank=True
+    )
+    endpoint = models.ForeignKey(
+        EndPoint, on_delete=models.CASCADE, null=True, blank=True
+    )
     discovered_date = models.DateTimeField(null=True, blank=True)
     extra_data = models.JSONField(null=True, blank=True)
     source = models.CharField(max_length=200, null=True, blank=True, db_index=True)
@@ -2453,19 +2737,29 @@ class Exploit(models.Model):
     matched_at = models.CharField(max_length=10000, null=True, blank=True)
     reference = models.CharField(max_length=10000, null=True, blank=True)
     # Associations - primary link to IP as per Secator design
-    ip_address = models.ForeignKey(IpAddress, on_delete=models.CASCADE, null=True, blank=True)
+    ip_address = models.ForeignKey(
+        IpAddress, on_delete=models.CASCADE, null=True, blank=True
+    )
     # Optional links to subdomain/endpoint for additional context
-    subdomain = models.ForeignKey(Subdomain, on_delete=models.CASCADE, null=True, blank=True)
-    endpoint = models.ForeignKey(EndPoint, on_delete=models.CASCADE, null=True, blank=True)
+    subdomain = models.ForeignKey(
+        Subdomain, on_delete=models.CASCADE, null=True, blank=True
+    )
+    endpoint = models.ForeignKey(
+        EndPoint, on_delete=models.CASCADE, null=True, blank=True
+    )
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True, blank=True)
-    scan_history = models.ForeignKey(ScanHistory, on_delete=models.CASCADE, null=True, blank=True)
+    scan_history = models.ForeignKey(
+        ScanHistory, on_delete=models.CASCADE, null=True, blank=True
+    )
     # Additional data
     discovered_date = models.DateTimeField(null=True, blank=True)
     extra_data = models.JSONField(null=True, blank=True)
     # CVE associations
     cve_ids = models.ManyToManyField("CveId", related_name="exploit_cves", blank=True)
     # Tags
-    tags = models.ManyToManyField("VulnerabilityTags", related_name="exploit_tags", blank=True)
+    tags = models.ManyToManyField(
+        "VulnerabilityTags", related_name="exploit_tags", blank=True
+    )
 
     def __str__(self):
         return f"{self.name} ({self.exploit_id or 'N/A'})"
@@ -2505,12 +2799,19 @@ class SecatorRunner(models.Model):
     """Model for storing Secator runner data from API hooks."""
 
     id = models.AutoField(primary_key=True)
-    runner_type = models.CharField(max_length=50, help_text="Type of runner: workflow, scan, or task")
+    runner_type = models.CharField(
+        max_length=50, help_text="Type of runner: workflow, scan, or task"
+    )
     runner_name = models.CharField(max_length=500, null=True, blank=True)
     workspace_name = models.CharField(
-        max_length=500, null=True, blank=True, help_text="Secator workspace (e.g. project_slug/domain_name)"
+        max_length=500,
+        null=True,
+        blank=True,
+        help_text="Secator workspace (e.g. project_slug/domain_name)",
     )
-    scan_history = models.ForeignKey(ScanHistory, on_delete=models.CASCADE, null=True, blank=True)
+    scan_history = models.ForeignKey(
+        ScanHistory, on_delete=models.CASCADE, null=True, blank=True
+    )
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True, blank=True)
     worker = models.ForeignKey(
         "scanEngine.SecatorWorker",
@@ -2519,10 +2820,20 @@ class SecatorRunner(models.Model):
         blank=True,
         related_name="secatorrunner_set",
     )
-    runner_data = models.JSONField(default=dict, help_text="Full runner data from Secator")
-    celery_id = models.CharField(max_length=100, blank=True, null=True, help_text="Celery task ID for this runner")
+    runner_data = models.JSONField(
+        default=dict, help_text="Full runner data from Secator"
+    )
+    celery_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Celery task ID for this runner",
+    )
     status = models.CharField(
-        max_length=50, blank=True, null=True, help_text="Status from Secator (RUNNING, SUCCESS, FAILURE, REVOKED, etc.)"
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="Status from Secator (RUNNING, SUCCESS, FAILURE, REVOKED, etc.)",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -2562,34 +2873,84 @@ class Certificate(models.Model):
     """
 
     id = models.AutoField(primary_key=True)
-    scan_history = models.ForeignKey(ScanHistory, on_delete=models.CASCADE, null=True, blank=True)
-    subdomain = models.ForeignKey(Subdomain, on_delete=models.CASCADE, null=True, blank=True)
-    ip_address = models.ForeignKey(IpAddress, on_delete=models.CASCADE, null=True, blank=True)
+    scan_history = models.ForeignKey(
+        ScanHistory, on_delete=models.CASCADE, null=True, blank=True
+    )
+    subdomain = models.ForeignKey(
+        Subdomain, on_delete=models.CASCADE, null=True, blank=True
+    )
+    ip_address = models.ForeignKey(
+        IpAddress, on_delete=models.CASCADE, null=True, blank=True
+    )
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True, blank=True)
 
     host = models.CharField(max_length=1000, help_text="Hostname for the certificate")
     fingerprint_sha256 = models.CharField(
-        max_length=64, null=True, blank=True, help_text="SHA256 fingerprint of the certificate"
+        max_length=64,
+        null=True,
+        blank=True,
+        help_text="SHA256 fingerprint of the certificate",
     )
-    ip = models.CharField(max_length=100, null=True, blank=True, help_text="IP address where certificate was found")
-    raw_value = models.TextField(null=True, blank=True, help_text="Raw certificate value")
-    subject_cn = models.CharField(max_length=500, null=True, blank=True, help_text="Subject Common Name")
+    ip = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="IP address where certificate was found",
+    )
+    raw_value = models.TextField(
+        null=True, blank=True, help_text="Raw certificate value"
+    )
+    subject_cn = models.CharField(
+        max_length=500, null=True, blank=True, help_text="Subject Common Name"
+    )
     subject_an = ArrayField(
-        models.CharField(max_length=500), null=True, blank=True, help_text="Subject Alternative Names"
+        models.CharField(max_length=500),
+        null=True,
+        blank=True,
+        help_text="Subject Alternative Names",
     )
-    not_before = models.DateTimeField(null=True, blank=True, help_text="Certificate validity start date")
-    not_after = models.DateTimeField(null=True, blank=True, help_text="Certificate validity end date")
-    issuer_dn = models.CharField(max_length=1000, null=True, blank=True, help_text="Issuer Distinguished Name")
-    issuer_cn = models.CharField(max_length=500, null=True, blank=True, help_text="Issuer Common Name")
-    issuer = models.CharField(max_length=500, null=True, blank=True, help_text="Issuer name")
+    not_before = models.DateTimeField(
+        null=True, blank=True, help_text="Certificate validity start date"
+    )
+    not_after = models.DateTimeField(
+        null=True, blank=True, help_text="Certificate validity end date"
+    )
+    issuer_dn = models.CharField(
+        max_length=1000, null=True, blank=True, help_text="Issuer Distinguished Name"
+    )
+    issuer_cn = models.CharField(
+        max_length=500, null=True, blank=True, help_text="Issuer Common Name"
+    )
+    issuer = models.CharField(
+        max_length=500, null=True, blank=True, help_text="Issuer name"
+    )
     self_signed = models.BooleanField(
-        default=False, null=True, blank=True, help_text="Whether the certificate is self-signed"
+        default=False,
+        null=True,
+        blank=True,
+        help_text="Whether the certificate is self-signed",
     )
-    trusted = models.BooleanField(default=False, null=True, blank=True, help_text="Whether the certificate is trusted")
-    status = models.CharField(max_length=50, null=True, blank=True, help_text="Certificate status")
-    keysize = models.IntegerField(null=True, blank=True, help_text="Certificate key size in bits")
-    serial_number = models.CharField(max_length=200, null=True, blank=True, help_text="Certificate serial number")
-    ciphers = ArrayField(models.CharField(max_length=200), null=True, blank=True, help_text="Supported ciphers")
+    trusted = models.BooleanField(
+        default=False,
+        null=True,
+        blank=True,
+        help_text="Whether the certificate is trusted",
+    )
+    status = models.CharField(
+        max_length=50, null=True, blank=True, help_text="Certificate status"
+    )
+    keysize = models.IntegerField(
+        null=True, blank=True, help_text="Certificate key size in bits"
+    )
+    serial_number = models.CharField(
+        max_length=200, null=True, blank=True, help_text="Certificate serial number"
+    )
+    ciphers = ArrayField(
+        models.CharField(max_length=200),
+        null=True,
+        blank=True,
+        help_text="Supported ciphers",
+    )
 
     source = models.CharField(
         max_length=200,
@@ -2598,7 +2959,9 @@ class Certificate(models.Model):
         db_index=True,
         help_text="Secator task/tool that produced this finding (_source)",
     )
-    discovered_date = models.DateTimeField(auto_now_add=True, help_text="Date when certificate was discovered")
+    discovered_date = models.DateTimeField(
+        auto_now_add=True, help_text="Date when certificate was discovered"
+    )
 
     class Meta:
         db_table = "certificate"
@@ -2658,15 +3021,27 @@ class ScanSchedule(models.Model):
 
     name = models.CharField(max_length=255)
     target = models.ForeignKey("targetApp.Target", on_delete=models.CASCADE)
-    scan_type = models.ForeignKey(EngineType, on_delete=models.CASCADE, null=True, blank=True)
+    scan_type = models.ForeignKey(
+        EngineType, on_delete=models.CASCADE, null=True, blank=True
+    )
     secator_kwargs = models.JSONField(null=True, blank=True)
-    initiated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="scheduled_scans")
-    imported_subdomains = ArrayField(models.CharField(max_length=255), blank=True, default=list)
-    out_of_scope_subdomains = ArrayField(models.CharField(max_length=255), blank=True, default=list)
+    initiated_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="scheduled_scans"
+    )
+    imported_subdomains = ArrayField(
+        models.CharField(max_length=255), blank=True, default=list
+    )
+    out_of_scope_subdomains = ArrayField(
+        models.CharField(max_length=255), blank=True, default=list
+    )
 
-    schedule_mode = models.CharField(max_length=20, choices=SCHEDULE_MODE_CHOICES, default=SCHEDULE_MODE_PERIODIC)
+    schedule_mode = models.CharField(
+        max_length=20, choices=SCHEDULE_MODE_CHOICES, default=SCHEDULE_MODE_PERIODIC
+    )
     frequency_value = models.PositiveIntegerField(null=True, blank=True)
-    frequency_type = models.CharField(max_length=20, choices=FREQUENCY_TYPE_CHOICES, null=True, blank=True)
+    frequency_type = models.CharField(
+        max_length=20, choices=FREQUENCY_TYPE_CHOICES, null=True, blank=True
+    )
     scheduled_time = models.DateTimeField(null=True, blank=True)
 
     next_run = models.DateTimeField(db_index=True)
@@ -2685,15 +3060,33 @@ class ScanSchedule(models.Model):
         """Enforce required fields per schedule_mode and initiated_by for audit trail."""
         super().clean()
         if self.initiated_by_id is None:
-            raise ValidationError({"initiated_by": "Scheduled scans require an initiated_by user for audit trail."})
+            raise ValidationError(
+                {
+                    "initiated_by": "Scheduled scans require an initiated_by user for audit trail."
+                }
+            )
         if self.schedule_mode == self.SCHEDULE_MODE_PERIODIC:
             if self.frequency_value is None or self.frequency_value < 1:
-                raise ValidationError({"frequency_value": "Periodic schedules require a positive frequency value."})
-            if not self.frequency_type or self.frequency_type not in {c[0] for c in self.FREQUENCY_TYPE_CHOICES}:
-                raise ValidationError({"frequency_type": "Periodic schedules require a valid frequency type."})
+                raise ValidationError(
+                    {
+                        "frequency_value": "Periodic schedules require a positive frequency value."
+                    }
+                )
+            if not self.frequency_type or self.frequency_type not in {
+                c[0] for c in self.FREQUENCY_TYPE_CHOICES
+            }:
+                raise ValidationError(
+                    {
+                        "frequency_type": "Periodic schedules require a valid frequency type."
+                    }
+                )
         elif self.schedule_mode == self.SCHEDULE_MODE_CLOCKED:
             if self.scheduled_time is None:
-                raise ValidationError({"scheduled_time": "One-time (clocked) schedules require a scheduled time."})
+                raise ValidationError(
+                    {
+                        "scheduled_time": "One-time (clocked) schedules require a scheduled time."
+                    }
+                )
 
     def save(self, *args, **kwargs):
         """
@@ -2758,9 +3151,18 @@ class ScanSchedule(models.Model):
         pass scheduled_time. from_time defaults to timezone.now().
         """
         now = from_time if from_time is not None else timezone.now()
-        if schedule_mode == ScanSchedule.SCHEDULE_MODE_PERIODIC and frequency_value and frequency_type:
-            return ScanSchedule.compute_next_run_from_frequency(now, frequency_value, frequency_type)
-        if schedule_mode == ScanSchedule.SCHEDULE_MODE_CLOCKED and scheduled_time is not None:
+        if (
+            schedule_mode == ScanSchedule.SCHEDULE_MODE_PERIODIC
+            and frequency_value
+            and frequency_type
+        ):
+            return ScanSchedule.compute_next_run_from_frequency(
+                now, frequency_value, frequency_type
+            )
+        if (
+            schedule_mode == ScanSchedule.SCHEDULE_MODE_CLOCKED
+            and scheduled_time is not None
+        ):
             return scheduled_time
         return now + timedelta(days=1)
 

@@ -52,10 +52,20 @@ def get_datatable_action_urls(project_slug: str) -> dict:
         },
         "target": {
             "attackSurface": reverse("api:llm_get_possible_attacks"),
-            "targetSummaryBase": _target_url_base(reverse("target_summary", args=[project_slug, 0])),
-            "startScanBase": _target_url_base(reverse("start_scan", args=[project_slug, 0])),
-            "scheduleScanBase": _target_url_base(reverse("schedule_scan", args=[project_slug, 0])),
-            "updateTargetBase": _target_url_base(reverse("update_target", args=[project_slug, 0])),
-            "deleteTargetBase": _target_url_base(reverse("delete_target", args=[project_slug, 0])),
+            "targetSummaryBase": _target_url_base(
+                reverse("target_summary", args=[project_slug, 0])
+            ),
+            "startScanBase": _target_url_base(
+                reverse("start_scan", args=[project_slug, 0])
+            ),
+            "scheduleScanBase": _target_url_base(
+                reverse("schedule_scan", args=[project_slug, 0])
+            ),
+            "updateTargetBase": _target_url_base(
+                reverse("update_target", args=[project_slug, 0])
+            ),
+            "deleteTargetBase": _target_url_base(
+                reverse("delete_target", args=[project_slug, 0])
+            ),
         },
     }

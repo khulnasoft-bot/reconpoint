@@ -48,18 +48,24 @@ def _strip_single_tag_field(data: Dict[str, Any], key: str) -> str:
     return str(val).strip()
 
 
-def handle_url_pattern_tag(data: Dict[str, Any], scan_history_id: int, target_id: int) -> TagHandlerResult:
+def handle_url_pattern_tag(
+    data: Dict[str, Any], scan_history_id: int, target_id: int
+) -> TagHandlerResult:
     from reconPoint.services.repositories.endpoint_repository import EndpointRepository
 
     http_url = _strip_tag_string_field(data, "match", "value")
     pattern_name = _strip_single_tag_field(data, "name")
-    obj = EndpointRepository().add_gf_pattern_from_secator_tag(scan_history_id, target_id, http_url, pattern_name)
+    obj = EndpointRepository().add_gf_pattern_from_secator_tag(
+        scan_history_id, target_id, http_url, pattern_name
+    )
     if obj is not None:
         return (obj, None)
     return (None, 422)
 
 
-def handle_secret_tag(data: Dict[str, Any], scan_history_id: int, target_id: int) -> TagHandlerResult:
+def handle_secret_tag(
+    data: Dict[str, Any], scan_history_id: int, target_id: int
+) -> TagHandlerResult:
     from reconPoint.services.repositories.secret_repository import SecretRepository
 
     obj = SecretRepository().save_from_secator_tag(data, scan_history_id, target_id)

@@ -102,7 +102,9 @@ class TestEndPointViewSet(BaseTestCase):
         )
         self.assertEqual(baseline.status_code, status.HTTP_200_OK)
         self.assertEqual(bad.status_code, status.HTTP_200_OK)
-        self.assertEqual(baseline.data.get("recordsFiltered"), bad.data.get("recordsFiltered"))
+        self.assertEqual(
+            baseline.data.get("recordsFiltered"), bad.data.get("recordsFiltered")
+        )
 
 
 class TestEndPointChangesViewSet(BaseTestCase):
@@ -118,7 +120,9 @@ class TestEndPointChangesViewSet(BaseTestCase):
     def test_endpoint_changes_viewset(self):
         """Test the EndPoint Changes ViewSet."""
         url = reverse("api:endpoint-changes-list")
-        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id, "changes": "added"})
+        response = self.client.get(
+            url, {"scan_id": self.data_generator.scan_history.id, "changes": "added"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data), 1)
         self.assertEqual(
@@ -140,7 +144,9 @@ class TestInterestingEndpointViewSet(BaseTestCase):
     def test_interesting_endpoint_viewset(self):
         """Test retrieving interesting endpoints for a scan."""
         url = reverse("api:interesting-endpoints-list")
-        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
+        response = self.client.get(
+            url, {"scan_id": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
         self.assertGreaterEqual(len(response.data["results"]), 1)

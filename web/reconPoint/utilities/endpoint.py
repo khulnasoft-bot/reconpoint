@@ -107,21 +107,37 @@ def get_http_urls(
             level="debug",
         )
         query = query.filter(subdomain__id=subdomain_id)
-        log_found = "%s%s endpoints for subdomain %s" % (log_header, query.count(), subdomain)
+        log_found = "%s%s endpoints for subdomain %s" % (
+            log_header,
+            query.count(),
+            subdomain,
+        )
         logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", log_found, level="debug")
     elif exclude_subdomains and domain:
-        logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", "Excluding subdomains", level="debug")
+        logger.log_line(
+            PREFIX_ENDPOINT, "GET_HTTP_URLS", "Excluding subdomains", level="debug"
+        )
         query = query.filter(http_url=domain.http_url)
         log_found = "%s%s endpoints for domain %s" % (log_header, query.count(), domain)
         logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", log_found, level="debug")
     if get_only_default_urls:
-        logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", "Searching only for default URL", level="debug")
+        logger.log_line(
+            PREFIX_ENDPOINT,
+            "GET_HTTP_URLS",
+            "Searching only for default URL",
+            level="debug",
+        )
         query = query.filter(is_default=True)
         log_found = "%s%s default endpoints" % (log_header, query.count())
         logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", log_found, level="debug")
 
     if is_uncrawled:
-        logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", "Searching for uncrawled endpoints only", level="debug")
+        logger.log_line(
+            PREFIX_ENDPOINT,
+            "GET_HTTP_URLS",
+            "Searching for uncrawled endpoints only",
+            level="debug",
+        )
         query = query.filter(http_status=0)
         log_found = "%s%s uncrawled endpoints" % (log_header, query.count())
         logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", log_found, level="debug")
@@ -138,7 +154,11 @@ def get_http_urls(
             query = query.filter(http_url=url)
         else:
             query = query.filter(http_url__contains=url)
-        log_found = "%s%s endpoints with path %s" % (log_header, query.count(), url_filter)
+        log_found = "%s%s endpoints with path %s" % (
+            log_header,
+            query.count(),
+            url_filter,
+        )
         logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", log_found, level="debug")
 
     if log_found:
@@ -148,7 +168,12 @@ def get_http_urls(
     endpoints = query.distinct("http_url").order_by("http_url").all()
 
     if is_alive:
-        logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", "Searching for alive endpoints only", level="debug")
+        logger.log_line(
+            PREFIX_ENDPOINT,
+            "GET_HTTP_URLS",
+            "Searching for alive endpoints only",
+            level="debug",
+        )
         endpoints = [e for e in endpoints if e.is_alive]
         logger.log_line(
             PREFIX_ENDPOINT,
@@ -249,7 +274,9 @@ def get_interesting_endpoints(scan_history=None, target=None, target_id=None):
     return url_lookup_query | title_lookup_query
 
 
-def ensure_endpoints_crawled_and_execute(task_function, ctx, description=None, max_wait_time=300):
+def ensure_endpoints_crawled_and_execute(
+    task_function, ctx, description=None, max_wait_time=300
+):
     """
     DEPRECATED: Ensure endpoints are crawled before executing a task that needs alive endpoints.
 
@@ -282,7 +309,12 @@ def ensure_endpoints_crawled_and_execute(task_function, ctx, description=None, m
 
 
 def smart_http_crawl_if_needed(
-    urls, ctx, wait_for_completion=False, max_wait_time=120, is_default=False, update_subdomain_metadatas=False
+    urls,
+    ctx,
+    wait_for_completion=False,
+    max_wait_time=120,
+    is_default=False,
+    update_subdomain_metadatas=False,
 ):
     """
     DEPRECATED: Intelligently launch http_crawl only if endpoints need to be crawled.

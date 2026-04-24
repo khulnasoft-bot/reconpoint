@@ -236,7 +236,12 @@ DISCORD_SEVERITY_COLORS = {
     "success": DISCORD_SUCCESS_COLOR,
 }
 
-STATUS_TO_SEVERITIES = {"RUNNING": "info", "SUCCESS": "success", "FAILED": "error", "ABORTED": "error"}
+STATUS_TO_SEVERITIES = {
+    "RUNNING": "info",
+    "SUCCESS": "success",
+    "FAILED": "error",
+    "ABORTED": "error",
+}
 
 ###############################################################################
 # Interesting Subdomain DEFINITIONS
@@ -330,7 +335,11 @@ TaskStatus = int
 # QUEUED is included so scans that never started or stayed in queue appear in the
 # "recently completed" dashboard bucket; to show only runs that actually finished
 # (success/failure), use (SCAN_STATUS_COMPLETED, SCAN_STATUS_FAILED) instead.
-SCAN_STATUSES_RECENTLY_COMPLETED = (SCAN_STATUS_QUEUED, SCAN_STATUS_COMPLETED, SCAN_STATUS_FAILED)
+SCAN_STATUSES_RECENTLY_COMPLETED = (
+    SCAN_STATUS_QUEUED,
+    SCAN_STATUS_COMPLETED,
+    SCAN_STATUS_FAILED,
+)
 SCAN_STATUSES_CURRENT = (SCAN_STATUS_RUNNING, SCAN_STATUS_RUNNING_BACKGROUND)
 
 DYNAMIC_ID = -1

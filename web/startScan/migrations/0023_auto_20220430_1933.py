@@ -14,12 +14,17 @@ class Migration(migrations.Migration):
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 ("name", models.CharField(max_length=100)),
-                ("manufacturer", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "manufacturer",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
             ],
         ),
         migrations.AddField(
             model_name="subdomain",
             name="waf",
-            field=models.ManyToManyField(blank=True, related_name="waf", to="startScan.Waf"),
+            field=models.ManyToManyField(
+                blank=True, related_name="waf", to="startScan.Waf"
+            ),
         ),
     ]

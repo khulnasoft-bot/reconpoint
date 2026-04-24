@@ -79,7 +79,9 @@ class TargetBuilderService:
         """
         if self._domain_ids_cache is None:
             self._domain_ids_cache = list(
-                Domain.objects.filter(scan_history__target_id=self.target_id).values_list("id", flat=True).distinct()
+                Domain.objects.filter(scan_history__target_id=self.target_id)
+                .values_list("id", flat=True)
+                .distinct()
             )
         return self._domain_ids_cache
 
@@ -117,7 +119,11 @@ class TargetBuilderService:
         """Return [target.value] for email, org_name, username, filename, slug, str, cidr_range, port."""
         if input_type == TARGET_TYPE_PORT:
             if self.target.port:
-                return [f"{self.target.value}:{self.target.port}"] if self.target.value else []
+                return (
+                    [f"{self.target.value}:{self.target.port}"]
+                    if self.target.value
+                    else []
+                )
             return [self.target.value] if self.target.value else []
         return [self.target.value] if self.target.value else []
 
@@ -192,8 +198,14 @@ class TargetBuilderService:
         if self.target.target_type == TARGET_TYPE_HOST and self.target.value:
             hosts = [self.target.value]
             seen.add(self.target.value)
-        domain_names = list(Domain.objects.filter(id__in=domain_ids).values_list("name", flat=True))
-        sub_names = list(Subdomain.objects.filter(domain_id__in=domain_ids).values_list("name", flat=True).distinct())
+        domain_names = list(
+            Domain.objects.filter(id__in=domain_ids).values_list("name", flat=True)
+        )
+        sub_names = list(
+            Subdomain.objects.filter(domain_id__in=domain_ids)
+            .values_list("name", flat=True)
+            .distinct()
+        )
         for name in domain_names:
             if name and name not in seen:
                 seen.add(name)
@@ -206,7 +218,10 @@ class TargetBuilderService:
 
     def _targets_host_port(self) -> List[str]:
         """Target value (if host:port/port), default alive endpoints as host:port, and IP:port from Ports on IPs linked to subdomains."""
-        if self.target.target_type in (TARGET_TYPE_HOST_PORT, TARGET_TYPE_PORT) and self.target.value:
+        if (
+            self.target.target_type in (TARGET_TYPE_HOST_PORT, TARGET_TYPE_PORT)
+            and self.target.value
+        ):
             return [self.target.value]
         domain_ids = self.domain_ids
         if not domain_ids:
@@ -243,7 +258,9 @@ class TargetBuilderService:
             .distinct()
         )
         if self.subdomain_ids:
-            port_qs = port_qs.filter(ip_address__ip_addresses__id__in=self.subdomain_ids)
+            port_qs = port_qs.filter(
+                ip_address__ip_addresses__id__in=self.subdomain_ids
+            )
         for address, number in port_qs:
             if address and number is not None and 1 <= number <= 65535:
                 host_ports.add(f"{address}:{number}")
@@ -254,7 +271,10 @@ class TargetBuilderService:
         """Target value (if ip/cidr_range) or IP addresses linked to scan histories of this target."""
         targets: List[str] = []
         seen: set[str] = set()
-        if self.target.target_type in (TARGET_TYPE_IP, TARGET_TYPE_CIDR_RANGE) and self.target.value:
+        if (
+            self.target.target_type in (TARGET_TYPE_IP, TARGET_TYPE_CIDR_RANGE)
+            and self.target.value
+        ):
             targets.append(self.target.value)
             seen.add(self.target.value)
         if self.subdomain_ids:
@@ -269,7 +289,9 @@ class TargetBuilderService:
             qs = IpAddress.objects.filter(scan_history_id__in=scan_history_ids)
         else:
             qs = IpAddress.objects.filter(scan_history__target_id=self.target_id)
-        for address in qs.values_list("address", flat=True).distinct().iterator(chunk_size=1000):
+        for address in (
+            qs.values_list("address", flat=True).distinct().iterator(chunk_size=1000)
+        ):
             if address and address not in seen:
                 seen.add(address)
                 targets.append(address)

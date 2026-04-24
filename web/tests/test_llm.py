@@ -5,7 +5,10 @@ from django.urls import reverse
 from rest_framework import status
 
 from reconPoint.llm.config import MODEL_REQUIREMENTS
-from reconPoint.llm.llm import LLMAttackSuggestionGenerator, LLMVulnerabilityReportGenerator
+from reconPoint.llm.llm import (
+    LLMAttackSuggestionGenerator,
+    LLMVulnerabilityReportGenerator,
+)
 from reconPoint.llm.validators import LLMProvider
 from utils.test_base import BaseTestCase
 
@@ -81,7 +84,9 @@ class TestLLMAttackSuggestion(TestLLMBase):
         }
 
         api_url = reverse("api:llm_get_possible_attacks")
-        response = self.client.get(api_url, {"subdomain_id": self.data_generator.subdomain.id})
+        response = self.client.get(
+            api_url, {"subdomain_id": self.data_generator.subdomain.id}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])

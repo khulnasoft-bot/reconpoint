@@ -11,7 +11,13 @@ import yaml
 from reconPoint.core.validators import sanitize_path_component
 from reconPoint.utilities.error import UserSafeError
 from reconPoint.utilities.logger import get_module_logger
-from scanEngine.models import SecatorProfile, SecatorScan, SecatorTask, SecatorWorker, SecatorWorkflow
+from scanEngine.models import (
+    SecatorProfile,
+    SecatorScan,
+    SecatorTask,
+    SecatorWorker,
+    SecatorWorkflow,
+)
 from scanEngine.services.worker_ssh import (
     get_ssh_client,
     sftp_ensure_dir,
@@ -183,7 +189,9 @@ def _sync_workflow_for_run(sftp: Any, base: str, workflow_name: str | None) -> N
     """Push a single custom workflow config if name is given and found."""
     if not workflow_name:
         return
-    w = SecatorWorkflow.objects.filter(name=workflow_name, workflow_type="custom", is_active=True).first()
+    w = SecatorWorkflow.objects.filter(
+        name=workflow_name, workflow_type="custom", is_active=True
+    ).first()
     if not w or not w.yaml_configuration:
         return
     name = sanitize_path_component(w.name) or "unnamed"
@@ -194,7 +202,9 @@ def _sync_scan_for_run(sftp: Any, base: str, scan_type: str | None) -> None:
     """Push a single custom scan config if type is given and found."""
     if not scan_type:
         return
-    s = SecatorScan.objects.filter(name=scan_type, scan_config_type="custom", is_active=True).first()
+    s = SecatorScan.objects.filter(
+        name=scan_type, scan_config_type="custom", is_active=True
+    ).first()
     if not s or not s.yaml_configuration:
         return
     name = sanitize_path_component(s.name) or "unnamed"
@@ -206,19 +216,25 @@ def _sync_tasks_for_run(sftp: Any, base: str, task_names: list[str] | None) -> N
     if not task_names:
         return
     for tname in task_names:
-        t = SecatorTask.objects.filter(name=tname, is_builtin=False, is_active=True).first()
+        t = SecatorTask.objects.filter(
+            name=tname, is_builtin=False, is_active=True
+        ).first()
         if not t or not t.yaml_configuration:
             continue
         name = sanitize_path_component(t.name) or "unnamed"
         sftp_put_string(sftp, t.yaml_configuration, f"{base}/tasks/{name}.yaml")
 
 
-def _sync_profiles_for_run(sftp: Any, base: str, profile_names: list[str] | None) -> None:
+def _sync_profiles_for_run(
+    sftp: Any, base: str, profile_names: list[str] | None
+) -> None:
     """Push custom profile configs for the given profile names."""
     if not profile_names:
         return
     for pname in profile_names:
-        p = SecatorProfile.objects.filter(name=pname, profile_type="custom", is_active=True).first()
+        p = SecatorProfile.objects.filter(
+            name=pname, profile_type="custom", is_active=True
+        ).first()
         if not p:
             continue
         name = sanitize_path_component(p.name) or "unnamed"

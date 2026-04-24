@@ -170,7 +170,9 @@ class TestResolveResultsDirUnderBase(unittest.TestCase):
 
     def test_returns_none_for_relative_path_containing_dotdot(self):
         """Paths with '..' are rejected by _normalize_results_dir_components (no rewriting)."""
-        self.assertIsNone(resolve_results_dir_under_base(self.base, "scan_1/../results"))
+        self.assertIsNone(
+            resolve_results_dir_under_base(self.base, "scan_1/../results")
+        )
         self.assertIsNone(resolve_results_dir_under_base(self.base, "foo/../bar"))
 
 

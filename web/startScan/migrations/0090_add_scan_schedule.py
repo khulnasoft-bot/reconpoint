@@ -43,7 +43,10 @@ class Migration(migrations.Migration):
                 (
                     "schedule_mode",
                     models.CharField(
-                        choices=[("periodic", "Periodic"), ("clocked", "One-off (clocked)")],
+                        choices=[
+                            ("periodic", "Periodic"),
+                            ("clocked", "One-off (clocked)"),
+                        ],
                         default="periodic",
                         max_length=20,
                     ),
@@ -73,7 +76,10 @@ class Migration(migrations.Migration):
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
                     "domain",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="targetApp.domain"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="targetApp.domain",
+                    ),
                 ),
                 (
                     "initiated_by",
@@ -87,7 +93,10 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "scan_type",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="scanEngine.enginetype"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="scanEngine.enginetype",
+                    ),
                 ),
             ],
             options={

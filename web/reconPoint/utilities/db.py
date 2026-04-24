@@ -58,7 +58,12 @@ def count_subquery(
     kwargs: dict[str, Any] = {fk_field: OuterRef(outer_ref_name)}
     kwargs |= filter_kwargs or {}
     count_expr = Count("id", distinct=distinct)
-    qs = model.objects.filter(**kwargs).values(fk_field).annotate(c=count_expr).values("c")
+    qs = (
+        model.objects.filter(**kwargs)
+        .values(fk_field)
+        .annotate(c=count_expr)
+        .values("c")
+    )
     return Coalesce(Subquery(qs[:1]), Value(0), output_field=IntegerField())
 
 
@@ -101,5 +106,10 @@ def count_subquery_related(
     kwargs: dict[str, Any] = {related_lookup: OuterRef(outer_ref_name)}
     kwargs |= filter_kwargs or {}
     count_expr = Count("id", distinct=distinct)
-    qs = model.objects.filter(**kwargs).values(related_lookup).annotate(c=count_expr).values("c")
+    qs = (
+        model.objects.filter(**kwargs)
+        .values(related_lookup)
+        .annotate(c=count_expr)
+        .values("c")
+    )
     return Coalesce(Subquery(qs[:1]), Value(0), output_field=IntegerField())

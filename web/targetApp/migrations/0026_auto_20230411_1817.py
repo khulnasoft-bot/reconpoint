@@ -15,7 +15,10 @@ class Migration(migrations.Migration):
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 ("name", models.CharField(blank=True, max_length=100, null=True)),
-                ("organization", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "organization",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 ("address", models.CharField(blank=True, max_length=500, null=True)),
                 ("city", models.CharField(blank=True, max_length=100, null=True)),
                 ("state", models.CharField(blank=True, max_length=100, null=True)),

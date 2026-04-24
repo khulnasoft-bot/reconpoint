@@ -30,13 +30,18 @@ class Migration(migrations.Migration):
     operations = [
         migrations.SeparateDatabaseAndState(
             database_operations=[
-                migrations.RunPython(_add_scan_name_unique_constraint_if_missing, migrations.RunPython.noop),
+                migrations.RunPython(
+                    _add_scan_name_unique_constraint_if_missing,
+                    migrations.RunPython.noop,
+                ),
             ],
             state_operations=[
                 migrations.AddConstraint(
                     model_name="technology",
                     constraint=models.UniqueConstraint(
-                        condition=models.Q(name__isnull=False, scan_history__isnull=False),
+                        condition=models.Q(
+                            name__isnull=False, scan_history__isnull=False
+                        ),
                         fields=("scan_history", "name"),
                         name="ss_technology_scan_name_uniq",
                     ),

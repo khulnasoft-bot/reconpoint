@@ -12,7 +12,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="LlmAttackSurfaceAnalysis",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("object_id", models.PositiveIntegerField()),
                 ("llm_model", models.CharField(max_length=512)),
                 ("body_markdown", models.TextField()),
@@ -20,12 +28,18 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
                     "content_type",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="contenttypes.contenttype"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
                 ),
             ],
             options={
                 "indexes": [
-                    models.Index(fields=["content_type", "object_id"], name="startScan_llm_at_content_16e0db_idx")
+                    models.Index(
+                        fields=["content_type", "object_id"],
+                        name="startScan_llm_at_content_16e0db_idx",
+                    )
                 ],
             },
         ),

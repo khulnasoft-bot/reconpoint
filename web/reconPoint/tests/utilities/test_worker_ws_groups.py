@@ -4,7 +4,10 @@ Tests for worker WebSocket channel group name helpers.
 
 from django.test import TestCase
 
-from reconPoint.utilities.worker_ws_groups import worker_deploy_group, worker_refresh_group
+from reconPoint.utilities.worker_ws_groups import (
+    worker_deploy_group,
+    worker_refresh_group,
+)
 
 
 class TestWorkerWsGroups(TestCase):

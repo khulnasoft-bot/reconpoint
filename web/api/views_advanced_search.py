@@ -23,7 +23,9 @@ class AdvancedSearchFieldsView(APIView):
         ctx = (request.query_params.get("context") or "").strip().lower()
         if ctx not in ALLOWED_CONTEXTS:
             return Response(
-                {"detail": "Invalid or missing context. Use: subdomains, endpoints, vulnerabilities."},
+                {
+                    "detail": "Invalid or missing context. Use: subdomains, endpoints, vulnerabilities."
+                },
                 status=400,
             )
         return Response(
@@ -44,9 +46,15 @@ class AdvancedSearchValidateView(APIView):
 
     def post(self, request):
         expression = request.data.get("expression") if hasattr(request, "data") else ""
-        ctx = (request.data.get("context") or "").strip().lower() if hasattr(request, "data") else ""
+        ctx = (
+            (request.data.get("context") or "").strip().lower()
+            if hasattr(request, "data")
+            else ""
+        )
         if ctx not in ALLOWED_CONTEXTS:
-            return Response({"valid": False, "error": "unknown_context", "warnings": []}, status=400)
+            return Response(
+                {"valid": False, "error": "unknown_context", "warnings": []}, status=400
+            )
         result = validate_expression_for_context(str(expression or ""), ctx)
         return Response(result)
 
@@ -63,7 +71,9 @@ class AdvancedSearchValuesView(APIView):
         q = (request.query_params.get("q") or "").strip()
         limit_raw = safe_int_cast(request.query_params.get("limit"))
         limit = limit_raw if limit_raw and limit_raw > 0 else 200
-        values, err = distinct_values_for_context_field(request, ctx, field, q_prefix=q, limit=limit)
+        values, err = distinct_values_for_context_field(
+            request, ctx, field, q_prefix=q, limit=limit
+        )
         if err == "unknown_context":
             return Response(
                 {

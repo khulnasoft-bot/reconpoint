@@ -12,13 +12,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="domaininfo",
             name="similar_domains",
-            field=models.ManyToManyField(blank=True, related_name="similar_domains", to="targetApp.AssociatedDomain"),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="similar_domains",
+                to="targetApp.AssociatedDomain",
+            ),
         ),
         migrations.AlterField(
             model_name="domaininfo",
             name="associated_domains",
             field=models.ManyToManyField(
-                blank=True, related_name="associated_domains", to="targetApp.AssociatedDomain"
+                blank=True,
+                related_name="associated_domains",
+                to="targetApp.AssociatedDomain",
             ),
         ),
     ]

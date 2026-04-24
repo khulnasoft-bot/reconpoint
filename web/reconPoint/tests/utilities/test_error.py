@@ -26,7 +26,9 @@ class TestGetSafeUserMessage(TestCase):
     def test_integrity_error_returns_fixed_message(self):
         """IntegrityError returns generic message, no DB detail."""
         logger = MagicMock()
-        exc = IntegrityError("UNIQUE constraint failed: scanEngine_secatorworkflow.name")
+        exc = IntegrityError(
+            "UNIQUE constraint failed: scanEngine_secatorworkflow.name"
+        )
         msg = get_safe_user_message(exc, logger)
         self.assertEqual(msg, "Database integrity error.")
         logger.exception.assert_called_once()
@@ -82,9 +84,13 @@ class TestGetSafeUserMessage(TestCase):
     def test_user_safe_error_safe_message_returns_message(self):
         """UserSafeError with safe message (e.g. deploy config) is returned to user."""
         logger = MagicMock()
-        exc = UserSafeError("Worker compose file not found. Check server configuration.")
+        exc = UserSafeError(
+            "Worker compose file not found. Check server configuration."
+        )
         msg = get_safe_user_message(exc, logger)
-        self.assertEqual(msg, "Worker compose file not found. Check server configuration.")
+        self.assertEqual(
+            msg, "Worker compose file not found. Check server configuration."
+        )
         logger.exception.assert_called_once()
 
     def test_user_safe_error_unsafe_message_returns_generic(self):

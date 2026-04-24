@@ -16,11 +16,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="ipaddress",
             name="ip_subscan_ids",
-            field=models.ManyToManyField(related_name="ip_subscan_ids", to="startScan.SubScan"),
+            field=models.ManyToManyField(
+                related_name="ip_subscan_ids", to="startScan.SubScan"
+            ),
         ),
         migrations.AddField(
             model_name="vulnerability",
             name="vuln_subscan_ids",
-            field=models.ManyToManyField(related_name="vuln_subscan_ids", to="startScan.SubScan"),
+            field=models.ManyToManyField(
+                related_name="vuln_subscan_ids", to="startScan.SubScan"
+            ),
         ),
     ]

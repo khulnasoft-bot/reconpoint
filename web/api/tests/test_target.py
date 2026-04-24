@@ -7,7 +7,14 @@ from django.utils import timezone
 from rest_framework import status
 
 from reconPoint.services.scan_finding_metrics import get_ip_metrics_for_target
-from startScan.models import Domain, EndPoint, IpAddress, ScanHistory, Subdomain, Vulnerability
+from startScan.models import (
+    Domain,
+    EndPoint,
+    IpAddress,
+    ScanHistory,
+    Subdomain,
+    Vulnerability,
+)
 from targetApp.models import Organization, Scope, Target
 from utils.test_base import BaseTestCase
 
@@ -36,8 +43,15 @@ class TestAddTarget(BaseTestCase):
         self.assertEqual(response.data["domain_name"], "example.com")
         self.assertIn("target_id", response.data)
         self.assertIn("initiate_scan_url", response.data)
-        self.assertIn(f"/target/start/{response.data['target_id']}", response.data["initiate_scan_url"])
-        self.assertTrue(Target.objects.filter(project=self.data_generator.project, value="example.com").exists())
+        self.assertIn(
+            f"/target/start/{response.data['target_id']}",
+            response.data["initiate_scan_url"],
+        )
+        self.assertTrue(
+            Target.objects.filter(
+                project=self.data_generator.project, value="example.com"
+            ).exists()
+        )
 
         # Test adding duplicate target
         response = self.client.post(api_url, data)
@@ -73,11 +87,15 @@ class TestListTargetsDatatableViewSet(BaseTestCase):
             self.data_generator.target.value,
         )
 
-    def test_list_targets_datatable_ip_counts_match_get_ip_metrics_for_target(self) -> None:
+    def test_list_targets_datatable_ip_counts_match_get_ip_metrics_for_target(
+        self,
+    ) -> None:
         """Target list DataTable exposes centralized per-target IP counts."""
         target = self.data_generator.target
         scan = self.data_generator.scan_history
-        sub = self.data_generator.create_subdomain(scan_history=scan, domain=self.data_generator.domain)
+        sub = self.data_generator.create_subdomain(
+            scan_history=scan, domain=self.data_generator.domain
+        )
         ip = IpAddress.objects.create(address="192.0.2.99", version=4, alive=True)
         sub.ip_addresses.add(ip)
         expected_total, expected_alive = get_ip_metrics_for_target(target.id)
@@ -116,7 +134,9 @@ class TestListTargetsDatatableViewSet(BaseTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         names = [r["name"] for r in response.data["results"]]
-        self.assertEqual(names, ["aaa-target.local", "mmm-target.local", "zzz-target.local"])
+        self.assertEqual(
+            names, ["aaa-target.local", "mmm-target.local", "zzz-target.local"]
+        )
 
     def test_list_targets_order_by_start_scan_date_nulls_last(self):
         """List targets with order column 6 (start_scan_date) uses nulls_last."""
@@ -202,7 +222,9 @@ class TestListTargetsDatatableViewSet(BaseTestCase):
         self.assertIn("never-scanned.local", names_all)
         self.assertIn("scanned.local", names_all)
 
-        response_scanned = self.client.get(api_url, {**base, "filter_has_scan": "scanned"})
+        response_scanned = self.client.get(
+            api_url, {**base, "filter_has_scan": "scanned"}
+        )
         self.assertEqual(response_scanned.status_code, status.HTTP_200_OK)
         names_scanned = [r["name"] for r in response_scanned.data["results"]]
         self.assertEqual(sorted(names_scanned), ["scanned.local"])
@@ -230,7 +252,9 @@ class TestListTargetsDatatableViewSet(BaseTestCase):
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         by_name = {r["name"]: r for r in response2.data["results"]}
         self.assertIn(self.data_generator.target.value, by_name)
-        self.assertEqual(by_name[self.data_generator.target.value]["scope_group"], "TestScopeAlpha")
+        self.assertEqual(
+            by_name[self.data_generator.target.value]["scope_group"], "TestScopeAlpha"
+        )
 
     def test_list_targets_order_by_scope_group_column_14(self):
         """List targets with order column 14 (scope_group_name) uses annotation."""
@@ -238,7 +262,9 @@ class TestListTargetsDatatableViewSet(BaseTestCase):
 
         project = self.data_generator.create_project()
         Target.objects.filter(project=project).delete()
-        org = Organization.objects.create(name="TestOrgScope", insert_date=timezone.now())
+        org = Organization.objects.create(
+            name="TestOrgScope", insert_date=timezone.now()
+        )
         Target.objects.create(
             project=project,
             value="no-scope.local",
@@ -352,10 +378,20 @@ class TestListTargetsDatatableViewSet(BaseTestCase):
         self.assertIn("subdomain_count", row)
         self.assertIn("endpoint_count", row)
         self.assertIn("vulnerability_count", row)
-        self.assertEqual(row["domain_count"], 2, "Distinct domain names: agg-target.local, other.agg-target.local")
-        self.assertEqual(row["subdomain_count"], 2, "Distinct subdomain names across scans")
-        self.assertEqual(row["endpoint_count"], 2, "Distinct endpoint URLs across scans")
-        self.assertEqual(row["vulnerability_count"], 2, "Total vulnerabilities across scans")
+        self.assertEqual(
+            row["domain_count"],
+            2,
+            "Distinct domain names: agg-target.local, other.agg-target.local",
+        )
+        self.assertEqual(
+            row["subdomain_count"], 2, "Distinct subdomain names across scans"
+        )
+        self.assertEqual(
+            row["endpoint_count"], 2, "Distinct endpoint URLs across scans"
+        )
+        self.assertEqual(
+            row["vulnerability_count"], 2, "Total vulnerabilities across scans"
+        )
 
 
 class TestListScopesApi(BaseTestCase):

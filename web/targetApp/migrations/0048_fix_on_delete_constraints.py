@@ -27,7 +27,9 @@ def resolve_actual_table_name(schema_editor, table_name):
         return result[0] if result else None
 
 
-def get_constraint_name(schema_editor, actual_table_name, column_name, actual_ref_table_name):
+def get_constraint_name(
+    schema_editor, actual_table_name, column_name, actual_ref_table_name
+):
     """Get the foreign key constraint name for a given table and column.
 
     Uses the actual table names from the database to find the constraint,
@@ -55,7 +57,13 @@ def get_constraint_name(schema_editor, actual_table_name, column_name, actual_re
 
 
 def fix_constraint(
-    apps, schema_editor, table_name, column_name, referenced_table, referenced_column="id", on_delete="SET NULL"
+    apps,
+    schema_editor,
+    table_name,
+    column_name,
+    referenced_table,
+    referenced_column="id",
+    on_delete="SET NULL",
 ):
     """Fix a foreign key constraint by changing its on_delete behavior."""
     # Resolve actual table names from PostgreSQL
@@ -68,18 +76,32 @@ def fix_constraint(
         return
 
     # Get the actual constraint name from the database using resolved table names
-    constraint_name = get_constraint_name(schema_editor, actual_table_name, column_name, actual_ref_table_name)
+    constraint_name = get_constraint_name(
+        schema_editor, actual_table_name, column_name, actual_ref_table_name
+    )
 
     if constraint_name:
         # Safely quote all identifiers
-        quoted_table_name = quote_ident(actual_table_name, schema_editor.connection.connection)
-        quoted_column_name = quote_ident(column_name, schema_editor.connection.connection)
-        quoted_ref_table_name = quote_ident(actual_ref_table_name, schema_editor.connection.connection)
-        quoted_ref_column = quote_ident(referenced_column, schema_editor.connection.connection)
-        quoted_constraint_name = quote_ident(constraint_name, schema_editor.connection.connection)
+        quoted_table_name = quote_ident(
+            actual_table_name, schema_editor.connection.connection
+        )
+        quoted_column_name = quote_ident(
+            column_name, schema_editor.connection.connection
+        )
+        quoted_ref_table_name = quote_ident(
+            actual_ref_table_name, schema_editor.connection.connection
+        )
+        quoted_ref_column = quote_ident(
+            referenced_column, schema_editor.connection.connection
+        )
+        quoted_constraint_name = quote_ident(
+            constraint_name, schema_editor.connection.connection
+        )
 
         # Drop existing constraint using actual table name
-        schema_editor.execute(f"ALTER TABLE {quoted_table_name} DROP CONSTRAINT {quoted_constraint_name};")
+        schema_editor.execute(
+            f"ALTER TABLE {quoted_table_name} DROP CONSTRAINT {quoted_constraint_name};"
+        )
         # Add new constraint with specified on_delete using actual table names
         schema_editor.execute(
             f"ALTER TABLE {quoted_table_name} ADD CONSTRAINT {quoted_constraint_name} "
@@ -98,27 +120,74 @@ def fix_all_targetapp_constraints(apps, schema_editor):
     domainregistration_table = get_table_name(apps, "targetApp", "DomainRegistration")
 
     # Domain.domain_info → DomainInfo : SET_NULL (relation optionnelle)
-    fix_constraint(apps, schema_editor, domain_table, "domain_info_id", domaininfo_table, on_delete="SET NULL")
+    fix_constraint(
+        apps,
+        schema_editor,
+        domain_table,
+        "domain_info_id",
+        domaininfo_table,
+        on_delete="SET NULL",
+    )
 
     # Domain.project → Project : CASCADE (relation forte - si Project supprimé, Domain supprimé)
-    fix_constraint(apps, schema_editor, domain_table, "project_id", project_table, on_delete="CASCADE")
+    fix_constraint(
+        apps,
+        schema_editor,
+        domain_table,
+        "project_id",
+        project_table,
+        on_delete="CASCADE",
+    )
 
     # Organization.project → Project : CASCADE (relation forte - si Project supprimé, Organization supprimé)
-    fix_constraint(apps, schema_editor, organization_table, "project_id", project_table, on_delete="CASCADE")
+    fix_constraint(
+        apps,
+        schema_editor,
+        organization_table,
+        "project_id",
+        project_table,
+        on_delete="CASCADE",
+    )
 
     # DomainInfo.registrar → Registrar : SET_NULL (relation optionnelle, null=True)
-    fix_constraint(apps, schema_editor, domaininfo_table, "registrar_id", registrar_table, on_delete="SET NULL")
+    fix_constraint(
+        apps,
+        schema_editor,
+        domaininfo_table,
+        "registrar_id",
+        registrar_table,
+        on_delete="SET NULL",
+    )
 
     # DomainInfo.registrant → DomainRegistration : SET_NULL (relation optionnelle, null=True)
     fix_constraint(
-        apps, schema_editor, domaininfo_table, "registrant_id", domainregistration_table, on_delete="SET NULL"
+        apps,
+        schema_editor,
+        domaininfo_table,
+        "registrant_id",
+        domainregistration_table,
+        on_delete="SET NULL",
     )
 
     # DomainInfo.admin → DomainRegistration : SET_NULL (relation optionnelle, null=True)
-    fix_constraint(apps, schema_editor, domaininfo_table, "admin_id", domainregistration_table, on_delete="SET NULL")
+    fix_constraint(
+        apps,
+        schema_editor,
+        domaininfo_table,
+        "admin_id",
+        domainregistration_table,
+        on_delete="SET NULL",
+    )
 
     # DomainInfo.tech → DomainRegistration : SET_NULL (relation optionnelle, null=True)
-    fix_constraint(apps, schema_editor, domaininfo_table, "tech_id", domainregistration_table, on_delete="SET NULL")
+    fix_constraint(
+        apps,
+        schema_editor,
+        domaininfo_table,
+        "tech_id",
+        domainregistration_table,
+        on_delete="SET NULL",
+    )
 
 
 def reverse_fix_all_targetapp_constraints(apps, schema_editor):
@@ -132,27 +201,74 @@ def reverse_fix_all_targetapp_constraints(apps, schema_editor):
     domainregistration_table = get_table_name(apps, "targetApp", "DomainRegistration")
 
     # Domain.domain_info → DomainInfo : CASCADE (reverse)
-    fix_constraint(apps, schema_editor, domain_table, "domain_info_id", domaininfo_table, on_delete="CASCADE")
+    fix_constraint(
+        apps,
+        schema_editor,
+        domain_table,
+        "domain_info_id",
+        domaininfo_table,
+        on_delete="CASCADE",
+    )
 
     # Domain.project → Project : CASCADE (reverse - reste CASCADE)
-    fix_constraint(apps, schema_editor, domain_table, "project_id", project_table, on_delete="CASCADE")
+    fix_constraint(
+        apps,
+        schema_editor,
+        domain_table,
+        "project_id",
+        project_table,
+        on_delete="CASCADE",
+    )
 
     # Organization.project → Project : CASCADE (reverse - reste CASCADE)
-    fix_constraint(apps, schema_editor, organization_table, "project_id", project_table, on_delete="CASCADE")
+    fix_constraint(
+        apps,
+        schema_editor,
+        organization_table,
+        "project_id",
+        project_table,
+        on_delete="CASCADE",
+    )
 
     # DomainInfo.registrar → Registrar : CASCADE (reverse)
-    fix_constraint(apps, schema_editor, domaininfo_table, "registrar_id", registrar_table, on_delete="CASCADE")
+    fix_constraint(
+        apps,
+        schema_editor,
+        domaininfo_table,
+        "registrar_id",
+        registrar_table,
+        on_delete="CASCADE",
+    )
 
     # DomainInfo.registrant → DomainRegistration : CASCADE (reverse)
     fix_constraint(
-        apps, schema_editor, domaininfo_table, "registrant_id", domainregistration_table, on_delete="CASCADE"
+        apps,
+        schema_editor,
+        domaininfo_table,
+        "registrant_id",
+        domainregistration_table,
+        on_delete="CASCADE",
     )
 
     # DomainInfo.admin → DomainRegistration : CASCADE (reverse)
-    fix_constraint(apps, schema_editor, domaininfo_table, "admin_id", domainregistration_table, on_delete="CASCADE")
+    fix_constraint(
+        apps,
+        schema_editor,
+        domaininfo_table,
+        "admin_id",
+        domainregistration_table,
+        on_delete="CASCADE",
+    )
 
     # DomainInfo.tech → DomainRegistration : CASCADE (reverse)
-    fix_constraint(apps, schema_editor, domaininfo_table, "tech_id", domainregistration_table, on_delete="CASCADE")
+    fix_constraint(
+        apps,
+        schema_editor,
+        domaininfo_table,
+        "tech_id",
+        domainregistration_table,
+        on_delete="CASCADE",
+    )
 
 
 class Migration(migrations.Migration):

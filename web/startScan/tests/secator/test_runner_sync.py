@@ -28,13 +28,17 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.logger = get_secator_api_logger()
-        self.scan_history = ScanHistory.objects.get(id=self.data_generator.scan_history.id)
+        self.scan_history = ScanHistory.objects.get(
+            id=self.data_generator.scan_history.id
+        )
         self.scan_history.scan_status = SCAN_STATUS_PENDING
         self.scan_history.save(update_fields=["scan_status"])
 
     def _create_runner(self, runner_type="workflow", runner_data=None):
         runner_data = runner_data or {}
-        domain = get_domain_for_scan_by_name(self.scan_history.id, self.data_generator.target.value)
+        domain = get_domain_for_scan_by_name(
+            self.scan_history.id, self.data_generator.target.value
+        )
         return SecatorRunner.objects.create(
             scan_history=self.scan_history,
             domain=domain,
@@ -47,10 +51,22 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
         """sync with status=RUNNING sets ScanHistory.scan_status to SCAN_STATUS_RUNNING."""
         secator_runner = self._create_runner(
             runner_type="workflow",
-            runner_data={"status": "RUNNING", "done": False, "name": "test-workflow", "config": {"type": "workflow"}},
+            runner_data={
+                "status": "RUNNING",
+                "done": False,
+                "name": "test-workflow",
+                "config": {"type": "workflow"},
+            },
         )
-        secator_runner = SecatorRunner.objects.select_related("scan_history").get(pk=secator_runner.pk)
-        runner_data = {"status": "RUNNING", "done": False, "name": "test-workflow", "config": {"type": "workflow"}}
+        secator_runner = SecatorRunner.objects.select_related("scan_history").get(
+            pk=secator_runner.pk
+        )
+        runner_data = {
+            "status": "RUNNING",
+            "done": False,
+            "name": "test-workflow",
+            "config": {"type": "workflow"},
+        }
         sync_runner_with_scan_history(secator_runner, runner_data, self.logger)
         self.scan_history.refresh_from_db()
         self.assertEqual(self.scan_history.scan_status, SCAN_STATUS_RUNNING)
@@ -66,7 +82,9 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
                 "config": {"type": "workflow"},
             },
         )
-        secator_runner = SecatorRunner.objects.select_related("scan_history").get(pk=secator_runner.pk)
+        secator_runner = SecatorRunner.objects.select_related("scan_history").get(
+            pk=secator_runner.pk
+        )
         runner_data = {
             "status": "SUCCESS",
             "done": True,
@@ -81,10 +99,22 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
         """sync with status=FAILED sets ScanHistory.scan_status to SCAN_STATUS_FAILED (not QUEUED)."""
         secator_runner = self._create_runner(
             runner_type="workflow",
-            runner_data={"status": "FAILED", "done": True, "name": "test-workflow", "config": {"type": "workflow"}},
+            runner_data={
+                "status": "FAILED",
+                "done": True,
+                "name": "test-workflow",
+                "config": {"type": "workflow"},
+            },
         )
-        secator_runner = SecatorRunner.objects.select_related("scan_history").get(pk=secator_runner.pk)
-        runner_data = {"status": "FAILED", "done": True, "name": "test-workflow", "config": {"type": "workflow"}}
+        secator_runner = SecatorRunner.objects.select_related("scan_history").get(
+            pk=secator_runner.pk
+        )
+        runner_data = {
+            "status": "FAILED",
+            "done": True,
+            "name": "test-workflow",
+            "config": {"type": "workflow"},
+        }
         sync_runner_with_scan_history(secator_runner, runner_data, self.logger)
         self.scan_history.refresh_from_db()
         self.assertEqual(self.scan_history.scan_status, SCAN_STATUS_FAILED)
@@ -93,10 +123,22 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
         """sync with status=FAILURE sets ScanHistory.scan_status to SCAN_STATUS_FAILED."""
         secator_runner = self._create_runner(
             runner_type="scan",
-            runner_data={"status": "FAILURE", "done": True, "name": "test-scan", "config": {"type": "scan"}},
+            runner_data={
+                "status": "FAILURE",
+                "done": True,
+                "name": "test-scan",
+                "config": {"type": "scan"},
+            },
         )
-        secator_runner = SecatorRunner.objects.select_related("scan_history").get(pk=secator_runner.pk)
-        runner_data = {"status": "FAILURE", "done": True, "name": "test-scan", "config": {"type": "scan"}}
+        secator_runner = SecatorRunner.objects.select_related("scan_history").get(
+            pk=secator_runner.pk
+        )
+        runner_data = {
+            "status": "FAILURE",
+            "done": True,
+            "name": "test-scan",
+            "config": {"type": "scan"},
+        }
         sync_runner_with_scan_history(secator_runner, runner_data, self.logger)
         self.scan_history.refresh_from_db()
         self.assertEqual(self.scan_history.scan_status, SCAN_STATUS_FAILED)
@@ -107,10 +149,22 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
         self.scan_history.save(update_fields=["scan_status"])
         secator_runner = self._create_runner(
             runner_type="workflow",
-            runner_data={"status": "PENDING", "done": False, "name": "test-workflow", "config": {"type": "workflow"}},
+            runner_data={
+                "status": "PENDING",
+                "done": False,
+                "name": "test-workflow",
+                "config": {"type": "workflow"},
+            },
         )
-        secator_runner = SecatorRunner.objects.select_related("scan_history").get(pk=secator_runner.pk)
-        runner_data = {"status": "PENDING", "done": False, "name": "test-workflow", "config": {"type": "workflow"}}
+        secator_runner = SecatorRunner.objects.select_related("scan_history").get(
+            pk=secator_runner.pk
+        )
+        runner_data = {
+            "status": "PENDING",
+            "done": False,
+            "name": "test-workflow",
+            "config": {"type": "workflow"},
+        }
         sync_runner_with_scan_history(secator_runner, runner_data, self.logger)
         self.scan_history.refresh_from_db()
         self.assertEqual(self.scan_history.scan_status, SCAN_STATUS_RUNNING)
@@ -119,10 +173,22 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
         """After sync, ScanHistory.scan_status is in SCAN_STATUS_VALUES."""
         secator_runner = self._create_runner(
             runner_type="workflow",
-            runner_data={"status": "RUNNING", "done": False, "name": "test-workflow", "config": {"type": "workflow"}},
+            runner_data={
+                "status": "RUNNING",
+                "done": False,
+                "name": "test-workflow",
+                "config": {"type": "workflow"},
+            },
         )
-        secator_runner = SecatorRunner.objects.select_related("scan_history").get(pk=secator_runner.pk)
-        runner_data = {"status": "RUNNING", "done": False, "name": "test-workflow", "config": {"type": "workflow"}}
+        secator_runner = SecatorRunner.objects.select_related("scan_history").get(
+            pk=secator_runner.pk
+        )
+        runner_data = {
+            "status": "RUNNING",
+            "done": False,
+            "name": "test-workflow",
+            "config": {"type": "workflow"},
+        }
         sync_runner_with_scan_history(secator_runner, runner_data, self.logger)
         self.scan_history.refresh_from_db()
         self.assertIn(self.scan_history.scan_status, SCAN_STATUS_VALUES)
@@ -131,12 +197,26 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
         """ScanActivity created/updated by sync uses task status (e.g. RUNNING_TASK, SUCCESS_TASK)."""
         secator_runner = self._create_runner(
             runner_type="workflow",
-            runner_data={"status": "RUNNING", "done": False, "name": "test-workflow", "config": {"type": "workflow"}},
+            runner_data={
+                "status": "RUNNING",
+                "done": False,
+                "name": "test-workflow",
+                "config": {"type": "workflow"},
+            },
         )
-        secator_runner = SecatorRunner.objects.select_related("scan_history").get(pk=secator_runner.pk)
-        runner_data = {"status": "RUNNING", "done": False, "name": "test-workflow", "config": {"type": "workflow"}}
+        secator_runner = SecatorRunner.objects.select_related("scan_history").get(
+            pk=secator_runner.pk
+        )
+        runner_data = {
+            "status": "RUNNING",
+            "done": False,
+            "name": "test-workflow",
+            "config": {"type": "workflow"},
+        }
         sync_runner_with_scan_history(secator_runner, runner_data, self.logger)
-        activity = ScanActivity.objects.filter(scan_of=self.scan_history, name="test-workflow").first()
+        activity = ScanActivity.objects.filter(
+            scan_of=self.scan_history, name="test-workflow"
+        ).first()
         self.assertIsNotNone(activity)
         self.assertEqual(activity.status, RUNNING_TASK)
 
@@ -151,7 +231,9 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
                 "config": {"type": "workflow"},
             },
         )
-        secator_runner = SecatorRunner.objects.select_related("scan_history").get(pk=secator_runner.pk)
+        secator_runner = SecatorRunner.objects.select_related("scan_history").get(
+            pk=secator_runner.pk
+        )
         runner_data = {
             "status": "SUCCESS",
             "done": True,
@@ -159,7 +241,9 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
             "config": {"type": "workflow"},
         }
         sync_runner_with_scan_history(secator_runner, runner_data, self.logger)
-        activity = ScanActivity.objects.filter(scan_of=self.scan_history, name="test-workflow").first()
+        activity = ScanActivity.objects.filter(
+            scan_of=self.scan_history, name="test-workflow"
+        ).first()
         self.assertIsNotNone(activity)
         self.assertEqual(activity.status, SUCCESS_TASK)
 
@@ -167,11 +251,25 @@ class SyncRunnerWithScanHistoryTestCase(BaseTestCase):
         """When runner syncs with FAILED, ScanActivity has FAILED_TASK."""
         secator_runner = self._create_runner(
             runner_type="workflow",
-            runner_data={"status": "FAILED", "done": True, "name": "test-workflow", "config": {"type": "workflow"}},
+            runner_data={
+                "status": "FAILED",
+                "done": True,
+                "name": "test-workflow",
+                "config": {"type": "workflow"},
+            },
         )
-        secator_runner = SecatorRunner.objects.select_related("scan_history").get(pk=secator_runner.pk)
-        runner_data = {"status": "FAILED", "done": True, "name": "test-workflow", "config": {"type": "workflow"}}
+        secator_runner = SecatorRunner.objects.select_related("scan_history").get(
+            pk=secator_runner.pk
+        )
+        runner_data = {
+            "status": "FAILED",
+            "done": True,
+            "name": "test-workflow",
+            "config": {"type": "workflow"},
+        }
         sync_runner_with_scan_history(secator_runner, runner_data, self.logger)
-        activity = ScanActivity.objects.filter(scan_of=self.scan_history, name="test-workflow").first()
+        activity = ScanActivity.objects.filter(
+            scan_of=self.scan_history, name="test-workflow"
+        ).first()
         self.assertIsNotNone(activity)
         self.assertEqual(activity.status, FAILED_TASK)

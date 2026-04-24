@@ -8,7 +8,14 @@ ensuring no orphaned data remains and no deletion blocks occur.
 from django.utils import timezone
 
 from reconPoint.utilities.domain import get_domain_by_id
-from startScan.models import Domain, DomainInfo, DomainRegistration, Registrar, ScanHistory, Subdomain
+from startScan.models import (
+    Domain,
+    DomainInfo,
+    DomainRegistration,
+    Registrar,
+    ScanHistory,
+    Subdomain,
+)
 from targetApp.models import Organization, Target
 from utils.test_base import BaseTestCase
 
@@ -91,7 +98,9 @@ class TestProjectCascadeDeletion(BaseTestCase):
             project=project,
             insert_date=timezone.now(),
         )
-        scan_history2 = ScanHistory.objects.create(target=target2, start_scan_date=timezone.now(), scan_status=2)
+        scan_history2 = ScanHistory.objects.create(
+            target=target2, start_scan_date=timezone.now(), scan_status=2
+        )
         domain2 = Domain.objects.create(
             name="example2.com",
             insert_date=timezone.now(),
@@ -208,7 +217,9 @@ class TestDomainInfoRelationsCascadeDeletion(BaseTestCase):
         domain_registration.delete()
 
         # Verify domain_registration was deleted
-        self.assertFalse(DomainRegistration.objects.filter(id=domain_registration_id).exists())
+        self.assertFalse(
+            DomainRegistration.objects.filter(id=domain_registration_id).exists()
+        )
 
         # Verify domain_info was also deleted (CASCADE)
         self.assertFalse(DomainInfo.objects.filter(id=domain_info_id).exists())
@@ -233,7 +244,9 @@ class TestDomainInfoRelationsCascadeDeletion(BaseTestCase):
         domain_registration.delete()
 
         # Verify domain_registration was deleted
-        self.assertFalse(DomainRegistration.objects.filter(id=domain_registration_id).exists())
+        self.assertFalse(
+            DomainRegistration.objects.filter(id=domain_registration_id).exists()
+        )
 
         # Verify domain_info was also deleted (CASCADE)
         self.assertFalse(DomainInfo.objects.filter(id=domain_info_id).exists())
@@ -258,7 +271,9 @@ class TestDomainInfoRelationsCascadeDeletion(BaseTestCase):
         domain_registration.delete()
 
         # Verify domain_registration was deleted
-        self.assertFalse(DomainRegistration.objects.filter(id=domain_registration_id).exists())
+        self.assertFalse(
+            DomainRegistration.objects.filter(id=domain_registration_id).exists()
+        )
 
         # Verify domain_info was also deleted (CASCADE)
         self.assertFalse(DomainInfo.objects.filter(id=domain_info_id).exists())

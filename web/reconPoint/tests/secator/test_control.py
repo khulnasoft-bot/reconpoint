@@ -31,7 +31,9 @@ class TestSecatorScanController(unittest.TestCase):
     @patch("reconPoint.secator.control.SecatorRunner")
     @patch("reconPoint.secator.control.ScanRepository")
     @patch("secator.celery.revoke_task")
-    def test_stop_scan_single_task(self, mock_revoke_task, mock_scan_repo_class, mock_secator_runner_class):
+    def test_stop_scan_single_task(
+        self, mock_revoke_task, mock_scan_repo_class, mock_secator_runner_class
+    ):
         """Test stopping a scan with a single Celery task (local worker)."""
         mock_scan_repo = Mock()
         mock_scan_repo_class.return_value = mock_scan_repo
@@ -56,7 +58,9 @@ class TestSecatorScanController(unittest.TestCase):
 
         self.assertTrue(result)
         mock_scan_repo.get_by_id.assert_called_once_with(self.scan_history_id)
-        mock_secator_runner_class.objects.filter.assert_called_once_with(scan_history_id=self.scan_history_id)
+        mock_secator_runner_class.objects.filter.assert_called_once_with(
+            scan_history_id=self.scan_history_id
+        )
         mock_revoke_task.assert_called_once_with("task-123", task_name="scan_123")
         self.assertEqual(mock_runner.status, "REVOKED")
         mock_runner.save.assert_called()
@@ -66,7 +70,9 @@ class TestSecatorScanController(unittest.TestCase):
     @patch("reconPoint.secator.control.SecatorRunner")
     @patch("reconPoint.secator.control.ScanRepository")
     @patch("secator.celery.revoke_task")
-    def test_stop_scan_multiple_tasks(self, mock_revoke_task, mock_scan_repo_class, mock_secator_runner_class):
+    def test_stop_scan_multiple_tasks(
+        self, mock_revoke_task, mock_scan_repo_class, mock_secator_runner_class
+    ):
         """Test stopping a scan with multiple Celery tasks (local workers)."""
         mock_scan_repo = Mock()
         mock_scan_repo_class.return_value = mock_scan_repo
@@ -97,7 +103,9 @@ class TestSecatorScanController(unittest.TestCase):
 
         self.assertTrue(result)
         mock_scan_repo.get_by_id.assert_called_once_with(self.scan_history_id)
-        mock_secator_runner_class.objects.filter.assert_called_once_with(scan_history_id=self.scan_history_id)
+        mock_secator_runner_class.objects.filter.assert_called_once_with(
+            scan_history_id=self.scan_history_id
+        )
         self.assertEqual(mock_revoke_task.call_count, 3)
         self.assertEqual(mock_runner1.status, "REVOKED")
         self.assertEqual(mock_runner2.status, "REVOKED")
@@ -150,7 +158,9 @@ class TestSecatorScanController(unittest.TestCase):
         result = controller.stop_scan()
 
         self.assertTrue(result)
-        mock_secator_runner_class.objects.filter.assert_called_once_with(scan_history_id=self.scan_history_id)
+        mock_secator_runner_class.objects.filter.assert_called_once_with(
+            scan_history_id=self.scan_history_id
+        )
         self.assertEqual(mock_revoke_task.call_count, 2)
         self.assertEqual(mock_runner1.status, "REVOKED")
         self.assertEqual(mock_runner2.status, "REVOKED")
@@ -191,7 +201,9 @@ class TestSecatorScanController(unittest.TestCase):
         result = controller.stop_scan()
 
         self.assertTrue(result)
-        mock_revoke_remote.assert_called_once_with(mock_worker, "task-remote-123", task_name="scan_123")
+        mock_revoke_remote.assert_called_once_with(
+            mock_worker, "task-remote-123", task_name="scan_123"
+        )
         mock_scan_repo.update_status.assert_called_once()
 
     @patch("reconPoint.secator.control.SecatorRunner")
@@ -214,13 +226,17 @@ class TestSecatorScanController(unittest.TestCase):
 
         self.assertTrue(result)
         mock_scan_repo.get_by_id.assert_called_once_with(self.scan_history_id)
-        mock_secator_runner_class.objects.filter.assert_called_once_with(scan_history_id=self.scan_history_id)
+        mock_secator_runner_class.objects.filter.assert_called_once_with(
+            scan_history_id=self.scan_history_id
+        )
         mock_scan_repo.update_status.assert_called_once()
         mock_scan_repo.create_scan_activity.assert_not_called()
 
     @patch("reconPoint.secator.control.SecatorRunner")
     @patch("reconPoint.secator.control.ScanRepository")
-    def test_stop_scan_none_tasks(self, mock_scan_repo_class, mock_secator_runner_class):
+    def test_stop_scan_none_tasks(
+        self, mock_scan_repo_class, mock_secator_runner_class
+    ):
         """Test stopping a scan with no runners."""
         mock_scan_repo = Mock()
         mock_scan_repo_class.return_value = mock_scan_repo
@@ -238,7 +254,9 @@ class TestSecatorScanController(unittest.TestCase):
 
         self.assertTrue(result)
         mock_scan_repo.get_by_id.assert_called_once_with(self.scan_history_id)
-        mock_secator_runner_class.objects.filter.assert_called_once_with(scan_history_id=self.scan_history_id)
+        mock_secator_runner_class.objects.filter.assert_called_once_with(
+            scan_history_id=self.scan_history_id
+        )
         mock_scan_repo.update_status.assert_called_once()
         mock_scan_repo.create_scan_activity.assert_not_called()
 
@@ -324,7 +342,9 @@ class TestSecatorScanController(unittest.TestCase):
         mock_runner.scan_history = mock_scan
         mock_runner.scan_history_id = self.scan_history_id
         mock_activity.runner_id = mock_runner
-        mock_scan_activity_class.objects.filter.return_value.select_related.return_value = [mock_activity]
+        mock_scan_activity_class.objects.filter.return_value.select_related.return_value = [
+            mock_activity
+        ]
 
         mock_runner_qs = Mock()
         mock_runner_qs.select_related.return_value = [mock_runner]
@@ -341,7 +361,9 @@ class TestSecatorScanController(unittest.TestCase):
         self.assertTrue(result)
         mock_subscan_class.objects.filter.assert_called()
         mock_scan_activity_class.objects.filter.assert_called()
-        mock_revoke_task.assert_called_once_with("task-subscan-123", task_name="subscan_456")
+        mock_revoke_task.assert_called_once_with(
+            "task-subscan-123", task_name="subscan_456"
+        )
         self.assertEqual(mock_runner.status, "REVOKED")
         mock_runner.save.assert_called()
         self.assertEqual(mock_subscan.status, 3)  # ABORTED_TASK
@@ -350,7 +372,9 @@ class TestSecatorScanController(unittest.TestCase):
     @patch("reconPoint.secator.control.SubScan")
     @patch("reconPoint.secator.control.SecatorRunner")
     @patch("reconPoint.secator.control.ScanRepository")
-    def test_stop_subscan_not_found(self, mock_scan_repo_class, mock_secator_runner_class, mock_subscan_class):
+    def test_stop_subscan_not_found(
+        self, mock_scan_repo_class, mock_secator_runner_class, mock_subscan_class
+    ):
         """Test stopping a subscan that doesn't exist."""
         mock_scan_repo = Mock()
         mock_scan_repo_class.return_value = mock_scan_repo
@@ -408,7 +432,9 @@ class TestSecatorScanController(unittest.TestCase):
     @patch("reconPoint.secator.control.ScanActivity")
     @patch("reconPoint.secator.control.ScanRepository")
     @patch("secator.celery.revoke_task")
-    def test_stop_activity_success(self, mock_revoke_task, mock_scan_repo_class, mock_scan_activity_class):
+    def test_stop_activity_success(
+        self, mock_revoke_task, mock_scan_repo_class, mock_scan_activity_class
+    ):
         """Test stopping an activity successfully."""
         mock_scan_repo = Mock()
         mock_scan_repo_class.return_value = mock_scan_repo
@@ -428,9 +454,7 @@ class TestSecatorScanController(unittest.TestCase):
         mock_activity.runner_id = mock_runner
         mock_activity.scan_of = mock_scan
         mock_runner.scan_history = mock_scan
-        mock_scan_activity_class.objects.filter.return_value.select_related.return_value.first.return_value = (
-            mock_activity
-        )
+        mock_scan_activity_class.objects.filter.return_value.select_related.return_value.first.return_value = mock_activity
 
         mock_scan_activity_class.objects.filter.return_value.exclude.return_value.count.return_value = 0
 
@@ -441,7 +465,9 @@ class TestSecatorScanController(unittest.TestCase):
 
         self.assertTrue(result)
         mock_scan_activity_class.objects.filter.assert_called()
-        mock_revoke_task.assert_called_once_with("task-activity-123", task_name="activity_789")
+        mock_revoke_task.assert_called_once_with(
+            "task-activity-123", task_name="activity_789"
+        )
         self.assertEqual(mock_runner.status, "REVOKED")
         mock_runner.save.assert_called()
         self.assertEqual(mock_activity.status, 3)  # ABORTED_TASK
@@ -465,9 +491,7 @@ class TestSecatorScanController(unittest.TestCase):
         mock_activity = Mock()
         mock_activity.id = 789
         mock_activity.runner_id = None
-        mock_scan_activity_class.objects.filter.return_value.select_related.return_value.first.return_value = (
-            mock_activity
-        )
+        mock_scan_activity_class.objects.filter.return_value.select_related.return_value.first.return_value = mock_activity
 
         controller = SecatorScanController(self.scan_history_id)
 
@@ -485,9 +509,7 @@ class TestSecatorScanController(unittest.TestCase):
         mock_runner = Mock()
         mock_runner.celery_id = None
         mock_activity.runner_id = mock_runner
-        mock_scan_activity_class.objects.filter.return_value.select_related.return_value.first.return_value = (
-            mock_activity
-        )
+        mock_scan_activity_class.objects.filter.return_value.select_related.return_value.first.return_value = mock_activity
 
         controller = SecatorScanController(self.scan_history_id)
 
@@ -512,9 +534,7 @@ class TestSecatorScanController(unittest.TestCase):
         mock_activity.scan_of = mock_scan1
         mock_activity.runner_id = mock_runner
         mock_runner.scan_history = mock_scan2
-        mock_scan_activity_class.objects.filter.return_value.select_related.return_value.first.return_value = (
-            mock_activity
-        )
+        mock_scan_activity_class.objects.filter.return_value.select_related.return_value.first.return_value = mock_activity
 
         # Mock other activities check
         mock_scan_activity_class.objects.filter.return_value.exclude.return_value.count.return_value = 0
@@ -528,7 +548,9 @@ class TestSecatorScanController(unittest.TestCase):
 
     @patch("reconPoint.secator.control.ScanActivity")
     @patch("secator.celery.revoke_task")
-    def test_stop_activity_revocation_failure(self, mock_revoke_task, mock_scan_activity_class):
+    def test_stop_activity_revocation_failure(
+        self, mock_revoke_task, mock_scan_activity_class
+    ):
         """Test stopping an activity when revocation fails (local worker)."""
         mock_activity = Mock()
         mock_activity.id = 789
@@ -542,9 +564,7 @@ class TestSecatorScanController(unittest.TestCase):
         mock_activity.scan_of = mock_scan
         mock_activity.runner_id = mock_runner
         mock_runner.scan_history = mock_scan
-        mock_scan_activity_class.objects.filter.return_value.select_related.return_value.first.return_value = (
-            mock_activity
-        )
+        mock_scan_activity_class.objects.filter.return_value.select_related.return_value.first.return_value = mock_activity
 
         mock_scan_activity_class.objects.filter.return_value.exclude.return_value.count.return_value = 0
 
@@ -555,7 +575,9 @@ class TestSecatorScanController(unittest.TestCase):
         result = controller.stop_activity(789)
 
         self.assertFalse(result)
-        mock_revoke_task.assert_called_once_with("task-activity-123", task_name="activity_789")
+        mock_revoke_task.assert_called_once_with(
+            "task-activity-123", task_name="activity_789"
+        )
         mock_activity.save.assert_not_called()
 
     @patch("reconPoint.secator.control.SecatorRunner")
@@ -592,7 +614,9 @@ class TestSecatorScanController(unittest.TestCase):
 
     @patch("reconPoint.services.repositories.command_repository.CommandRepository")
     @patch("reconPoint.secator.control.ScanActivity")
-    def test_create_or_update_command_for_runner_with_activity(self, mock_scan_activity_class, mock_command_repo_class):
+    def test_create_or_update_command_for_runner_with_activity(
+        self, mock_scan_activity_class, mock_command_repo_class
+    ):
         """Test _create_or_update_command_for_runner creates Command for runner with activity."""
         from reconPoint.secator.control import SecatorScanController
 
@@ -630,7 +654,9 @@ class TestSecatorScanController(unittest.TestCase):
 
     @patch("reconPoint.services.repositories.command_repository.CommandRepository")
     @patch("reconPoint.secator.control.ScanActivity")
-    def test_create_or_update_command_for_workflow_without_cmd(self, mock_scan_activity_class, mock_command_repo_class):
+    def test_create_or_update_command_for_workflow_without_cmd(
+        self, mock_scan_activity_class, mock_command_repo_class
+    ):
         """Test _create_or_update_command_for_runner creates Command for workflow without cmd/output."""
         from reconPoint.secator.control import SecatorScanController
 
@@ -654,7 +680,9 @@ class TestSecatorScanController(unittest.TestCase):
 
         mock_activity = Mock()
         mock_activity.id = 789
-        mock_scan_activity_class.objects.filter.return_value.first.return_value = mock_activity
+        mock_scan_activity_class.objects.filter.return_value.first.return_value = (
+            mock_activity
+        )
 
         controller = SecatorScanController(self.scan_history_id)
         controller._create_or_update_command_for_runner(mock_runner)

@@ -13,7 +13,8 @@ class Migration(migrations.Migration):
             model_name="enginetype",
             name="is_legacy",
             field=models.BooleanField(
-                default=True, help_text="Whether this is a legacy scan engine (deprecated in favor of Secator)"
+                default=True,
+                help_text="Whether this is a legacy scan engine (deprecated in favor of Secator)",
             ),
         ),
     ]

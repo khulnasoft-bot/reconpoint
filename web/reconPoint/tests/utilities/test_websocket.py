@@ -75,7 +75,10 @@ class TestChannelGroupSendWithRetry(TestCase):
         if busy_loading_error is None:
             self.skipTest("redis not installed")
         self.channel_layer.group_send = MagicMock(
-            side_effect=[busy_loading_error("Redis is loading the dataset in memory"), None],
+            side_effect=[
+                busy_loading_error("Redis is loading the dataset in memory"),
+                None,
+            ],
         )
         _channel_group_send_with_retry(
             self.channel_layer,
@@ -146,12 +149,23 @@ class TestSendScanStatusThrottleAndForce(BaseTestCase):
                 return None
             return time.time() - 1.0
 
-        with patch("reconPoint.utilities.websocket.get_channel_layer", return_value=channel_mock):
-            with patch("reconPoint.utilities.websocket._get_last_sent_ts", side_effect=get_last_sent_ts_side_effect):
+        with patch(
+            "reconPoint.utilities.websocket.get_channel_layer",
+            return_value=channel_mock,
+        ):
+            with patch(
+                "reconPoint.utilities.websocket._get_last_sent_ts",
+                side_effect=get_last_sent_ts_side_effect,
+            ):
                 with patch("reconPoint.utilities.websocket._set_last_sent_ts"):
-                    with patch("reconPoint.utilities.websocket._get_last_full_ts", return_value=None):
+                    with patch(
+                        "reconPoint.utilities.websocket._get_last_full_ts",
+                        return_value=None,
+                    ):
                         with patch("reconPoint.utilities.websocket._set_last_full_ts"):
-                            with patch("reconPoint.utilities.websocket._THROTTLE_SECONDS", 2):
+                            with patch(
+                                "reconPoint.utilities.websocket._THROTTLE_SECONDS", 2
+                            ):
                                 with patch(
                                     "reconPoint.utilities.websocket.async_to_sync",
                                     side_effect=lambda f: lambda *a, **kw: f(*a, **kw),
@@ -163,12 +177,23 @@ class TestSendScanStatusThrottleAndForce(BaseTestCase):
     def test_force_true_sends_immediately(self):
         """Second call with force=True sends even within throttle window."""
         channel_mock = MagicMock()
-        with patch("reconPoint.utilities.websocket.get_channel_layer", return_value=channel_mock):
-            with patch("reconPoint.utilities.websocket._get_last_sent_ts", side_effect=[None, time.time() - 0.5]):
+        with patch(
+            "reconPoint.utilities.websocket.get_channel_layer",
+            return_value=channel_mock,
+        ):
+            with patch(
+                "reconPoint.utilities.websocket._get_last_sent_ts",
+                side_effect=[None, time.time() - 0.5],
+            ):
                 with patch("reconPoint.utilities.websocket._set_last_sent_ts"):
-                    with patch("reconPoint.utilities.websocket._get_last_full_ts", return_value=None):
+                    with patch(
+                        "reconPoint.utilities.websocket._get_last_full_ts",
+                        return_value=None,
+                    ):
                         with patch("reconPoint.utilities.websocket._set_last_full_ts"):
-                            with patch("reconPoint.utilities.websocket._THROTTLE_SECONDS", 2):
+                            with patch(
+                                "reconPoint.utilities.websocket._THROTTLE_SECONDS", 2
+                            ):
                                 with patch(
                                     "reconPoint.utilities.websocket.async_to_sync",
                                     side_effect=lambda f: lambda *a, **kw: f(*a, **kw),

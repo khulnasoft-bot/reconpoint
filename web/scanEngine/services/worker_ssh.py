@@ -25,7 +25,10 @@ REMOTE_COMPOSE_DOWN_TIMEOUT = 60
 
 def default_ssh_key_path() -> str:
     """Path to the default SSH private key (generated at container startup)."""
-    return str(getattr(settings, "RECONPOINT_SSH_DEFAULT_KEY_PATH", "") or (Path.home() / ".ssh" / "id_ed25519"))
+    return str(
+        getattr(settings, "RECONPOINT_SSH_DEFAULT_KEY_PATH", "")
+        or (Path.home() / ".ssh" / "id_ed25519")
+    )
 
 
 def get_public_key_content() -> Optional[str]:
@@ -82,7 +85,10 @@ def get_ssh_client(worker: Any):
     if worker.ssh_auth_type == auth_key:
         key_path = (worker.ssh_key_path or "").strip() or default_ssh_key_path()
         kwargs["key_filename"] = key_path
-    elif worker.ssh_auth_type == getattr(worker, "AUTH_PASSWORD", "password") and worker.ssh_password_encrypted:
+    elif (
+        worker.ssh_auth_type == getattr(worker, "AUTH_PASSWORD", "password")
+        and worker.ssh_password_encrypted
+    ):
         kwargs["password"] = worker.ssh_password_encrypted
     client.connect(**kwargs)
     return client
@@ -164,12 +170,12 @@ def check_api_reachable_from_container(
     """
     domain_name = getattr(settings, "DOMAIN_NAME", "") or "localhost"
     api_key = getattr(settings, "SECATOR_ADDONS_API_KEY", "") or ""
-    api_header_name = getattr(settings, "SECATOR_ADDONS_API_HEADER_NAME", "") or "Api-Key"
+    api_header_name = (
+        getattr(settings, "SECATOR_ADDONS_API_HEADER_NAME", "") or "Api-Key"
+    )
     host_header = f"Host: {domain_name}"
     auth_header = f"Authorization: {api_header_name} {api_key}"
-    curl_cmd = (
-        f"curl -k -f -s -o /dev/null -H {_sh_quote(host_header)} -H {_sh_quote(auth_header)} {_sh_quote(health_url)}"
-    )
+    curl_cmd = f"curl -k -f -s -o /dev/null -H {_sh_quote(host_header)} -H {_sh_quote(auth_header)} {_sh_quote(health_url)}"
     exit_code, out, err = run_in_container(client, worker, curl_cmd, timeout=timeout)
     if exit_code == 0:
         return True, None
@@ -197,7 +203,9 @@ def sftp_put_bytes(sftp: Any, data: bytes, remote_path: str) -> None:
         f.write(data)
 
 
-def sftp_put_string(sftp: Any, content: str, remote_path: str, encoding: str = "utf-8") -> None:
+def sftp_put_string(
+    sftp: Any, content: str, remote_path: str, encoding: str = "utf-8"
+) -> None:
     """Write string to a remote file."""
     sftp_put_bytes(sftp, content.encode(encoding), remote_path)
 

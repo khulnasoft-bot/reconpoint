@@ -66,7 +66,9 @@ class TestListScanHistory(BaseTestCase):
         self.assertGreaterEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["id"], self.data_generator.scan_history.id)
 
-    def test_list_scan_history_datatable_summary_ip_counts_match_get_scan_finding_counts(self) -> None:
+    def test_list_scan_history_datatable_summary_ip_counts_match_get_scan_finding_counts(
+        self,
+    ) -> None:
         """DataTable summary IP fields align with get_scan_finding_counts (detail page / WebSocket)."""
         scan = self.data_generator.scan_history
         domain = self.data_generator.domain
@@ -89,8 +91,12 @@ class TestListScanHistory(BaseTestCase):
         row = next((r for r in rows if r.get("id") == scan.id), None)
         self.assertIsNotNone(row, msg="Expected scan row in DataTable response")
         summary = row.get("summary") or {}
-        self.assertEqual(summary.get("ip_address_count"), expected[SCAN_FINDING_IP_COUNT_KEY])
-        self.assertEqual(summary.get("ip_alive_count"), expected[SCAN_FINDING_IP_ALIVE_KEY])
+        self.assertEqual(
+            summary.get("ip_address_count"), expected[SCAN_FINDING_IP_COUNT_KEY]
+        )
+        self.assertEqual(
+            summary.get("ip_alive_count"), expected[SCAN_FINDING_IP_ALIVE_KEY]
+        )
 
     def test_list_scan_history_datatable_filter_by_scope(self):
         """DataTable filter_scope keeps only scans whose target is linked to the selected scope name(s)."""
@@ -215,7 +221,9 @@ class TestScanHistoryFilterChoices(BaseTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("scan_engines", response.data)
-        expected_workflow_label = f"{secator_scan.display_runner_type}: {secator_scan.display_scan_name}"
+        expected_workflow_label = (
+            f"{secator_scan.display_runner_type}: {secator_scan.display_scan_name}"
+        )
         self.assertIn(expected_workflow_label, response.data["scan_engines"])
         self.assertTrue(
             any(label.startswith("Task: ") for label in response.data["scan_engines"]),
@@ -430,10 +438,14 @@ class TestScanHistoryScanTypeFiltering(BaseTestCase):
 class TestScanEngineUsedDisplay(BaseTestCase):
     """Regression: unified Type: Name string for scan engine column (legacy prefix for engine-based subscans)."""
 
-    def test_legacy_scan_history_scan_engine_used_matches_datatable_serializer(self) -> None:
+    def test_legacy_scan_history_scan_engine_used_matches_datatable_serializer(
+        self,
+    ) -> None:
         legacy_scan = self.data_generator.create_scan_history(is_legacy=True)
         self.assertTrue(legacy_scan.scan_engine_used.startswith("Legacy: "))
-        self.assertIn(self.data_generator.engine_type.engine_name, legacy_scan.scan_engine_used)
+        self.assertIn(
+            self.data_generator.engine_type.engine_name, legacy_scan.scan_engine_used
+        )
         row = ScanHistoryDatatableSerializer(legacy_scan).data
         self.assertEqual(row["scan_engine_text"], legacy_scan.scan_engine_used)
 
@@ -454,7 +466,9 @@ class TestScanEngineUsedDisplay(BaseTestCase):
         self.assertTrue(row["scan_engine_text"].startswith("Legacy: "))
         self.assertIn(engine.engine_name, row["scan_engine_text"])
 
-    def test_scan_engine_used_shows_legacy_when_engine_type_without_backfill_flag(self) -> None:
+    def test_scan_engine_used_shows_legacy_when_engine_type_without_backfill_flag(
+        self,
+    ) -> None:
         """Pre-backfill rows: scan_type set but is_legacy_scan False must not show bare Secator."""
         engine = self.data_generator.engine_type
         scan = ScanHistory.objects.create(
@@ -491,7 +505,11 @@ class TestListS3BucketsDatatable(BaseTestCase):
         url = reverse("api:listS3Buckets")
         response = self.client.get(
             url,
-            {"scan_history": self.data_generator.scan_history.id, "start": 0, "length": 10},
+            {
+                "scan_history": self.data_generator.scan_history.id,
+                "start": 0,
+                "length": 10,
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("draw", response.data)
@@ -515,12 +533,20 @@ class TestListS3BucketsDatatable(BaseTestCase):
         from api.helpers.datatables import FILTER_PARAM_BUCKET_NAME
 
         url = reverse("api:listS3Buckets")
-        base_params = {"scan_history": self.data_generator.scan_history.id, "start": 0, "length": 10}
-        response = self.client.get(url, {**base_params, FILTER_PARAM_BUCKET_NAME: "test-bucket"})
+        base_params = {
+            "scan_history": self.data_generator.scan_history.id,
+            "start": 0,
+            "length": 10,
+        }
+        response = self.client.get(
+            url, {**base_params, FILTER_PARAM_BUCKET_NAME: "test-bucket"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(response.data["recordsFiltered"], 1)
         self.assertEqual(response.data["data"][0]["name"], "test-bucket")
-        response2 = self.client.get(url, {**base_params, FILTER_PARAM_BUCKET_NAME: "nonexistent-bucket"})
+        response2 = self.client.get(
+            url, {**base_params, FILTER_PARAM_BUCKET_NAME: "nonexistent-bucket"}
+        )
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.data["recordsFiltered"], 0)
         self.assertEqual(response2.data["data"], [])
@@ -550,12 +576,16 @@ class TestListWordlistsDatatable(BaseTestCase):
 
         url = reverse("api:listWordlists")
         wordlist_name = self.data_generator.wordlist.name
-        response = self.client.get(url, {"start": 0, "length": 10, FILTER_PARAM_NAME: wordlist_name})
+        response = self.client.get(
+            url, {"start": 0, "length": 10, FILTER_PARAM_NAME: wordlist_name}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(response.data["recordsFiltered"], 1)
         names = [r["name"] for r in response.data["data"]]
         self.assertIn(wordlist_name, names)
-        response2 = self.client.get(url, {"start": 0, "length": 10, FILTER_PARAM_NAME: "NonExistentWordlist"})
+        response2 = self.client.get(
+            url, {"start": 0, "length": 10, FILTER_PARAM_NAME: "NonExistentWordlist"}
+        )
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.data["recordsFiltered"], 0)
 
@@ -584,12 +614,17 @@ class TestListScanEnginesDatatable(BaseTestCase):
 
         url = reverse("api:listScanEngines")
         engine_name = self.data_generator.engine_type.engine_name
-        response = self.client.get(url, {"start": 0, "length": 10, FILTER_PARAM_ENGINE_NAME: engine_name})
+        response = self.client.get(
+            url, {"start": 0, "length": 10, FILTER_PARAM_ENGINE_NAME: engine_name}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(response.data["recordsFiltered"], 1)
         names = [r["engine_name"] for r in response.data["data"]]
         self.assertIn(engine_name, names)
-        response2 = self.client.get(url, {"start": 0, "length": 10, FILTER_PARAM_ENGINE_NAME: "NonExistentEngine"})
+        response2 = self.client.get(
+            url,
+            {"start": 0, "length": 10, FILTER_PARAM_ENGINE_NAME: "NonExistentEngine"},
+        )
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.data["recordsFiltered"], 0)
 
@@ -607,12 +642,16 @@ class TestListActivityLogsViewSet(BaseTestCase):
     def test_get_queryset(self):
         """Test retrieving activity logs."""
         url = reverse("api:activity-logs-list")
-        response = self.client.get(url, {"activity_id": self.data_generator.scan_activity.id})
+        response = self.client.get(
+            url, {"activity_id": self.data_generator.scan_activity.id}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertEqual(response.data["results"][0]["command"], self.data_generator.command.command)
+        self.assertEqual(
+            response.data["results"][0]["command"], self.data_generator.command.command
+        )
 
     def test_get_queryset_no_logs(self):
         """Test retrieving activity logs when there are none."""
@@ -635,7 +674,9 @@ class TestListScanLogsViewSet(BaseTestCase):
     def test_list_scan_logs(self):
         """Test retrieving scan logs."""
         url = reverse("api:scan-logs-list")
-        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
+        response = self.client.get(
+            url, {"scan_id": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
 
@@ -658,7 +699,9 @@ class TestStopScan(BaseTestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
-        mock_controller_class.assert_called_once_with(self.data_generator.scan_history.id)
+        mock_controller_class.assert_called_once_with(
+            self.data_generator.scan_history.id
+        )
         mock_controller.stop_scan.assert_called_once()
 
     @patch("reconPoint.secator.control.SecatorScanController")
@@ -667,7 +710,9 @@ class TestStopScan(BaseTestCase):
         mock_controller = mock_controller_class.return_value
         mock_controller.stop_subscan.return_value = True
         url = reverse("api:stop_scan")
-        subscan_id = self.data_generator.subscans[-1].id if self.data_generator.subscans else 1
+        subscan_id = (
+            self.data_generator.subscans[-1].id if self.data_generator.subscans else 1
+        )
         data = {"subscan_id": subscan_id}
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -704,8 +749,12 @@ class TestStopActivity(BaseTestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
-        mock_controller_class.assert_called_once_with(self.data_generator.scan_history.id)
-        mock_controller.stop_activity.assert_called_once_with(self.data_generator.scan_activity.id)
+        mock_controller_class.assert_called_once_with(
+            self.data_generator.scan_history.id
+        )
+        mock_controller.stop_activity.assert_called_once_with(
+            self.data_generator.scan_activity.id
+        )
 
     @patch("reconPoint.secator.control.SecatorScanController")
     def test_stop_activity_failure(self, mock_controller_class):
@@ -747,7 +796,9 @@ class TestInitiateSubTask(BaseTestCase):
 
     @patch("reconPoint.secator.service.start_secator_scan")
     @patch("reconPoint.secator.service.ScanRepository")
-    def test_initiate_subtask_tasks_mode_with_selected_targets_per_task(self, mock_scan_repo_cls, mock_start_scan):
+    def test_initiate_subtask_tasks_mode_with_selected_targets_per_task(
+        self, mock_scan_repo_cls, mock_start_scan
+    ):
         """When selected_targets_per_task is provided, one shared ScanHistory for all tasks."""
         scan_history = self.data_generator.scan_history
         shared_scan_id = scan_history.id
@@ -765,7 +816,9 @@ class TestInitiateSubTask(BaseTestCase):
             },
         }
 
-        response = self.client.post(url, data=json.dumps(data), content_type="application/json")
+        response = self.client.post(
+            url, data=json.dumps(data), content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.data["status"])
@@ -786,7 +839,9 @@ class TestInitiateSubTask(BaseTestCase):
         )
 
     @patch("api.views.start_secator_scan")
-    def test_initiate_subtask_workflow_mode_with_scan_history_id_creates_subscans(self, mock_start_scan):
+    def test_initiate_subtask_workflow_mode_with_scan_history_id_creates_subscans(
+        self, mock_start_scan
+    ):
         """When workflow_id and scan_history_id are provided, one SubScan per subdomain and start_secator_scan receives scan_history_id and subscan_id."""
         self.data_generator.create_secator_workflow()
         scan = self.data_generator.scan_history
@@ -800,7 +855,9 @@ class TestInitiateSubTask(BaseTestCase):
             "scan_history_id": scan.id,
         }
 
-        response = self.client.post(url, data=json.dumps(data), content_type="application/json")
+        response = self.client.post(
+            url, data=json.dumps(data), content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.data["status"])
@@ -817,7 +874,9 @@ class TestInitiateSubTask(BaseTestCase):
 
         subscans = list(
             SubScan.objects.filter(
-                scan_history=scan, subdomain=subdomain, type=self.data_generator.secator_workflow.name
+                scan_history=scan,
+                subdomain=subdomain,
+                type=self.data_generator.secator_workflow.name,
             )
         )
         self.assertGreaterEqual(len(subscans), 1)
@@ -825,7 +884,9 @@ class TestInitiateSubTask(BaseTestCase):
         self.assertIn(call_kwargs["subscan_id"], created_ids)
 
     @patch("api.views.start_secator_scan")
-    def test_initiate_subtask_accepts_subdomains_same_target_different_domains(self, mock_start_scan):
+    def test_initiate_subtask_accepts_subdomains_same_target_different_domains(
+        self, mock_start_scan
+    ):
         """When subdomain_ids span multiple domains but same target, POST returns 200."""
         self.data_generator.create_secator_workflow()
         target = self.data_generator.target
@@ -856,7 +917,9 @@ class TestInitiateSubTask(BaseTestCase):
             "scan_history_id": self.data_generator.scan_history.id,
         }
 
-        response = self.client.post(url, data=json.dumps(data), content_type="application/json")
+        response = self.client.post(
+            url, data=json.dumps(data), content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.data["status"])
@@ -877,7 +940,9 @@ class TestInitiateSubTask(BaseTestCase):
             "workflow_id": self.data_generator.secator_workflow.id,
         }
 
-        response = self.client.post(url, data=json.dumps(data), content_type="application/json")
+        response = self.client.post(
+            url, data=json.dumps(data), content_type="application/json"
+        )
 
         self.assertEqual(response.status_code, 400)
         self.assertFalse(response.data["status"])
@@ -911,7 +976,9 @@ class TestVisualiseData(BaseTestCase):
     def test_visualise_data(self):
         """Test retrieving visualisation data for a scan."""
         url = reverse("api:queryAllScanResultVisualise")
-        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
+        response = self.client.get(
+            url, {"scan_id": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data), 1)
         self.assertEqual(response.data["description"], self.data_generator.target.value)
@@ -941,7 +1008,9 @@ class TestListTechnology(BaseTestCase):
         scan1 = self.data_generator.scan_history
         scan2 = self.data_generator.create_scan_history()
         domain2 = self.data_generator.create_domain(scan_history=scan2)
-        sub2 = self.data_generator.create_subdomain(name="sub2.example.com", scan_history=scan2, domain=domain2)
+        sub2 = self.data_generator.create_subdomain(
+            name="sub2.example.com", scan_history=scan2, domain=domain2
+        )
         tech2 = Technology.objects.create(name="Other Technology")
         sub2.technologies.add(tech2)
 
@@ -985,7 +1054,9 @@ class TestListTechnology(BaseTestCase):
         response = self.client.get(url, {"scan_id": scan.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        by_name = {row["name"]: int(row["count"]) for row in response.data["technologies"]}
+        by_name = {
+            row["name"]: int(row["count"]) for row in response.data["technologies"]
+        }
         self.assertIn("endpoint-only-tech", by_name)
         self.assertEqual(by_name["endpoint-only-tech"], 1)
 
@@ -997,26 +1068,38 @@ class TestDirectoryViewSet(BaseTestCase):
         super().setUp()
         self.data_generator.create_directory_scan()
         self.data_generator.create_directory_file()
-        self.data_generator.directory_scan.directory_files.add(self.data_generator.directory_file)
-        self.data_generator.subdomain.directories.add(self.data_generator.directory_scan)
+        self.data_generator.directory_scan.directory_files.add(
+            self.data_generator.directory_file
+        )
+        self.data_generator.subdomain.directories.add(
+            self.data_generator.directory_scan
+        )
 
     def test_get_directory_files(self):
         """Test retrieving directory files."""
         api_url = reverse("api:directories-list")
-        response = self.client.get(api_url, {"scan_history": self.data_generator.scan_history.id})
+        response = self.client.get(
+            api_url, {"scan_history": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertEqual(response.data["results"][0]["name"], self.data_generator.directory_file.name)
+        self.assertEqual(
+            response.data["results"][0]["name"], self.data_generator.directory_file.name
+        )
 
     def test_get_directory_files_by_subdomain(self):
         """Test retrieving directory files by subdomain."""
         api_url = reverse("api:directories-list")
-        response = self.client.get(api_url, {"subdomain_id": self.data_generator.subdomain.id})
+        response = self.client.get(
+            api_url, {"subdomain_id": self.data_generator.subdomain.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertEqual(response.data["results"][0]["name"], self.data_generator.directory_file.name)
+        self.assertEqual(
+            response.data["results"][0]["name"], self.data_generator.directory_file.name
+        )
 
     def test_list_directories_requires_scan_or_subdomain(self):
         """List without scan_history or subdomain_id returns 400."""
@@ -1038,13 +1121,17 @@ class TestListSubScans(BaseTestCase):
     def test_list_subscans(self):
         """Test listing all subscans."""
         api_url = reverse("api:listSubScans")
-        response = self.client.post(api_url, {"scan_history_id": self.data_generator.scan_history.id})
+        response = self.client.post(
+            api_url, {"scan_history_id": self.data_generator.scan_history.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
         self.assertIn("total_count", response.data)
         self.assertTrue(response.data["status"])
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertGreaterEqual(response.data["total_count"], len(response.data["results"]))
+        self.assertGreaterEqual(
+            response.data["total_count"], len(response.data["results"])
+        )
 
         found_subscan = next(
             (s for s in response.data["results"] if s["id"] == self.subscans[-1].id),
@@ -1063,7 +1150,9 @@ class TestListSubScans(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("total_count", response.data)
         self.assertLessEqual(len(response.data.get("results", [])), 1)
-        self.assertGreaterEqual(response.data["total_count"], len(response.data.get("results", [])))
+        self.assertGreaterEqual(
+            response.data["total_count"], len(response.data.get("results", []))
+        )
 
     def test_list_subscans_by_target_id(self):
         """Test listing subscans filtered by target_id returns same scan history subscans."""
@@ -1092,7 +1181,9 @@ class TestFetchSubscanResults(BaseTestCase):
     def test_fetch_subscan_results(self):
         """Test fetching results of a subscan."""
         api_url = reverse("api:fetch_subscan_results")
-        response = self.client.get(api_url, {"subscan_id": self.data_generator.subscans[-1].id})
+        response = self.client.get(
+            api_url, {"subscan_id": self.data_generator.subscans[-1].id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("subscan", response.data)
         self.assertIn("result", response.data)

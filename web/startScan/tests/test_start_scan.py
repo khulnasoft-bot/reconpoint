@@ -9,7 +9,13 @@ from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from startScan.models import EndPoint, ScanActivity, ScanHistory, Subdomain, Vulnerability
+from startScan.models import (
+    EndPoint,
+    ScanActivity,
+    ScanHistory,
+    Subdomain,
+    Vulnerability,
+)
 from utils.test_base import BaseTestCase
 
 
@@ -78,7 +84,10 @@ class TestStartScanViews(BaseTestCase):
         response = self.client.get(
             reverse(
                 "detail_scan",
-                kwargs={"slug": self.data_generator.project.slug, "id": self.data_generator.scan_history.id},
+                kwargs={
+                    "slug": self.data_generator.project.slug,
+                    "id": self.data_generator.scan_history.id,
+                },
             )
         )
         self.assertEqual(response.status_code, 200)
@@ -188,7 +197,10 @@ class TestStartScanModels(BaseTestCase):
     def test_scan_history_model(self):
         """Test the ScanHistory model. __str__ returns id only to avoid N+1."""
         self.assertIsInstance(self.data_generator.scan_history, ScanHistory)
-        self.assertEqual(str(self.data_generator.scan_history), str(self.data_generator.scan_history.id))
+        self.assertEqual(
+            str(self.data_generator.scan_history),
+            str(self.data_generator.scan_history.id),
+        )
 
     def test_scan_history_model_with_missing_fields(self):
         """Test the ScanHistory model with missing fields. __str__ returns id only to avoid N+1."""
@@ -205,11 +217,15 @@ class TestStartScanModels(BaseTestCase):
     def test_subdomain_model(self):
         """Test the Subdomain model."""
         self.assertIsInstance(self.data_generator.subdomain, Subdomain)
-        self.assertEqual(str(self.data_generator.subdomain), self.data_generator.subdomain.name)
+        self.assertEqual(
+            str(self.data_generator.subdomain), self.data_generator.subdomain.name
+        )
 
     def test_subdomain_model_with_missing_fields(self):
         """Test the Subdomain model with missing fields."""
-        minimal_subdomain = Subdomain.objects.create(name="test.example.com", domain=self.data_generator.domain)
+        minimal_subdomain = Subdomain.objects.create(
+            name="test.example.com", domain=self.data_generator.domain
+        )
         self.assertIsInstance(minimal_subdomain, Subdomain)
         self.assertEqual(str(minimal_subdomain), "test.example.com")
         self.assertIsNone(minimal_subdomain.http_url)
@@ -218,7 +234,9 @@ class TestStartScanModels(BaseTestCase):
     def test_endpoint_model(self):
         """Test the EndPoint model."""
         self.assertIsInstance(self.data_generator.endpoint, EndPoint)
-        self.assertEqual(str(self.data_generator.endpoint), self.data_generator.endpoint.http_url)
+        self.assertEqual(
+            str(self.data_generator.endpoint), self.data_generator.endpoint.http_url
+        )
 
     def test_endpoint_model_with_missing_fields(self):
         """Test the EndPoint model with missing fields."""
@@ -241,7 +259,10 @@ class TestStartScanModels(BaseTestCase):
     def test_vulnerability_model(self):
         """Test the Vulnerability model."""
         self.assertIsInstance(self.data_generator.vulnerabilities[0], Vulnerability)
-        self.assertEqual(str(self.data_generator.vulnerabilities[0].name), self.data_generator.vulnerabilities[0].name)
+        self.assertEqual(
+            str(self.data_generator.vulnerabilities[0].name),
+            self.data_generator.vulnerabilities[0].name,
+        )
 
     def test_vulnerability_model_with_missing_fields(self):
         """Test the Vulnerability model with missing fields."""
@@ -261,7 +282,10 @@ class TestStartScanModels(BaseTestCase):
     def test_scan_activity_model_with_missing_fields(self):
         """Test the ScanActivity model with missing fields."""
         minimal_scan_activity = ScanActivity.objects.create(
-            scan_of=self.data_generator.scan_history, name="Test Type", time=timezone.now(), status=1
+            scan_of=self.data_generator.scan_history,
+            name="Test Type",
+            time=timezone.now(),
+            status=1,
         )
         self.assertIsInstance(minimal_scan_activity, ScanActivity)
         self.assertEqual(minimal_scan_activity.name, "Test Type")

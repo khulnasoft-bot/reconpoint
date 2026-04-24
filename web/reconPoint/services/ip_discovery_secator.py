@@ -54,7 +54,9 @@ def emit_ip_scan_progress(scan_id: str | None, payload: dict[str, Any]) -> None:
         channel_layer = get_channel_layer()
         if not channel_layer:
             return
-        async_to_sync(channel_layer.group_send)(group, {"type": "scan_progress", "message": payload})
+        async_to_sync(channel_layer.group_send)(
+            group, {"type": "scan_progress", "message": payload}
+        )
     except Exception as exc:
         logger.log_line(
             PREFIX,
@@ -87,7 +89,9 @@ def run_fping_sync(
     return sec_ips
 
 
-def parse_ip_or_cidr(raw: str) -> tuple[ipaddress.IPv4Network | ipaddress.IPv6Network, str]:
+def parse_ip_or_cidr(
+    raw: str,
+) -> tuple[ipaddress.IPv4Network | ipaddress.IPv6Network, str]:
     text = raw.strip()
     if not text:
         raise ValueError("IP address or CIDR is required")
@@ -142,7 +146,9 @@ def get_system_nameservers() -> list[str]:
         return ["8.8.8.8"]
 
 
-def build_resolver_chain(custom: list[str], use_system_fallback: bool) -> tuple[list[str], list[str]]:
+def build_resolver_chain(
+    custom: list[str], use_system_fallback: bool
+) -> tuple[list[str], list[str]]:
     chain: list[str] = []
     for item in custom:
         if item not in chain:
@@ -209,7 +215,11 @@ def _row(
     resolved_by: str = "",
     domains: list[str] | None = None,
 ) -> dict[str, Any]:
-    dlist = domains if domains is not None else ([domain] if domain and domain != ip else [])
+    dlist = (
+        domains
+        if domains is not None
+        else ([domain] if domain and domain != ip else [])
+    )
     reg_apex = _registered_apex(domain, ip)
     return {
         "ip": ip,
@@ -236,7 +246,10 @@ def _discovered_parent_domains(rows: list[dict[str, Any]]) -> list[str]:
 
 
 def _is_large_ipv4_range(net: ipaddress.IPv4Network | ipaddress.IPv6Network) -> bool:
-    return isinstance(net, ipaddress.IPv4Network) and net.num_addresses > LARGE_RANGE_WARNING_ADDRESSES
+    return (
+        isinstance(net, ipaddress.IPv4Network)
+        and net.num_addresses > LARGE_RANGE_WARNING_ADDRESSES
+    )
 
 
 def _split_network_into_chunks(
@@ -251,7 +264,9 @@ def _split_network_into_chunks(
         return [all_ips]
     chunk_count = min(max_chunks, len(all_ips))
     chunk_size = (len(all_ips) + chunk_count - 1) // chunk_count
-    return [all_ips[idx : idx + chunk_size] for idx in range(0, len(all_ips), chunk_size)]
+    return [
+        all_ips[idx : idx + chunk_size] for idx in range(0, len(all_ips), chunk_size)
+    ]
 
 
 def _run_fping_chunks(chunks: list[list[str]]) -> list[SecatorIp]:
@@ -259,11 +274,16 @@ def _run_fping_chunks(chunks: list[list[str]]) -> list[SecatorIp]:
         return []
     if len(chunks) == 1:
         return run_fping_sync(
-            chunks[0], use_dns=False, show_name=False, workspace_name="reconpoint-ephemeral-ip-discovery-c1"
+            chunks[0],
+            use_dns=False,
+            show_name=False,
+            workspace_name="reconpoint-ephemeral-ip-discovery-c1",
         )
 
     results: list[SecatorIp] = []
-    with ThreadPoolExecutor(max_workers=min(MAX_DISCOVERY_WORKERS, len(chunks))) as executor:
+    with ThreadPoolExecutor(
+        max_workers=min(MAX_DISCOVERY_WORKERS, len(chunks))
+    ) as executor:
         futures = {
             executor.submit(
                 run_fping_sync,
@@ -317,8 +337,10 @@ def run_cidr_discovery(
         {
             "percentage": 5,
             "message": "Starting host discovery",
-            "details": "Running ICMP probe (Secator fping; PTR enrichment follows) across %s chunk(s)" % (len(chunks),),
-            "log_message": "Launched fping against %s using %s chunk(s)" % (original, len(chunks)),
+            "details": "Running ICMP probe (Secator fping; PTR enrichment follows) across %s chunk(s)"
+            % (len(chunks),),
+            "log_message": "Launched fping against %s using %s chunk(s)"
+            % (original, len(chunks)),
             "log_type": "info",
         }
     )
@@ -328,8 +350,12 @@ def run_cidr_discovery(
         # often yields no Ip for CIDR + -g. PTR phase below still resolves names.
         fping_results = _run_fping_chunks(chunks)
     except Exception as exc:
-        logger.log_line(PREFIX, "FPING", "fping task failed: %s" % (exc,), level="error")
-        raise RuntimeError("Host discovery failed. Ensure fping is installed and reachable.") from exc
+        logger.log_line(
+            PREFIX, "FPING", "fping task failed: %s" % (exc,), level="error"
+        )
+        raise RuntimeError(
+            "Host discovery failed. Ensure fping is installed and reachable."
+        ) from exc
 
     by_ip: dict[str, dict[str, Any]] = {}
     for item in fping_results:
@@ -344,9 +370,16 @@ def run_cidr_discovery(
             if (not prev["is_alive"]) and item.alive:
                 prev["is_alive"] = True
             if prev["domain"] == ip_s and domain != ip_s:
-                by_ip[ip_s] = _row(ip_s, domain, is_alive=bool(prev["is_alive"]), resolved_by=resolved_by)
+                by_ip[ip_s] = _row(
+                    ip_s,
+                    domain,
+                    is_alive=bool(prev["is_alive"]),
+                    resolved_by=resolved_by,
+                )
             continue
-        by_ip[ip_s] = _row(ip_s, domain, is_alive=bool(item.alive), resolved_by=resolved_by)
+        by_ip[ip_s] = _row(
+            ip_s, domain, is_alive=bool(item.alive), resolved_by=resolved_by
+        )
 
     if is_single_host:
         sole = str(net.network_address)
@@ -365,8 +398,13 @@ def run_cidr_discovery(
 
     unresolved_ips = [ip_s for ip_s, row in by_ip.items() if row["domain"] == ip_s]
     if unresolved_ips:
-        with ThreadPoolExecutor(max_workers=min(MAX_DISCOVERY_WORKERS, len(unresolved_ips))) as executor:
-            futures = {executor.submit(ptr_lookup, ip_s, resolver_chain): ip_s for ip_s in unresolved_ips}
+        with ThreadPoolExecutor(
+            max_workers=min(MAX_DISCOVERY_WORKERS, len(unresolved_ips))
+        ) as executor:
+            futures = {
+                executor.submit(ptr_lookup, ip_s, resolver_chain): ip_s
+                for ip_s in unresolved_ips
+            }
             for future in as_completed(futures):
                 ip_s = futures[future]
                 hostname, via = future.result()
@@ -428,7 +466,9 @@ def normalize_ip_list_for_ping(ip_list: list[Any]) -> list[str]:
         seen.add(s)
         cleaned.append(s)
         if len(cleaned) > MAX_PING_TARGETS:
-            raise ValueError("Too many addresses for ping (max %s)" % (MAX_PING_TARGETS,))
+            raise ValueError(
+                "Too many addresses for ping (max %s)" % (MAX_PING_TARGETS,)
+            )
     return cleaned
 
 

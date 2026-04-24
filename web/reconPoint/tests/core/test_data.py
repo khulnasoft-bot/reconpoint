@@ -54,7 +54,14 @@ class TestDataUtils(TestCase):
             ],
             "plain": "no\x00null",
         }
-        expected = {"key": ["value", {"innerkey": "innervalue"}, ["list", {"deepkey": "deepvalue"}]], "plain": "nonull"}
+        expected = {
+            "key": [
+                "value",
+                {"innerkey": "innervalue"},
+                ["list", {"deepkey": "deepvalue"}],
+            ],
+            "plain": "nonull",
+        }
         result = replace_nulls(nested)
         self.assertEqual(result, expected)
 
@@ -70,7 +77,12 @@ class TestDataUtils(TestCase):
 
     def test_replace_nulls_multiple_collisions(self):
         """Test that replace_nulls reports all colliding keys."""
-        collision_dict = {"key\x00": "value1", "key": "value2", "another\x00key": "value3", "anotherkey": "value4"}
+        collision_dict = {
+            "key\x00": "value1",
+            "key": "value2",
+            "another\x00key": "value3",
+            "anotherkey": "value4",
+        }
 
         with self.assertRaises(ValueError) as context:
             replace_nulls(collision_dict)
@@ -176,7 +188,11 @@ class TestDataUtils(TestCase):
                 {"name\x00": "feature2", "enabled": False},  # No collision
                 {"description": "feature3", "enabled": True},
             ],
-            "metadata": {"version": "1.0.0", "author\x00": "team", "tags": ["production", "stable"]},
+            "metadata": {
+                "version": "1.0.0",
+                "author\x00": "team",
+                "tags": ["production", "stable"],
+            },
         }
 
         result = replace_nulls(complex_nested)
@@ -252,7 +268,9 @@ class TestDataUtils(TestCase):
 
     def test_get_request_worker_id_from_data(self):
         """Test get_request_worker_id from request.data."""
-        request = type("R", (), {"data": {"worker_id": 42}, "query_params": {}, "headers": {}})()
+        request = type(
+            "R", (), {"data": {"worker_id": 42}, "query_params": {}, "headers": {}}
+        )()
         self.assertEqual(get_request_worker_id(request), 42)
 
     def test_get_request_worker_id_from_query_params(self):
@@ -280,14 +298,18 @@ class TestDataUtils(TestCase):
 
     def test_get_request_worker_id_positive_only(self):
         """Test get_request_worker_id returns None for zero or negative."""
-        request = type("R", (), {"data": {"worker_id": 0}, "query_params": {}, "headers": {}})()
+        request = type(
+            "R", (), {"data": {"worker_id": 0}, "query_params": {}, "headers": {}}
+        )()
         self.assertIsNone(get_request_worker_id(request))
         request.data["worker_id"] = -1
         self.assertIsNone(get_request_worker_id(request))
 
     def test_get_request_worker_id_invalid_returns_none(self):
         """Test get_request_worker_id returns None for invalid values."""
-        request = type("R", (), {"data": {"worker_id": "x"}, "query_params": {}, "headers": {}})()
+        request = type(
+            "R", (), {"data": {"worker_id": "x"}, "query_params": {}, "headers": {}}
+        )()
         self.assertIsNone(get_request_worker_id(request))
 
     def test_get_request_worker_id_no_source_returns_none(self):

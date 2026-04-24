@@ -77,12 +77,16 @@ class TestListTargetsInOrganization(BaseTestCase):
     def test_list_targets_in_organization(self):
         """Test listing targets for a specific organization."""
         url = reverse("api:queryTargetsInOrganization")
-        response = self.client.get(url, {"organization_id": self.data_generator.organization.id})
+        response = self.client.get(
+            url, {"organization_id": self.data_generator.organization.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("organization", response.data)
         self.assertIn("domains", response.data)
         self.assertGreaterEqual(len(response.data["domains"]), 1)
-        self.assertEqual(response.data["domains"][0]["name"], self.data_generator.domain.name)
+        self.assertEqual(
+            response.data["domains"][0]["name"], self.data_generator.domain.name
+        )
 
 
 class TestListTargetsWithoutOrganization(BaseTestCase):
@@ -105,4 +109,6 @@ class TestListTargetsWithoutOrganization(BaseTestCase):
         self.assertIn("domains", response.data)
         self.assertGreaterEqual(len(response.data["domains"]), 1)
         # Use the domain name that was actually created
-        self.assertEqual(response.data["domains"][0]["name"], self.data_generator.domain.name)
+        self.assertEqual(
+            response.data["domains"][0]["name"], self.data_generator.domain.name
+        )

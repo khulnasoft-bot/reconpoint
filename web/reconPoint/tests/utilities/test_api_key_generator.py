@@ -6,7 +6,11 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from dashboard.models import UserAPIKey
-from reconPoint.utilities.api_key_generator import generate_secator_api_key, get_secator_user, has_secator_api_key
+from reconPoint.utilities.api_key_generator import (
+    generate_secator_api_key,
+    get_secator_user,
+    has_secator_api_key,
+)
 
 
 User = get_user_model()

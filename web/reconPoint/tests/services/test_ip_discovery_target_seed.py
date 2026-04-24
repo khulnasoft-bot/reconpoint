@@ -10,7 +10,9 @@ from utils.test_base import BaseTestCase
 
 class IpDiscoveryTargetSeedHelpersTest(BaseTestCase):
     def test_normalize_apex_for_target_strips_and_lowers(self) -> None:
-        self.assertEqual(normalize_apex_for_target("  WWW.EXAMPLE.TEST. "), "example.test")
+        self.assertEqual(
+            normalize_apex_for_target("  WWW.EXAMPLE.TEST. "), "example.test"
+        )
 
     def test_normalize_apex_for_target_rejects_garbage(self) -> None:
         self.assertIsNone(normalize_apex_for_target("not a domain !!!"))

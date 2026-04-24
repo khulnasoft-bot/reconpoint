@@ -34,7 +34,9 @@ class TestCommandRepository(BaseTestCase):
             "cwd": "/home/reconpoint",
         }
 
-        result = self.command_repo.save_from_secator(runner_data, self.scan_history.id, self.scan_activity.id)
+        result = self.command_repo.save_from_secator(
+            runner_data, self.scan_history.id, self.scan_activity.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.name, "nuclei")
@@ -134,7 +136,9 @@ class TestCommandRepository(BaseTestCase):
             "output": "Output",
         }
 
-        result = self.command_repo.save_from_secator(runner_data, self.scan_history.id, 99999)
+        result = self.command_repo.save_from_secator(
+            runner_data, self.scan_history.id, 99999
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.scan_history.id, self.scan_history.id)
@@ -222,14 +226,18 @@ class TestCommandRepository(BaseTestCase):
             "start_time": "2026-01-03T19:36:51.506013",
         }
 
-        result1 = self.command_repo.save_from_secator(runner_data, self.scan_history.id, self.scan_activity.id)
+        result1 = self.command_repo.save_from_secator(
+            runner_data, self.scan_history.id, self.scan_activity.id
+        )
         self.assertIsNotNone(result1)
 
         runner_data["output"] = "Updated output"
         runner_data["return_code"] = 1
         runner_data["end_time"] = "2026-01-03T19:36:55.616693"
 
-        result2 = self.command_repo.save_from_secator(runner_data, self.scan_history.id, self.scan_activity.id)
+        result2 = self.command_repo.save_from_secator(
+            runner_data, self.scan_history.id, self.scan_activity.id
+        )
 
         self.assertIsNotNone(result2)
         self.assertEqual(result1.id, result2.id)
@@ -272,8 +280,12 @@ class TestCommandRepository(BaseTestCase):
             "output": "Output 2",
         }
 
-        self.command_repo.save_from_secator(runner_data1, self.scan_history.id, self.scan_activity.id)
-        self.command_repo.save_from_secator(runner_data2, self.scan_history.id, self.scan_activity.id)
+        self.command_repo.save_from_secator(
+            runner_data1, self.scan_history.id, self.scan_activity.id
+        )
+        self.command_repo.save_from_secator(
+            runner_data2, self.scan_history.id, self.scan_activity.id
+        )
 
         commands = self.command_repo.get_commands_for_activity(self.scan_activity.id)
 

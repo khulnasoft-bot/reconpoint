@@ -34,7 +34,9 @@ def technology_linked_via_non_legacy_endpoints_q(subdomain_id_subquery: Subquery
 
 def subdomain_technology_icontains_q(search_value: str) -> Q:
     """Match technology name (icontains) via subdomain M2M or Secator endpoint techs."""
-    endpoint_branch = subdomain_scan_non_legacy_q() & Q(endpoint__techs__name__icontains=search_value)
+    endpoint_branch = subdomain_scan_non_legacy_q() & Q(
+        endpoint__techs__name__icontains=search_value
+    )
     return Q(technologies__name__icontains=search_value) | endpoint_branch
 
 
@@ -63,7 +65,9 @@ def technology_scope_q_for_subdomains(subdomain_filter) -> Q:
     Includes legacy/fallback Subdomain<->Technology M2M and non-legacy endpoint tech links.
     """
     subdomain_id_subquery = Subquery(subdomain_filter.values("id"))
-    return Q(technologies__in=subdomain_filter) | technology_linked_via_non_legacy_endpoints_q(subdomain_id_subquery)
+    return Q(
+        technologies__in=subdomain_filter
+    ) | technology_linked_via_non_legacy_endpoints_q(subdomain_id_subquery)
 
 
 def _subdomain_carries_outer_technology_q(outer_technology_pk: OuterRef) -> Q:

@@ -63,13 +63,17 @@ class TestBaseLogger(BaseTestCase):
 
     def test_format_info_message(self):
         """Test formatting info message."""
-        result = self.logger._format_info_message(self.logger.PREFIX, "CREATE", "Test message")
+        result = self.logger._format_info_message(
+            self.logger.PREFIX, "CREATE", "Test message"
+        )
         self.assertIn("CREATE", result)
         self.assertIn("Test message", result)
 
     def test_format_debug_message(self):
         """Test formatting debug message."""
-        result = self.logger._format_debug_message(self.logger.PREFIX, "DEBUG", "Test debug message")
+        result = self.logger._format_debug_message(
+            self.logger.PREFIX, "DEBUG", "Test debug message"
+        )
         self.assertIn("DEBUG", result)
         self.assertIn("Test debug message", result)
 
@@ -83,7 +87,9 @@ class TestBaseLogger(BaseTestCase):
 
     def test_log_warning(self):
         """Test logging warning (formatted line may not include literal WARNING)."""
-        self.logger.log_warning("Test warning", {"prefix": self.logger.PREFIX, "action": "CREATE"})
+        self.logger.log_warning(
+            "Test warning", {"prefix": self.logger.PREFIX, "action": "CREATE"}
+        )
         self.assertGreaterEqual(len(self.log_capture), 1)
         self.assertIn("Test warning", str(self.log_capture))
 

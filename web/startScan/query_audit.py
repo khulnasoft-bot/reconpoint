@@ -75,7 +75,9 @@ def build_audit_samples() -> Dict[str, Any]:
     return samples
 
 
-def get_audit_queries(samples: Dict[str, Any], app_filter: Optional[str] = None) -> List[Tuple[str, str, List[Any]]]:
+def get_audit_queries(
+    samples: Dict[str, Any], app_filter: Optional[str] = None
+) -> List[Tuple[str, str, List[Any]]]:
     """
     Return list of (name, sql, params) for all critical EXPLAIN patterns.
     If app_filter is set, only return queries for that app.
@@ -201,19 +203,31 @@ def get_audit_queries(samples: Dict[str, Any], app_filter: Optional[str] = None)
                     f"SELECT id FROM {q(t_scan)} WHERE domain_id = %s AND scan_status = %s",
                     [domain_id, -1],
                 ),
-                ("ScanHistory id by domain", f"SELECT id FROM {q(t_scan)} WHERE domain_id = %s LIMIT 1", [domain_id]),
+                (
+                    "ScanHistory id by domain",
+                    f"SELECT id FROM {q(t_scan)} WHERE domain_id = %s LIMIT 1",
+                    [domain_id],
+                ),
             ]
         )
     if for_app("dashboard"):
         queries.extend(
             [
-                ("Project by slug", f"SELECT id FROM {q(t_project)} WHERE slug = %s", [project_slug]),
+                (
+                    "Project by slug",
+                    f"SELECT id FROM {q(t_project)} WHERE slug = %s",
+                    [project_slug],
+                ),
                 (
                     "Project exclude id filter slug (exists)",
                     f"SELECT 1 FROM {q(t_project)} WHERE slug = %s AND id != %s LIMIT 1",
                     [project_slug, project_id],
                 ),
-                ("Project order by name", f"SELECT id FROM {q(t_project)} ORDER BY name LIMIT 50", []),
+                (
+                    "Project order by name",
+                    f"SELECT id FROM {q(t_project)} ORDER BY name LIMIT 50",
+                    [],
+                ),
                 (
                     "UserAPIKey by user_id",
                     f"SELECT id FROM {q(UserAPIKey._meta.db_table)} WHERE user_id = %s LIMIT 50",
@@ -234,7 +248,11 @@ def get_audit_queries(samples: Dict[str, Any], app_filter: Optional[str] = None)
     if for_app("recon_note"):
         queries.extend(
             [
-                ("TodoNote project_id", f"SELECT id FROM {q(t_todonote)} WHERE project_id = %s LIMIT 50", [project_id]),
+                (
+                    "TodoNote project_id",
+                    f"SELECT id FROM {q(t_todonote)} WHERE project_id = %s LIMIT 50",
+                    [project_id],
+                ),
                 (
                     "TodoNote scan_history_id",
                     f"SELECT id FROM {q(t_todonote)} WHERE scan_history_id = %s LIMIT 50",
@@ -410,7 +428,9 @@ def build_loadtest_samples(app_labels: List[str]) -> Dict[Tuple[str, str], Any]:
     return samples
 
 
-def get_loadtest_custom_queries(samples: Dict[Tuple[str, str], Any]) -> List[Tuple[str, str, List[Any]]]:
+def get_loadtest_custom_queries(
+    samples: Dict[Tuple[str, str], Any],
+) -> List[Tuple[str, str, List[Any]]]:
     """Secator sync and other critical indexed queries. Returns list of (name, sql, params)."""
     from startScan.models import (
         Command as CommandModel,

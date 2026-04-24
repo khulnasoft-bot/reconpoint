@@ -30,15 +30,31 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="secatorworker",
             name="pull_token",
-            field=models.CharField(blank=True, default="", editable=False, max_length=64),
+            field=models.CharField(
+                blank=True, default="", editable=False, max_length=64
+            ),
             preserve_default=False,
         ),
         migrations.RunPython(populate_pull_tokens, migrations.RunPython.noop),
         migrations.CreateModel(
             name="SecatorWorkerQueuedCommand",
             fields=[
-                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ("kind", models.CharField(choices=[("run_job", "Run job"), ("revoke", "Revoke")], max_length=16)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "kind",
+                    models.CharField(
+                        choices=[("run_job", "Run job"), ("revoke", "Revoke")],
+                        max_length=16,
+                    ),
+                ),
                 ("payload", models.JSONField(default=dict)),
                 (
                     "status",
@@ -73,6 +89,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="secatorworkerqueuedcommand",
-            index=models.Index(fields=["worker", "status", "created_at"], name="scan_swq_worker_stat_cr"),
+            index=models.Index(
+                fields=["worker", "status", "created_at"],
+                name="scan_swq_worker_stat_cr",
+            ),
         ),
     ]

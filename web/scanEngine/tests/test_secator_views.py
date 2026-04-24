@@ -90,7 +90,9 @@ input_types:
         response = self.client.get(reverse("workflows_table_partial"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Workflow")
-        response_filter = self.client.get(reverse("workflows_table_partial") + "?filter=builtin&search=Test")
+        response_filter = self.client.get(
+            reverse("workflows_table_partial") + "?filter=builtin&search=Test"
+        )
         self.assertEqual(response_filter.status_code, 200)
         self.assertContains(response_filter, "Test Workflow")
 
@@ -222,11 +224,15 @@ input_types:
 
     def test_duplicate_workflow_creates_custom_copy(self):
         """Duplicating a workflow creates a custom workflow copy."""
-        response = self.client.get(reverse("duplicate_workflow", args=[self.workflow.id]))
+        response = self.client.get(
+            reverse("duplicate_workflow", args=[self.workflow.id])
+        )
         self.assertEqual(response.status_code, 302)
         duplicated = SecatorWorkflow.objects.get(name="Test Workflow copy")
         self.assertEqual(duplicated.workflow_type, "custom")
-        self.assertEqual(duplicated.yaml_configuration, self.workflow.yaml_configuration)
+        self.assertEqual(
+            duplicated.yaml_configuration, self.workflow.yaml_configuration
+        )
 
     def test_duplicate_task_creates_custom_copy(self):
         """Duplicating a task creates a custom task copy."""
@@ -459,7 +465,9 @@ class TestSecatorProfileViews(BaseTestCase):
 
     def test_secator_profile_detail_view(self):
         """Test the secator profile detail view."""
-        response = self.client.get(reverse("profile_detail", args=[self.custom_profile.id]))
+        response = self.client.get(
+            reverse("profile_detail", args=[self.custom_profile.id])
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "test_custom")
 
@@ -481,11 +489,17 @@ class TestSecatorProfileViews(BaseTestCase):
         }
         response = self.client.post(reverse("add_profile"), data=form_data)
         self.assertEqual(response.status_code, 302)  # Redirect after success
-        self.assertTrue(SecatorProfile.objects.filter(name="new_profile", profile_type="custom").exists())
+        self.assertTrue(
+            SecatorProfile.objects.filter(
+                name="new_profile", profile_type="custom"
+            ).exists()
+        )
 
     def test_update_profile_view_get(self):
         """Test the update profile view GET request."""
-        response = self.client.get(reverse("update_profile", args=[self.custom_profile.id]))
+        response = self.client.get(
+            reverse("update_profile", args=[self.custom_profile.id])
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Update Profile")
 
@@ -496,17 +510,23 @@ class TestSecatorProfileViews(BaseTestCase):
             "category": "evasion",
             "description": "Updated description",
             "enforce": True,
-            "opts": yaml.dump({"tcp_syn_stealth": True, "nmap_light_tcp_syn_stealth": True}),
+            "opts": yaml.dump(
+                {"tcp_syn_stealth": True, "nmap_light_tcp_syn_stealth": True}
+            ),
             "is_active": True,
         }
-        response = self.client.post(reverse("update_profile", args=[self.custom_profile.id]), data=form_data)
+        response = self.client.post(
+            reverse("update_profile", args=[self.custom_profile.id]), data=form_data
+        )
         self.assertEqual(response.status_code, 302)  # Redirect after success
         self.custom_profile.refresh_from_db()
         self.assertEqual(self.custom_profile.description, "Updated description")
 
     def test_cannot_update_builtin_profile(self):
         """Test that built-in profiles cannot be updated."""
-        response = self.client.get(reverse("update_profile", args=[self.builtin_profile.id]))
+        response = self.client.get(
+            reverse("update_profile", args=[self.builtin_profile.id])
+        )
         self.assertEqual(response.status_code, 302)  # Redirect with error message
 
     def test_delete_profile_view(self):
@@ -518,7 +538,9 @@ class TestSecatorProfileViews(BaseTestCase):
 
     def test_cannot_delete_builtin_profile(self):
         """Test that built-in profiles cannot be deleted."""
-        response = self.client.post(reverse("delete_profile", args=[self.builtin_profile.id]))
+        response = self.client.post(
+            reverse("delete_profile", args=[self.builtin_profile.id])
+        )
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertFalse(response_data.get("status"))
@@ -526,7 +548,9 @@ class TestSecatorProfileViews(BaseTestCase):
 
     def test_duplicate_profile_creates_custom_non_default_copy(self):
         """Duplicating a profile creates a custom non-default profile copy."""
-        response = self.client.get(reverse("duplicate_profile", args=[self.builtin_profile.id]))
+        response = self.client.get(
+            reverse("duplicate_profile", args=[self.builtin_profile.id])
+        )
         self.assertEqual(response.status_code, 302)
         duplicated = SecatorProfile.objects.get(name="test_builtin copy")
         self.assertEqual(duplicated.profile_type, "custom")
@@ -535,8 +559,12 @@ class TestSecatorProfileViews(BaseTestCase):
 
     def test_duplicate_profile_with_project_slug_in_request_does_not_error(self):
         """Duplicating a profile works when a project slug is injected by request context."""
-        with patch("scanEngine.views._project_slug_from_request", return_value="demo-project"):
-            response = self.client.get(reverse("duplicate_profile", args=[self.builtin_profile.id]))
+        with patch(
+            "scanEngine.views._project_slug_from_request", return_value="demo-project"
+        ):
+            response = self.client.get(
+                reverse("duplicate_profile", args=[self.builtin_profile.id])
+            )
         self.assertEqual(response.status_code, 302)
 
     def test_secator_profile_form_validation(self):

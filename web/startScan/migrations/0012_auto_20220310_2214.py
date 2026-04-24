@@ -18,18 +18,31 @@ class Migration(migrations.Migration):
                 ("http_status", models.IntegerField(default=0)),
                 ("words", models.IntegerField(default=0)),
                 ("url", models.CharField(blank=True, max_length=2000, null=True)),
-                ("content_type", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "content_type",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
             ],
         ),
         migrations.CreateModel(
             name="DirectoryScan",
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
-                ("command_line", models.CharField(blank=True, max_length=1000, null=True)),
-                ("dir_subscan_ids", models.ManyToManyField(related_name="dir_subscan_ids", to="startScan.SubScan")),
+                (
+                    "command_line",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
+                (
+                    "dir_subscan_ids",
+                    models.ManyToManyField(
+                        related_name="dir_subscan_ids", to="startScan.SubScan"
+                    ),
+                ),
                 (
                     "directory_files",
-                    models.ManyToManyField(related_name="directory_files", to="startScan.DirectoryFile"),
+                    models.ManyToManyField(
+                        related_name="directory_files", to="startScan.DirectoryFile"
+                    ),
                 ),
             ],
         ),
@@ -39,6 +52,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="subdomain",
             name="directories",
-            field=models.ManyToManyField(blank=True, related_name="directories", to="startScan.DirectoryFile"),
+            field=models.ManyToManyField(
+                blank=True, related_name="directories", to="startScan.DirectoryFile"
+            ),
         ),
     ]

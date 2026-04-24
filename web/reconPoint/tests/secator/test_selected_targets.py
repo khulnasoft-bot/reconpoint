@@ -106,7 +106,9 @@ class TestParseSelectedTargetsPerTask(BaseTestCase):
 
     def test_json_string_dict_returns_normalized(self):
         """parse_selected_targets_per_task with valid JSON object returns normalized dict."""
-        result = parse_selected_targets_per_task(json.dumps({"nmap": ["host1"], "httpx": ["host2"]}))
+        result = parse_selected_targets_per_task(
+            json.dumps({"nmap": ["host1"], "httpx": ["host2"]})
+        )
         self.assertEqual(result, {"nmap": ["host1"], "httpx": ["host2"]})
 
     def test_invalid_json_raises_value_error(self):
@@ -148,7 +150,9 @@ class TestResolveSelectedTargets(BaseTestCase):
         )
         self.assertTrue(result["use_per_task"])
         self.assertIsNone(result.get("targets_override"))
-        self.assertEqual(result["selected_targets_per_task"], {"nmap": ["h1"], "httpx": ["h2"]})
+        self.assertEqual(
+            result["selected_targets_per_task"], {"nmap": ["h1"], "httpx": ["h2"]}
+        )
 
     def test_tasks_with_per_task_empty_uses_single_mode(self):
         """When execution_mode is tasks but selected_targets_per_task is empty, use single."""
@@ -260,7 +264,9 @@ class TestFilterTargetsByTargetValue(BaseTestCase):
             "septodont.de",
             ["septodont.de", "www.septodont.de", "api.septodont.de", "other.com"],
         )
-        self.assertEqual(result, ["septodont.de", "www.septodont.de", "api.septodont.de"])
+        self.assertEqual(
+            result, ["septodont.de", "www.septodont.de", "api.septodont.de"]
+        )
 
     def test_url_with_path_and_port_extracts_host(self):
         """URL with path and port: host is extracted and matched."""
@@ -293,7 +299,9 @@ class TestFilterTargetsByTargetValue(BaseTestCase):
 
     def test_filter_targets_override_for_target_wrapper(self):
         """filter_targets_override_for_target is a wrapper of filter_targets_by_target_value."""
-        result = filter_targets_override_for_target("apex.com", ["apex.com", "www.apex.com", "other.com"])
+        result = filter_targets_override_for_target(
+            "apex.com", ["apex.com", "www.apex.com", "other.com"]
+        )
         self.assertEqual(result, ["apex.com", "www.apex.com"])
 
     def test_cidr_exact_match_kept(self):
@@ -320,8 +328,12 @@ class TestFilterSelectedTargetsPerTaskForTarget(BaseTestCase):
 
     def test_none_or_empty_returns_none(self):
         """filter_selected_targets_per_task_for_target with None or empty dict returns None."""
-        self.assertIsNone(filter_selected_targets_per_task_for_target("example.com", None))
-        self.assertIsNone(filter_selected_targets_per_task_for_target("example.com", {}))
+        self.assertIsNone(
+            filter_selected_targets_per_task_for_target("example.com", None)
+        )
+        self.assertIsNone(
+            filter_selected_targets_per_task_for_target("example.com", {})
+        )
 
     def test_task_with_filtered_targets_kept(self):
         """Task whose list has at least one matching target is kept with filtered list."""
@@ -329,7 +341,9 @@ class TestFilterSelectedTargetsPerTaskForTarget(BaseTestCase):
             "apex.com",
             {"nmap": ["apex.com", "www.apex.com", "other.com"], "httpx": ["apex.com"]},
         )
-        self.assertEqual(result, {"nmap": ["apex.com", "www.apex.com"], "httpx": ["apex.com"]})
+        self.assertEqual(
+            result, {"nmap": ["apex.com", "www.apex.com"], "httpx": ["apex.com"]}
+        )
 
     def test_task_with_all_filtered_out_excluded(self):
         """Task that ends up with no targets after filtering is excluded from result."""

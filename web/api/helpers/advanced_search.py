@@ -129,7 +129,9 @@ def tokenize_advanced_search(raw: str) -> tuple[Optional[list[Any]], Optional[st
     return tokens, None
 
 
-def _parse_primary(tokens: list[Any], pos: int) -> tuple[Optional[AstNode], int, Optional[str]]:
+def _parse_primary(
+    tokens: list[Any], pos: int
+) -> tuple[Optional[AstNode], int, Optional[str]]:
     if pos >= len(tokens):
         return None, pos, "unexpected_end"
     t = tokens[pos]
@@ -145,7 +147,9 @@ def _parse_primary(tokens: list[Any], pos: int) -> tuple[Optional[AstNode], int,
     return None, pos, "expected_atom_or_lparen"
 
 
-def _parse_and(tokens: list[Any], pos: int) -> tuple[Optional[AstNode], int, Optional[str]]:
+def _parse_and(
+    tokens: list[Any], pos: int
+) -> tuple[Optional[AstNode], int, Optional[str]]:
     left, pos, err = _parse_primary(tokens, pos)
     if err:
         return None, pos, err
@@ -161,7 +165,9 @@ def _parse_and(tokens: list[Any], pos: int) -> tuple[Optional[AstNode], int, Opt
     return ("and", children), pos, None
 
 
-def _parse_or(tokens: list[Any], pos: int) -> tuple[Optional[AstNode], int, Optional[str]]:
+def _parse_or(
+    tokens: list[Any], pos: int
+) -> tuple[Optional[AstNode], int, Optional[str]]:
     left, pos, err = _parse_and(tokens, pos)
     if err:
         return None, pos, err
@@ -233,7 +239,9 @@ def _parse_advanced_search_value_literal(
     return MALFORMED_QUOTED_VALUE
 
 
-def parse_advanced_search_term(term: str) -> tuple[Optional[tuple[str, str, str]], Optional[str]]:
+def parse_advanced_search_term(
+    term: str,
+) -> tuple[Optional[tuple[str, str, str]], Optional[str]]:
     """
     Parse field op value. != maps to operator '!'.
 
@@ -301,10 +309,18 @@ def validate_advanced_search_expression(expression: str) -> dict[str, Any]:
     """Validate syntax; does not check field names against a catalog."""
     raw = (expression or "").strip()
     if not raw:
-        return {"valid": True, "error": None, "parse_error": None, "error_detail": None, "warnings": []}
+        return {
+            "valid": True,
+            "error": None,
+            "parse_error": None,
+            "error_detail": None,
+            "warnings": [],
+        }
     ast, err = parse_advanced_search_ast(raw)
     if err:
-        detail = ADVANCED_SEARCH_PARSE_ERROR_DESCRIPTIONS.get(err, err.replace("_", " "))
+        detail = ADVANCED_SEARCH_PARSE_ERROR_DESCRIPTIONS.get(
+            err, err.replace("_", " ")
+        )
         return {
             "valid": False,
             "error": err,
@@ -343,7 +359,13 @@ def validate_advanced_search_expression(expression: str) -> dict[str, Any]:
             "error_detail": detail,
             "warnings": [],
         }
-    return {"valid": True, "error": None, "parse_error": None, "error_detail": None, "warnings": warnings}
+    return {
+        "valid": True,
+        "error": None,
+        "parse_error": None,
+        "error_detail": None,
+        "warnings": warnings,
+    }
 
 
 # Single source: (field_name, ui_kind, aggregate_kind, db_path). Field names must be lowercase
@@ -400,7 +422,8 @@ ADVANCED_SEARCH_FIELD_CATALOG: dict[str, list[dict[str, str]]] = {
 }
 
 ADVANCED_SEARCH_FIELD_VALUE_SPECS: dict[str, dict[str, tuple[str, Optional[str]]]] = {
-    ctx: {name: (agg, db) for name, _, agg, db in rows} for ctx, rows in _ADVANCED_SEARCH_FIELD_DEFS.items()
+    ctx: {name: (agg, db) for name, _, agg, db in rows}
+    for ctx, rows in _ADVANCED_SEARCH_FIELD_DEFS.items()
 }
 
 ALLOWED_CONTEXTS = frozenset(_ADVANCED_SEARCH_FIELD_DEFS.keys())

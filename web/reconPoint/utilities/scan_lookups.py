@@ -32,7 +32,9 @@ PREFIX_SCAN_LOOKUPS = "[SCAN_LOOKUPS]"
 logger = get_module_logger(__name__)
 
 
-def get_ip_linked_to_scan_ids(address: str, scan_ids: Iterable[int]) -> Optional[IpAddress]:
+def get_ip_linked_to_scan_ids(
+    address: str, scan_ids: Iterable[int]
+) -> Optional[IpAddress]:
     """Return IpAddress with given address linked to any of the scans (M2M or IP-backed endpoints)."""
     normalized = normalize_ip_address_text((address or "").strip())
     if not normalized:
@@ -40,7 +42,9 @@ def get_ip_linked_to_scan_ids(address: str, scan_ids: Iterable[int]) -> Optional
     sid = [int(x) for x in dict.fromkeys(scan_ids) if x]
     if not sid:
         return None
-    q = Q(ip_addresses__scan_history_id__in=sid) | Q(ip_endpoints__scan_history_id__in=sid)
+    q = Q(ip_addresses__scan_history_id__in=sid) | Q(
+        ip_endpoints__scan_history_id__in=sid
+    )
     return IpAddress.objects.filter(address=normalized).filter(q).order_by("id").first()
 
 
@@ -88,7 +92,11 @@ def get_or_create_endpoint_in_scan_for_ingestion(
         return None
     if endpoint := get_endpoint_in_scan(normalized_url, scan_history_id):
         return endpoint
-    scan_target_id = ScanHistory.objects.filter(id=scan_history_id).values_list("target_id", flat=True).first()
+    scan_target_id = (
+        ScanHistory.objects.filter(id=scan_history_id)
+        .values_list("target_id", flat=True)
+        .first()
+    )
     resolved_target_id = scan_target_id or target_id
     if target_id and scan_target_id and target_id != scan_target_id:
         logger.log_line(
@@ -108,11 +116,19 @@ def get_or_create_endpoint_in_scan_for_ingestion(
     domain = None
     hostname = (urlparse(normalized_url).hostname or "").strip().lower()
     if hostname:
-        if subdomain := Subdomain.objects.filter(name=hostname, scan_history_id=scan_history_id).order_by("id").first():
+        if (
+            subdomain := Subdomain.objects.filter(
+                name=hostname, scan_history_id=scan_history_id
+            )
+            .order_by("id")
+            .first()
+        ):
             domain = subdomain.domain
         if not domain:
             host_parts = hostname.split(".")
-            candidate_domain_names = [".".join(host_parts[i:]) for i in range(len(host_parts) - 1)]
+            candidate_domain_names = [
+                ".".join(host_parts[i:]) for i in range(len(host_parts) - 1)
+            ]
             matched_domains = Domain.objects.filter(
                 scan_history_id=scan_history_id,
                 name__in=candidate_domain_names,
@@ -129,10 +145,23 @@ def get_or_create_endpoint_in_scan_for_ingestion(
                 level="warning",
             )
     else:
-        domain = Domain.objects.filter(scan_history_id=scan_history_id).order_by("id").first()
+        domain = (
+            Domain.objects.filter(scan_history_id=scan_history_id)
+            .order_by("id")
+            .first()
+        )
     if not domain:
-        target_value = Target.objects.filter(id=resolved_target_id).values_list("value", flat=True).first() or ""
-        domain = get_or_create_domain_for_target(scan_history_id, target_value) if target_value else None
+        target_value = (
+            Target.objects.filter(id=resolved_target_id)
+            .values_list("value", flat=True)
+            .first()
+            or ""
+        )
+        domain = (
+            get_or_create_domain_for_target(scan_history_id, target_value)
+            if target_value
+            else None
+        )
     if not domain:
         logger.log_line(
             PREFIX_SCAN_LOOKUPS,
@@ -149,11 +178,15 @@ def get_or_create_endpoint_in_scan_for_ingestion(
     # Local import avoids repository import cycles at module load time.
     from reconPoint.services.repositories.endpoint_repository import EndpointRepository
 
-    endpoint, _ = EndpointRepository().get_or_create(normalized_url, scan_history_id, domain.id)
+    endpoint, _ = EndpointRepository().get_or_create(
+        normalized_url, scan_history_id, domain.id
+    )
     return endpoint
 
 
-def get_subdomain_in_scan_by_name(name: str, scan_history_id: int) -> Optional[Subdomain]:
+def get_subdomain_in_scan_by_name(
+    name: str, scan_history_id: int
+) -> Optional[Subdomain]:
     """Return Subdomain with given name (normalized) in the scan, or None."""
     if normalized := (name or "").strip().lower():
         return Subdomain.objects.filter(
@@ -203,4 +236,8 @@ def port_exists_in_scan(port_id: Optional[int], scan_history_id: int) -> bool:
     """Return True if port_id belongs to an IpAddress linked to the scan."""
     if port_id is None:
         return False
-    return Port.objects.filter(id=port_id).filter(_ports_linked_to_scan_ids_q([scan_history_id])).exists()
+    return (
+        Port.objects.filter(id=port_id)
+        .filter(_ports_linked_to_scan_ids_q([scan_history_id]))
+        .exists()
+    )

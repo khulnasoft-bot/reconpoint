@@ -17,7 +17,13 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.CharField(editable=False, max_length=150, primary_key=True, serialize=False, unique=True),
+                    models.CharField(
+                        editable=False,
+                        max_length=150,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                    ),
                 ),
                 ("prefix", models.CharField(editable=False, max_length=8, unique=True)),
                 ("hashed_key", models.CharField(editable=False, max_length=150)),
@@ -39,7 +45,12 @@ class Migration(migrations.Migration):
                         verbose_name="Expires",
                     ),
                 ),
-                ("name", models.CharField(help_text="Name to identify this API key", max_length=100)),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Name to identify this API key", max_length=100
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("last_used", models.DateTimeField(blank=True, null=True)),
                 ("is_active", models.BooleanField(default=True)),

@@ -109,7 +109,9 @@ class TestGenerateSecatorApiKeyManagementCommand(TestCase):
         call_command("generate_secator_api_key", stdout=out1)
 
         out2 = StringIO()
-        call_command("generate_secator_api_key", "--recreate", "--show-key", stdout=out2)
+        call_command(
+            "generate_secator_api_key", "--recreate", "--show-key", stdout=out2
+        )
 
         output = out2.getvalue()
         self.assertIn("API Key (save this securely)", output)
@@ -159,10 +161,18 @@ class TestGenerateSecatorApiKeyManagementCommand(TestCase):
             stderr=err,
         )
         key_output = out.getvalue().strip()
-        self.assertRegex(key_output, r"^[A-Za-z0-9._-]{32,}$", "raw-key output should be a single token")
-        self.assertEqual(len(key_output.splitlines()), 1, "raw-key should output a single line")
+        self.assertRegex(
+            key_output,
+            r"^[A-Za-z0-9._-]{32,}$",
+            "raw-key output should be a single token",
+        )
+        self.assertEqual(
+            len(key_output.splitlines()), 1, "raw-key should output a single line"
+        )
 
-    def test_generate_secator_api_key_command_raw_key_already_exists_exits_nonzero(self):
+    def test_generate_secator_api_key_command_raw_key_already_exists_exits_nonzero(
+        self,
+    ):
         """Test that --raw-key without --recreate when key exists exits with error."""
         call_command("generate_secator_api_key", stdout=StringIO())
         with self.assertRaises(SystemExit) as ctx:

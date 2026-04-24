@@ -12,9 +12,20 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AssociatedDomain",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(blank=True, max_length=250, null=True)),
-                ("creation_date", models.CharField(blank=True, max_length=20, null=True)),
+                (
+                    "creation_date",
+                    models.CharField(blank=True, max_length=20, null=True),
+                ),
                 ("registrar", models.CharField(blank=True, max_length=40, null=True)),
             ],
         ),

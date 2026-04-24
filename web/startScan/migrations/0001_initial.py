@@ -18,7 +18,10 @@ class Migration(migrations.Migration):
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 ("type", models.CharField(blank=True, max_length=500, null=True)),
-                ("description", models.CharField(blank=True, max_length=1500, null=True)),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=1500, null=True),
+                ),
                 ("url", models.CharField(blank=True, max_length=1500, null=True)),
             ],
         ),
@@ -35,7 +38,10 @@ class Migration(migrations.Migration):
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 ("name", models.CharField(blank=True, max_length=1000, null=True)),
-                ("designation", models.CharField(blank=True, max_length=1000, null=True)),
+                (
+                    "designation",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
             ],
         ),
         migrations.CreateModel(
@@ -43,15 +49,30 @@ class Migration(migrations.Migration):
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 ("http_url", models.CharField(max_length=5000)),
-                ("content_length", models.IntegerField(blank=True, default=0, null=True)),
-                ("page_title", models.CharField(blank=True, max_length=1000, null=True)),
+                (
+                    "content_length",
+                    models.IntegerField(blank=True, default=0, null=True),
+                ),
+                (
+                    "page_title",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
                 ("http_status", models.IntegerField(blank=True, default=0, null=True)),
-                ("content_type", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "content_type",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 ("discovered_date", models.DateTimeField(blank=True, null=True)),
                 ("response_time", models.FloatField(blank=True, null=True)),
                 ("webserver", models.CharField(blank=True, max_length=1000, null=True)),
-                ("is_default", models.BooleanField(blank=True, default=False, null=True)),
-                ("matched_gf_patterns", models.CharField(blank=True, max_length=2000, null=True)),
+                (
+                    "is_default",
+                    models.BooleanField(blank=True, default=False, null=True),
+                ),
+                (
+                    "matched_gf_patterns",
+                    models.CharField(blank=True, max_length=2000, null=True),
+                ),
             ],
         ),
         migrations.CreateModel(
@@ -67,8 +88,14 @@ class Migration(migrations.Migration):
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 ("number", models.IntegerField(default=0)),
-                ("service_name", models.CharField(blank=True, max_length=100, null=True)),
-                ("description", models.CharField(blank=True, max_length=1000, null=True)),
+                (
+                    "service_name",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
                 ("is_uncommon", models.BooleanField(default=False)),
             ],
         ),
@@ -88,14 +115,41 @@ class Migration(migrations.Migration):
                 ("osint", models.BooleanField(default=False, null=True)),
                 ("screenshot", models.BooleanField(default=True, null=True)),
                 ("stop_scan_date", models.DateTimeField(blank=True, null=True)),
-                ("used_gf_patterns", models.CharField(blank=True, max_length=500, null=True)),
-                ("domain", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="targetApp.domain")),
-                ("dorks", models.ManyToManyField(blank=True, related_name="dorks", to="startScan.Dork")),
-                ("emails", models.ManyToManyField(blank=True, related_name="emails", to="startScan.Email")),
-                ("employees", models.ManyToManyField(blank=True, related_name="employees", to="startScan.Employee")),
+                (
+                    "used_gf_patterns",
+                    models.CharField(blank=True, max_length=500, null=True),
+                ),
+                (
+                    "domain",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="targetApp.domain",
+                    ),
+                ),
+                (
+                    "dorks",
+                    models.ManyToManyField(
+                        blank=True, related_name="dorks", to="startScan.Dork"
+                    ),
+                ),
+                (
+                    "emails",
+                    models.ManyToManyField(
+                        blank=True, related_name="emails", to="startScan.Email"
+                    ),
+                ),
+                (
+                    "employees",
+                    models.ManyToManyField(
+                        blank=True, related_name="employees", to="startScan.Employee"
+                    ),
+                ),
                 (
                     "scan_type",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="scanEngine.enginetype"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="scanEngine.enginetype",
+                    ),
                 ),
             ],
         ),
@@ -105,32 +159,60 @@ class Migration(migrations.Migration):
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 ("name", models.CharField(max_length=1000)),
                 ("is_imported_subdomain", models.BooleanField(default=False)),
-                ("is_important", models.BooleanField(blank=True, default=False, null=True)),
+                (
+                    "is_important",
+                    models.BooleanField(blank=True, default=False, null=True),
+                ),
                 ("http_url", models.CharField(blank=True, max_length=1000, null=True)),
-                ("screenshot_path", models.CharField(blank=True, max_length=1000, null=True)),
-                ("http_header_path", models.CharField(blank=True, max_length=1000, null=True)),
+                (
+                    "screenshot_path",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
+                (
+                    "http_header_path",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
                 ("directory_json", models.JSONField(blank=True, null=True)),
                 ("discovered_date", models.DateTimeField(blank=True, null=True)),
                 ("cname", models.CharField(blank=True, max_length=1500, null=True)),
                 ("is_cdn", models.BooleanField(blank=True, default=False, null=True)),
                 ("http_status", models.IntegerField(default=0)),
-                ("content_type", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "content_type",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 ("response_time", models.FloatField(blank=True, null=True)),
                 ("webserver", models.CharField(blank=True, max_length=1000, null=True)),
-                ("content_length", models.IntegerField(blank=True, default=0, null=True)),
-                ("page_title", models.CharField(blank=True, max_length=1000, null=True)),
+                (
+                    "content_length",
+                    models.IntegerField(blank=True, default=0, null=True),
+                ),
+                (
+                    "page_title",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
                 (
                     "ip_addresses",
-                    models.ManyToManyField(blank=True, related_name="ip_addresses", to="startScan.IpAddress"),
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="ip_addresses",
+                        to="startScan.IpAddress",
+                    ),
                 ),
                 (
                     "scan_history",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.scanhistory",
+                    ),
                 ),
                 (
                     "target_domain",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="targetApp.domain"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="targetApp.domain",
                     ),
                 ),
             ],
@@ -149,35 +231,62 @@ class Migration(migrations.Migration):
                 ("template_used", models.CharField(max_length=100)),
                 ("name", models.CharField(max_length=400)),
                 ("severity", models.IntegerField()),
-                ("description", models.CharField(blank=True, max_length=10000, null=True)),
-                ("extracted_results", models.CharField(blank=True, max_length=3000, null=True)),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=10000, null=True),
+                ),
+                (
+                    "extracted_results",
+                    models.CharField(blank=True, max_length=3000, null=True),
+                ),
                 ("reference", models.CharField(blank=True, max_length=3000, null=True)),
                 ("tags", models.CharField(blank=True, max_length=1000, null=True)),
                 ("http_url", models.CharField(max_length=8000, null=True)),
-                ("matcher_name", models.CharField(blank=True, max_length=400, null=True)),
+                (
+                    "matcher_name",
+                    models.CharField(blank=True, max_length=400, null=True),
+                ),
                 ("discovered_date", models.DateTimeField(null=True)),
-                ("open_status", models.BooleanField(blank=True, default=True, null=True)),
-                ("hackerone_report_id", models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "open_status",
+                    models.BooleanField(blank=True, default=True, null=True),
+                ),
+                (
+                    "hackerone_report_id",
+                    models.CharField(blank=True, max_length=50, null=True),
+                ),
                 (
                     "endpoint",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.endpoint"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.endpoint",
                     ),
                 ),
                 (
                     "scan_history",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.scanhistory",
+                    ),
                 ),
                 (
                     "subdomain",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.subdomain"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.subdomain",
                     ),
                 ),
                 (
                     "target_domain",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="targetApp.domain"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="targetApp.domain",
                     ),
                 ),
             ],
@@ -197,15 +306,26 @@ class Migration(migrations.Migration):
                 ("stop_scan_date", models.DateTimeField(blank=True, null=True)),
                 (
                     "scan_history",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.scanhistory",
+                    ),
                 ),
-                ("subdomain", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.subdomain")),
+                (
+                    "subdomain",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.subdomain",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
             model_name="subdomain",
             name="technologies",
-            field=models.ManyToManyField(blank=True, related_name="technologies", to="startScan.Technology"),
+            field=models.ManyToManyField(
+                blank=True, related_name="technologies", to="startScan.Technology"
+            ),
         ),
         migrations.CreateModel(
             name="ScanActivity",
@@ -214,7 +334,13 @@ class Migration(migrations.Migration):
                 ("title", models.CharField(max_length=1000)),
                 ("time", models.DateTimeField()),
                 ("status", models.IntegerField()),
-                ("scan_of", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory")),
+                (
+                    "scan_of",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.scanhistory",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
@@ -229,22 +355,37 @@ class Migration(migrations.Migration):
                 ("creator", models.CharField(blank=True, max_length=1000, null=True)),
                 ("os", models.CharField(blank=True, max_length=1000, null=True)),
                 ("http_status", models.IntegerField(blank=True, default=0, null=True)),
-                ("creation_date", models.CharField(blank=True, max_length=1000, null=True)),
-                ("modified_date", models.CharField(blank=True, max_length=1000, null=True)),
+                (
+                    "creation_date",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
+                (
+                    "modified_date",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
                 (
                     "scan_history",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.scanhistory",
+                    ),
                 ),
                 (
                     "subdomain",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.subdomain"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.subdomain",
                     ),
                 ),
                 (
                     "target_domain",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="targetApp.domain"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="targetApp.domain",
                     ),
                 ),
             ],
@@ -257,25 +398,35 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="endpoint",
             name="scan_history",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+            ),
         ),
         migrations.AddField(
             model_name="endpoint",
             name="subdomain",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.subdomain"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.subdomain",
             ),
         ),
         migrations.AddField(
             model_name="endpoint",
             name="target_domain",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="targetApp.domain"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="targetApp.domain",
             ),
         ),
         migrations.AddField(
             model_name="endpoint",
             name="technologies",
-            field=models.ManyToManyField(related_name="technology", to="startScan.Technology"),
+            field=models.ManyToManyField(
+                related_name="technology", to="startScan.Technology"
+            ),
         ),
     ]

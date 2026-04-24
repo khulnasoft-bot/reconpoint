@@ -25,7 +25,10 @@ class Migration(migrations.Migration):
             model_name="employee",
             name="endpoint",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.endpoint"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.endpoint",
             ),
         ),
         migrations.AddField(
@@ -37,7 +40,10 @@ class Migration(migrations.Migration):
             model_name="employee",
             name="scan_history",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.scanhistory",
             ),
         ),
         migrations.AddField(
@@ -49,14 +55,20 @@ class Migration(migrations.Migration):
             model_name="employee",
             name="subdomain",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.subdomain"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.subdomain",
             ),
         ),
         migrations.AddField(
             model_name="employee",
             name="target_domain",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="targetApp.domain"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="targetApp.domain",
             ),
         ),
         migrations.AddField(
@@ -76,43 +88,73 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=1000)),
                 ("exploit_id", models.CharField(blank=True, max_length=200, null=True)),
                 ("provider", models.CharField(blank=True, max_length=200, null=True)),
-                ("matched_at", models.CharField(blank=True, max_length=10000, null=True)),
-                ("reference", models.CharField(blank=True, max_length=10000, null=True)),
+                (
+                    "matched_at",
+                    models.CharField(blank=True, max_length=10000, null=True),
+                ),
+                (
+                    "reference",
+                    models.CharField(blank=True, max_length=10000, null=True),
+                ),
                 ("discovered_date", models.DateTimeField(blank=True, null=True)),
                 ("extra_data", models.JSONField(blank=True, null=True)),
-                ("cve_ids", models.ManyToManyField(blank=True, related_name="exploit_cves", to="startScan.cveid")),
+                (
+                    "cve_ids",
+                    models.ManyToManyField(
+                        blank=True, related_name="exploit_cves", to="startScan.cveid"
+                    ),
+                ),
                 (
                     "endpoint",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.endpoint"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.endpoint",
                     ),
                 ),
                 (
                     "ip_address",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.ipaddress"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.ipaddress",
                     ),
                 ),
                 (
                     "scan_history",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.scanhistory",
                     ),
                 ),
                 (
                     "subdomain",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.subdomain"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.subdomain",
                     ),
                 ),
                 (
                     "tags",
-                    models.ManyToManyField(blank=True, related_name="exploit_tags", to="startScan.vulnerabilitytags"),
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="exploit_tags",
+                        to="startScan.vulnerabilitytags",
+                    ),
                 ),
                 (
                     "target_domain",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="targetApp.domain"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="targetApp.domain",
                     ),
                 ),
             ],

@@ -12,11 +12,15 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="endpoint",
             name="endpoint_subscan_ids",
-            field=models.ManyToManyField(blank=True, related_name="endpoint_subscan_ids", to="startScan.SubScan"),
+            field=models.ManyToManyField(
+                blank=True, related_name="endpoint_subscan_ids", to="startScan.SubScan"
+            ),
         ),
         migrations.AlterField(
             model_name="vulnerability",
             name="vuln_subscan_ids",
-            field=models.ManyToManyField(blank=True, related_name="vuln_subscan_ids", to="startScan.SubScan"),
+            field=models.ManyToManyField(
+                blank=True, related_name="vuln_subscan_ids", to="startScan.SubScan"
+            ),
         ),
     ]

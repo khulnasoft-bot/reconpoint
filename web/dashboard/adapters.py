@@ -40,7 +40,9 @@ class OAuthAccountAdapter(DefaultSocialAccountAdapter):
 
         return user
 
-    def _get_oauth_error_message(self, error=None, default_message="OAuth authentication failed."):
+    def _get_oauth_error_message(
+        self, error=None, default_message="OAuth authentication failed."
+    ):
         """
         Generate an OAuth error message suitable for user display.
 
@@ -49,7 +51,9 @@ class OAuthAccountAdapter(DefaultSocialAccountAdapter):
         """
         return default_message
 
-    def on_authentication_error(self, request, provider_id, error=None, exception=None, extra_context=None):
+    def on_authentication_error(
+        self, request, provider_id, error=None, exception=None, extra_context=None
+    ):
         """
         Handle OAuth authentication errors by redirecting to login page with an error message.
         """
@@ -67,13 +71,16 @@ class OAuthAccountAdapter(DefaultSocialAccountAdapter):
         # Return None to let allauth handle the redirect, which will go to login
         return None
 
-    def authentication_error(self, request, provider_id, error=None, exception=None, extra_context=None):
+    def authentication_error(
+        self, request, provider_id, error=None, exception=None, extra_context=None
+    ):
         """
         Called when OAuth authentication fails.
         Redirect to login page with an error message.
         """
         error_message = self._get_oauth_error_message(
-            error, "OAuth authentication failed. Please try again or use another login method."
+            error,
+            "OAuth authentication failed. Please try again or use another login method.",
         )
         messages.error(request, error_message)
 
@@ -101,7 +108,9 @@ class AccountAdapter(DefaultAccountAdapter):
             # If they have project access, go to their project dashboard.
             # Order explicitly so the selected project is deterministic
             # (most recently created project).
-            if user_project := (Project.objects.filter(users=user).order_by("-insert_date").first()):
+            if user_project := (
+                Project.objects.filter(users=user).order_by("-insert_date").first()
+            ):
                 return reverse("dashboardIndex", kwargs={"slug": user_project.slug})
 
             # First-ever login: show welcome page once

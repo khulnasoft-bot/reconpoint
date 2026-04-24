@@ -106,14 +106,22 @@ def initiate_secator_scan(
             task_types = list(tasks_qs.values_list("task_type", flat=True))
             input_types_set = set()
             for task_type in task_types:
-                input_types_set.update(InputTypeService.get_input_types_for_task(task_type))
+                input_types_set.update(
+                    InputTypeService.get_input_types_for_task(task_type)
+                )
             input_types = list(input_types_set)
 
         if not input_types:
-            raise ValueError("Could not resolve input_types for the selected workflow/scan/task")
+            raise ValueError(
+                "Could not resolve input_types for the selected workflow/scan/task"
+            )
 
         if targets_override is not None:
-            raw_targets = [str(t).strip() for t in targets_override if t is not None and str(t).strip()]
+            raw_targets = [
+                str(t).strip()
+                for t in targets_override
+                if t is not None and str(t).strip()
+            ]
         else:
             raw_targets = build_enriched_targets(
                 input_types=input_types,
@@ -153,12 +161,15 @@ def initiate_secator_scan(
         if not validated_targets:
             raise ValueError(
                 "No valid targets for input_types %s. "
-                "Ensure discovery data (endpoints, subdomains, IPs) exists for this target." % (input_types,)
+                "Ensure discovery data (endpoints, subdomains, IPs) exists for this target."
+                % (input_types,)
             )
         targets = validated_targets
 
         target_value_sanitized = sanitize_path_component(target.value)
-        target_results_dir = os.path.abspath(os.path.join(SECATOR_RESULTS, target_value_sanitized))
+        target_results_dir = os.path.abspath(
+            os.path.join(SECATOR_RESULTS, target_value_sanitized)
+        )
         if not is_safe_path(SECATOR_RESULTS, target_results_dir):
             raise ValueError(
                 "Target results path would escape SECATOR_RESULTS base; target.value may be invalid: %s"
@@ -168,14 +179,19 @@ def initiate_secator_scan(
         logger.log_line(
             PREFIX_SECATOR_TASKS,
             "TARGETS",
-            "Built targets list: %s targets (input_types=%s)" % (len(targets), input_types),
+            "Built targets list: %s targets (input_types=%s)"
+            % (len(targets), input_types),
             level="info",
         )
 
         config = {}
         if secator_config:
             for _key in SCAN_PARAM_KEYS:
-                if _key in secator_config and secator_config[_key] is not None and secator_config[_key] != "":
+                if (
+                    _key in secator_config
+                    and secator_config[_key] is not None
+                    and secator_config[_key] != ""
+                ):
                     config[_key] = secator_config[_key]
             extra = secator_config.get("extra_config")
             if isinstance(extra, dict) and extra:
@@ -189,7 +205,8 @@ def initiate_secator_scan(
                 logger.log_line(
                     PREFIX_SECATOR_TASKS,
                     "CONFIG",
-                    "Using %s profile(s): %s" % (len(profiles), ", ".join(profiles) if profiles else "none"),
+                    "Using %s profile(s): %s"
+                    % (len(profiles), ", ".join(profiles) if profiles else "none"),
                     level="info",
                 )
 
@@ -310,7 +327,10 @@ def initiate_secator_scan(
             level="error",
             exc_info=True,
         )
-        return {"status": "error", "error": "Failed to start scan due to a server error."}
+        return {
+            "status": "error",
+            "error": "Failed to start scan due to a server error.",
+        }
 
 
 def build_enriched_targets(
@@ -350,9 +370,15 @@ def build_enriched_targets(
     targets = builder.build_flat_targets(input_types)
 
     if out_of_scope_subdomains:
-        out_of_scope_clean = {s.strip().lower() for s in out_of_scope_subdomains if s and s.strip()}
+        out_of_scope_clean = {
+            s.strip().lower() for s in out_of_scope_subdomains if s and s.strip()
+        }
         original_count = len(targets)
-        targets = [t for t in targets if get_subdomain_from_url(t).lower() not in out_of_scope_clean]
+        targets = [
+            t
+            for t in targets
+            if get_subdomain_from_url(t).lower() not in out_of_scope_clean
+        ]
         if original_count > len(targets):
             logger.log_line(
                 PREFIX_SECATOR_TASKS,

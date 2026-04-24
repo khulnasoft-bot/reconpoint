@@ -12,6 +12,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="domaininfo",
             name="extra_data",
-            field=models.JSONField(blank=True, help_text="Additional data from Secator Record output type", null=True),
+            field=models.JSONField(
+                blank=True,
+                help_text="Additional data from Secator Record output type",
+                null=True,
+            ),
         ),
     ]

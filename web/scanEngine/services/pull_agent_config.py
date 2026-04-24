@@ -67,7 +67,11 @@ def pull_command_retention_seconds() -> int:
     - RECONPOINT_PULL_COMMAND_RETENTION_SECONDS (default: 604800 = 7 days)
     """
 
-    return _read_int_env(ENV_PULL_COMMAND_RETENTION_SECONDS, default=DEFAULT_PULL_COMMAND_RETENTION_SECONDS, minimum=60)
+    return _read_int_env(
+        ENV_PULL_COMMAND_RETENTION_SECONDS,
+        default=DEFAULT_PULL_COMMAND_RETENTION_SECONDS,
+        minimum=60,
+    )
 
 
 def pull_revoke_wait_seconds() -> int:
@@ -78,7 +82,11 @@ def pull_revoke_wait_seconds() -> int:
     - RECONPOINT_PULL_REVOKE_WAIT_SECONDS (default: 90)
     """
 
-    return _read_int_env(ENV_PULL_REVOKE_WAIT_SECONDS, default=DEFAULT_PULL_REVOKE_WAIT_SECONDS, minimum=10)
+    return _read_int_env(
+        ENV_PULL_REVOKE_WAIT_SECONDS,
+        default=DEFAULT_PULL_REVOKE_WAIT_SECONDS,
+        minimum=10,
+    )
 
 
 def pull_command_poll_interval_min_seconds() -> float:
@@ -110,7 +118,9 @@ def pull_command_poll_jitter_ratio() -> float:
 
 def pull_token_max_length() -> int:
     """Upper bound for the pull token length accepted from HTTP headers."""
-    return _read_int_env(ENV_PULL_TOKEN_MAX_LENGTH, default=DEFAULT_PULL_TOKEN_MAX_LENGTH, minimum=32)
+    return _read_int_env(
+        ENV_PULL_TOKEN_MAX_LENGTH, default=DEFAULT_PULL_TOKEN_MAX_LENGTH, minimum=32
+    )
 
 
 @dataclass(frozen=True)

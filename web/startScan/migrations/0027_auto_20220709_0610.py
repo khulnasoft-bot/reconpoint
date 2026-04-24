@@ -21,7 +21,10 @@ class Migration(migrations.Migration):
             model_name="ipaddress",
             name="geo_iso",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.countryiso"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.countryiso",
             ),
         ),
     ]

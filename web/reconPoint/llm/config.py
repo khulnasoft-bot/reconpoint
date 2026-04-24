@@ -272,7 +272,11 @@ MODEL_REQUIREMENTS = {
         "min_tokens": 128,
         "max_tokens": 8192,
         "supports_functions": True,
-        "best_for": ["Deep security analysis", "Complex reasoning", "Advanced security tasks"],
+        "best_for": [
+            "Deep security analysis",
+            "Complex reasoning",
+            "Advanced security tasks",
+        ],
         "provider": "openai",
     },
     "gpt-4-turbo": {
@@ -287,7 +291,11 @@ MODEL_REQUIREMENTS = {
         "min_tokens": 32,
         "max_tokens": 4096,
         "supports_functions": False,
-        "best_for": ["Local processing", "Privacy focused tasks", "Balanced performance"],
+        "best_for": [
+            "Local processing",
+            "Privacy focused tasks",
+            "Balanced performance",
+        ],
         "provider": "ollama",
     },
     "llama2-uncensored": {
@@ -308,7 +316,11 @@ MODEL_REQUIREMENTS = {
         "min_tokens": 64,
         "max_tokens": 8192,
         "supports_functions": False,
-        "best_for": ["Enhanced comprehension", "Security assessment", "Detailed analysis"],
+        "best_for": [
+            "Enhanced comprehension",
+            "Security assessment",
+            "Detailed analysis",
+        ],
         "provider": "ollama",
     },
     "llama3.2": {
@@ -323,7 +335,11 @@ MODEL_REQUIREMENTS = {
         "min_tokens": 32,
         "max_tokens": 8192,
         "supports_functions": False,
-        "best_for": ["Efficient processing", "Technical analysis", "Performance optimization"],
+        "best_for": [
+            "Efficient processing",
+            "Technical analysis",
+            "Performance optimization",
+        ],
         "provider": "ollama",
     },
     "mistral-medium": {
@@ -344,14 +360,22 @@ MODEL_REQUIREMENTS = {
         "min_tokens": 32,
         "max_tokens": 4096,
         "supports_functions": False,
-        "best_for": ["Code analysis", "Vulnerability assessment", "Technical documentation"],
+        "best_for": [
+            "Code analysis",
+            "Vulnerability assessment",
+            "Technical documentation",
+        ],
         "provider": "ollama",
     },
     "qwen2.5": {
         "min_tokens": 64,
         "max_tokens": 8192,
         "supports_functions": False,
-        "best_for": ["Multilingual analysis", "Efficient processing", "Technical understanding"],
+        "best_for": [
+            "Multilingual analysis",
+            "Efficient processing",
+            "Technical understanding",
+        ],
         "provider": "ollama",
     },
     "gemma": {
@@ -365,14 +389,22 @@ MODEL_REQUIREMENTS = {
         "min_tokens": 64,
         "max_tokens": 8192,
         "supports_functions": False,
-        "best_for": ["Creative analysis", "Unique perspectives", "Alternative approaches"],
+        "best_for": [
+            "Creative analysis",
+            "Unique perspectives",
+            "Alternative approaches",
+        ],
         "provider": "ollama",
     },
     "yi": {
         "min_tokens": 64,
         "max_tokens": 8192,
         "supports_functions": False,
-        "best_for": ["Comprehensive analysis", "Detailed explanations", "Technical depth"],
+        "best_for": [
+            "Comprehensive analysis",
+            "Detailed explanations",
+            "Technical depth",
+        ],
         "provider": "ollama",
     },
 }
@@ -404,7 +436,12 @@ RECOMMENDED_MODELS = {
         "name": "codellama",
         "description": "Specialized for code analysis, vulnerability assessment, and secure coding practices",
         "tags": ["7b", "13b", "34b", "70b"],
-        "size_options": {"7b": "~4GB RAM", "13b": "~8GB RAM", "34b": "~18GB RAM", "70b": "~35GB RAM"},
+        "size_options": {
+            "7b": "~4GB RAM",
+            "13b": "~8GB RAM",
+            "34b": "~18GB RAM",
+            "70b": "~35GB RAM",
+        },
     },
     "mistral": {
         "name": "mistral",

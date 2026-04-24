@@ -86,5 +86,7 @@ class TestCandidateShortName(BaseTestCase):
 
     def test_with_suffix_collision_avoidance_distinct_candidates(self):
         base = "z" * 48
-        candidates = [_candidate_short_name(base, i, max_total=50) for i in (1, 2, 10, 99)]
+        candidates = [
+            _candidate_short_name(base, i, max_total=50) for i in (1, 2, 10, 99)
+        ]
         self.assertEqual(len(candidates), len(set(candidates)))

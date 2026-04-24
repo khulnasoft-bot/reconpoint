@@ -12,11 +12,15 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="directoryscan",
             name="dir_subscan_ids",
-            field=models.ManyToManyField(blank=True, related_name="dir_subscan_ids", to="startScan.SubScan"),
+            field=models.ManyToManyField(
+                blank=True, related_name="dir_subscan_ids", to="startScan.SubScan"
+            ),
         ),
         migrations.AlterField(
             model_name="directoryscan",
             name="directory_files",
-            field=models.ManyToManyField(blank=True, related_name="directory_files", to="startScan.DirectoryFile"),
+            field=models.ManyToManyField(
+                blank=True, related_name="directory_files", to="startScan.DirectoryFile"
+            ),
         ),
     ]

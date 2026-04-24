@@ -55,7 +55,8 @@ def save_asn_from_secator_tag(
             logger.log_line(
                 "[TAG_ASN]",
                 "SAVE",
-                "ASN tag: no IpAddress found for scan %s and address %s" % (scan_history_id, match),
+                "ASN tag: no IpAddress found for scan %s and address %s"
+                % (scan_history_id, match),
                 level="warning",
             )
             return None
@@ -67,22 +68,30 @@ def save_asn_from_secator_tag(
 
     from reconPoint.services.repositories.domain_repository import DomainRepository
 
-    domain_info = DomainRepository().save_asn_from_secator_tag(scan_history_id, target_id, match, value)
+    domain_info = DomainRepository().save_asn_from_secator_tag(
+        scan_history_id, target_id, match, value
+    )
     return domain_info
 
 
-def handle_whois_tag(data: Dict[str, Any], scan_history_id: int, target_id: int) -> TagHandlerResult:
+def handle_whois_tag(
+    data: Dict[str, Any], scan_history_id: int, target_id: int
+) -> TagHandlerResult:
     from reconPoint.services.repositories.domain_repository import DomainRepository
 
     domain_name = (data.get("match") or "").strip()
     value = data.get("value") or ""
-    obj = DomainRepository().save_raw_whois_from_secator_tag(scan_history_id, target_id, domain_name, value)
+    obj = DomainRepository().save_raw_whois_from_secator_tag(
+        scan_history_id, target_id, domain_name, value
+    )
     if obj is not None:
         return (obj, None)
     return (None, 422)
 
 
-def handle_asn_tag(data: Dict[str, Any], scan_history_id: int, target_id: int) -> TagHandlerResult:
+def handle_asn_tag(
+    data: Dict[str, Any], scan_history_id: int, target_id: int
+) -> TagHandlerResult:
     obj = save_asn_from_secator_tag(data, scan_history_id, target_id)
     if obj is not None:
         return (obj, None)

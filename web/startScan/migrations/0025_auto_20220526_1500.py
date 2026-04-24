@@ -19,7 +19,10 @@ class Migration(migrations.Migration):
             model_name="vulnerability",
             name="extracted_results",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=5000), blank=True, null=True, size=None
+                base_field=models.CharField(max_length=5000),
+                blank=True,
+                null=True,
+                size=None,
             ),
         ),
         migrations.AlterField(

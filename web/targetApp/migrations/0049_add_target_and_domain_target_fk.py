@@ -43,15 +43,25 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("port", models.CharField(blank=True, max_length=20, null=True)),
-                ("custom_dns_servers", models.CharField(blank=True, max_length=500, null=True)),
+                (
+                    "custom_dns_servers",
+                    models.CharField(blank=True, max_length=500, null=True),
+                ),
                 ("description", models.TextField(blank=True, null=True)),
-                ("h1_team_handle", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "h1_team_handle",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 ("insert_date", models.DateTimeField(null=True)),
                 ("start_scan_date", models.DateTimeField(blank=True, null=True)),
                 ("request_headers", models.JSONField(blank=True, null=True)),
                 (
                     "project",
-                    models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to="dashboard.project"),
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="dashboard.project",
+                    ),
                 ),
             ],
             options={
@@ -72,12 +82,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="organization",
             name="targets",
-            field=models.ManyToManyField(blank=True, related_name="organizations", to="targetApp.target"),
+            field=models.ManyToManyField(
+                blank=True, related_name="organizations", to="targetApp.target"
+            ),
         ),
         migrations.AddConstraint(
             model_name="target",
             constraint=models.UniqueConstraint(
-                fields=("project_id", "value", "target_type"), name="targetApp_target_project_value_type_uniq"
+                fields=("project_id", "value", "target_type"),
+                name="targetApp_target_project_value_type_uniq",
             ),
         ),
     ]

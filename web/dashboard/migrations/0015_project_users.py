@@ -14,6 +14,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="project",
             name="users",
-            field=models.ManyToManyField(related_name="projects", to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(
+                related_name="projects", to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

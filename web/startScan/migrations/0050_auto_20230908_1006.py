@@ -16,7 +16,10 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(blank=True, max_length=500, null=True)),
                 ("region", models.CharField(blank=True, max_length=500, null=True)),
                 ("provider", models.CharField(blank=True, max_length=100, null=True)),
-                ("owner_display_name", models.CharField(blank=True, max_length=250, null=True)),
+                (
+                    "owner_display_name",
+                    models.CharField(blank=True, max_length=250, null=True),
+                ),
                 ("perm_auth_users_read", models.IntegerField()),
                 ("perm_auth_users_write", models.IntegerField()),
                 ("perm_auth_users_read_acl", models.IntegerField()),
@@ -31,6 +34,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="scanhistory",
             name="buckets",
-            field=models.ManyToManyField(blank=True, related_name="buckets", to="startScan.S3Bucket"),
+            field=models.ManyToManyField(
+                blank=True, related_name="buckets", to="startScan.S3Bucket"
+            ),
         ),
     ]

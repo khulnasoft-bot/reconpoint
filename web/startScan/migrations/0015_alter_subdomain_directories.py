@@ -12,6 +12,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="subdomain",
             name="directories",
-            field=models.ManyToManyField(blank=True, related_name="directories", to="startScan.DirectoryScan"),
+            field=models.ManyToManyField(
+                blank=True, related_name="directories", to="startScan.DirectoryScan"
+            ),
         ),
     ]

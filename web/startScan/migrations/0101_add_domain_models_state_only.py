@@ -45,13 +45,34 @@ class Migration(migrations.Migration):
                     name="Registrar",
                     fields=[
                         ("id", models.AutoField(primary_key=True, serialize=False)),
-                        ("name", models.CharField(blank=True, max_length=500, null=True)),
-                        ("phone", models.CharField(blank=True, max_length=150, null=True)),
-                        ("email", models.CharField(blank=True, max_length=350, null=True)),
-                        ("url", models.CharField(blank=True, max_length=1000, null=True)),
-                        ("address", models.CharField(blank=True, max_length=1000, null=True)),
-                        ("country", models.CharField(blank=True, max_length=100, null=True)),
-                        ("fax", models.CharField(blank=True, max_length=150, null=True)),
+                        (
+                            "name",
+                            models.CharField(blank=True, max_length=500, null=True),
+                        ),
+                        (
+                            "phone",
+                            models.CharField(blank=True, max_length=150, null=True),
+                        ),
+                        (
+                            "email",
+                            models.CharField(blank=True, max_length=350, null=True),
+                        ),
+                        (
+                            "url",
+                            models.CharField(blank=True, max_length=1000, null=True),
+                        ),
+                        (
+                            "address",
+                            models.CharField(blank=True, max_length=1000, null=True),
+                        ),
+                        (
+                            "country",
+                            models.CharField(blank=True, max_length=100, null=True),
+                        ),
+                        (
+                            "fax",
+                            models.CharField(blank=True, max_length=150, null=True),
+                        ),
                     ],
                     options={"db_table": "startScan_registrar", "managed": False},
                 ),
@@ -59,21 +80,63 @@ class Migration(migrations.Migration):
                     name="DomainRegistration",
                     fields=[
                         ("id", models.AutoField(primary_key=True, serialize=False)),
-                        ("name", models.CharField(blank=True, max_length=500, null=True)),
-                        ("organization", models.CharField(blank=True, max_length=500, null=True)),
-                        ("contact", models.CharField(blank=True, max_length=500, null=True)),
-                        ("type", models.CharField(blank=True, max_length=100, null=True)),
-                        ("address", models.CharField(blank=True, max_length=500, null=True)),
-                        ("city", models.CharField(blank=True, max_length=100, null=True)),
-                        ("state", models.CharField(blank=True, max_length=100, null=True)),
-                        ("zip_code", models.CharField(blank=True, max_length=100, null=True)),
-                        ("country", models.CharField(blank=True, max_length=100, null=True)),
-                        ("email", models.CharField(blank=True, max_length=500, null=True)),
-                        ("phone", models.CharField(blank=True, max_length=150, null=True)),
-                        ("fax", models.CharField(blank=True, max_length=150, null=True)),
-                        ("id_str", models.CharField(blank=True, max_length=500, null=True)),
+                        (
+                            "name",
+                            models.CharField(blank=True, max_length=500, null=True),
+                        ),
+                        (
+                            "organization",
+                            models.CharField(blank=True, max_length=500, null=True),
+                        ),
+                        (
+                            "contact",
+                            models.CharField(blank=True, max_length=500, null=True),
+                        ),
+                        (
+                            "type",
+                            models.CharField(blank=True, max_length=100, null=True),
+                        ),
+                        (
+                            "address",
+                            models.CharField(blank=True, max_length=500, null=True),
+                        ),
+                        (
+                            "city",
+                            models.CharField(blank=True, max_length=100, null=True),
+                        ),
+                        (
+                            "state",
+                            models.CharField(blank=True, max_length=100, null=True),
+                        ),
+                        (
+                            "zip_code",
+                            models.CharField(blank=True, max_length=100, null=True),
+                        ),
+                        (
+                            "country",
+                            models.CharField(blank=True, max_length=100, null=True),
+                        ),
+                        (
+                            "email",
+                            models.CharField(blank=True, max_length=500, null=True),
+                        ),
+                        (
+                            "phone",
+                            models.CharField(blank=True, max_length=150, null=True),
+                        ),
+                        (
+                            "fax",
+                            models.CharField(blank=True, max_length=150, null=True),
+                        ),
+                        (
+                            "id_str",
+                            models.CharField(blank=True, max_length=500, null=True),
+                        ),
                     ],
-                    options={"db_table": "startScan_domainregistration", "managed": False},
+                    options={
+                        "db_table": "startScan_domainregistration",
+                        "managed": False,
+                    },
                 ),
                 migrations.CreateModel(
                     name="WhoisStatus",
@@ -109,8 +172,14 @@ class Migration(migrations.Migration):
                         ("created", models.DateTimeField(blank=True, null=True)),
                         ("updated", models.DateTimeField(blank=True, null=True)),
                         ("expires", models.DateTimeField(blank=True, null=True)),
-                        ("geolocation_iso", models.CharField(blank=True, max_length=10, null=True)),
-                        ("whois_server", models.CharField(blank=True, max_length=150, null=True)),
+                        (
+                            "geolocation_iso",
+                            models.CharField(blank=True, max_length=10, null=True),
+                        ),
+                        (
+                            "whois_server",
+                            models.CharField(blank=True, max_length=150, null=True),
+                        ),
                         ("extra_data", models.JSONField(blank=True, null=True)),
                         (
                             "registrar",
@@ -160,14 +229,23 @@ class Migration(migrations.Migration):
                         ("id", models.BigAutoField(primary_key=True, serialize=False)),
                         (
                             "domaininfo",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.domaininfo"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.domaininfo",
+                            ),
                         ),
                         (
                             "whoisstatus",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.whoisstatus"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.whoisstatus",
+                            ),
                         ),
                     ],
-                    options={"db_table": "startScan_domaininfo_status", "managed": False},
+                    options={
+                        "db_table": "startScan_domaininfo_status",
+                        "managed": False,
+                    },
                 ),
                 migrations.CreateModel(
                     name="DomainInfoNameServersThrough",
@@ -175,14 +253,23 @@ class Migration(migrations.Migration):
                         ("id", models.BigAutoField(primary_key=True, serialize=False)),
                         (
                             "domaininfo",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.domaininfo"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.domaininfo",
+                            ),
                         ),
                         (
                             "nameserver",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.nameserver"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.nameserver",
+                            ),
                         ),
                     ],
-                    options={"db_table": "startScan_domaininfo_name_servers", "managed": False},
+                    options={
+                        "db_table": "startScan_domaininfo_name_servers",
+                        "managed": False,
+                    },
                 ),
                 migrations.CreateModel(
                     name="DomainInfoDnsRecordsThrough",
@@ -190,14 +277,23 @@ class Migration(migrations.Migration):
                         ("id", models.BigAutoField(primary_key=True, serialize=False)),
                         (
                             "domaininfo",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.domaininfo"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.domaininfo",
+                            ),
                         ),
                         (
                             "dnsrecord",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.dnsrecord"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.dnsrecord",
+                            ),
                         ),
                     ],
-                    options={"db_table": "startScan_domaininfo_dns_records", "managed": False},
+                    options={
+                        "db_table": "startScan_domaininfo_dns_records",
+                        "managed": False,
+                    },
                 ),
                 migrations.CreateModel(
                     name="DomainInfoRelatedDomainsThrough",
@@ -205,16 +301,23 @@ class Migration(migrations.Migration):
                         ("id", models.BigAutoField(primary_key=True, serialize=False)),
                         (
                             "domaininfo",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.domaininfo"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.domaininfo",
+                            ),
                         ),
                         (
                             "relateddomain",
                             models.ForeignKey(
-                                on_delete=django.db.models.deletion.CASCADE, to="startScan.relateddomain"
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.relateddomain",
                             ),
                         ),
                     ],
-                    options={"db_table": "startScan_domaininfo_related_domains", "managed": False},
+                    options={
+                        "db_table": "startScan_domaininfo_related_domains",
+                        "managed": False,
+                    },
                 ),
                 migrations.CreateModel(
                     name="DomainInfoRelatedTldsThrough",
@@ -222,16 +325,23 @@ class Migration(migrations.Migration):
                         ("id", models.BigAutoField(primary_key=True, serialize=False)),
                         (
                             "domaininfo",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.domaininfo"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.domaininfo",
+                            ),
                         ),
                         (
                             "relateddomain",
                             models.ForeignKey(
-                                on_delete=django.db.models.deletion.CASCADE, to="startScan.relateddomain"
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.relateddomain",
                             ),
                         ),
                     ],
-                    options={"db_table": "startScan_domaininfo_related_tlds", "managed": False},
+                    options={
+                        "db_table": "startScan_domaininfo_related_tlds",
+                        "managed": False,
+                    },
                 ),
                 migrations.CreateModel(
                     name="DomainInfoSimilarDomainsThrough",
@@ -239,16 +349,23 @@ class Migration(migrations.Migration):
                         ("id", models.BigAutoField(primary_key=True, serialize=False)),
                         (
                             "domaininfo",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.domaininfo"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.domaininfo",
+                            ),
                         ),
                         (
                             "relateddomain",
                             models.ForeignKey(
-                                on_delete=django.db.models.deletion.CASCADE, to="startScan.relateddomain"
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.relateddomain",
                             ),
                         ),
                     ],
-                    options={"db_table": "startScan_domaininfo_similar_domains", "managed": False},
+                    options={
+                        "db_table": "startScan_domaininfo_similar_domains",
+                        "managed": False,
+                    },
                 ),
                 migrations.CreateModel(
                     name="DomainInfoHistoricalIpsThrough",
@@ -256,27 +373,45 @@ class Migration(migrations.Migration):
                         ("id", models.BigAutoField(primary_key=True, serialize=False)),
                         (
                             "domaininfo",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.domaininfo"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.domaininfo",
+                            ),
                         ),
                         (
                             "historicalip",
-                            models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.historicalip"),
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="startScan.historicalip",
+                            ),
                         ),
                     ],
-                    options={"db_table": "startScan_domaininfo_historical_ips", "managed": False},
+                    options={
+                        "db_table": "startScan_domaininfo_historical_ips",
+                        "managed": False,
+                    },
                 ),
                 migrations.CreateModel(
                     name="Domain",
                     fields=[
                         ("id", models.AutoField(primary_key=True, serialize=False)),
                         ("name", models.CharField(max_length=300, unique=True)),
-                        ("h1_team_handle", models.CharField(blank=True, max_length=100, null=True)),
-                        ("ip_address_cidr", models.CharField(blank=True, max_length=100, null=True)),
+                        (
+                            "h1_team_handle",
+                            models.CharField(blank=True, max_length=100, null=True),
+                        ),
+                        (
+                            "ip_address_cidr",
+                            models.CharField(blank=True, max_length=100, null=True),
+                        ),
                         ("description", models.TextField(blank=True, null=True)),
                         ("insert_date", models.DateTimeField(null=True)),
                         ("start_scan_date", models.DateTimeField(null=True)),
                         ("request_headers", models.JSONField(blank=True, null=True)),
-                        ("custom_dns_servers", models.CharField(blank=True, max_length=500, null=True)),
+                        (
+                            "custom_dns_servers",
+                            models.CharField(blank=True, max_length=500, null=True),
+                        ),
                         (
                             "domain_info",
                             models.ForeignKey(
@@ -393,7 +528,10 @@ class Migration(migrations.Migration):
                 migrations.AlterField(
                     model_name="scanschedule",
                     name="domain",
-                    field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.domain"),
+                    field=models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.domain",
+                    ),
                 ),
             ],
             database_operations=[],

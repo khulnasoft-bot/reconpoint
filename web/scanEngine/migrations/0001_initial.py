@@ -54,21 +54,39 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=100)),
                 ("description", models.CharField(max_length=500)),
                 ("github_url", models.CharField(max_length=80)),
-                ("license_url", models.CharField(blank=True, max_length=100, null=True)),
-                ("version_lookup_command", models.CharField(blank=True, max_length=100, null=True)),
-                ("update_command", models.CharField(blank=True, max_length=200, null=True)),
+                (
+                    "license_url",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                (
+                    "version_lookup_command",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                (
+                    "update_command",
+                    models.CharField(blank=True, max_length=200, null=True),
+                ),
                 ("install_command", models.CharField(max_length=200)),
                 (
                     "version_match_regex",
                     models.CharField(
-                        blank=True, default="[vV]*(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)", max_length=100, null=True
+                        blank=True,
+                        default="[vV]*(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)",
+                        max_length=100,
+                        null=True,
                     ),
                 ),
                 ("is_default", models.BooleanField(default=False)),
                 ("is_subdomain_gathering", models.BooleanField(default=False)),
                 ("is_github_cloned", models.BooleanField(default=False)),
-                ("github_clone_path", models.CharField(blank=True, max_length=100, null=True)),
-                ("subdomain_gathering_command", models.CharField(blank=True, max_length=300, null=True)),
+                (
+                    "github_clone_path",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                (
+                    "subdomain_gathering_command",
+                    models.CharField(blank=True, max_length=300, null=True),
+                ),
             ],
         ),
         migrations.CreateModel(
@@ -89,10 +107,22 @@ class Migration(migrations.Migration):
                 ("send_to_slack", models.BooleanField(default=False)),
                 ("send_to_discord", models.BooleanField(default=False)),
                 ("send_to_telegram", models.BooleanField(default=False)),
-                ("slack_hook_url", models.CharField(blank=True, max_length=200, null=True)),
-                ("discord_hook_url", models.CharField(blank=True, max_length=200, null=True)),
-                ("telegram_bot_token", models.CharField(blank=True, max_length=100, null=True)),
-                ("telegram_bot_chat_id", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "slack_hook_url",
+                    models.CharField(blank=True, max_length=200, null=True),
+                ),
+                (
+                    "discord_hook_url",
+                    models.CharField(blank=True, max_length=200, null=True),
+                ),
+                (
+                    "telegram_bot_token",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                (
+                    "telegram_bot_chat_id",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 ("send_scan_status_notif", models.BooleanField(default=True)),
                 ("send_interesting_notif", models.BooleanField(default=True)),
                 ("send_vuln_notif", models.BooleanField(default=True)),
@@ -112,17 +142,45 @@ class Migration(migrations.Migration):
             name="VulnerabilityReportSetting",
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
-                ("primary_color", models.CharField(blank=True, default="#FFB74D", max_length=10, null=True)),
-                ("secondary_color", models.CharField(blank=True, default="#212121", max_length=10, null=True)),
-                ("company_name", models.CharField(blank=True, max_length=100, null=True)),
-                ("company_address", models.CharField(blank=True, max_length=200, null=True)),
-                ("company_email", models.CharField(blank=True, max_length=100, null=True)),
-                ("company_website", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "primary_color",
+                    models.CharField(
+                        blank=True, default="#FFB74D", max_length=10, null=True
+                    ),
+                ),
+                (
+                    "secondary_color",
+                    models.CharField(
+                        blank=True, default="#212121", max_length=10, null=True
+                    ),
+                ),
+                (
+                    "company_name",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                (
+                    "company_address",
+                    models.CharField(blank=True, max_length=200, null=True),
+                ),
+                (
+                    "company_email",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                (
+                    "company_website",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 ("show_reconpoint_banner", models.BooleanField(default=True)),
                 ("show_executive_summary", models.BooleanField(default=True)),
-                ("executive_summary_description", models.TextField(blank=True, null=True)),
+                (
+                    "executive_summary_description",
+                    models.TextField(blank=True, null=True),
+                ),
                 ("show_footer", models.BooleanField(default=False)),
-                ("footer_text", models.CharField(blank=True, max_length=200, null=True)),
+                (
+                    "footer_text",
+                    models.CharField(blank=True, max_length=200, null=True),
+                ),
             ],
         ),
         migrations.CreateModel(

@@ -14,7 +14,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="secatorrunner",
             name="celery_id",
-            field=models.CharField(blank=True, help_text="Celery task ID for this runner", max_length=100, null=True),
+            field=models.CharField(
+                blank=True,
+                help_text="Celery task ID for this runner",
+                max_length=100,
+                null=True,
+            ),
         ),
         # Step 2: Add runner_id to ScanActivity (nullable, no data migration needed)
         migrations.AddField(

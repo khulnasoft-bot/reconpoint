@@ -27,7 +27,9 @@ def resolve_actual_table_name(schema_editor, table_name):
         return result[0] if result else None
 
 
-def get_constraint_name(schema_editor, actual_table_name, column_name, actual_ref_table_name):
+def get_constraint_name(
+    schema_editor, actual_table_name, column_name, actual_ref_table_name
+):
     """Get the foreign key constraint name for a given table and column.
 
     Uses the actual table names from the database to find the constraint,
@@ -55,7 +57,13 @@ def get_constraint_name(schema_editor, actual_table_name, column_name, actual_re
 
 
 def fix_constraint(
-    apps, schema_editor, table_name, column_name, referenced_table, referenced_column="id", on_delete="SET NULL"
+    apps,
+    schema_editor,
+    table_name,
+    column_name,
+    referenced_table,
+    referenced_column="id",
+    on_delete="SET NULL",
 ):
     """Fix a foreign key constraint by changing its on_delete behavior."""
     # Resolve actual table names from PostgreSQL
@@ -68,18 +76,32 @@ def fix_constraint(
         return
 
     # Get the actual constraint name from the database using resolved table names
-    constraint_name = get_constraint_name(schema_editor, actual_table_name, column_name, actual_ref_table_name)
+    constraint_name = get_constraint_name(
+        schema_editor, actual_table_name, column_name, actual_ref_table_name
+    )
 
     if constraint_name:
         # Safely quote all identifiers
-        quoted_table_name = quote_ident(actual_table_name, schema_editor.connection.connection)
-        quoted_column_name = quote_ident(column_name, schema_editor.connection.connection)
-        quoted_ref_table_name = quote_ident(actual_ref_table_name, schema_editor.connection.connection)
-        quoted_ref_column = quote_ident(referenced_column, schema_editor.connection.connection)
-        quoted_constraint_name = quote_ident(constraint_name, schema_editor.connection.connection)
+        quoted_table_name = quote_ident(
+            actual_table_name, schema_editor.connection.connection
+        )
+        quoted_column_name = quote_ident(
+            column_name, schema_editor.connection.connection
+        )
+        quoted_ref_table_name = quote_ident(
+            actual_ref_table_name, schema_editor.connection.connection
+        )
+        quoted_ref_column = quote_ident(
+            referenced_column, schema_editor.connection.connection
+        )
+        quoted_constraint_name = quote_ident(
+            constraint_name, schema_editor.connection.connection
+        )
 
         # Drop existing constraint using actual table name
-        schema_editor.execute(f"ALTER TABLE {quoted_table_name} DROP CONSTRAINT {quoted_constraint_name};")
+        schema_editor.execute(
+            f"ALTER TABLE {quoted_table_name} DROP CONSTRAINT {quoted_constraint_name};"
+        )
         # Add new constraint with specified on_delete using actual table names
         schema_editor.execute(
             f"ALTER TABLE {quoted_table_name} ADD CONSTRAINT {quoted_constraint_name} "
@@ -95,8 +117,22 @@ def fix_todonote_constraints(apps, schema_editor):
     subdomain_table = get_table_name(apps, "startScan", "Subdomain")
 
     # TodoNote - CASCADE for strong relationships (if parent deleted, child should be deleted)
-    fix_constraint(apps, schema_editor, todonote_table, "scan_history_id", scanhistory_table, on_delete="CASCADE")
-    fix_constraint(apps, schema_editor, todonote_table, "subdomain_id", subdomain_table, on_delete="CASCADE")
+    fix_constraint(
+        apps,
+        schema_editor,
+        todonote_table,
+        "scan_history_id",
+        scanhistory_table,
+        on_delete="CASCADE",
+    )
+    fix_constraint(
+        apps,
+        schema_editor,
+        todonote_table,
+        "subdomain_id",
+        subdomain_table,
+        on_delete="CASCADE",
+    )
 
 
 def reverse_fix_todonote_constraints(apps, schema_editor):
@@ -107,8 +143,22 @@ def reverse_fix_todonote_constraints(apps, schema_editor):
     subdomain_table = get_table_name(apps, "startScan", "Subdomain")
 
     # TodoNote
-    fix_constraint(apps, schema_editor, todonote_table, "scan_history_id", scanhistory_table, on_delete="SET NULL")
-    fix_constraint(apps, schema_editor, todonote_table, "subdomain_id", subdomain_table, on_delete="SET NULL")
+    fix_constraint(
+        apps,
+        schema_editor,
+        todonote_table,
+        "scan_history_id",
+        scanhistory_table,
+        on_delete="SET NULL",
+    )
+    fix_constraint(
+        apps,
+        schema_editor,
+        todonote_table,
+        "subdomain_id",
+        subdomain_table,
+        on_delete="SET NULL",
+    )
 
 
 class Migration(migrations.Migration):

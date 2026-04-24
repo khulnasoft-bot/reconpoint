@@ -62,7 +62,12 @@ class TestTagDispatchHandlers(BaseTestCase):
 
     def test_is_tag_ignored_requires_matching_source(self):
         """Ignore rules with allowed_sources apply only when _source matches."""
-        base = {"category": "info", "name": "net_interface", "match": "eth0", "value": "eth0"}
+        base = {
+            "category": "info",
+            "name": "net_interface",
+            "match": "eth0",
+            "value": "eth0",
+        }
         self.assertFalse(is_tag_ignored({**base}))
         self.assertTrue(is_tag_ignored({**base, "_source": "netdetect"}))
         self.assertTrue(is_tag_ignored({**base, "_source": "NetDetect"}))
@@ -82,10 +87,18 @@ class TestNucleiTagClassification(BaseTestCase):
     """Unit tests for Nuclei tag classification helpers."""
 
     def test_is_nuclei_tag_true_when_source_nuclei(self):
-        self.assertTrue(nuclei_mod.is_nuclei_tag({"_source": "nuclei", "category": "info", "name": "x"}))
+        self.assertTrue(
+            nuclei_mod.is_nuclei_tag(
+                {"_source": "nuclei", "category": "info", "name": "x"}
+            )
+        )
 
     def test_is_nuclei_tag_false_other_source(self):
-        self.assertFalse(nuclei_mod.is_nuclei_tag({"_source": "wappalyzer", "category": "info", "name": "x"}))
+        self.assertFalse(
+            nuclei_mod.is_nuclei_tag(
+                {"_source": "wappalyzer", "category": "info", "name": "x"}
+            )
+        )
 
     def test_is_nuclei_technology_tag_allowlist_intersection(self):
         payload = {
@@ -118,7 +131,11 @@ class TestNucleiTagClassification(BaseTestCase):
             "_source": "nuclei",
             "name": "wappalyzer-nginx",
             "value": "",
-            "extra_data": {"tags": ["tech"], "template_id": "wappalyzer-nginx", "data": []},
+            "extra_data": {
+                "tags": ["tech"],
+                "template_id": "wappalyzer-nginx",
+                "data": [],
+            },
         }
         item = nuclei_mod.build_nuclei_technology_item(payload)
         self.assertEqual(item["name"], "wappalyzer-nginx")
@@ -135,7 +152,10 @@ class TestNucleiTagClassification(BaseTestCase):
             nuclei_mod.should_route_nuclei_tag_to_dns_record(
                 {
                     "_source": "nuclei",
-                    "extra_data": {"tags": ["dns", "discovery"], "template_id": "nameserver-fingerprint"},
+                    "extra_data": {
+                        "tags": ["dns", "discovery"],
+                        "template_id": "nameserver-fingerprint",
+                    },
                 },
             )
         )
@@ -155,7 +175,14 @@ class TestNucleiTagClassification(BaseTestCase):
         )
         self.assertEqual(
             nuclei_mod.infer_nuclei_dns_record_type(
-                {**base, "name": "x", "extra_data": {**base["extra_data"], "template_id": "caa-fingerprint"}}
+                {
+                    **base,
+                    "name": "x",
+                    "extra_data": {
+                        **base["extra_data"],
+                        "template_id": "caa-fingerprint",
+                    },
+                }
             ),
             "CAA",
         )
@@ -209,7 +236,12 @@ class TestDispatchSecatorTag(BaseTestCase):
     def test_dispatch_net_interface_without_secator_source_is_not_ignored(self):
         """Same category/name without matching _source is not ignored (no accidental suppression)."""
         result = dispatch_secator_tag(
-            {"category": "info", "name": "net_interface", "match": "eth0", "value": "eth0"},
+            {
+                "category": "info",
+                "name": "net_interface",
+                "match": "eth0",
+                "value": "eth0",
+            },
             self.data_generator.scan_history.id,
             self.data_generator.target.id,
             self._validate_ok,
@@ -277,7 +309,9 @@ class TestDispatchSecatorTag(BaseTestCase):
     def test_dispatch_whois_out_of_scope_returns_skipped(self):
         """Whois tag with domain out of scope (restrict_findings_to_target) returns ('skipped', synthetic_id)."""
         self.data_generator.create_organization()
-        self.data_generator.create_scope(restrict_findings_to_target=True, allowed_finding_domains=[])
+        self.data_generator.create_scope(
+            restrict_findings_to_target=True, allowed_finding_domains=[]
+        )
         target = self.data_generator.target
         scan_history = self.data_generator.create_scan_history()
 
@@ -309,7 +343,10 @@ class TestDispatchSecatorTag(BaseTestCase):
                 "name": "http-missing-security-headers",
                 "match": "https://disc.example.com/",
                 "_source": "nuclei",
-                "extra_data": {"tags": ["misconfig", "http"], "template_id": "http-missing-security-headers"},
+                "extra_data": {
+                    "tags": ["misconfig", "http"],
+                    "template_id": "http-missing-security-headers",
+                },
             },
             self.data_generator.scan_history.id,
             self.data_generator.target.id,
@@ -331,7 +368,10 @@ class TestDispatchSecatorTag(BaseTestCase):
                 "match": host,
                 "value": "TestProduct",
                 "_source": "nuclei",
-                "extra_data": {"tags": ["tech", "wappalyzer"], "template_id": "wappalyzer-fake-tpl"},
+                "extra_data": {
+                    "tags": ["tech", "wappalyzer"],
+                    "template_id": "wappalyzer-fake-tpl",
+                },
             },
             self.data_generator.scan_history.id,
             self.data_generator.target.id,
@@ -385,9 +425,17 @@ class TestDispatchSecatorTag(BaseTestCase):
         def validate_ok(sh_id, t_id):
             return (True, None, MagicMock(), self.data_generator.target)
 
-        with patch("reconPoint.secator.tag_dispatch.dispatch.get_tag_handler", return_value=fake_handler):
+        with patch(
+            "reconPoint.secator.tag_dispatch.dispatch.get_tag_handler",
+            return_value=fake_handler,
+        ):
             result = dispatch_secator_tag(
-                {"category": "url_pattern", "name": "xss", "match": "https://a.example/", "value": ""},
+                {
+                    "category": "url_pattern",
+                    "name": "xss",
+                    "match": "https://a.example/",
+                    "value": "",
+                },
                 self.data_generator.scan_history.id,
                 self.data_generator.target.id,
                 validate_ok,
@@ -399,7 +447,9 @@ class TestDispatchSecatorTag(BaseTestCase):
         self.assertIn("xss", result[2])
 
     @patch("reconPoint.services.repositories.endpoint_repository.EndpointRepository")
-    def test_handle_url_pattern_coerces_non_string_match_and_name(self, mock_repo_class):
+    def test_handle_url_pattern_coerces_non_string_match_and_name(
+        self, mock_repo_class
+    ):
         """Non-string match/value/name must not raise when coerced for repository call."""
         mock_repo = MagicMock()
         mock_repo_class.return_value = mock_repo
@@ -413,7 +463,9 @@ class TestDispatchSecatorTag(BaseTestCase):
         )
         self.assertIs(obj, saved)
         self.assertIsNone(err)
-        mock_repo.add_gf_pattern_from_secator_tag.assert_called_once_with(1, 2, "443", "['n1', 'n2']")
+        mock_repo.add_gf_pattern_from_secator_tag.assert_called_once_with(
+            1, 2, "443", "['n1', 'n2']"
+        )
 
     @patch("reconPoint.services.repositories.endpoint_repository.EndpointRepository")
     def test_handle_url_pattern_numeric_zero_skips_to_value(self, mock_repo_class):
@@ -422,7 +474,12 @@ class TestDispatchSecatorTag(BaseTestCase):
         mock_repo_class.return_value = mock_repo
         mock_repo.add_gf_pattern_from_secator_tag.return_value = object()
         handle_url_pattern_tag(
-            {"match": 0, "value": "https://scan.example/path", "name": "xss", "category": "url_pattern"},
+            {
+                "match": 0,
+                "value": "https://scan.example/path",
+                "name": "xss",
+                "category": "url_pattern",
+            },
             1,
             2,
         )

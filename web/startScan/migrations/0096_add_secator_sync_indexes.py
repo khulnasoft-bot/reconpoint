@@ -13,39 +13,63 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddIndex(
             model_name="command",
-            index=models.Index(fields=["scan_history_id", "name", "time"], name="startScan_c_scan_hi_3a5c4a_idx"),
+            index=models.Index(
+                fields=["scan_history_id", "name", "time"],
+                name="startScan_c_scan_hi_3a5c4a_idx",
+            ),
         ),
         migrations.AddIndex(
             model_name="scanactivity",
-            index=models.Index(fields=["scan_of_id", "status"], name="startScan_s_scan_of_3c4d7a_idx"),
+            index=models.Index(
+                fields=["scan_of_id", "status"], name="startScan_s_scan_of_3c4d7a_idx"
+            ),
         ),
         migrations.AddIndex(
             model_name="scanactivity",
-            index=models.Index(fields=["scan_of_id", "runner_id", "time"], name="startScan_s_scan_of_c9bdd4_idx"),
+            index=models.Index(
+                fields=["scan_of_id", "runner_id", "time"],
+                name="startScan_s_scan_of_c9bdd4_idx",
+            ),
         ),
         migrations.AddIndex(
             model_name="secatorrunner",
-            index=models.Index(fields=["scan_history_id", "runner_type"], name="startScan_s_scan_hi_a578c6_idx"),
+            index=models.Index(
+                fields=["scan_history_id", "runner_type"],
+                name="startScan_s_scan_hi_a578c6_idx",
+            ),
         ),
         migrations.AddIndex(
             model_name="subscan",
-            index=models.Index(fields=["scan_history_id", "status"], name="startScan_s_scan_hi_5c36dc_idx"),
+            index=models.Index(
+                fields=["scan_history_id", "status"],
+                name="startScan_s_scan_hi_5c36dc_idx",
+            ),
         ),
         migrations.AddIndex(
             model_name="subdomain",
-            index=models.Index(fields=["scan_history_id", "content_length"], name="ss_sub_scan_content_len"),
+            index=models.Index(
+                fields=["scan_history_id", "content_length"],
+                name="ss_sub_scan_content_len",
+            ),
         ),
         migrations.AddIndex(
             model_name="endpoint",
-            index=models.Index(fields=["scan_history_id", "content_length"], name="ss_ep_scan_content_len"),
+            index=models.Index(
+                fields=["scan_history_id", "content_length"],
+                name="ss_ep_scan_content_len",
+            ),
         ),
         migrations.AddIndex(
             model_name="vulnerability",
-            index=models.Index(fields=["scan_history_id", "cvss_score"], name="ss_vuln_scan_cvss_idx"),
+            index=models.Index(
+                fields=["scan_history_id", "cvss_score"], name="ss_vuln_scan_cvss_idx"
+            ),
         ),
         migrations.AddIndex(
             model_name="vulnerability",
-            index=models.Index(fields=["scan_history_id", "severity"], name="ss_vuln_scan_severity_idx"),
+            index=models.Index(
+                fields=["scan_history_id", "severity"], name="ss_vuln_scan_severity_idx"
+            ),
         ),
         migrations.AddIndex(
             model_name="secatorrunner",

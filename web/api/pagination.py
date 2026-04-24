@@ -51,7 +51,9 @@ def parse_pagination_params(start=None, length=None, page=None, page_size=None):
             if length_val == -1:
                 length_val = PAGINATION_MAX_LENGTH
             elif length_val > PAGINATION_MAX_LENGTH:
-                raise ValueError(f"Length exceeds maximum allowed value ({PAGINATION_MAX_LENGTH})")
+                raise ValueError(
+                    f"Length exceeds maximum allowed value ({PAGINATION_MAX_LENGTH})"
+                )
 
             return {"type": "datatables", "start": start_val, "length": length_val}
 
@@ -64,10 +66,17 @@ def parse_pagination_params(start=None, length=None, page=None, page_size=None):
             if page_size_val <= 0:
                 raise ValueError("Page size must be positive")
             if page_size_val > PAGINATION_MAX_LENGTH:
-                raise ValueError(f"Page size exceeds maximum allowed value ({PAGINATION_MAX_LENGTH})")
+                raise ValueError(
+                    f"Page size exceeds maximum allowed value ({PAGINATION_MAX_LENGTH})"
+                )
 
             start_val = (page_val - 1) * page_size_val
-            return {"type": "rest", "start": start_val, "length": page_size_val, "page": page_val}
+            return {
+                "type": "rest",
+                "start": start_val,
+                "length": page_size_val,
+                "page": page_val,
+            }
 
         return None
 

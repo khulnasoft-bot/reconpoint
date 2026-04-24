@@ -47,7 +47,10 @@ from reconPoint.secator.selected_targets import (
 )
 from reconPoint.secator.service import run_per_task_secator_scans, start_secator_scan
 from reconPoint.services.repositories import EndpointRepository
-from reconPoint.services.scan_finding_metrics import get_scan_finding_counts, ip_addresses_queryset_for_scan
+from reconPoint.services.scan_finding_metrics import (
+    get_scan_finding_counts,
+    ip_addresses_queryset_for_scan,
+)
 from reconPoint.settings import RECONPOINT_RESULTS
 from reconPoint.utilities.db import count_subquery
 from reconPoint.utilities.domain import (
@@ -94,7 +97,10 @@ from targetApp.services.scan_param_definitions import (
     PARAM_KEYS as SCAN_PARAM_KEYS,
 )
 from targetApp.services.scan_params_context import build_scan_params_form_context
-from targetApp.services.scope_params import get_scope_for_target, get_workers_for_scan_dropdown
+from targetApp.services.scope_params import (
+    get_scope_for_target,
+    get_workers_for_scan_dropdown,
+)
 
 
 PREFIX_SCAN = "[STARTSCAN]"
@@ -104,9 +110,14 @@ logger = get_module_logger(__name__)
 # Built from the public SCAN_PARAM_KEYS plus the two composite fields.
 # Any internal/engine-only keys added to scan_config in the future will NOT
 # be shown unless explicitly added here.
-_SCAN_CONFIG_DISPLAY_KEYS: frozenset[str] = SCAN_PARAM_KEYS | frozenset({"profiles", "extra_config"})
+_SCAN_CONFIG_DISPLAY_KEYS: frozenset[str] = SCAN_PARAM_KEYS | frozenset(
+    {"profiles", "extra_config"}
+)
 # Order for "Show scan parameters" in scan detail timeline (matches form order + profiles, extra_config).
-_SCAN_CONFIG_DISPLAY_ORDER: tuple[str, ...] = ORDERED_PARAM_KEYS_FOR_FORM + ("profiles", "extra_config")
+_SCAN_CONFIG_DISPLAY_ORDER: tuple[str, ...] = ORDERED_PARAM_KEYS_FOR_FORM + (
+    "profiles",
+    "extra_config",
+)
 
 
 def _parse_domain_id_list(raw_domain_ids: str) -> tuple[list[int], list[str]]:
@@ -206,7 +217,9 @@ def _run_secator_scan_or_per_task(
     return (1, 0) if result.get("status") else (0, 1)
 
 
-def _start_secator_scans_for_target_ids(request, target_ids: list[int], secator_kwargs: dict) -> tuple[int, int]:
+def _start_secator_scans_for_target_ids(
+    request, target_ids: list[int], secator_kwargs: dict
+) -> tuple[int, int]:
     scan_count = 0
     failed_count = 0
     skipped_no_tasks: list[str] = []
@@ -217,7 +230,9 @@ def _start_secator_scans_for_target_ids(request, target_ids: list[int], secator_
         if not target:
             continue
         kwargs_for_target = dict(secator_kwargs)
-        filtered_override = filter_targets_override_for_target(target.value, kwargs_for_target.get("targets_override"))
+        filtered_override = filter_targets_override_for_target(
+            target.value, kwargs_for_target.get("targets_override")
+        )
         if filtered_override is not None:
             kwargs_for_target["targets_override"] = filtered_override
         else:
@@ -229,7 +244,10 @@ def _start_secator_scans_for_target_ids(request, target_ids: list[int], secator_
             kwargs_for_target["selected_targets_per_task"] = filtered_per_task
         else:
             kwargs_for_target.pop("selected_targets_per_task", None)
-        if execution_mode == "tasks" and "selected_targets_per_task" not in kwargs_for_target:
+        if (
+            execution_mode == "tasks"
+            and "selected_targets_per_task" not in kwargs_for_target
+        ):
             skipped_no_tasks.append(target.value)
             continue
         sc, fc = _run_secator_scan_or_per_task(request, target_id, kwargs_for_target)
@@ -256,7 +274,9 @@ def _schedule_scan_ui_context(target: "Target") -> dict:
 
 def _schedule_organization_scan_ui_context(organization: Organization) -> dict:
     """Build context for organization/schedule_scan_ui.html."""
-    engine = EngineType.objects.annotate(lower_name=Lower("engine_name")).order_by("lower_name")
+    engine = EngineType.objects.annotate(lower_name=Lower("engine_name")).order_by(
+        "lower_name"
+    )
     custom_engine_count = EngineType.objects.filter(default_engine=False).count()
     return {
         "scan_history_active": "active",
@@ -307,7 +327,10 @@ def _validate_schedule_form_post(post_data) -> tuple[str | None, str | None]:
     raw_mode = (post_data.get("scheduled_mode") or "").strip().lower()
     if not raw_mode:
         return (SCHEDULE_MODE_REQUIRED_MSG, None)
-    if raw_mode not in (ScanSchedule.SCHEDULE_MODE_PERIODIC, ScanSchedule.SCHEDULE_MODE_CLOCKED):
+    if raw_mode not in (
+        ScanSchedule.SCHEDULE_MODE_PERIODIC,
+        ScanSchedule.SCHEDULE_MODE_CLOCKED,
+    ):
         return (SCHEDULE_MODE_REQUIRED_MSG, None)
     if raw_mode == ScanSchedule.SCHEDULE_MODE_PERIODIC:
         try:
@@ -325,7 +348,9 @@ def _validate_schedule_form_post(post_data) -> tuple[str | None, str | None]:
     return (None, raw_mode)
 
 
-def _parse_scheduled_time_utc(schedule_time_str: str, timezone_offset: int) -> datetime | None:
+def _parse_scheduled_time_utc(
+    schedule_time_str: str, timezone_offset: int
+) -> datetime | None:
     """
     Parse 'YYYY-MM-DD HH:MM' to timezone-aware UTC datetime.
     Returns None on parse or conversion error (avoids 500s on malformed input).
@@ -476,11 +501,15 @@ def build_command_hierarchy(commands):
             # Workflow - add to current scan or create standalone
             if current_scan:
                 # Add to current scan
-                workflow_entry = workflow_entries.get(command, {"command": command, "tasks": []})
+                workflow_entry = workflow_entries.get(
+                    command, {"command": command, "tasks": []}
+                )
                 current_scan["workflows"].append(workflow_entry)
             else:
                 # Standalone workflow (no scan parent)
-                workflow_entry = workflow_entries.get(command, {"command": command, "tasks": []})
+                workflow_entry = workflow_entries.get(
+                    command, {"command": command, "tasks": []}
+                )
                 hierarchical_structure.append(workflow_entry)
         elif command.runner_type == "task":
             # Task - find parent workflow and add to it, or add directly to scan if no workflow found
@@ -494,13 +523,19 @@ def build_command_hierarchy(commands):
                         # Workflow entry not found, create it
                         if current_scan:
                             # Add workflow to current scan first
-                            new_workflow_entry = {"command": parent_workflow, "tasks": [command]}
+                            new_workflow_entry = {
+                                "command": parent_workflow,
+                                "tasks": [command],
+                            }
                             current_scan["workflows"].append(new_workflow_entry)
                             workflow_entries[parent_workflow] = new_workflow_entry
                             task_added = True
                         else:
                             # Standalone workflow
-                            new_workflow_entry = {"command": parent_workflow, "tasks": [command]}
+                            new_workflow_entry = {
+                                "command": parent_workflow,
+                                "tasks": [command],
+                            }
                             hierarchical_structure.append(new_workflow_entry)
                             workflow_entries[parent_workflow] = new_workflow_entry
                             task_added = True
@@ -530,9 +565,15 @@ def scan_history(request, slug):
             subdomain_count=count_subquery(Subdomain, "scan_history_id"),
             endpoint_count=count_subquery(EndPoint, "scan_history_id"),
             vuln_count=count_subquery(Vulnerability, "scan_history_id"),
-            vuln_critical_count=count_subquery(Vulnerability, "scan_history_id", filter_kwargs={"severity": 4}),
-            vuln_high_count=count_subquery(Vulnerability, "scan_history_id", filter_kwargs={"severity": 3}),
-            vuln_medium_count=count_subquery(Vulnerability, "scan_history_id", filter_kwargs={"severity": 2}),
+            vuln_critical_count=count_subquery(
+                Vulnerability, "scan_history_id", filter_kwargs={"severity": 4}
+            ),
+            vuln_high_count=count_subquery(
+                Vulnerability, "scan_history_id", filter_kwargs={"severity": 3}
+            ),
+            vuln_medium_count=count_subquery(
+                Vulnerability, "scan_history_id", filter_kwargs={"severity": 2}
+            ),
         )
     )
 
@@ -542,7 +583,9 @@ def scan_history(request, slug):
         "scan_history": host,
         "scan_status_filter_labels": get_scan_status_filter_labels(),
         "datatable_filter_select_to_param": dt_config.get("filter_context"),
-        "datatable_row_group_config": get_datatable_row_group_config(TABLE_ID_SCAN_HISTORY),
+        "datatable_row_group_config": get_datatable_row_group_config(
+            TABLE_ID_SCAN_HISTORY
+        ),
     }
     return render(request, "startScan/history.html", context)
 
@@ -642,21 +685,35 @@ def detail_scan(request, id, slug):
 
     # Get scan objects (prefetch runners+worker; select_related target for context and links)
     scan = get_object_or_404(
-        ScanHistory.objects.select_related("target").prefetch_related("secatorrunner_set__worker"),
+        ScanHistory.objects.select_related("target").prefetch_related(
+            "secatorrunner_set__worker"
+        ),
         id=id,
     )
     target_value = (scan.target.value if getattr(scan, "target", None) else "") or ""
-    target_domain = get_domain_for_scan_by_name(scan.id, target_value) if target_value else None
+    target_domain = (
+        get_domain_for_scan_by_name(scan.id, target_value) if target_value else None
+    )
     scan_display_name = get_scan_display_name(target_value)
     context_target_id = scan.target_id
-    scan_engines = EngineType.objects.annotate(lower_name=Lower("engine_name")).order_by("lower_name")
+    scan_engines = EngineType.objects.annotate(
+        lower_name=Lower("engine_name")
+    ).order_by("lower_name")
     recent_scans = (
-        ScanHistory.objects.filter(target_id=context_target_id) if context_target_id else ScanHistory.objects.none()
+        ScanHistory.objects.filter(target_id=context_target_id)
+        if context_target_id
+        else ScanHistory.objects.none()
     )
     last_scans_base = (
-        ScanHistory.objects.filter(target_id=context_target_id) if context_target_id else ScanHistory.objects.none()
+        ScanHistory.objects.filter(target_id=context_target_id)
+        if context_target_id
+        else ScanHistory.objects.none()
     )
-    last_scans = last_scans_base.filter(tasks__overlap=["subdomain_discovery"]).filter(id__lte=id).filter(scan_status=2)
+    last_scans = (
+        last_scans_base.filter(tasks__overlap=["subdomain_discovery"])
+        .filter(id__lte=id)
+        .filter(scan_status=2)
+    )
 
     # Get all kind of objects associated with our ScanHistory object
     emails = Email.objects.filter(emails__in=[scan])
@@ -675,7 +732,9 @@ def detail_scan(request, id, slug):
     through = Subdomain.ip_addresses.through
     ip_subdomain_data = defaultdict(lambda: {"count": 0, "names": []})
     for ip_id, name in (
-        through.objects.filter(subdomain__scan_history_id=id).values_list("ipaddress_id", "subdomain__name").distinct()
+        through.objects.filter(subdomain__scan_history_id=id)
+        .values_list("ipaddress_id", "subdomain__name")
+        .distinct()
     ):
         ip_subdomain_data[ip_id]["count"] += 1
         ip_subdomain_data[ip_id]["names"].append(name)
@@ -721,11 +780,23 @@ def detail_scan(request, id, slug):
     cwes = CweId.objects.filter(cwe_ids__in=vulns)
 
     # CVEs / CWes
-    common_cves = cves.annotate(nused=Count("cve_ids")).order_by("-nused").values("name", "nused")[:10]
-    common_cwes = cwes.annotate(nused=Count("cwe_ids")).order_by("-nused").values("name", "nused")[:10]
+    common_cves = (
+        cves.annotate(nused=Count("cve_ids"))
+        .order_by("-nused")
+        .values("name", "nused")[:10]
+    )
+    common_cwes = (
+        cwes.annotate(nused=Count("cwe_ids"))
+        .order_by("-nused")
+        .values("name", "nused")[:10]
+    )
 
     # Tags
-    common_tags = vulns_tags.annotate(nused=Count("vuln_tags")).order_by("-nused").values("name", "nused")[:7]
+    common_tags = (
+        vulns_tags.annotate(nused=Count("vuln_tags"))
+        .order_by("-nused")
+        .values("name", "nused")[:7]
+    )
 
     # Countries
     asset_countries = geo_isos.annotate(count=Count("iso")).order_by("-count")
@@ -733,13 +804,17 @@ def detail_scan(request, id, slug):
     scan_counts = get_scan_finding_counts(id)
     subdomain_count = scan_counts["subdomain_count"]
     alive_count = scan_counts["alive_count"]
-    important_count = subdomains.values("name").distinct().filter(is_important=True).count()
+    important_count = (
+        subdomains.values("name").distinct().filter(is_important=True).count()
+    )
 
     endpoint_count = scan_counts["endpoint_count"]
     endpoint_alive_count = scan_counts["endpoint_alive_count"]
 
     # Vulnerabilities: single aggregation for severity counts
-    severity_counts = dict(vulns.values("severity").annotate(c=Count("id")).values_list("severity", "c"))
+    severity_counts = dict(
+        vulns.values("severity").annotate(c=Count("id")).values_list("severity", "c")
+    )
 
     # Ensure we don't silently drop unexpected severities from level counts
     allowed_severities = {-1, 0, 1, 2, 3, 4}
@@ -759,26 +834,36 @@ def detail_scan(request, id, slug):
     total_count_ignore_info = total_count - info_count
 
     common_vulns = (
-        vulns.exclude(severity=0).values("name", "severity").annotate(count=Count("name")).order_by("-count")[:10]
+        vulns.exclude(severity=0)
+        .values("name", "severity")
+        .annotate(count=Count("name"))
+        .order_by("-count")[:10]
     )
 
     # Emails
     exposed_count = emails.exclude(password__isnull=True).count()
 
     # Preload SecatorRunner for this scan
-    secator_runners = SecatorRunner.objects.filter(scan_history=scan).order_by("-created_at")
+    secator_runners = SecatorRunner.objects.filter(scan_history=scan).order_by(
+        "-created_at"
+    )
     is_secator_scan = secator_runners.exists()
 
     # Show Screenshots tab when scan had screenshot task (legacy) or has endpoints with screenshots (e.g. Secator)
     tasks = scan.tasks or []
     has_screenshots = (
-        "screenshot" in tasks or endpoints.filter(screenshot_path__isnull=False).exclude(screenshot_path="").exists()
+        "screenshot" in tasks
+        or endpoints.filter(screenshot_path__isnull=False)
+        .exclude(screenshot_path="")
+        .exists()
     )
 
     s3_bucket_names = sorted(
         {
             bucket_name
-            for bucket_name in S3Bucket.objects.filter(buckets__id=id).order_by("name").values_list("name", flat=True)
+            for bucket_name in S3Bucket.objects.filter(buckets__id=id)
+            .order_by("name")
+            .values_list("name", flat=True)
             if bucket_name
         }
     )
@@ -828,14 +913,16 @@ def detail_scan(request, id, slug):
         "asset_countries": asset_countries,
         "has_screenshots": has_screenshots,
         "domains": _domains_for_scan_detail(id),
-        "s3_datatable_filter_select_to_param": get_datatable_table_config(TABLE_ID_S3_BUCKETS).get("filter_context"),
+        "s3_datatable_filter_select_to_param": get_datatable_table_config(
+            TABLE_ID_S3_BUCKETS
+        ).get("filter_context"),
         "s3_bucket_names": s3_bucket_names,
-        "datatable_row_group_cookie_key_vuln": get_datatable_table_config(TABLE_ID_VULNERABILITIES).get(
-            "row_group_cookie_key"
-        ),
-        "datatable_row_group_selector_vuln": get_datatable_table_config(TABLE_ID_VULNERABILITIES).get(
-            "row_group_selector"
-        ),
+        "datatable_row_group_cookie_key_vuln": get_datatable_table_config(
+            TABLE_ID_VULNERABILITIES
+        ).get("row_group_cookie_key"),
+        "datatable_row_group_selector_vuln": get_datatable_table_config(
+            TABLE_ID_VULNERABILITIES
+        ).get("row_group_selector"),
     }
 
     # Find number of matched GF patterns (one query then count in Python)
@@ -895,10 +982,18 @@ def detail_scan(request, id, slug):
 
 def all_subdomains(request, slug):
     project = get_object_or_404(Project, slug=slug)
-    subdomains = Subdomain.objects.filter(domain__scan_history__target__project__slug=slug)
-    scan_engines = EngineType.objects.annotate(lower_name=Lower("engine_name")).order_by("lower_name")
-    alive_subdomains = subdomains.filter(http_status__gt=0)  # TODO: replace this with is_alive() function
-    important_subdomains = subdomains.filter(is_important=True).values("name").distinct().count()
+    subdomains = Subdomain.objects.filter(
+        domain__scan_history__target__project__slug=slug
+    )
+    scan_engines = EngineType.objects.annotate(
+        lower_name=Lower("engine_name")
+    ).order_by("lower_name")
+    alive_subdomains = subdomains.filter(
+        http_status__gt=0
+    )  # TODO: replace this with is_alive() function
+    important_subdomains = (
+        subdomains.filter(is_important=True).values("name").distinct().count()
+    )
     context = {
         "scan_history_id": id,
         "scan_history_active": "active",
@@ -944,7 +1039,9 @@ def start_scan_ui(request, slug, target_id):
 
         scope = get_scope_for_target(target)
         try:
-            secator_kwargs = build_start_secator_scan_kwargs(request.POST, target=target, scope=scope)
+            secator_kwargs = build_start_secator_scan_kwargs(
+                request.POST, target=target, scope=scope
+            )
         except ValueError as exc:
             messages.error(request, str(exc))
             return redirect("start_scan", slug=slug, target_id=target_id)
@@ -959,22 +1056,32 @@ def start_scan_ui(request, slug, target_id):
         )
 
         if scan_count >= 1:
-            messages.add_message(request, messages.INFO, "Scan Started for %s" % (target.value,))
+            messages.add_message(
+                request, messages.INFO, "Scan Started for %s" % (target.value,)
+            )
             return HttpResponseRedirect(reverse("scan_history", kwargs={"slug": slug}))
         error_msg = "Unknown error" if failed_count else "No scan started"
-        messages.add_message(request, messages.ERROR, "Failed to start scan: %s" % (error_msg,))
-        return HttpResponseRedirect(reverse("start_scan", kwargs={"slug": slug, "target_id": target_id}))
+        messages.add_message(
+            request, messages.ERROR, "Failed to start scan: %s" % (error_msg,)
+        )
+        return HttpResponseRedirect(
+            reverse("start_scan", kwargs={"slug": slug, "target_id": target_id})
+        )
 
     # GET request
     scan_type = request.GET.get("scan_type", "internet")
 
     engine = (
-        EngineType.objects.filter(scan_type=scan_type).annotate(lower_name=Lower("engine_name")).order_by("lower_name")
+        EngineType.objects.filter(scan_type=scan_type)
+        .annotate(lower_name=Lower("engine_name"))
+        .order_by("lower_name")
     )
 
     custom_engine_count = EngineType.objects.filter(default_engine=False).count()
 
-    has_ip_content = Subdomain.objects.filter(scan_history__target_id=target.id, ip_addresses__isnull=False).exists()
+    has_ip_content = Subdomain.objects.filter(
+        scan_history__target_id=target.id, ip_addresses__isnull=False
+    ).exists()
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         if request.GET.get("ajax") == "true":
@@ -994,7 +1101,9 @@ def start_scan_ui(request, slug, target_id):
     scope = get_scope_for_target(target)
     organization = scope.organization if scope else target.organizations.first()
 
-    form_ctx = build_scan_params_form_context(target=target, scope=scope, organization=organization, level="scan")
+    form_ctx = build_scan_params_form_context(
+        target=target, scope=scope, organization=organization, level="scan"
+    )
     context = {
         "scan_history_active": "active",
         "target": target,
@@ -1028,23 +1137,38 @@ def start_multiple_scan(request, slug):
 
             target_id_list, invalid_ids = _parse_target_id_list(raw_ids)
             if invalid_ids:
-                messages.warning(request, "Ignoring invalid target ID(s): %s" % (", ".join(invalid_ids),))
+                messages.warning(
+                    request,
+                    "Ignoring invalid target ID(s): %s" % (", ".join(invalid_ids),),
+                )
 
             if not target_id_list:
                 messages.error(request, "Please select at least one valid target.")
                 return redirect("start_multiple_scan", slug=slug)
 
-            scan_count, failed_count = _start_secator_scans_for_target_ids(request, target_id_list, secator_kwargs)
+            scan_count, failed_count = _start_secator_scans_for_target_ids(
+                request, target_id_list, secator_kwargs
+            )
 
             if scan_count > 0:
-                messages.add_message(request, messages.INFO, "Started %s scans for multiple targets" % (scan_count,))
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    "Started %s scans for multiple targets" % (scan_count,),
+                )
             if failed_count > 0:
-                messages.add_message(request, messages.WARNING, "Failed to start %s scans" % (failed_count,))
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    "Failed to start %s scans" % (failed_count,),
+                )
 
             return HttpResponseRedirect(reverse("scan_history", kwargs={"slug": slug}))
 
         # POST from targets list: build selection list and render UI
-        list_of_target_name, target_ids_str = _build_multiple_scan_selection_from_post(request)
+        list_of_target_name, target_ids_str = _build_multiple_scan_selection_from_post(
+            request
+        )
 
     # GET request
     scan_type = request.GET.get("scan_type", "internet")
@@ -1060,12 +1184,20 @@ def start_multiple_scan(request, slug):
         first_id = target_ids_str.split(",")[0].strip()
         if first_id.isdigit():
             first_target_id = first_id
-            first_target = Target.objects.filter(id=int(first_id)).select_related("project").first()
+            first_target = (
+                Target.objects.filter(id=int(first_id))
+                .select_related("project")
+                .first()
+            )
             if first_target and first_target.project.slug == slug:
                 scope = get_scope_for_target(first_target)
-                organization = scope.organization if scope else first_target.organizations.first()
+                organization = (
+                    scope.organization if scope else first_target.organizations.first()
+                )
 
-    form_ctx = build_scan_params_form_context(target=first_target, scope=scope, organization=organization)
+    form_ctx = build_scan_params_form_context(
+        target=first_target, scope=scope, organization=organization
+    )
     context = {
         "scan_history_active": "active",
         "engines": engines,
@@ -1079,7 +1211,9 @@ def start_multiple_scan(request, slug):
     }
     context.update(form_ctx)
     context["secator_workers"] = (
-        get_workers_for_scan_dropdown(scope=scope) if scope else get_workers_for_scan_dropdown()
+        get_workers_for_scan_dropdown(scope=scope)
+        if scope
+        else get_workers_for_scan_dropdown()
     )
     return render(request, "startScan/start_multiple_scan_ui.html", context)
 
@@ -1093,7 +1227,9 @@ def export_subdomains(request, slug, scan_id):
     scan_start_date_str = str(scan.start_scan_date.date())
     domain_name = get_scan_display_name(scan.target.value if scan.target_id else "")
     response = HttpResponse(response_body, content_type="text/plain")
-    response["Content-Disposition"] = f'attachment; filename="subdomains_{domain_name}_{scan_start_date_str}.txt"'
+    response["Content-Disposition"] = (
+        f'attachment; filename="subdomains_{domain_name}_{scan_start_date_str}.txt"'
+    )
     return response
 
 
@@ -1106,7 +1242,9 @@ def export_endpoints(request, slug, scan_id):
     scan_start_date_str = str(scan.start_scan_date.date())
     domain_name = get_scan_display_name(scan.target.value if scan.target_id else "")
     response = HttpResponse(response_body, content_type="text/plain")
-    response["Content-Disposition"] = f'attachment; filename="endpoints_{domain_name}_{scan_start_date_str}.txt"'
+    response["Content-Disposition"] = (
+        f'attachment; filename="endpoints_{domain_name}_{scan_start_date_str}.txt"'
+    )
     return response
 
 
@@ -1120,7 +1258,9 @@ def export_urls(request, slug, scan_id):
     scan_start_date_str = str(scan.start_scan_date.date())
     domain_name = get_scan_display_name(scan.target.value if scan.target_id else "")
     response = HttpResponse(response_body, content_type="text/plain")
-    response["Content-Disposition"] = f'attachment; filename="urls_{domain_name}_{scan_start_date_str}.txt"'
+    response["Content-Disposition"] = (
+        f'attachment; filename="urls_{domain_name}_{scan_start_date_str}.txt"'
+    )
     return response
 
 
@@ -1141,7 +1281,8 @@ def delete_scan(request, slug, id):
                     PREFIX_SCAN,
                     "DELETE_SCAN",
                     "Results dir cleanup refused for path %s; likely configuration or permission issue. "
-                    "scan_history_id=%s base_dir=%r" % (resolved, getattr(obj, "id", None), RECONPOINT_RESULTS),
+                    "scan_history_id=%s base_dir=%r"
+                    % (resolved, getattr(obj, "id", None), RECONPOINT_RESULTS),
                     level="warning",
                 )
             elif result == "failed":
@@ -1149,7 +1290,8 @@ def delete_scan(request, slug, id):
                     PREFIX_SCAN,
                     "DELETE_SCAN",
                     "Results dir cleanup failed for path %s; transient or unexpected error. "
-                    "scan_history_id=%s base_dir=%r" % (resolved, getattr(obj, "id", None), RECONPOINT_RESULTS),
+                    "scan_history_id=%s base_dir=%r"
+                    % (resolved, getattr(obj, "id", None), RECONPOINT_RESULTS),
                     level="warning",
                 )
             elif result != "removed":
@@ -1179,7 +1321,9 @@ def delete_scan(request, slug, id):
                 "This may indicate a configuration or permission issue; please contact an administrator.",
             )
         else:
-            messages.add_message(request, messages.INFO, "Scan history successfully deleted!")
+            messages.add_message(
+                request, messages.INFO, "Scan history successfully deleted!"
+            )
     else:
         message_data = {"status": "false"}
         messages.add_message(request, messages.INFO, "Oops! something went wrong!")
@@ -1200,7 +1344,9 @@ def stop_scan(request, slug, id):
                 scan.stop_scan_date = timezone.now()
                 scan.save()
                 response = {"status": True}
-                messages.add_message(request, messages.INFO, "Scan successfully stopped!")
+                messages.add_message(
+                    request, messages.INFO, "Scan successfully stopped!"
+                )
             else:
                 response = {"status": False, "message": "Failed to stop scan"}
                 messages.add_message(request, messages.ERROR, "Failed to stop scan")
@@ -1213,7 +1359,9 @@ def stop_scan(request, slug, id):
                 exc_info=True,
             )
             response = {"status": False}
-            messages.add_message(request, messages.ERROR, f"Scan failed to stop ! Error: {str(e)}")
+            messages.add_message(
+                request, messages.ERROR, f"Scan failed to stop ! Error: {str(e)}"
+            )
         return JsonResponse(response)
     return scan_history(request)
 
@@ -1227,19 +1375,37 @@ def schedule_scan(request, host_id, slug):
             secator_kwargs = build_start_secator_scan_kwargs(request.POST)
         except ValueError as exc:
             messages.error(request, str(exc))
-            return render(request, "startScan/schedule_scan_ui.html", _schedule_scan_ui_context(target))
+            return render(
+                request,
+                "startScan/schedule_scan_ui.html",
+                _schedule_scan_ui_context(target),
+            )
 
         schedule_error, scheduled_mode = _validate_schedule_form_post(request.POST)
         if schedule_error:
             messages.error(request, schedule_error)
-            return render(request, "startScan/schedule_scan_ui.html", _schedule_scan_ui_context(target))
+            return render(
+                request,
+                "startScan/schedule_scan_ui.html",
+                _schedule_scan_ui_context(target),
+            )
 
-        subdomains_in = [s.rstrip() for s in request.POST.get("importSubdomainTextArea", "").split() if s]
-        subdomains_out = [s.rstrip() for s in request.POST.get("outOfScopeSubdomainTextarea", "").split() if s]
+        subdomains_in = [
+            s.rstrip()
+            for s in request.POST.get("importSubdomainTextArea", "").split()
+            if s
+        ]
+        subdomains_out = [
+            s.rstrip()
+            for s in request.POST.get("outOfScopeSubdomainTextarea", "").split()
+            if s
+        ]
         paths = request.POST.get("filterPath", "").split()
         url_filter = paths[0].rstrip() if paths else ""
 
-        kwargs_stored = {k: v for k, v in secator_kwargs.items() if k != "scan_history_id"}
+        kwargs_stored = {
+            k: v for k, v in secator_kwargs.items() if k != "scan_history_id"
+        }
         if url_filter:
             kwargs_stored["url_filter"] = url_filter
         timestr = datetime.strftime(timezone.now(), "%Y_%m_%d_%H_%M_%S")
@@ -1255,8 +1421,12 @@ def schedule_scan(request, host_id, slug):
         )
 
         if scheduled_mode == ScanSchedule.SCHEDULE_MODE_PERIODIC:
-            frequency_value, frequency_type = _normalize_periodic_frequency_from_post(request.POST)
-            next_run = ScanSchedule.compute_next_run_from_frequency(timezone.now(), frequency_value, frequency_type)
+            frequency_value, frequency_type = _normalize_periodic_frequency_from_post(
+                request.POST
+            )
+            next_run = ScanSchedule.compute_next_run_from_frequency(
+                timezone.now(), frequency_value, frequency_type
+            )
             ScanSchedule.objects.create(
                 **common,
                 schedule_mode=ScanSchedule.SCHEDULE_MODE_PERIODIC,
@@ -1267,11 +1437,18 @@ def schedule_scan(request, host_id, slug):
             )
         else:
             schedule_time = request.POST.get("scheduled_time", "").strip()
-            timezone_offset = max(-1440, min(1440, safe_int_cast(request.POST.get("timezone_offset", 0), 0)))
+            timezone_offset = max(
+                -1440,
+                min(1440, safe_int_cast(request.POST.get("timezone_offset", 0), 0)),
+            )
             utc_time = _parse_scheduled_time_utc(schedule_time, timezone_offset)
             if utc_time is None:
                 messages.error(request, "Invalid date and time for the one-time scan.")
-                return render(request, "startScan/schedule_scan_ui.html", _schedule_scan_ui_context(target))
+                return render(
+                    request,
+                    "startScan/schedule_scan_ui.html",
+                    _schedule_scan_ui_context(target),
+                )
             ScanSchedule.objects.create(
                 **common,
                 schedule_mode=ScanSchedule.SCHEDULE_MODE_CLOCKED,
@@ -1279,10 +1456,16 @@ def schedule_scan(request, host_id, slug):
                 next_run=utc_time,
                 one_off=True,
             )
-        messages.add_message(request, messages.INFO, f"Scan scheduled for {target.value}")
-        return HttpResponseRedirect(reverse("scheduled_scan_view", kwargs={"slug": slug}))
+        messages.add_message(
+            request, messages.INFO, f"Scan scheduled for {target.value}"
+        )
+        return HttpResponseRedirect(
+            reverse("scheduled_scan_view", kwargs={"slug": slug})
+        )
 
-    return render(request, "startScan/schedule_scan_ui.html", _schedule_scan_ui_context(target))
+    return render(
+        request, "startScan/schedule_scan_ui.html", _schedule_scan_ui_context(target)
+    )
 
 
 def scheduled_scan_view(request, slug):
@@ -1300,7 +1483,9 @@ def delete_scheduled_task(request, slug, id):
     if request.method == "POST":
         task_object.delete()
         message_data = {"status": "true"}
-        messages.add_message(request, messages.INFO, "Scheduled Scan successfully deleted!")
+        messages.add_message(
+            request, messages.INFO, "Scheduled Scan successfully deleted!"
+        )
     else:
         message_data = {"status": "false"}
         messages.add_message(request, messages.INFO, "Oops! something went wrong!")
@@ -1324,16 +1509,22 @@ def change_vuln_status(request, slug, id):
     return HttpResponse("")
 
 
-@has_permission_decorator(PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL)
+@has_permission_decorator(
+    PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL
+)
 def delete_all_scan_results(request, slug):
     if request.method == "POST":
         ScanHistory.objects.filter(target__project__slug=slug).delete()
         message_data = {"status": "true"}
-        messages.add_message(request, messages.INFO, "All Scan History successfully deleted!")
+        messages.add_message(
+            request, messages.INFO, "All Scan History successfully deleted!"
+        )
     return JsonResponse(message_data)
 
 
-@has_permission_decorator(PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL)
+@has_permission_decorator(
+    PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL
+)
 def delete_all_screenshots(request, slug):
     if request.method == "POST":
         domains = Domain.objects.filter(scan_history__target__project__slug=slug)
@@ -1347,7 +1538,8 @@ def delete_all_screenshots(request, slug):
                         PREFIX_SCAN,
                         "BULK_CLEANUP",
                         "Bulk results dir cleanup refused for domain %s at path %s; "
-                        "likely configuration or permission issue. project_slug=%s" % (domain.name, resolved, slug),
+                        "likely configuration or permission issue. project_slug=%s"
+                        % (domain.name, resolved, slug),
                         level="warning",
                     )
                     cleanup_issues = True
@@ -1356,7 +1548,8 @@ def delete_all_screenshots(request, slug):
                         PREFIX_SCAN,
                         "BULK_CLEANUP",
                         "Bulk results dir cleanup failed for domain %s at path %s; "
-                        "transient or unexpected error. project_slug=%s" % (domain.name, resolved, slug),
+                        "transient or unexpected error. project_slug=%s"
+                        % (domain.name, resolved, slug),
                         level="warning",
                     )
                     cleanup_issues = True
@@ -1378,7 +1571,9 @@ def delete_all_screenshots(request, slug):
                 "This may indicate a configuration or permission issue; please contact an administrator.",
             )
         else:
-            messages.add_message(request, messages.INFO, "Screenshots successfully deleted!")
+            messages.add_message(
+                request, messages.INFO, "Screenshots successfully deleted!"
+            )
     return JsonResponse(message_data)
 
 
@@ -1419,7 +1614,9 @@ def _run_quick_scan_for_targets(
     execution_mode = secator_kwargs.get("execution_mode")
     for target in target_list:
         kwargs_for_target = dict(secator_kwargs)
-        filtered_override = filter_targets_override_for_target(target.value, kwargs_for_target.get("targets_override"))
+        filtered_override = filter_targets_override_for_target(
+            target.value, kwargs_for_target.get("targets_override")
+        )
         if filtered_override is not None:
             kwargs_for_target["targets_override"] = filtered_override
         else:
@@ -1431,7 +1628,10 @@ def _run_quick_scan_for_targets(
             kwargs_for_target["selected_targets_per_task"] = filtered_per_task
         else:
             kwargs_for_target.pop("selected_targets_per_task", None)
-        if execution_mode == "tasks" and "selected_targets_per_task" not in kwargs_for_target:
+        if (
+            execution_mode == "tasks"
+            and "selected_targets_per_task" not in kwargs_for_target
+        ):
             skipped_no_tasks.append(target.value)
             continue
         sc, fc = _run_secator_scan_or_per_task(request, target.id, kwargs_for_target)
@@ -1453,7 +1653,9 @@ def _run_quick_scan_for_targets(
         return redirect(form_redirect_view_name, **form_redirect_kwargs)
 
     if scan_count > 0:
-        messages.add_message(request, messages.INFO, f"Started {scan_count} scans for {entity_name}")
+        messages.add_message(
+            request, messages.INFO, f"Started {scan_count} scans for {entity_name}"
+        )
     if failed_count > 0:
         messages.add_message(
             request,
@@ -1463,7 +1665,9 @@ def _run_quick_scan_for_targets(
     return HttpResponseRedirect(reverse(redirect_view_name, kwargs=redirect_kwargs))
 
 
-def _quick_scan_form_context(target_list, scan_type: str, *, scope=None, organization=None):
+def _quick_scan_form_context(
+    target_list, scan_type: str, *, scope=None, organization=None
+):
     """
     Build common context for quick scan form (organization or scope). Returns dict with
     target_list, target_ids, scan_type, secator_scans, secator_workers, and build_scan_params_form_context keys.
@@ -1515,7 +1719,9 @@ def start_organization_scan(request, id, slug):
 
     scan_type = request.GET.get("scan_type", "internet")
     target_list = list(organization.get_targets())
-    context = _quick_scan_form_context(target_list, scan_type, organization=organization)
+    context = _quick_scan_form_context(
+        target_list, scan_type, organization=organization
+    )
     context["organization_data_active"] = "true"
     context["list_organization_li"] = "active"
     context["organization"] = organization
@@ -1525,8 +1731,12 @@ def start_organization_scan(request, id, slug):
     context["quick_scan_scan_params_level"] = "organization"
     context["quick_scan_scan_params_organization_id"] = organization.id
     context["quick_scan_scan_params_scope_id"] = ""
-    context["quick_scan_target_collapse_threshold"] = QUICK_SCAN_TARGET_COLLAPSE_THRESHOLD
-    context["quick_scan_extra_target_count"] = max(0, len(target_list) - QUICK_SCAN_TARGET_COLLAPSE_THRESHOLD)
+    context["quick_scan_target_collapse_threshold"] = (
+        QUICK_SCAN_TARGET_COLLAPSE_THRESHOLD
+    )
+    context["quick_scan_extra_target_count"] = max(
+        0, len(target_list) - QUICK_SCAN_TARGET_COLLAPSE_THRESHOLD
+    )
     return render(request, "organization/start_scan.html", context)
 
 
@@ -1567,8 +1777,12 @@ def start_scope_scan(request, id, slug):
     context["quick_scan_scan_params_level"] = "scope"
     context["quick_scan_scan_params_organization_id"] = scope.organization_id
     context["quick_scan_scan_params_scope_id"] = scope.id
-    context["quick_scan_target_collapse_threshold"] = QUICK_SCAN_TARGET_COLLAPSE_THRESHOLD
-    context["quick_scan_extra_target_count"] = max(0, len(target_list) - QUICK_SCAN_TARGET_COLLAPSE_THRESHOLD)
+    context["quick_scan_target_collapse_threshold"] = (
+        QUICK_SCAN_TARGET_COLLAPSE_THRESHOLD
+    )
+    context["quick_scan_extra_target_count"] = max(
+        0, len(target_list) - QUICK_SCAN_TARGET_COLLAPSE_THRESHOLD
+    )
     return render(request, "scope/start_scan.html", context)
 
 
@@ -1612,8 +1826,12 @@ def schedule_organization_scan(request, slug, id):
             )
 
             if scheduled_mode == ScanSchedule.SCHEDULE_MODE_PERIODIC:
-                frequency_value, frequency_type = _normalize_periodic_frequency_from_post(request.POST)
-                next_run = ScanSchedule.compute_next_run_from_frequency(timezone.now(), frequency_value, frequency_type)
+                frequency_value, frequency_type = (
+                    _normalize_periodic_frequency_from_post(request.POST)
+                )
+                next_run = ScanSchedule.compute_next_run_from_frequency(
+                    timezone.now(), frequency_value, frequency_type
+                )
                 ScanSchedule.objects.create(
                     **common,
                     schedule_mode=ScanSchedule.SCHEDULE_MODE_PERIODIC,
@@ -1624,8 +1842,13 @@ def schedule_organization_scan(request, slug, id):
                 )
             else:
                 schedule_time_str = request.POST.get("scheduled_time", "").strip()
-                timezone_offset = max(-1440, min(1440, safe_int_cast(request.POST.get("timezone_offset", 0), 0)))
-                schedule_time = _parse_scheduled_time_utc(schedule_time_str, timezone_offset)
+                timezone_offset = max(
+                    -1440,
+                    min(1440, safe_int_cast(request.POST.get("timezone_offset", 0), 0)),
+                )
+                schedule_time = _parse_scheduled_time_utc(
+                    schedule_time_str, timezone_offset
+                )
                 if schedule_time is None:
                     messages.error(
                         request,
@@ -1645,9 +1868,13 @@ def schedule_organization_scan(request, slug, id):
                 )
 
         messages.add_message(
-            request, messages.INFO, f"Scan started for {len(targets)} targets in organization {organization.name}"
+            request,
+            messages.INFO,
+            f"Scan started for {len(targets)} targets in organization {organization.name}",
         )
-        return HttpResponseRedirect(reverse("scheduled_scan_view", kwargs={"slug": slug}))
+        return HttpResponseRedirect(
+            reverse("scheduled_scan_view", kwargs={"slug": slug})
+        )
 
     # GET request
     return render(
@@ -1668,7 +1895,9 @@ def delete_scans(request, slug):
             delete_dir = scan.results_dir
             # resolve_results_dir_under_base returns None when results_dir is missing/invalid;
             # we intentionally no-op in that case (no filesystem delete) for safety.
-            resolved = resolve_results_dir_under_base(RECONPOINT_RESULTS, delete_dir or "")
+            resolved = resolve_results_dir_under_base(
+                RECONPOINT_RESULTS, delete_dir or ""
+            )
             if resolved is not None:
                 result = safe_rmtree(RECONPOINT_RESULTS, resolved)
                 if result == "refused":
@@ -1676,7 +1905,8 @@ def delete_scans(request, slug):
                         PREFIX_SCAN,
                         "DELETE_SCANS",
                         "Results dir cleanup refused for path %s; likely configuration or permission issue. "
-                        "scan_history_id=%s base_dir=%r" % (resolved, getattr(scan, "id", None), RECONPOINT_RESULTS),
+                        "scan_history_id=%s base_dir=%r"
+                        % (resolved, getattr(scan, "id", None), RECONPOINT_RESULTS),
                         level="warning",
                     )
                     cleanup_issues = True
@@ -1685,7 +1915,8 @@ def delete_scans(request, slug):
                         PREFIX_SCAN,
                         "DELETE_SCANS",
                         "Results dir cleanup failed for path %s; transient or unexpected error. "
-                        "scan_history_id=%s base_dir=%r" % (resolved, getattr(scan, "id", None), RECONPOINT_RESULTS),
+                        "scan_history_id=%s base_dir=%r"
+                        % (resolved, getattr(scan, "id", None), RECONPOINT_RESULTS),
                         level="warning",
                     )
                     cleanup_issues = True
@@ -1694,7 +1925,12 @@ def delete_scans(request, slug):
                         PREFIX_SCAN,
                         "DELETE_SCANS",
                         "Results dir cleanup returned %s for path %s. scan_history_id=%s base_dir=%r"
-                        % (result, resolved, getattr(scan, "id", None), RECONPOINT_RESULTS),
+                        % (
+                            result,
+                            resolved,
+                            getattr(scan, "id", None),
+                            RECONPOINT_RESULTS,
+                        ),
                         level="warning",
                     )
                     cleanup_issues = True
@@ -1754,7 +1990,11 @@ def create_report(request, slug, id):
 
     scan = ScanHistory.objects.get(id=id)
     vulns = (
-        (Vulnerability.objects.filter(scan_history=scan).exclude(severity=0).order_by("-severity"))
+        (
+            Vulnerability.objects.filter(scan_history=scan)
+            .exclude(severity=0)
+            .order_by("-severity")
+        )
         if is_ignore_info_vuln
         else (Vulnerability.objects.filter(scan_history=scan).order_by("-severity"))
     )
@@ -1777,7 +2017,11 @@ def create_report(request, slug, id):
 
     subdomains = Subdomain.objects.filter(scan_history=scan).order_by("-content_length")
     subdomain_alive_count = (
-        Subdomain.objects.filter(scan_history__id=id).values("name").distinct().filter(http_status__gt=0).count()
+        Subdomain.objects.filter(scan_history__id=id)
+        .values("name")
+        .distinct()
+        .filter(http_status__gt=0)
+        .count()
     )
     interesting_subdomains = get_interesting_subdomains(scan_history=id)
     ip_addresses = ip_addresses_queryset_for_scan(id)
@@ -1813,21 +2057,39 @@ def create_report(request, slug, id):
 
         # Replace executive_summary_description with template syntax
         description = report.executive_summary_description
-        description = description.replace("{scan_date}", scan.start_scan_date.strftime("%d %B, %Y"))
+        description = description.replace(
+            "{scan_date}", scan.start_scan_date.strftime("%d %B, %Y")
+        )
         description = description.replace("{company_name}", report.company_name)
         target_name = scan.target.value if scan.target_id else ""
-        target_description = getattr(scan.target, "description", None) or "" if scan.target_id else ""
+        target_description = (
+            getattr(scan.target, "description", None) or "" if scan.target_id else ""
+        )
         description = description.replace("{target_name}", target_name)
         description = description.replace("{subdomain_count}", str(subdomains.count()))
         description = description.replace("{vulnerability_count}", str(vulns.count()))
-        description = description.replace("{critical_count}", str(vulns.filter(severity=4).count()))
-        description = description.replace("{high_count}", str(vulns.filter(severity=3).count()))
-        description = description.replace("{medium_count}", str(vulns.filter(severity=2).count()))
-        description = description.replace("{low_count}", str(vulns.filter(severity=1).count()))
-        description = description.replace("{info_count}", str(vulns.filter(severity=0).count()))
-        description = description.replace("{unknown_count}", str(vulns.filter(severity=-1).count()))
+        description = description.replace(
+            "{critical_count}", str(vulns.filter(severity=4).count())
+        )
+        description = description.replace(
+            "{high_count}", str(vulns.filter(severity=3).count())
+        )
+        description = description.replace(
+            "{medium_count}", str(vulns.filter(severity=2).count())
+        )
+        description = description.replace(
+            "{low_count}", str(vulns.filter(severity=1).count())
+        )
+        description = description.replace(
+            "{info_count}", str(vulns.filter(severity=0).count())
+        )
+        description = description.replace(
+            "{unknown_count}", str(vulns.filter(severity=-1).count())
+        )
         if target_description:
-            description = description.replace("{target_description}", target_description)
+            description = description.replace(
+                "{target_description}", target_description
+            )
 
         # Convert to Markdown
         data["executive_summary_description"] = markdown.markdown(description)

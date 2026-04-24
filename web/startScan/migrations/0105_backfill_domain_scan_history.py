@@ -32,8 +32,12 @@ def backfill_scan_history_id(apps, schema_editor):
     """
     connection = schema_editor.connection
     with connection.cursor() as cursor:
-        cursor.execute('ALTER TABLE "startScan_domain" DROP CONSTRAINT IF EXISTS "targetApp_domain_name_key"')
-        cursor.execute('ALTER TABLE "startScan_domain" DROP CONSTRAINT IF EXISTS "startScan_domain_name_key"')
+        cursor.execute(
+            'ALTER TABLE "startScan_domain" DROP CONSTRAINT IF EXISTS "targetApp_domain_name_key"'
+        )
+        cursor.execute(
+            'ALTER TABLE "startScan_domain" DROP CONSTRAINT IF EXISTS "startScan_domain_name_key"'
+        )
         cursor.execute('DROP INDEX IF EXISTS "targetApp_domain_name_24bceeb1_like"')
 
         cursor.execute(

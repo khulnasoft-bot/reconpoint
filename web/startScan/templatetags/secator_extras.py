@@ -217,10 +217,24 @@ def _get_task_info_from_db(task_name):
     Memoized so repeated template tag calls for the same task_name reuse the result.
     """
     if not task_name:
-        return {"name": task_name or "", "category": "Unknown", "description": "", "icon": "tools"}
-    task = SecatorTask.objects.filter(task_type=task_name, is_active=True).only("name", "tags", "description").first()
+        return {
+            "name": task_name or "",
+            "category": "Unknown",
+            "description": "",
+            "icon": "tools",
+        }
+    task = (
+        SecatorTask.objects.filter(task_type=task_name, is_active=True)
+        .only("name", "tags", "description")
+        .first()
+    )
     if not task:
-        return {"name": task_name, "category": "Unknown", "description": f"Secator task: {task_name}", "icon": "tools"}
+        return {
+            "name": task_name,
+            "category": "Unknown",
+            "description": f"Secator task: {task_name}",
+            "icon": "tools",
+        }
     cat = tags_parent_category(task.tags) if task.tags else "unknown"
     return {
         "name": task.name,
@@ -235,12 +249,18 @@ def get_task_info(context, task_name):
     """Get task information by task name."""
     if tasks_dict := context.get("tasks_dict"):
         if task := tasks_dict.get(task_name):
-            cat = tags_parent_category(task.tags) if getattr(task, "tags", None) else "unknown"
+            cat = (
+                tags_parent_category(task.tags)
+                if getattr(task, "tags", None)
+                else "unknown"
+            )
             return {
                 "name": task.name,
                 "category": cat,
                 "description": task.description,
-                "icon": tags_icon(task.tags) if getattr(task, "tags", None) else "folder",
+                "icon": tags_icon(task.tags)
+                if getattr(task, "tags", None)
+                else "folder",
             }
 
     return _get_task_info_from_db(task_name or "")
@@ -308,7 +328,11 @@ def workflow_count_for_tag(workflows, tag):
     return sum(
         1
         for w in workflows
-        if any((t or "").lower() == tag_lower for t in (getattr(w, "tags", None) or []) if isinstance(t, str))
+        if any(
+            (t or "").lower() == tag_lower
+            for t in (getattr(w, "tags", None) or [])
+            if isinstance(t, str)
+        )
     )
 
 

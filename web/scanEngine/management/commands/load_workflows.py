@@ -40,7 +40,9 @@ class Command(SecatorLoaderBase):
         if not builtin_only:
             self.load_custom_workflows()
 
-        self.stdout.write(self.style.SUCCESS("Workflow loading completed successfully!"))
+        self.stdout.write(
+            self.style.SUCCESS("Workflow loading completed successfully!")
+        )
 
     def load_builtin_workflows(self):
         """Load built-in Secator workflows"""
@@ -63,11 +65,17 @@ class Command(SecatorLoaderBase):
                     # Extract workflow information from TemplateLoader
                     workflow_alias = getattr(workflow_loader, "alias", None)
                     workflow_name = workflow_loader.name
-                    workflow_description = getattr(workflow_loader, "description", "") or ""
+                    workflow_description = (
+                        getattr(workflow_loader, "description", "") or ""
+                    )
                     workflow_path = getattr(workflow_loader, "_path", None)
 
                     if not workflow_path:
-                        self.stdout.write(self.style.WARNING(f"Workflow {workflow_name} has no path, skipping"))
+                        self.stdout.write(
+                            self.style.WARNING(
+                                f"Workflow {workflow_name} has no path, skipping"
+                            )
+                        )
                         failed_count += 1
                         continue
 
@@ -77,7 +85,9 @@ class Command(SecatorLoaderBase):
                             yaml_config = f.read()
                     except Exception as e:
                         self.stdout.write(
-                            self.style.ERROR(f"Failed to read YAML file for workflow {workflow_name}: {e}")
+                            self.style.ERROR(
+                                f"Failed to read YAML file for workflow {workflow_name}: {e}"
+                            )
                         )
                         failed_count += 1
                         continue
@@ -86,18 +96,27 @@ class Command(SecatorLoaderBase):
                     try:
                         workflow_data = yaml.safe_load(yaml_config)
                     except yaml.YAMLError as e:
-                        self.stdout.write(self.style.ERROR(f"Invalid YAML for workflow {workflow_name}: {e}"))
+                        self.stdout.write(
+                            self.style.ERROR(
+                                f"Invalid YAML for workflow {workflow_name}: {e}"
+                            )
+                        )
                         failed_count += 1
                         continue
 
                     if not workflow_data:
-                        self.stdout.write(self.style.WARNING(f"Empty YAML for workflow: {workflow_name}"))
+                        self.stdout.write(
+                            self.style.WARNING(
+                                f"Empty YAML for workflow: {workflow_name}"
+                            )
+                        )
                         failed_count += 1
                         continue
 
                     # Use description from YAML if available, otherwise use loader description
                     description = (
-                        workflow_data.get("description", workflow_description) or f"Built-in {workflow_name} workflow"
+                        workflow_data.get("description", workflow_description)
+                        or f"Built-in {workflow_name} workflow"
                     )
                     # Get long_description from YAML or TemplateLoader
                     long_description = workflow_data.get("long_description") or getattr(
@@ -106,7 +125,13 @@ class Command(SecatorLoaderBase):
                     # Normalize tags from YAML to list of non-empty strings
                     raw_tags = workflow_data.get("tags") or []
                     tags = [
-                        str(t).strip() for t in (raw_tags if isinstance(raw_tags, (list, tuple)) else [raw_tags]) if t
+                        str(t).strip()
+                        for t in (
+                            raw_tags
+                            if isinstance(raw_tags, (list, tuple))
+                            else [raw_tags]
+                        )
+                        if t
                     ]
 
                     # Determine scan type based on workflow content
@@ -114,7 +139,9 @@ class Command(SecatorLoaderBase):
 
                     # Get display name from WORKFLOW_NAME_CHOICES using workflow_name (TemplateLoader name)
                     # (will be formatted automatically via get_display_name() if empty)
-                    display_name = dict(SecatorWorkflow.WORKFLOW_NAME_CHOICES).get(workflow_name)
+                    display_name = dict(SecatorWorkflow.WORKFLOW_NAME_CHOICES).get(
+                        workflow_name
+                    )
 
                     # Use name (TemplateLoader name) as unique key - this is the only identifier for Secator
                     workflow, created = SecatorWorkflow.objects.get_or_create(
@@ -136,7 +163,9 @@ class Command(SecatorLoaderBase):
                         # For built-in workflows, use bypass_builtin_constraints to allow save
                         workflow.save(bypass_builtin_constraints=True)
                         created_count += 1
-                        self.stdout.write(f"Created built-in workflow: {workflow.get_display_name()}")
+                        self.stdout.write(
+                            f"Created built-in workflow: {workflow.get_display_name()}"
+                        )
                     else:
                         # Update existing workflow using update() to bypass save() constraints
                         SecatorWorkflow.objects.filter(pk=workflow.pk).update(
@@ -163,10 +192,14 @@ class Command(SecatorLoaderBase):
                 f"Loaded {created_count} new built-in workflows, updated {updated_count} existing workflows"
             )
             if failed_count > 0:
-                self.stdout.write(self.style.WARNING(f"Failed to load {failed_count} workflows"))
+                self.stdout.write(
+                    self.style.WARNING(f"Failed to load {failed_count} workflows")
+                )
 
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f"Failed to get workflows from secator: {e}"))
+            self.stdout.write(
+                self.style.ERROR(f"Failed to get workflows from secator: {e}")
+            )
             return
 
         self._load_workflows_from_config_dir(workflow_type="builtin")
@@ -177,7 +210,9 @@ class Command(SecatorLoaderBase):
 
         if not os.path.exists(workflows_dir):
             if workflow_type == "builtin":
-                self.stdout.write(self.style.WARNING("Config workflows directory not found, skipping"))
+                self.stdout.write(
+                    self.style.WARNING("Config workflows directory not found, skipping")
+                )
             return
 
         label = "built-in (config)" if workflow_type == "builtin" else "custom"
@@ -197,14 +232,24 @@ class Command(SecatorLoaderBase):
                     workflow_data = yaml.safe_load(f)
 
                 if not workflow_data or "name" not in workflow_data:
-                    self.stdout.write(self.style.WARNING("Invalid workflow file: %s" % (filename,)))
+                    self.stdout.write(
+                        self.style.WARNING("Invalid workflow file: %s" % (filename,))
+                    )
                     continue
 
                 workflow_name = workflow_data["name"]
                 raw_tags = workflow_data.get("tags") or []
-                tags = [str(t).strip() for t in (raw_tags if isinstance(raw_tags, (list, tuple)) else [raw_tags]) if t]
+                tags = [
+                    str(t).strip()
+                    for t in (
+                        raw_tags if isinstance(raw_tags, (list, tuple)) else [raw_tags]
+                    )
+                    if t
+                ]
                 scan_type = self._determine_scan_type_from_yaml(workflow_data)
-                display_name = dict(SecatorWorkflow.WORKFLOW_NAME_CHOICES).get(workflow_name)
+                display_name = dict(SecatorWorkflow.WORKFLOW_NAME_CHOICES).get(
+                    workflow_name
+                )
 
                 workflow, created = SecatorWorkflow.objects.get_or_create(
                     name=workflow_name,
@@ -227,7 +272,9 @@ class Command(SecatorLoaderBase):
                     else:
                         workflow.save()
                     created_count += 1
-                    self.stdout.write("Created %s workflow: %s" % (label, workflow.get_display_name()))
+                    self.stdout.write(
+                        "Created %s workflow: %s" % (label, workflow.get_display_name())
+                    )
                 else:
                     SecatorWorkflow.objects.filter(pk=workflow.pk).update(
                         alias=workflow_data.get("alias"),
@@ -240,19 +287,34 @@ class Command(SecatorLoaderBase):
                         tags=tags,
                     )
                     updated_count += 1
-                    self.stdout.write("Updated %s workflow: %s" % (label, workflow_name))
+                    self.stdout.write(
+                        "Updated %s workflow: %s" % (label, workflow_name)
+                    )
 
             except (FileNotFoundError, PermissionError) as e:
-                self.stdout.write(self.style.ERROR("Workflow file %s: %s" % (filename, e)))
+                self.stdout.write(
+                    self.style.ERROR("Workflow file %s: %s" % (filename, e))
+                )
             except yaml.YAMLError as e:
-                self.stdout.write(self.style.ERROR("Invalid YAML in workflow file %s: %s" % (filename, e)))
+                self.stdout.write(
+                    self.style.ERROR(
+                        "Invalid YAML in workflow file %s: %s" % (filename, e)
+                    )
+                )
             except UnicodeDecodeError as e:
-                self.stdout.write(self.style.ERROR("Encoding error in workflow file %s: %s" % (filename, e)))
+                self.stdout.write(
+                    self.style.ERROR(
+                        "Encoding error in workflow file %s: %s" % (filename, e)
+                    )
+                )
             except Exception as e:
-                self.stdout.write(self.style.ERROR("Error loading workflow %s: %s" % (filename, e)))
+                self.stdout.write(
+                    self.style.ERROR("Error loading workflow %s: %s" % (filename, e))
+                )
 
         self.stdout.write(
-            "Loaded %s new %s workflows from config, updated %s existing" % (created_count, label, updated_count)
+            "Loaded %s new %s workflows from config, updated %s existing"
+            % (created_count, label, updated_count)
         )
 
     def load_custom_workflows(self) -> None:

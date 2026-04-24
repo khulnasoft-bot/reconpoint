@@ -38,7 +38,9 @@ class TestMapSecatorStatusToReconpoint(unittest.TestCase):
         for secator_status, expected in cases:
             with self.subTest(secator_status=secator_status):
                 self.assertEqual(
-                    SecatorProgressSync.map_secator_status_to_reconpoint(secator_status),
+                    SecatorProgressSync.map_secator_status_to_reconpoint(
+                        secator_status
+                    ),
                     expected,
                 )
 

@@ -22,8 +22,16 @@ schema_view = get_schema_view(
 )
 urlpatterns = (
     [
-        re_path(r"^swagger(?P<format>\.json|\.yaml)$", schema_view.without_ui(cache_timeout=0), name="schema-json"),
-        path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
+        re_path(
+            r"^swagger(?P<format>\.json|\.yaml)$",
+            schema_view.without_ui(cache_timeout=0),
+            name="schema-json",
+        ),
+        path(
+            "swagger/",
+            schema_view.with_ui("swagger", cache_timeout=0),
+            name="schema-swagger-ui",
+        ),
         path("admin/", admin.site.urls),
         path("", include("dashboard.urls")),
         path("target/", include("targetApp.urls")),
@@ -35,8 +43,16 @@ urlpatterns = (
         path("scanEngine/<slug:slug>/", include("scanEngine.urls")),
         path("scan/", include("startScan.urls")),
         path("recon_note/", include("recon_note.urls")),
-        path("login/", auth_views.LoginView.as_view(template_name="base/login.html"), name="login"),
-        path("logout/", auth_views.LogoutView.as_view(template_name="base/logout.html"), name="logout"),
+        path(
+            "login/",
+            auth_views.LoginView.as_view(template_name="base/login.html"),
+            name="login",
+        ),
+        path(
+            "logout/",
+            auth_views.LogoutView.as_view(template_name="base/logout.html"),
+            name="logout",
+        ),
         path(
             "accounts/",
             include("allauth.urls"),

@@ -22,10 +22,18 @@ class CleanupIpDomainsMigrationTestCase(BaseTestCase):
         self.scan_history = self.data_generator.create_scan_history()
 
     def test_cleanup_ip_domains_detaches_children_before_delete(self):
-        ip_domain = Domain.objects.create(name="192.0.2.10", scan_history=self.scan_history)
-        cidr_domain = Domain.objects.create(name="198.51.100.0/24", scan_history=self.scan_history)
-        range_domain = Domain.objects.create(name="203.0.113.10-203.0.113.20", scan_history=self.scan_history)
-        valid_domain = Domain.objects.create(name="clean-example.test", scan_history=self.scan_history)
+        ip_domain = Domain.objects.create(
+            name="192.0.2.10", scan_history=self.scan_history
+        )
+        cidr_domain = Domain.objects.create(
+            name="198.51.100.0/24", scan_history=self.scan_history
+        )
+        range_domain = Domain.objects.create(
+            name="203.0.113.10-203.0.113.20", scan_history=self.scan_history
+        )
+        valid_domain = Domain.objects.create(
+            name="clean-example.test", scan_history=self.scan_history
+        )
 
         subdomain = Subdomain.objects.create(
             name="api.clean-example.test",
@@ -49,12 +57,22 @@ class CleanupIpDomainsMigrationTestCase(BaseTestCase):
             scan_history=self.scan_history,
             doc_name="report.txt",
         )
-        employee = Employee.objects.create(domain=ip_domain, scan_history=self.scan_history, name="Test User")
-        exploit = Exploit.objects.create(name="sample exploit", domain=ip_domain, scan_history=self.scan_history)
-        runner = SecatorRunner.objects.create(runner_type="scan", domain=ip_domain, scan_history=self.scan_history)
-        certificate = Certificate.objects.create(host="192.0.2.10", domain=ip_domain, scan_history=self.scan_history)
+        employee = Employee.objects.create(
+            domain=ip_domain, scan_history=self.scan_history, name="Test User"
+        )
+        exploit = Exploit.objects.create(
+            name="sample exploit", domain=ip_domain, scan_history=self.scan_history
+        )
+        runner = SecatorRunner.objects.create(
+            runner_type="scan", domain=ip_domain, scan_history=self.scan_history
+        )
+        certificate = Certificate.objects.create(
+            host="192.0.2.10", domain=ip_domain, scan_history=self.scan_history
+        )
 
-        migration_module = importlib.import_module("startScan.migrations.0124_cleanup_ip_domains")
+        migration_module = importlib.import_module(
+            "startScan.migrations.0124_cleanup_ip_domains"
+        )
         migration_module.cleanup_ip_domains(global_apps, schema_editor=None)
 
         self.assertFalse(Domain.objects.filter(pk=ip_domain.pk).exists())

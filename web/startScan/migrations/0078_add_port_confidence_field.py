@@ -13,7 +13,10 @@ class Migration(migrations.Migration):
             model_name="port",
             name="confidence",
             field=models.CharField(
-                blank=True, help_text="Confidence level: low, medium, high", max_length=20, null=True
+                blank=True,
+                help_text="Confidence level: low, medium, high",
+                max_length=20,
+                null=True,
             ),
         ),
     ]

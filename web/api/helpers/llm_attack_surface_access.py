@@ -19,7 +19,9 @@ def get_target_for_llm_attack_surface(user: AbstractUser, pk: int) -> Target | N
     return qs.first()
 
 
-def get_scan_history_for_llm_attack_surface(user: AbstractUser, pk: int) -> ScanHistory | None:
+def get_scan_history_for_llm_attack_surface(
+    user: AbstractUser, pk: int
+) -> ScanHistory | None:
     qs = ScanHistory.objects.filter(pk=pk).select_related("target")
     if not user.is_superuser:
         qs = qs.filter(target__project__users=user)
@@ -33,14 +35,18 @@ def get_scope_for_llm_attack_surface(user: AbstractUser, pk: int) -> Scope | Non
     return qs.first()
 
 
-def get_organization_for_llm_attack_surface(user: AbstractUser, pk: int) -> Organization | None:
+def get_organization_for_llm_attack_surface(
+    user: AbstractUser, pk: int
+) -> Organization | None:
     qs = Organization.objects.filter(pk=pk)
     if not user.is_superuser:
         qs = qs.filter(project__users=user)
     return qs.first()
 
 
-def get_subdomain_for_llm_attack_surface(user: AbstractUser, pk: int) -> Subdomain | None:
+def get_subdomain_for_llm_attack_surface(
+    user: AbstractUser, pk: int
+) -> Subdomain | None:
     qs = Subdomain.objects.filter(pk=pk)
     if not user.is_superuser:
         qs = qs.filter(scan_history__target__project__users=user).distinct()

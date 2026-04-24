@@ -255,7 +255,9 @@ class TestSecatorWorkerInstallPublicKey(BaseTestCase):
     @patch("api.views.get_ssh_client")
     @patch("api.views.install_public_key_on_host")
     @patch("api.views.get_public_key_content")
-    def test_install_public_key_success(self, mock_get_pubkey, mock_install, mock_get_ssh, mock_run_remote):
+    def test_install_public_key_success(
+        self, mock_get_pubkey, mock_install, mock_get_ssh, mock_run_remote
+    ):
         """install-public-key installs key, tests connection, switches worker to key auth."""
         mock_get_pubkey.return_value = "ssh-ed25519 AAAAB3 reconpoint@host"
         mock_client = MagicMock()

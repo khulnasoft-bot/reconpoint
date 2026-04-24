@@ -12,6 +12,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="target",
             name="scan_config",
-            field=models.JSONField(blank=True, help_text="Per-target scan parameter overrides and profiles", null=True),
+            field=models.JSONField(
+                blank=True,
+                help_text="Per-target scan parameter overrides and profiles",
+                null=True,
+            ),
         ),
     ]

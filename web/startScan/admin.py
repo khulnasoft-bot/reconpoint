@@ -93,7 +93,15 @@ class DomainAdmin(admin.ModelAdmin):
         ),
         (
             "Scan / Network",
-            {"fields": ("h1_team_handle", "ip_address_cidr", "insert_date", "start_scan_date", "custom_dns_servers")},
+            {
+                "fields": (
+                    "h1_team_handle",
+                    "ip_address_cidr",
+                    "insert_date",
+                    "start_scan_date",
+                    "custom_dns_servers",
+                )
+            },
         ),
         (
             "Advanced",
@@ -169,7 +177,10 @@ class DomainRegistrationAdmin(admin.ModelAdmin):
     list_filter = ["country"]
     search_fields = ["name", "organization", "email"]
     fieldsets = (
-        ("Basic Information", {"fields": ("name", "organization", "contact", "type", "id_str")}),
+        (
+            "Basic Information",
+            {"fields": ("name", "organization", "contact", "type", "id_str")},
+        ),
         ("Address", {"fields": ("address", "city", "state", "zip_code", "country")}),
         ("Contact", {"fields": ("email", "phone", "fax")}),
     )
@@ -213,11 +224,20 @@ class ScanHistoryAdmin(admin.ModelAdmin):
         "tasks",
     ]
     fieldsets = (
-        ("Scan Information", {"fields": ("target", "scan_type", "is_legacy_scan", "scan_status")}),
+        (
+            "Scan Information",
+            {"fields": ("target", "scan_type", "is_legacy_scan", "scan_status")},
+        ),
         (
             "Execution Details",
             {
-                "fields": ("start_scan_date", "stop_scan_date", "results_dir", "tasks", "error_message"),
+                "fields": (
+                    "start_scan_date",
+                    "stop_scan_date",
+                    "results_dir",
+                    "tasks",
+                    "error_message",
+                ),
                 "classes": ("collapse",),
             },
         ),
@@ -230,7 +250,13 @@ class ScanHistoryAdmin(admin.ModelAdmin):
         (
             "Results",
             {
-                "fields": ("emails", "employees", "buckets", "dorks", "used_gf_patterns"),
+                "fields": (
+                    "emails",
+                    "employees",
+                    "buckets",
+                    "dorks",
+                    "used_gf_patterns",
+                ),
                 "classes": ("collapse",),
             },
         ),
@@ -277,7 +303,16 @@ class SubScanAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Basic Information",
-            {"fields": ("type", "status", "scan_history", "subdomain", "engine", "secator_runner")},
+            {
+                "fields": (
+                    "type",
+                    "status",
+                    "scan_history",
+                    "subdomain",
+                    "engine",
+                    "secator_runner",
+                )
+            },
         ),
         (
             "Execution",
@@ -378,7 +413,10 @@ class SubdomainAdmin(admin.ModelAdmin):
         ),
         (
             "Relations",
-            {"fields": ("ip_addresses", "directories", "waf"), "classes": ("collapse",)},
+            {
+                "fields": ("ip_addresses", "directories", "waf"),
+                "classes": ("collapse",),
+            },
         ),
     )
     filter_horizontal = [
@@ -468,7 +506,16 @@ class EndPointAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Basic Information",
-            {"fields": ("scan_history", "domain", "subdomain", "source", "http_url", "is_default")},
+            {
+                "fields": (
+                    "scan_history",
+                    "domain",
+                    "subdomain",
+                    "source",
+                    "http_url",
+                    "is_default",
+                )
+            },
         ),
         (
             "HTTP Response",
@@ -525,7 +572,11 @@ class EndPointAdmin(admin.ModelAdmin):
             return ""
         # URL served with project check via api.scan_file.ServeScanFile
         url = build_scan_file_url(obj.screenshot_path)
-        return format_html('<a href="{}" target="_blank" rel="noopener">Open</a>', url) if url else ""
+        return (
+            format_html('<a href="{}" target="_blank" rel="noopener">Open</a>', url)
+            if url
+            else ""
+        )
 
     @admin.display(description="Stored response")
     def stored_response_open_link(self, obj):
@@ -533,7 +584,11 @@ class EndPointAdmin(admin.ModelAdmin):
             return ""
         # URL served with project check via api.scan_file.ServeScanFile
         url = build_scan_file_url(obj.stored_response_path)
-        return format_html('<a href="{}" target="_blank" rel="noopener">Open</a>', url) if url else ""
+        return (
+            format_html('<a href="{}" target="_blank" rel="noopener">Open</a>', url)
+            if url
+            else ""
+        )
 
 
 @admin.register(Vulnerability)
@@ -608,7 +663,10 @@ class VulnerabilityAdmin(admin.ModelAdmin):
         ),
         (
             "Request / Response",
-            {"fields": ("curl_command", "type", "http_url", "request", "response"), "classes": ("collapse",)},
+            {
+                "fields": ("curl_command", "type", "http_url", "request", "response"),
+                "classes": ("collapse",),
+            },
         ),
         (
             "Metadata",
@@ -684,7 +742,17 @@ class PortAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Basic Information",
-            {"fields": ("number", "ip_address", "service_name", "description", "state", "protocol", "host")},
+            {
+                "fields": (
+                    "number",
+                    "ip_address",
+                    "service_name",
+                    "description",
+                    "state",
+                    "protocol",
+                    "host",
+                )
+            },
         ),
         (
             "Metadata",
@@ -731,7 +799,16 @@ class IpAddressAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Basic Information",
-            {"fields": ("address", "version", "protocol", "is_cdn", "is_private", "alive")},
+            {
+                "fields": (
+                    "address",
+                    "version",
+                    "protocol",
+                    "is_cdn",
+                    "is_private",
+                    "alive",
+                )
+            },
         ),
         (
             "DNS",
@@ -803,7 +880,10 @@ class DirectoryScanAdmin(admin.ModelAdmin):
         ),
         (
             "Relations",
-            {"fields": ("directory_files", "dir_subscan_ids"), "classes": ("collapse",)},
+            {
+                "fields": ("directory_files", "dir_subscan_ids"),
+                "classes": ("collapse",),
+            },
         ),
     )
     filter_horizontal = [
@@ -843,11 +923,30 @@ class MetaFinderDocumentAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Basic Information",
-            {"fields": ("scan_history", "domain", "subdomain", "doc_name", "url", "title")},
+            {
+                "fields": (
+                    "scan_history",
+                    "domain",
+                    "subdomain",
+                    "doc_name",
+                    "url",
+                    "title",
+                )
+            },
         ),
         (
             "Metadata",
-            {"fields": ("author", "producer", "creator", "os", "http_status", "creation_date", "modified_date")},
+            {
+                "fields": (
+                    "author",
+                    "producer",
+                    "creator",
+                    "os",
+                    "http_status",
+                    "creation_date",
+                    "modified_date",
+                )
+            },
         ),
     )
 
@@ -907,7 +1006,16 @@ class EmployeeAdmin(admin.ModelAdmin):
         ),
         (
             "Associations",
-            {"fields": ("scan_history", "domain", "subdomain", "endpoint", "discovered_date", "extra_data")},
+            {
+                "fields": (
+                    "scan_history",
+                    "domain",
+                    "subdomain",
+                    "endpoint",
+                    "discovered_date",
+                    "extra_data",
+                )
+            },
         ),
         (
             "Emails",
@@ -988,7 +1096,16 @@ class CommandAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Basic Information",
-            {"fields": ("scan_history", "activity", "name", "command", "status", "return_code")},
+            {
+                "fields": (
+                    "scan_history",
+                    "activity",
+                    "name",
+                    "command",
+                    "status",
+                    "return_code",
+                )
+            },
         ),
         (
             "Execution",
@@ -1067,7 +1184,15 @@ class S3BucketAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Basic Information",
-            {"fields": ("name", "region", "provider", "owner_id", "owner_display_name")},
+            {
+                "fields": (
+                    "name",
+                    "region",
+                    "provider",
+                    "owner_id",
+                    "owner_display_name",
+                )
+            },
         ),
         (
             "Permissions",
@@ -1124,7 +1249,16 @@ class SecatorRunnerAdmin(TimestampedModelAdminMixin, admin.ModelAdmin):
     fieldsets = build_fieldsets_with_timestamps(
         (
             "Basic Information",
-            {"fields": ("runner_type", "runner_name", "scan_history", "domain", "status", "celery_id")},
+            {
+                "fields": (
+                    "runner_type",
+                    "runner_name",
+                    "scan_history",
+                    "domain",
+                    "status",
+                    "celery_id",
+                )
+            },
         ),
         (
             "Data",
@@ -1220,7 +1354,14 @@ class DomainInfoHistoricalIpsThroughAdmin(admin.ModelAdmin):
 class SecretAdmin(admin.ModelAdmin):
     """Admin interface for Secret model."""
 
-    list_display = ["id", "rule_name", "scan_history", "matched_at", "source", "discovered_date"]
+    list_display = [
+        "id",
+        "rule_name",
+        "scan_history",
+        "matched_at",
+        "source",
+        "discovered_date",
+    ]
     list_display_links = ["rule_name"]
     list_filter = ["source", "discovered_date"]
     ordering = ["-discovered_date"]
@@ -1234,7 +1375,14 @@ class SecretAdmin(admin.ModelAdmin):
 class ExploitAdmin(admin.ModelAdmin):
     """Admin interface for Exploit model."""
 
-    list_display = ["id", "name", "exploit_id", "scan_history", "ip_address", "discovered_date"]
+    list_display = [
+        "id",
+        "name",
+        "exploit_id",
+        "scan_history",
+        "ip_address",
+        "discovered_date",
+    ]
     list_display_links = ["name"]
     list_filter = ["provider", "discovered_date"]
     ordering = ["-discovered_date"]
@@ -1248,7 +1396,14 @@ class ExploitAdmin(admin.ModelAdmin):
 class CertificateAdmin(admin.ModelAdmin):
     """Admin interface for Certificate model."""
 
-    list_display = ["id", "host", "subject_cn", "scan_history", "not_after", "discovered_date"]
+    list_display = [
+        "id",
+        "host",
+        "subject_cn",
+        "scan_history",
+        "not_after",
+        "discovered_date",
+    ]
     list_display_links = ["subject_cn"]
     list_filter = ["self_signed", "trusted", "discovered_date"]
     list_per_page = 50
@@ -1263,7 +1418,16 @@ class CertificateAdmin(admin.ModelAdmin):
 class ScanScheduleAdmin(admin.ModelAdmin):
     """Admin interface for ScanSchedule model."""
 
-    list_display = ["id", "name", "target", "schedule_mode", "next_run", "enabled", "initiated_by", "created_at"]
+    list_display = [
+        "id",
+        "name",
+        "target",
+        "schedule_mode",
+        "next_run",
+        "enabled",
+        "initiated_by",
+        "created_at",
+    ]
     list_display_links = ["name"]
     list_filter = ["schedule_mode", "enabled", "created_at"]
     list_select_related = ["target", "initiated_by"]

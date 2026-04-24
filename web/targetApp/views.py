@@ -215,8 +215,14 @@ def _build_add_target_simple_tabs(target_type_choices, secator_configs):
     for spec in ADD_TARGET_SIMPLE_TAB_SPECS:
         tab = {
             **spec,
-            "target_type_value": target_type_choices.get(spec["target_type_key"], spec["target_type_key"]),
-            "secator_names": (secator_configs.get(spec["secator_hint"], []) if spec.get("secator_hint") else []),
+            "target_type_value": target_type_choices.get(
+                spec["target_type_key"], spec["target_type_key"]
+            ),
+            "secator_names": (
+                secator_configs.get(spec["secator_hint"], [])
+                if spec.get("secator_hint")
+                else []
+            ),
         }
         tabs.append(tab)
     return tabs
@@ -287,19 +293,27 @@ def _apply_pending_normalizer_targets(scope, request):
     with transaction.atomic():
         for value in domain_targets:
             if value and isinstance(value, str) and value.strip():
-                target, _ = _get_or_create_target(project, value.strip(), target_type=TARGET_TYPE_HOST)
+                target, _ = _get_or_create_target(
+                    project, value.strip(), target_type=TARGET_TYPE_HOST
+                )
                 scope.targets.add(target)
         for value in ip_targets:
             if value and isinstance(value, str) and value.strip():
-                target, _ = _get_or_create_target(project, value.strip(), target_type=TARGET_TYPE_IP)
+                target, _ = _get_or_create_target(
+                    project, value.strip(), target_type=TARGET_TYPE_IP
+                )
                 scope.targets.add(target)
         for value in cidr_targets:
             if value and isinstance(value, str) and value.strip():
-                target, _ = _get_or_create_target(project, value.strip(), target_type=TARGET_TYPE_CIDR_RANGE)
+                target, _ = _get_or_create_target(
+                    project, value.strip(), target_type=TARGET_TYPE_CIDR_RANGE
+                )
                 scope.targets.add(target)
         for value in url_targets:
             if value and isinstance(value, str) and value.strip():
-                target, _ = _get_or_create_target(project, value.strip(), target_type=TARGET_TYPE_URL)
+                target, _ = _get_or_create_target(
+                    project, value.strip(), target_type=TARGET_TYPE_URL
+                )
                 scope.targets.add(target)
 
 
@@ -373,7 +387,11 @@ def validate_dns_servers(dns_servers_string):
                 pass
 
         # Try hostname validation if IP validation failed
-        if not is_valid and (validators.domain(address) or validators.ipv4(address) or validators.ipv6(address)):
+        if not is_valid and (
+            validators.domain(address)
+            or validators.ipv4(address)
+            or validators.ipv6(address)
+        ):
             is_valid = True
 
         if not is_valid:
@@ -432,21 +450,29 @@ def add_target(request, slug):
                         messages.ERROR,
                         "Value is required.",
                     )
-                    return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
-                if target_type_single == TARGET_TYPE_CIDR_RANGE and not is_valid_cidr(value):
+                    return http.HttpResponseRedirect(
+                        reverse("add_target", kwargs={"slug": slug})
+                    )
+                if target_type_single == TARGET_TYPE_CIDR_RANGE and not is_valid_cidr(
+                    value
+                ):
                     messages.add_message(
                         request,
                         messages.ERROR,
                         "Invalid CIDR range. Example: 192.168.1.0/24",
                     )
-                    return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
+                    return http.HttpResponseRedirect(
+                        reverse("add_target", kwargs={"slug": slug})
+                    )
                 if target_type_single == TARGET_TYPE_URL and not validators.url(value):
                     messages.add_message(
                         request,
                         messages.ERROR,
                         "Invalid URL.",
                     )
-                    return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
+                    return http.HttpResponseRedirect(
+                        reverse("add_target", kwargs={"slug": slug})
+                    )
                 description = request.POST.get("targetDescription", "") or None
                 h1_team_handle = request.POST.get("targetH1TeamHandle") or None
                 target, created = Target.objects.get_or_create(
@@ -477,11 +503,15 @@ def add_target(request, slug):
                         messages.INFO,
                         "Target already exists.",
                     )
-                return http.HttpResponseRedirect(reverse("list_target", kwargs={"slug": slug}))
+                return http.HttpResponseRedirect(
+                    reverse("list_target", kwargs={"slug": slug})
+                )
 
             # Multiple targets: only create Target entries (no Domain/startScan models)
             if multiple_targets:
-                bulk_targets = [t.rstrip() for t in request.POST["addTargets"].split("\n") if t]
+                bulk_targets = [
+                    t.rstrip() for t in request.POST["addTargets"].split("\n") if t
+                ]
                 logger.log_line(
                     PREFIX_TARGET,
                     "ADD_TARGET",
@@ -495,52 +525,83 @@ def add_target(request, slug):
                 for raw_value in bulk_targets:
                     raw_value = raw_value.rstrip("\n")
                     is_domain = bool(validators.domain(raw_value))
-                    is_ip = bool(validators.ipv4(raw_value)) or bool(validators.ipv6(raw_value))
+                    is_ip = bool(validators.ipv4(raw_value)) or bool(
+                        validators.ipv6(raw_value)
+                    )
                     is_range = is_valid_cidr(raw_value)
                     is_url = bool(validators.url(raw_value))
 
                     if is_domain:
-                        tgt, created = _get_or_create_target(project, raw_value, target_type=TARGET_TYPE_HOST)
+                        tgt, created = _get_or_create_target(
+                            project, raw_value, target_type=TARGET_TYPE_HOST
+                        )
                         if created:
                             if description or h1_team_handle:
                                 tgt.description = description or tgt.description
-                                tgt.h1_team_handle = h1_team_handle or tgt.h1_team_handle
-                                tgt.save(update_fields=["description", "h1_team_handle"])
+                                tgt.h1_team_handle = (
+                                    h1_team_handle or tgt.h1_team_handle
+                                )
+                                tgt.save(
+                                    update_fields=["description", "h1_team_handle"]
+                                )
                             total_processed_count += 1
                             logger.log_line(
-                                PREFIX_TARGET, "ADD_TARGET", "Added target %s (host)" % (raw_value,), level="info"
+                                PREFIX_TARGET,
+                                "ADD_TARGET",
+                                "Added target %s (host)" % (raw_value,),
+                                level="info",
                             )
                         created_targets.append(tgt)
 
                     elif is_url:
-                        tgt, created = _get_or_create_target(project, raw_value, target_type=TARGET_TYPE_URL)
+                        tgt, created = _get_or_create_target(
+                            project, raw_value, target_type=TARGET_TYPE_URL
+                        )
                         if created:
                             if description or h1_team_handle:
                                 tgt.description = description or tgt.description
-                                tgt.h1_team_handle = h1_team_handle or tgt.h1_team_handle
-                                tgt.save(update_fields=["description", "h1_team_handle"])
+                                tgt.h1_team_handle = (
+                                    h1_team_handle or tgt.h1_team_handle
+                                )
+                                tgt.save(
+                                    update_fields=["description", "h1_team_handle"]
+                                )
                             total_processed_count += 1
                             logger.log_line(
-                                PREFIX_TARGET, "ADD_TARGET", "Added target %s (url)" % (raw_value,), level="info"
+                                PREFIX_TARGET,
+                                "ADD_TARGET",
+                                "Added target %s (url)" % (raw_value,),
+                                level="info",
                             )
                         created_targets.append(tgt)
 
                     elif is_ip:
-                        tgt, created = _get_or_create_target(project, raw_value, target_type=TARGET_TYPE_IP)
+                        tgt, created = _get_or_create_target(
+                            project, raw_value, target_type=TARGET_TYPE_IP
+                        )
                         if created:
                             if description or h1_team_handle:
                                 tgt.description = description or tgt.description
-                                tgt.h1_team_handle = h1_team_handle or tgt.h1_team_handle
-                                tgt.save(update_fields=["description", "h1_team_handle"])
+                                tgt.h1_team_handle = (
+                                    h1_team_handle or tgt.h1_team_handle
+                                )
+                                tgt.save(
+                                    update_fields=["description", "h1_team_handle"]
+                                )
                             total_processed_count += 1
                             logger.log_line(
-                                PREFIX_TARGET, "ADD_TARGET", "Added target %s (ip)" % (raw_value,), level="info"
+                                PREFIX_TARGET,
+                                "ADD_TARGET",
+                                "Added target %s (ip)" % (raw_value,),
+                                level="info",
                             )
                         created_targets.append(tgt)
 
                     elif is_range:
                         for ip_address in get_ips_from_cidr_range(raw_value):
-                            tgt, created = _get_or_create_target(project, ip_address, target_type=TARGET_TYPE_IP)
+                            tgt, created = _get_or_create_target(
+                                project, ip_address, target_type=TARGET_TYPE_IP
+                            )
                             if created:
                                 total_processed_count += 1
                             created_targets.append(tgt)
@@ -552,7 +613,9 @@ def add_target(request, slug):
                         )
                     else:
                         msg = f"{raw_value} is not a valid domain, IP, or URL. Skipped."
-                        logger.log_line(PREFIX_TARGET, "ADD_TARGET", msg, level="warning")
+                        logger.log_line(
+                            PREFIX_TARGET, "ADD_TARGET", msg, level="warning"
+                        )
                         messages.add_message(request, messages.WARNING, msg)
 
                 if organization_name and created_targets:
@@ -582,24 +645,46 @@ def add_target(request, slug):
                         organization_obj.targets.add(tgt)
 
             # Import from txt / csv
-            elif "import-txt-target" in request.POST or "import-csv-target" in request.POST:
+            elif (
+                "import-txt-target" in request.POST
+                or "import-csv-target" in request.POST
+            ):
                 txt_file = request.FILES.get("txtFile")
                 csv_file = request.FILES.get("csvFile")
                 if not (txt_file or csv_file):
-                    messages.add_message(request, messages.ERROR, "Files uploaded are not .txt or .csv files.")
-                    return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
-
-                if (txt_file and txt_file.size == 0) or (csv_file and csv_file.size == 0):
                     messages.add_message(
-                        request, messages.ERROR, "The uploaded file is empty. Please upload a valid file."
+                        request,
+                        messages.ERROR,
+                        "Files uploaded are not .txt or .csv files.",
                     )
-                    return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
+                    return http.HttpResponseRedirect(
+                        reverse("add_target", kwargs={"slug": slug})
+                    )
+
+                if (txt_file and txt_file.size == 0) or (
+                    csv_file and csv_file.size == 0
+                ):
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        "The uploaded file is empty. Please upload a valid file.",
+                    )
+                    return http.HttpResponseRedirect(
+                        reverse("add_target", kwargs={"slug": slug})
+                    )
 
                 if txt_file:
-                    is_txt = txt_file.content_type == "text/plain" or txt_file.name.split(".")[-1] == "txt"
+                    is_txt = (
+                        txt_file.content_type == "text/plain"
+                        or txt_file.name.split(".")[-1] == "txt"
+                    )
                     if not is_txt:
-                        messages.add_message(request, messages.ERROR, "File is not a valid TXT file")
-                        return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
+                        messages.add_message(
+                            request, messages.ERROR, "File is not a valid TXT file"
+                        )
+                        return http.HttpResponseRedirect(
+                            reverse("add_target", kwargs={"slug": slug})
+                        )
                     txt_content = txt_file.read().decode("UTF-8")
                     io_string = io.StringIO(txt_content)
                     for line in io_string:
@@ -613,15 +698,24 @@ def add_target(request, slug):
                                 f"Domain {value} is not a valid domain name. Skipping.",
                             )
                             continue
-                        tgt, created = _get_or_create_target(project, value, target_type=TARGET_TYPE_HOST)
+                        tgt, created = _get_or_create_target(
+                            project, value, target_type=TARGET_TYPE_HOST
+                        )
                         if created:
                             total_processed_count += 1
 
                 elif csv_file:
-                    is_csv = csv_file.content_type == "text/csv" or csv_file.name.split(".")[-1] == "csv"
+                    is_csv = (
+                        csv_file.content_type == "text/csv"
+                        or csv_file.name.split(".")[-1] == "csv"
+                    )
                     if not is_csv:
-                        messages.add_message(request, messages.ERROR, "File is not a valid CSV file.")
-                        return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
+                        messages.add_message(
+                            request, messages.ERROR, "File is not a valid CSV file."
+                        )
+                        return http.HttpResponseRedirect(
+                            reverse("add_target", kwargs={"slug": slug})
+                        )
                     csv_content = csv_file.read().decode("UTF-8")
                     io_string = io.StringIO(csv_content)
                     org_cache = {}
@@ -638,7 +732,9 @@ def add_target(request, slug):
                             continue
                         description = None if len(column) <= 1 else column[1]
                         organization_name_csv = None if len(column) <= 2 else column[2]
-                        tgt, created = _get_or_create_target(project, value, target_type=TARGET_TYPE_HOST)
+                        tgt, created = _get_or_create_target(
+                            project, value, target_type=TARGET_TYPE_HOST
+                        )
                         if created:
                             if description:
                                 tgt.description = description
@@ -646,10 +742,12 @@ def add_target(request, slug):
                             total_processed_count += 1
                             if organization_name_csv:
                                 if organization_name_csv not in org_cache:
-                                    org_cache[organization_name_csv], _ = Organization.objects.get_or_create(
-                                        name=organization_name_csv,
-                                        project=project,
-                                        defaults={"insert_date": timezone.now()},
+                                    org_cache[organization_name_csv], _ = (
+                                        Organization.objects.get_or_create(
+                                            name=organization_name_csv,
+                                            project=project,
+                                            defaults={"insert_date": timezone.now()},
+                                        )
                                     )
                                 org_cache[organization_name_csv].targets.add(tgt)
             elif ip_target:
@@ -663,34 +761,56 @@ def add_target(request, slug):
                 used_dns_servers = request.POST.get("used_dns_servers", "").strip()
 
                 # Add single IP without DNS discovery (CIDR is only for DNS discovery, not for direct add)
-                if original_ip_range and not discovered_domains and not resolved_hosts_data:
+                if (
+                    original_ip_range
+                    and not discovered_domains
+                    and not resolved_hosts_data
+                ):
                     if "/" in original_ip_range:
                         messages.add_message(
                             request,
                             messages.ERROR,
                             "CIDR is only supported for DNS discovery. Use a single IP address to add without discovery, or run DNS discovery first.",
                         )
-                        return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
-                    if not (validators.ipv4(original_ip_range) or validators.ipv6(original_ip_range)):
+                        return http.HttpResponseRedirect(
+                            reverse("add_target", kwargs={"slug": slug})
+                        )
+                    if not (
+                        validators.ipv4(original_ip_range)
+                        or validators.ipv6(original_ip_range)
+                    ):
                         messages.add_message(
                             request,
                             messages.ERROR,
                             "Invalid IP address.",
                         )
-                        return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
+                        return http.HttpResponseRedirect(
+                            reverse("add_target", kwargs={"slug": slug})
+                        )
                     target_name = request.POST.get("targetName", "").strip()
                     description = request.POST.get("targetDescription", "") or None
                     h1_team_handle = request.POST.get("targetH1TeamHandle") or None
                     if used_dns_servers:
-                        is_valid, error_msg, cleaned_dns = validate_dns_servers(used_dns_servers)
+                        is_valid, error_msg, cleaned_dns = validate_dns_servers(
+                            used_dns_servers
+                        )
                         if not is_valid:
-                            messages.add_message(request, messages.ERROR, f"Invalid DNS servers: {error_msg}")
-                            return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
+                            messages.add_message(
+                                request,
+                                messages.ERROR,
+                                f"Invalid DNS servers: {error_msg}",
+                            )
+                            return http.HttpResponseRedirect(
+                                reverse("add_target", kwargs={"slug": slug})
+                            )
                         used_dns_servers = cleaned_dns
-                    tgt, created = _get_or_create_target(project, original_ip_range, target_type=TARGET_TYPE_IP)
+                    tgt, created = _get_or_create_target(
+                        project, original_ip_range, target_type=TARGET_TYPE_IP
+                    )
                     if created:
                         description_text = description or (
-                            f"IP target {original_ip_range}" + (f" ({target_name})" if target_name else "")
+                            f"IP target {original_ip_range}"
+                            + (f" ({target_name})" if target_name else "")
                         )
                         tgt.description = description_text
                         tgt.h1_team_handle = h1_team_handle
@@ -702,18 +822,29 @@ def add_target(request, slug):
                         "Added IP target without discovery: %s" % (original_ip_range,),
                         level="info",
                     )
-                    messages.add_message(request, messages.SUCCESS, "Target added successfully.")
-                    return http.HttpResponseRedirect(reverse("list_target", kwargs={"slug": slug}))
+                    messages.add_message(
+                        request, messages.SUCCESS, "Target added successfully."
+                    )
+                    return http.HttpResponseRedirect(
+                        reverse("list_target", kwargs={"slug": slug})
+                    )
 
                 # Validate DNS servers input for security
                 if used_dns_servers:
-                    is_valid, error_msg, cleaned_dns = validate_dns_servers(used_dns_servers)
+                    is_valid, error_msg, cleaned_dns = validate_dns_servers(
+                        used_dns_servers
+                    )
                     if not is_valid:
-                        messages.add_message(request, messages.ERROR, f"Invalid DNS servers configuration: {error_msg}")
+                        messages.add_message(
+                            request,
+                            messages.ERROR,
+                            f"Invalid DNS servers configuration: {error_msg}",
+                        )
                         logger.log_line(
                             PREFIX_TARGET,
                             "IP_SCAN",
-                            "Invalid DNS servers submitted: %s - %s" % (used_dns_servers, error_msg),
+                            "Invalid DNS servers submitted: %s - %s"
+                            % (used_dns_servers, error_msg),
                             level="warning",
                         )
                         context = {
@@ -767,18 +898,27 @@ def add_target(request, slug):
                     err_msg = "Target name is required when importing DNS discovery selections."
                     messages.add_message(request, messages.ERROR, err_msg)
                     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                        return JsonResponse({"status": "error", "message": err_msg}, status=400)
-                    return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
+                        return JsonResponse(
+                            {"status": "error", "message": err_msg}, status=400
+                        )
+                    return http.HttpResponseRedirect(
+                        reverse("add_target", kwargs={"slug": slug})
+                    )
 
                 with transaction.atomic():
-                    tgt, created = _get_or_create_target(project, target_name, target_type=TARGET_TYPE_HOST)
+                    tgt, created = _get_or_create_target(
+                        project, target_name, target_type=TARGET_TYPE_HOST
+                    )
                     if created and (description or h1_team_handle):
-                        tgt.description = description or ("Grouped target from %s" % original_ip_range)
+                        tgt.description = description or (
+                            "Grouped target from %s" % original_ip_range
+                        )
                         tgt.h1_team_handle = h1_team_handle
                         tgt.save(update_fields=["description", "h1_team_handle"])
                     stats = seed_findings_from_ip_discovery(
                         tgt,
-                        discovered_domain_names=list(discovered_domains) + [target_name],
+                        discovered_domain_names=list(discovered_domains)
+                        + [target_name],
                         resolved_host_payloads=payloads,
                         used_dns_servers=used_dns_servers,
                         initiated_by=request.user,
@@ -790,7 +930,8 @@ def add_target(request, slug):
                 logger.log_line(
                     PREFIX_TARGET,
                     "IP_SCAN",
-                    "Seeded ip_discovery findings for target_id=%s target_name=%s" % (tgt.id, target_name),
+                    "Seeded ip_discovery findings for target_id=%s target_name=%s"
+                    % (tgt.id, target_name),
                     level="info",
                 )
 
@@ -802,8 +943,12 @@ def add_target(request, slug):
                 level="error",
                 exc_info=True,
             )
-            messages.add_message(request, messages.ERROR, "Exception while adding target: %s" % (e,))
-            return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
+            messages.add_message(
+                request, messages.ERROR, "Exception while adding target: %s" % (e,)
+            )
+            return http.HttpResponseRedirect(
+                reverse("add_target", kwargs={"slug": slug})
+            )
 
         # No targets processed, handle error case
         if total_processed_count == 0:
@@ -811,23 +956,27 @@ def add_target(request, slug):
             if ip_target:
                 error_msg = "No targets were processed. This could be due to: 1) All selected hosts already exist, 2) Invalid host data format, or 3) Domain extraction errors. Check the logs for details."
             else:
-                error_msg = (
-                    "Oops! Could not import any targets, either targets already exists or is not a valid target."
-                )
+                error_msg = "Oops! Could not import any targets, either targets already exists or is not a valid target."
 
             logger.log_line(
                 PREFIX_TARGET,
                 "ADD_TARGET",
-                "No targets processed (total_processed_count=0) for request: %s" % (dict(request.POST),),
+                "No targets processed (total_processed_count=0) for request: %s"
+                % (dict(request.POST),),
                 level="warning",
             )
             messages.add_message(request, messages.ERROR, error_msg)
 
             # Handle AJAX requests with JSON error response
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return JsonResponse({"status": "error", "message": error_msg, "added_count": 0}, status=400)
+                return JsonResponse(
+                    {"status": "error", "message": error_msg, "added_count": 0},
+                    status=400,
+                )
 
-            return http.HttpResponseRedirect(reverse("add_target", kwargs={"slug": slug}))
+            return http.HttpResponseRedirect(
+                reverse("add_target", kwargs={"slug": slug})
+            )
 
         msg = f"{total_processed_count} target(s) processed successfully"
 
@@ -846,7 +995,9 @@ def add_target(request, slug):
                     "domains_created": ip_discovery_seed_stats["domains_created"],
                     "domains_existing": ip_discovery_seed_stats["domains_existing"],
                     "subdomains_created": ip_discovery_seed_stats["subdomains_created"],
-                    "subdomains_existing": ip_discovery_seed_stats["subdomains_existing"],
+                    "subdomains_existing": ip_discovery_seed_stats[
+                        "subdomains_existing"
+                    ],
                     "ips_created": ip_discovery_seed_stats["ips_created"],
                     "ips_existing": ip_discovery_seed_stats["ips_existing"],
                 }
@@ -868,7 +1019,9 @@ def add_target(request, slug):
         "target_type_choices": target_type_choices,
         "override_prefix": TARGET_OVERRIDE_PREFIX,
         "secator_workers": get_workers_for_scan_dropdown(),
-        "add_target_simple_tabs": _build_add_target_simple_tabs(target_type_choices, secator_configs),
+        "add_target_simple_tabs": _build_add_target_simple_tabs(
+            target_type_choices, secator_configs
+        ),
         "import_txt_alert": mark_safe(
             "Your txt file must have list of domains separated by a new line."
             "<br><br>By default all domains imported from txt will have no description "
@@ -891,14 +1044,17 @@ def list_target(request, slug):
         "list_target_li": "active",
         "target_data_active": "active",
         "datatable_filter_select_to_param": dt_config.get("filter_context"),
-        "datatable_row_group_config": get_datatable_row_group_config(TABLE_ID_TARGET_LIST),
+        "datatable_row_group_config": get_datatable_row_group_config(
+            TABLE_ID_TARGET_LIST
+        ),
         "detail_scan_url": reverse("detail_scan", args=[project.slug, 0]),
         "start_scan_url": reverse("start_scan", args=[project.slug, 0]),
         "schedule_scan_url": reverse("schedule_scan", args=[project.slug, 0]),
         "update_target_url": reverse("update_target", args=[project.slug, 0]),
         "delete_target_url": reverse("delete_target", args=[project.slug, 0]),
         "target_summary_url": reverse("target_summary", args=[project.slug, 0]),
-        "show_full_target_actions": has_role(request.user, "penetration_tester") or has_role(request.user, "admin"),
+        "show_full_target_actions": has_role(request.user, "penetration_tester")
+        or has_role(request.user, "admin"),
     }
     return render(request, "target/list.html", context)
 
@@ -913,7 +1069,9 @@ def delete_target(request, slug, id):
                 result_dirs = set()
                 for scan in ScanHistory.objects.filter(target_id=target.id):
                     results_dir = getattr(scan, "results_dir", None) or ""
-                    resolved = resolve_results_dir_under_base(settings.RECONPOINT_RESULTS, results_dir)
+                    resolved = resolve_results_dir_under_base(
+                        settings.RECONPOINT_RESULTS, results_dir
+                    )
                     if resolved is not None:
                         result_dirs.add(resolved)
                 for dir_path in result_dirs:
@@ -922,17 +1080,21 @@ def delete_target(request, slug, id):
                         logger.log_line(
                             PREFIX_TARGET,
                             "DELETE_TARGET",
-                            "Results dir cleanup returned %s for path %s" % (result, dir_path),
+                            "Results dir cleanup returned %s for path %s"
+                            % (result, dir_path),
                             level="warning",
                         )
-                resolved_direct = resolve_results_dir_under_base(settings.RECONPOINT_RESULTS, target.value)
+                resolved_direct = resolve_results_dir_under_base(
+                    settings.RECONPOINT_RESULTS, target.value
+                )
                 if resolved_direct is not None and resolved_direct.is_dir():
                     result = safe_rmtree(settings.RECONPOINT_RESULTS, resolved_direct)
                     if result != "removed":
                         logger.log_line(
                             PREFIX_TARGET,
                             "DELETE_TARGET",
-                            "Results dir cleanup returned %s for path %s" % (result, resolved_direct),
+                            "Results dir cleanup returned %s for path %s"
+                            % (result, resolved_direct),
                             level="warning",
                         )
                 prefix = f"{target.value}__"
@@ -943,7 +1105,8 @@ def delete_target(request, slug, id):
                             logger.log_line(
                                 PREFIX_TARGET,
                                 "DELETE_TARGET",
-                                "Results dir cleanup returned %s for path %s" % (result, entry),
+                                "Results dir cleanup returned %s for path %s"
+                                % (result, entry),
                                 level="warning",
                             )
             target.delete()
@@ -984,7 +1147,9 @@ def delete_target(request, slug, id):
             )
 
         response_data = {"status": "false"}
-        messages.add_message(request, messages.ERROR, "Oops! Target could not be deleted!")
+        messages.add_message(
+            request, messages.ERROR, "Oops! Target could not be deleted!"
+        )
     return http.JsonResponse(response_data)
 
 
@@ -1020,10 +1185,16 @@ def update_target(request, slug, id):
                     messages.error(request, msg)
             else:
                 updated_target = form.save(commit=False)
-                updated_target.scan_config = strip_empty_override_keys(scan_override or {}) or None
+                updated_target.scan_config = (
+                    strip_empty_override_keys(scan_override or {}) or None
+                )
                 updated_target.save()
-                messages.add_message(request, messages.INFO, "Target %s modified!" % (target.value,))
-                return http.HttpResponseRedirect(reverse("list_target", kwargs={"slug": slug}))
+                messages.add_message(
+                    request, messages.INFO, "Target %s modified!" % (target.value,)
+                )
+                return http.HttpResponseRedirect(
+                    reverse("list_target", kwargs={"slug": slug})
+                )
 
     context = build_update_target_context(
         target,
@@ -1081,7 +1252,9 @@ def _aggregate_related_from_domains(domains, attr):
         scan_date = domain.scan_history.start_scan_date if domain.scan_history else None
         for related in getattr(info, attr).all():
             name = related.name
-            if name not in seen or (scan_date and (not seen[name][1] or scan_date > seen[name][1])):
+            if name not in seen or (
+                scan_date and (not seen[name][1] or scan_date > seen[name][1])
+            ):
                 seen[name] = (related, scan_date)
     return [
         v[0]
@@ -1126,7 +1299,11 @@ def target_summary(request, slug, id):
         .order_by("-scan_history__start_scan_date")
     )
     seen_names = set()
-    domains = [d for d in domains_ordered if d.name not in seen_names and not seen_names.add(d.name)]
+    domains = [
+        d
+        for d in domains_ordered
+        if d.name not in seen_names and not seen_names.add(d.name)
+    ]
     context["domains"] = domains
     if not domains_ordered:
         context["domain_info"] = None
@@ -1135,9 +1312,15 @@ def target_summary(request, slug, id):
         if not domains_with_info:
             context["domain_info"] = None
         else:
-            agg_related_domains = _aggregate_related_from_domains(domains_with_info, "related_domains")
-            agg_related_tlds = _aggregate_related_from_domains(domains_with_info, "related_tlds")
-            context["domain_info"] = _AggregatedDomainInfo(agg_related_domains, agg_related_tlds)
+            agg_related_domains = _aggregate_related_from_domains(
+                domains_with_info, "related_domains"
+            )
+            agg_related_tlds = _aggregate_related_from_domains(
+                domains_with_info, "related_tlds"
+            )
+            context["domain_info"] = _AggregatedDomainInfo(
+                agg_related_domains, agg_related_tlds
+            )
 
     scan = ScanHistory.objects.filter(target_id=id)
     scan_status_order = Case(
@@ -1154,15 +1337,25 @@ def target_summary(request, slug, id):
     )[:4]
     context["scan_count"] = scan.count()
     last_week = timezone.now() - timedelta(days=7)
-    context["this_week_scan_count"] = scan.filter(start_scan_date__gte=last_week).count()
+    context["this_week_scan_count"] = scan.filter(
+        start_scan_date__gte=last_week
+    ).count()
 
     context["scan_engines"] = EngineType.objects.order_by("engine_name").all()
 
-    subdomains = Subdomain.objects.filter(domain__scan_history__target_id=id).values("name").distinct()
+    subdomains = (
+        Subdomain.objects.filter(domain__scan_history__target_id=id)
+        .values("name")
+        .distinct()
+    )
     context["subdomain_count"] = subdomains.count()
     context["alive_count"] = subdomains.filter(http_status__gt=0).count()
 
-    endpoints = EndPoint.objects.filter(domain__scan_history__target_id=id).values("http_url").distinct()
+    endpoints = (
+        EndPoint.objects.filter(domain__scan_history__target_id=id)
+        .values("http_url")
+        .distinct()
+    )
     context["endpoint_count"] = endpoints.count()
     context["endpoint_alive_count"] = endpoints.filter(http_status__gt=0).count()
 
@@ -1191,9 +1384,14 @@ def target_summary(request, slug, id):
     context["vulnerability_list"] = vulnerabilities.order_by("-severity").all()[:30]
 
     # Exploits (all scans for this target)
-    context["exploit_count"] = Exploit.objects.filter(scan_history__target_id=id).count()
+    context["exploit_count"] = Exploit.objects.filter(
+        scan_history__target_id=id
+    ).count()
 
-    from reconPoint.services.scan_finding_metrics import get_ip_metrics_for_target, ip_addresses_queryset_for_target
+    from reconPoint.services.scan_finding_metrics import (
+        get_ip_metrics_for_target,
+        ip_addresses_queryset_for_target,
+    )
 
     ip_total, ip_alive = get_ip_metrics_for_target(id)
     context["ip_address_count"] = ip_total
@@ -1239,7 +1437,8 @@ def target_summary(request, slug, id):
             count = row.get("http_status__count", 0)
             status_counts[status] = status_counts.get(status, 0) + count
     context["http_status_breakdown"] = [
-        {"http_status": status, "http_status__count": count} for status, count in sorted(status_counts.items())
+        {"http_status": status, "http_status__count": count}
+        for status, count in sorted(status_counts.items())
     ]
 
     ip_addresses = ip_addresses_queryset_for_target(id)
@@ -1247,7 +1446,9 @@ def target_summary(request, slug, id):
     context["ip_addresses_payload"] = ip_serializer.data
 
     context["asset_countries"] = (
-        CountryISO.objects.filter(ipaddress__in=ip_addresses).annotate(count=Count("iso")).order_by("-count")
+        CountryISO.objects.filter(ipaddress__in=ip_addresses)
+        .annotate(count=Count("iso"))
+        .order_by("-count")
     )
 
     context.update(build_secator_profiles_context())
@@ -1264,7 +1465,9 @@ def add_organization(request, slug):
         data = form.cleaned_data
         project = Project.objects.get(slug=slug)
         profiles_dict = parse_secator_profiles_to_dict(request.POST)
-        scan_config, config_errors = parse_scan_config_from_post(request.POST, profiles_dict=profiles_dict, prefix="")
+        scan_config, config_errors = parse_scan_config_from_post(
+            request.POST, profiles_dict=profiles_dict, prefix=""
+        )
         if config_errors:
             for msg in config_errors:
                 messages.error(request, msg)
@@ -1278,8 +1481,14 @@ def add_organization(request, slug):
             )
             for target in data.get("targets") or []:
                 organization.targets.add(target)
-            messages.add_message(request, messages.INFO, f"Organization {data['name']} added successfully")
-            return http.HttpResponseRedirect(reverse("list_organization", kwargs={"slug": slug}))
+            messages.add_message(
+                request,
+                messages.INFO,
+                f"Organization {data['name']} added successfully",
+            )
+            return http.HttpResponseRedirect(
+                reverse("list_organization", kwargs={"slug": slug})
+            )
     context = {
         "organization_active": "active",
         "form": form,
@@ -1298,7 +1507,9 @@ def organization_dashboard(request, slug, organization_id):
         raise Http404("Project not found")
     organization = get_object_or_404(Organization, id=organization_id, project=project)
     dashboard_data = get_organization_dashboard_data(organization)
-    organizations_list = list(Organization.objects.for_project(project).order_by("name").values("id", "name"))
+    organizations_list = list(
+        Organization.objects.for_project(project).order_by("name").values("id", "name")
+    )
     context = {
         "organization_active": "active",
         "current_project": project,
@@ -1327,14 +1538,18 @@ def delete_organization(request, slug, id):
         try:
             organization = get_object_or_404(Organization, id=id)
             organization.delete()
-            messages.add_message(request, messages.INFO, "Organization successfully deleted!")
+            messages.add_message(
+                request, messages.INFO, "Organization successfully deleted!"
+            )
             response_data = {"status": "true"}
         except Http404:
             messages.add_message(request, messages.ERROR, "Organization not found.")
             response_data = {"status": "false"}
     else:
         response_data = {"status": "false"}
-        messages.add_message(request, messages.ERROR, "Oops! Organization could not be deleted!")
+        messages.add_message(
+            request, messages.ERROR, "Oops! Organization could not be deleted!"
+        )
     return http.JsonResponse(response_data)
 
 
@@ -1362,7 +1577,9 @@ def update_organization(request, slug, id):
                 organization.targets.clear()
                 organization.name = data["name"]
                 organization.description = data["description"]
-                organization.scan_config = strip_empty_override_keys(scan_config or {}) or None
+                organization.scan_config = (
+                    strip_empty_override_keys(scan_config or {}) or None
+                )
                 organization.save()
                 for target in data.get("targets") or []:
                     organization.targets.add(target)
@@ -1374,7 +1591,9 @@ def update_organization(request, slug, id):
                     level="info",
                 )
                 messages.add_message(request, messages.INFO, msg)
-                return http.HttpResponseRedirect(reverse("list_organization", kwargs={"slug": slug}))
+                return http.HttpResponseRedirect(
+                    reverse("list_organization", kwargs={"slug": slug})
+                )
         domain_list = request.POST.getlist("domains")
         target_list = request.POST.getlist("targets")
     else:
@@ -1417,10 +1636,14 @@ def list_scope(request, slug):
     context = {
         "scope_active": "active",
         "scopes": scopes,
-        "scope_type_choices": mark_safe(json.dumps([[val, label] for val, label in SCOPE_TYPE_CHOICES])),
+        "scope_type_choices": mark_safe(
+            json.dumps([[val, label] for val, label in SCOPE_TYPE_CHOICES])
+        ),
         "slug": slug,
         "datatable_filter_select_to_param": dt_config.get("filter_context"),
-        "datatable_row_group_config": get_datatable_row_group_config(TABLE_ID_SCOPE_LIST),
+        "datatable_row_group_config": get_datatable_row_group_config(
+            TABLE_ID_SCOPE_LIST
+        ),
     }
     return render(request, "scope/list.html", context)
 
@@ -1431,7 +1654,9 @@ def add_scope(request, slug):
     if request.method == "POST" and form.is_valid():
         scope = form.save(commit=False)
         profiles_dict = parse_secator_profiles_to_dict(request.POST)
-        config, errors = parse_scan_config_from_post(request.POST, prefix="", profiles_dict=profiles_dict)
+        config, errors = parse_scan_config_from_post(
+            request.POST, prefix="", profiles_dict=profiles_dict
+        )
         if errors:
             for msg in errors:
                 messages.error(request, msg)
@@ -1440,8 +1665,12 @@ def add_scope(request, slug):
             scope.save()
             form.save_m2m()
             _apply_pending_normalizer_targets(scope, request)
-            messages.add_message(request, messages.INFO, "Scope %s added successfully" % (scope.name,))
-            return http.HttpResponseRedirect(reverse("list_scope", kwargs={"slug": slug}))
+            messages.add_message(
+                request, messages.INFO, "Scope %s added successfully" % (scope.name,)
+            )
+            return http.HttpResponseRedirect(
+                reverse("list_scope", kwargs={"slug": slug})
+            )
     initial_workers = form.initial.get("workers") or []
     allowed_ids = [w.id for w in initial_workers] if initial_workers else []
     allow_local = form.initial.get("allow_local_worker", True)
@@ -1450,7 +1679,9 @@ def add_scope(request, slug):
         "form": form,
         "slug": slug,
         "section_collapse_id": "scanOverridesSectionScopeAdd",
-        "secator_workers": get_workers_for_scan_dropdown(allowed_worker_ids=allowed_ids),
+        "secator_workers": get_workers_for_scan_dropdown(
+            allowed_worker_ids=allowed_ids
+        ),
         "scan_params_allow_local_worker": allow_local,
         "scan_params_default_worker_id": None,
     }
@@ -1466,7 +1697,10 @@ def update_scope(request, slug, id):
         updated_scope = form.save(commit=False)
         profiles_dict = parse_secator_profiles_to_dict(request.POST)
         config, errors = parse_scan_config_from_post(
-            request.POST, prefix="", profiles_dict=profiles_dict, existing_config=scope.scan_config
+            request.POST,
+            prefix="",
+            profiles_dict=profiles_dict,
+            existing_config=scope.scan_config,
         )
         if errors:
             for msg in errors:
@@ -1476,8 +1710,12 @@ def update_scope(request, slug, id):
             updated_scope.save()
             form.save_m2m()
             _apply_pending_normalizer_targets(updated_scope, request)
-            messages.add_message(request, messages.INFO, "Scope %s updated successfully" % (scope.name,))
-            return http.HttpResponseRedirect(reverse("list_scope", kwargs={"slug": slug}))
+            messages.add_message(
+                request, messages.INFO, "Scope %s updated successfully" % (scope.name,)
+            )
+            return http.HttpResponseRedirect(
+                reverse("list_scope", kwargs={"slug": slug})
+            )
     default_worker_id = get_default_worker_for_scope(scope)
     context = {
         "scope_active": "active",
@@ -1489,7 +1727,9 @@ def update_scope(request, slug, id):
         "scan_params_allow_local_worker": scope_allow_local(scope),
         "scan_params_default_worker_id": default_worker_id,
     }
-    context.update(build_scan_params_form_context(scope=scope, organization=scope.organization))
+    context.update(
+        build_scan_params_form_context(scope=scope, organization=scope.organization)
+    )
     return render(request, "scope/update.html", context)
 
 
@@ -1513,7 +1753,9 @@ def delete_scope(request, slug, id):
 @has_permission_decorator(PERM_MODIFY_TARGETS, redirect_url=FOUR_OH_FOUR_URL)
 def scope_detail(request, slug, id):
     scope = get_object_or_404(
-        Scope.objects.select_related("organization").prefetch_related("targets", "workers"),
+        Scope.objects.select_related("organization").prefetch_related(
+            "targets", "workers"
+        ),
         id=id,
         organization__project__slug=slug,
     )
@@ -1523,7 +1765,9 @@ def scope_detail(request, slug, id):
         "scope": scope,
         "scope_scan_config": scope_scan_config,
         "slug": slug,
-        "scan_params_effective": build_effective_params_display(scope=scope, organization=scope.organization),
+        "scan_params_effective": build_effective_params_display(
+            scope=scope, organization=scope.organization
+        ),
     }
     return render(request, "scope/detail.html", context)
 
@@ -1567,16 +1811,24 @@ def scope_normalize_apply(request, slug):
     with transaction.atomic():
         target_ids = []
         for value in result.domain_targets:
-            target, _ = _get_or_create_target(project, value, target_type=TARGET_TYPE_HOST)
+            target, _ = _get_or_create_target(
+                project, value, target_type=TARGET_TYPE_HOST
+            )
             target_ids.append(target.id)
         for value in result.ip_targets:
-            target, _ = _get_or_create_target(project, value, target_type=TARGET_TYPE_IP)
+            target, _ = _get_or_create_target(
+                project, value, target_type=TARGET_TYPE_IP
+            )
             target_ids.append(target.id)
         for value in result.cidr_targets:
-            target, _ = _get_or_create_target(project, value, target_type=TARGET_TYPE_CIDR_RANGE)
+            target, _ = _get_or_create_target(
+                project, value, target_type=TARGET_TYPE_CIDR_RANGE
+            )
             target_ids.append(target.id)
         for value in result.url_targets:
-            target, _ = _get_or_create_target(project, value, target_type=TARGET_TYPE_URL)
+            target, _ = _get_or_create_target(
+                project, value, target_type=TARGET_TYPE_URL
+            )
             target_ids.append(target.id)
     return JsonResponse(
         {

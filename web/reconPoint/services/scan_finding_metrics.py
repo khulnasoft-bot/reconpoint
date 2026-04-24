@@ -57,7 +57,9 @@ TARGET_IP_ALIVE_ATTR = "ip_alive_count"
 
 def ip_address_linked_to_scan_q(scan_history_id: int) -> Q:
     """Filter on IpAddress queryset: linked to the scan via Subdomain M2M or EndPoint.ip_address."""
-    return Q(ip_addresses__scan_history_id=scan_history_id) | Q(ip_endpoints__scan_history_id=scan_history_id)
+    return Q(ip_addresses__scan_history_id=scan_history_id) | Q(
+        ip_endpoints__scan_history_id=scan_history_id
+    )
 
 
 def ip_address_id_linked_to_scan(ip_address_id: int, scan_history_id: int) -> bool:
@@ -68,16 +70,24 @@ def ip_address_id_linked_to_scan(ip_address_id: int, scan_history_id: int) -> bo
     """
     if not ip_address_id or scan_history_id < 1:
         return False
-    return IpAddress.objects.filter(pk=ip_address_id).filter(ip_address_linked_to_scan_q(scan_history_id)).exists()
+    return (
+        IpAddress.objects.filter(pk=ip_address_id)
+        .filter(ip_address_linked_to_scan_q(scan_history_id))
+        .exists()
+    )
 
 
 def ip_address_ids_in_scan(scan_history_id: int) -> Set[int]:
     """Distinct IpAddress PKs tied to the scan (Subdomain M2M or EndPoint.ip_address)."""
     via_m2m = (
-        IpAddress.objects.filter(ip_addresses__scan_history_id=scan_history_id).values_list("id", flat=True).distinct()
+        IpAddress.objects.filter(ip_addresses__scan_history_id=scan_history_id)
+        .values_list("id", flat=True)
+        .distinct()
     )
     via_ep = (
-        IpAddress.objects.filter(ip_endpoints__scan_history_id=scan_history_id).values_list("id", flat=True).distinct()
+        IpAddress.objects.filter(ip_endpoints__scan_history_id=scan_history_id)
+        .values_list("id", flat=True)
+        .distinct()
     )
     return set(via_m2m).union(set(via_ep))
 
@@ -106,14 +116,20 @@ def ip_address_ids_for_target(target_id: int) -> Set[int]:
     """
     if not target_id or target_id < 1:
         return set()
-    scan_ids = list(ScanHistory.objects.filter(target_id=target_id).values_list("id", flat=True))
+    scan_ids = list(
+        ScanHistory.objects.filter(target_id=target_id).values_list("id", flat=True)
+    )
     if not scan_ids:
         return set()
     via_m2m = set(
-        IpAddress.objects.filter(ip_addresses__scan_history_id__in=scan_ids).values_list("id", flat=True).distinct()
+        IpAddress.objects.filter(ip_addresses__scan_history_id__in=scan_ids)
+        .values_list("id", flat=True)
+        .distinct()
     )
     via_ep = set(
-        IpAddress.objects.filter(ip_endpoints__scan_history_id__in=scan_ids).values_list("id", flat=True).distinct()
+        IpAddress.objects.filter(ip_endpoints__scan_history_id__in=scan_ids)
+        .values_list("id", flat=True)
+        .distinct()
     )
     return via_m2m.union(via_ep)
 
@@ -129,7 +145,9 @@ def partition_ip_address_ids_for_target(
     return valid, invalid
 
 
-def bulk_ip_metrics_for_targets(target_ids: Iterable[int]) -> Dict[int, tuple[int, int]]:
+def bulk_ip_metrics_for_targets(
+    target_ids: Iterable[int],
+) -> Dict[int, tuple[int, int]]:
     """
     Map target_id -> (distinct_ip_count, alive_ip_count) across all scans of that target.
 
@@ -174,7 +192,9 @@ def bulk_ip_metrics_for_targets(target_ids: Iterable[int]) -> Dict[int, tuple[in
     alive_map: Dict[int, bool] = {}
     if all_ip_ids:
         for pk, alive in (
-            IpAddress.objects.filter(id__in=all_ip_ids).values_list("id", "alive").iterator(chunk_size=2000)
+            IpAddress.objects.filter(id__in=all_ip_ids)
+            .values_list("id", "alive")
+            .iterator(chunk_size=2000)
         ):
             alive_map[pk] = bool(alive)
 
@@ -211,7 +231,9 @@ def get_ip_metrics_for_target_ids(target_ids: Iterable[int]) -> tuple[int, int]:
     tid = [int(x) for x in dict.fromkeys(target_ids) if x]
     if not tid:
         return 0, 0
-    scan_ids = list(ScanHistory.objects.filter(target_id__in=tid).values_list("id", flat=True))
+    scan_ids = list(
+        ScanHistory.objects.filter(target_id__in=tid).values_list("id", flat=True)
+    )
     counts = IpAddress.get_counts_for_scan_histories(scan_ids)
     return counts["total"], counts["alive"]
 
@@ -245,10 +267,16 @@ def get_scan_finding_counts(scan_history_id: int) -> Dict[str, Any]:
     """
     domain_count = Domain.objects.filter(scan_history_id=scan_history_id).count()
     subdomain_count = Subdomain.objects.filter(scan_history_id=scan_history_id).count()
-    alive_count = Subdomain.objects.filter(scan_history_id=scan_history_id, http_status__gt=0).count()
+    alive_count = Subdomain.objects.filter(
+        scan_history_id=scan_history_id, http_status__gt=0
+    ).count()
     endpoint_count = EndPoint.objects.filter(scan_history_id=scan_history_id).count()
-    endpoint_alive_count = EndPoint.objects.filter(scan_history_id=scan_history_id, http_status__gt=0).count()
-    vulnerability_count = Vulnerability.objects.filter(scan_history_id=scan_history_id).count()
+    endpoint_alive_count = EndPoint.objects.filter(
+        scan_history_id=scan_history_id, http_status__gt=0
+    ).count()
+    vulnerability_count = Vulnerability.objects.filter(
+        scan_history_id=scan_history_id
+    ).count()
     secret_count = Secret.objects.filter(scan_history_id=scan_history_id).count()
     exploit_count = Exploit.objects.filter(scan_history_id=scan_history_id).count()
     ip_address_count, ip_alive_count = get_ip_address_metrics_for_scan(scan_history_id)
@@ -314,7 +342,9 @@ def bulk_ip_metrics_for_scans(scan_ids: Iterable[int]) -> Dict[int, tuple[int, i
     alive_map: Dict[int, bool] = {}
     if all_ip_ids:
         for pk, alive in (
-            IpAddress.objects.filter(id__in=all_ip_ids).values_list("id", "alive").iterator(chunk_size=2000)
+            IpAddress.objects.filter(id__in=all_ip_ids)
+            .values_list("id", "alive")
+            .iterator(chunk_size=2000)
         ):
             alive_map[pk] = bool(alive)
 
@@ -340,7 +370,11 @@ def ip_addresses_queryset_for_scan(scan_history_id: int) -> QuerySet[IpAddress]:
     ids = ip_address_ids_in_scan(scan_history_id)
     if not ids:
         return IpAddress.objects.none()
-    return IpAddress.objects.filter(pk__in=ids).prefetch_related("ports").order_by("address", "id")
+    return (
+        IpAddress.objects.filter(pk__in=ids)
+        .prefetch_related("ports")
+        .order_by("address", "id")
+    )
 
 
 def ip_addresses_queryset_for_target(target_id: int) -> QuerySet[IpAddress]:
@@ -354,7 +388,11 @@ def ip_addresses_queryset_for_target(target_id: int) -> QuerySet[IpAddress]:
     ids = ip_address_ids_for_target(target_id)
     if not ids:
         return IpAddress.objects.none()
-    return IpAddress.objects.filter(pk__in=ids).prefetch_related("ports").order_by("address", "id")
+    return (
+        IpAddress.objects.filter(pk__in=ids)
+        .prefetch_related("ports")
+        .order_by("address", "id")
+    )
 
 
 def attach_ip_metrics_to_scans(scans: List[ScanHistory]) -> None:

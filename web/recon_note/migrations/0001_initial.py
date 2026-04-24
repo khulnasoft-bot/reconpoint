@@ -23,13 +23,19 @@ class Migration(migrations.Migration):
                 (
                     "scan_history",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.scanhistory",
                     ),
                 ),
                 (
                     "subdomain",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.subdomain"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.subdomain",
                     ),
                 ),
             ],

@@ -29,7 +29,9 @@ class TestScanReconNoteViews(BaseTestCase):
     def setUp(self):
         """Set up the test environment."""
         super().setUp()
-        self.todo_note = self.data_generator.create_todo_note()  # Create a test TodoNote
+        self.todo_note = (
+            self.data_generator.create_todo_note()
+        )  # Create a test TodoNote
 
     def test_add_recon_note_success(self):
         """Test adding a recon note successfully."""
@@ -60,8 +62,12 @@ class TestScanReconNoteViews(BaseTestCase):
 
     def test_list_recon_notes(self):
         """Test listing all recon notes."""
-        api_url = reverse("list_note", kwargs={"slug": self.data_generator.project.slug})
-        response = self.client.get(api_url, {"project": self.data_generator.project.slug})
+        api_url = reverse(
+            "list_note", kwargs={"slug": self.data_generator.project.slug}
+        )
+        response = self.client.get(
+            api_url, {"project": self.data_generator.project.slug}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete_recon_note_success(self):

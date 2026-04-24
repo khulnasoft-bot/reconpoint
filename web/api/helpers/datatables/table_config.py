@@ -153,7 +153,11 @@ EXPECTED_FILTER_SELECT_IDS: dict[str, set[str]] = {
         "filterByTarget",
         "filterByScanType",
     },
-    TABLE_ID_TARGET_LIST: {"filterByOrganization", "filterByScope", "filterByScanPresence"},
+    TABLE_ID_TARGET_LIST: {
+        "filterByOrganization",
+        "filterByScope",
+        "filterByScanPresence",
+    },
     TABLE_ID_SCOPE_LIST: {"filterByOrganization", "filterByScopeType"},
     TABLE_ID_ORGANIZATION_LIST: {"filterByName"},
     TABLE_ID_WORDLIST_LIST: {"filterByName"},
@@ -205,9 +209,13 @@ def validate_datatable_filter_config() -> list[str]:
         actual_ids = set(ctx.keys())
         actual_params = set(ctx.values())
         if actual_ids != expected_ids:
-            errors.append(f"{table_id}: filter_context keys {actual_ids!r} != expected {expected_ids!r}")
+            errors.append(
+                f"{table_id}: filter_context keys {actual_ids!r} != expected {expected_ids!r}"
+            )
         if actual_params != expected_params:
-            errors.append(f"{table_id}: filter_context values {actual_params!r} != expected {expected_params!r}")
+            errors.append(
+                f"{table_id}: filter_context values {actual_params!r} != expected {expected_params!r}"
+            )
     return errors
 
 

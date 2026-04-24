@@ -20,4 +20,6 @@ IP_ERR_IP_NOT_IN_TARGET = "ip_not_in_target"
 
 
 def ip_action_error(message: str, error_code: str, *, status: int = 400) -> Response:
-    return Response({"status": False, "message": message, "error_code": error_code}, status=status)
+    return Response(
+        {"status": False, "message": message, "error_code": error_code}, status=status
+    )

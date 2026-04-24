@@ -5,7 +5,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("scanEngine", "0030_rename_scan_swq_worker_stat_cr_scanengine__worker__bda119_idx"),
+        (
+            "scanEngine",
+            "0030_rename_scan_swq_worker_stat_cr_scanengine__worker__bda119_idx",
+        ),
     ]
 
     operations = [

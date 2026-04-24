@@ -172,7 +172,11 @@ from recon_note.models import TodoNote
 
 # NOTE: Legacy tasks removed (query_ip_history, query_reverse_whois, query_whois,
 # run_cmseek, run_command, run_gf_list, run_wafw00f) - functionality now in Secator
-from reconPoint.core.data import get_data_from_post_request, get_request_worker_id, safe_int_cast
+from reconPoint.core.data import (
+    get_data_from_post_request,
+    get_request_worker_id,
+    safe_int_cast,
+)
 from reconPoint.core.exceptions import FindingOutOfScopeError
 from reconPoint.definitions import (
     ABORTED_TASK,
@@ -197,7 +201,12 @@ from reconPoint.llm.attack_surface_storage import (
     serialized_saved_analyses,
     upsert_llm_attack_surface_analysis,
 )
-from reconPoint.llm.config import DEFAULT_GPT_MODELS, MODEL_REQUIREMENTS, OLLAMA_INSTANCE, RECOMMENDED_MODELS
+from reconPoint.llm.config import (
+    DEFAULT_GPT_MODELS,
+    MODEL_REQUIREMENTS,
+    OLLAMA_INSTANCE,
+    RECOMMENDED_MODELS,
+)
 from reconPoint.llm.llm import LLMAttackSuggestionGenerator
 from reconPoint.llm.utils import get_default_llm_model, llm_model_name_sort_key
 
@@ -234,7 +243,10 @@ from reconPoint.utilities.error import get_safe_user_message
 from reconPoint.utilities.external import get_open_ai_key
 from reconPoint.utilities.logger import get_module_logger
 from reconPoint.utilities.lookup import get_lookup_keywords
-from reconPoint.utilities.scan_lookups import filter_ports_queryset_by_scan_ids, get_ip_linked_to_scan_ids
+from reconPoint.utilities.scan_lookups import (
+    filter_ports_queryset_by_scan_ids,
+    get_ip_linked_to_scan_ids,
+)
 from reconPoint.utilities.subdomain import get_interesting_subdomains
 from reconPoint.utilities.url import is_apex_domain
 from scanEngine.models import (
@@ -284,7 +296,10 @@ from startScan.models import (
     Technology,
     Vulnerability,
 )
-from startScan.secator.runner_sync import is_all_runners_completed, sync_runner_with_scan_history
+from startScan.secator.runner_sync import (
+    is_all_runners_completed,
+    sync_runner_with_scan_history,
+)
 from startScan.secator.sync_service import submit_sync as secator_submit_sync
 from targetApp.constants import TARGET_TYPE_HOST
 from targetApp.models import Organization, Scope, Target
@@ -381,7 +396,9 @@ class OllamaManager(APIView):
                     )
 
                     response = session.post(
-                        f"{OLLAMA_INSTANCE}/api/pull", json={"name": model_name, "stream": True}, stream=True
+                        f"{OLLAMA_INSTANCE}/api/pull",
+                        json={"name": model_name, "stream": True},
+                        stream=True,
                     )
 
                     for line in response.iter_lines():
@@ -400,7 +417,10 @@ class OllamaManager(APIView):
                                         channel_name,
                                         {
                                             "type": "download_progress",
-                                            "message": {"status": "error", "error": data["error"]},
+                                            "message": {
+                                                "status": "error",
+                                                "error": data["error"],
+                                            },
                                         },
                                     )
                                     break
@@ -413,7 +433,11 @@ class OllamaManager(APIView):
                                 }
 
                                 async_to_sync(channel_layer.group_send)(
-                                    channel_name, {"type": "download_progress", "message": status_data}
+                                    channel_name,
+                                    {
+                                        "type": "download_progress",
+                                        "message": status_data,
+                                    },
                                 )
 
                                 if data.get("status") == "success":
@@ -421,7 +445,10 @@ class OllamaManager(APIView):
                                         channel_name,
                                         {
                                             "type": "download_progress",
-                                            "message": {"status": "complete", "message": "Download complete!"},
+                                            "message": {
+                                                "status": "complete",
+                                                "message": "Download complete!",
+                                            },
                                         },
                                     )
                                     break
@@ -437,7 +464,10 @@ class OllamaManager(APIView):
                                     channel_name,
                                     {
                                         "type": "download_progress",
-                                        "message": {"status": "error", "error": "Invalid response format"},
+                                        "message": {
+                                            "status": "error",
+                                            "error": "Invalid response format",
+                                        },
                                     },
                                 )
                                 break
@@ -454,7 +484,10 @@ class OllamaManager(APIView):
                             channel_name,
                             {
                                 "type": "download_progress",
-                                "message": {"status": "error", "error": get_safe_user_message(e, None)},
+                                "message": {
+                                    "status": "error",
+                                    "error": get_safe_user_message(e, None),
+                                },
                             },
                         )
                     except Exception as e2:
@@ -474,7 +507,9 @@ class OllamaManager(APIView):
             thread.daemon = True
             thread.start()
 
-            return Response({"status": True, "channel": channel_name, "message": "Download started"})
+            return Response(
+                {"status": True, "channel": channel_name, "message": "Download started"}
+            )
 
         except Exception as e:
             logger.log_line(
@@ -483,13 +518,17 @@ class OllamaManager(APIView):
                 "Error in OllamaManager: %s" % (e,),
                 level="error",
             )
-            return Response({"status": False, "error": get_safe_user_message(e, None)}, status=500)
+            return Response(
+                {"status": False, "error": get_safe_user_message(e, None)}, status=500
+            )
 
 
 class OllamaDetailManager(APIView):
     def delete(self, request, model_name):
         if not model_name:
-            return Response({"status": False, "message": "Model name is required"}, status=400)
+            return Response(
+                {"status": False, "message": "Model name is required"}, status=400
+            )
 
         try:
             delete_model_api = f"{OLLAMA_INSTANCE}/api/delete"
@@ -506,7 +545,9 @@ class OllamaDetailManager(APIView):
             except ValueError:
                 error_message = response.text or "Unknown error occurred"
 
-            return Response({"status": False, "message": error_message}, status=response.status_code)
+            return Response(
+                {"status": False, "message": error_message}, status=response.status_code
+            )
 
         except Exception as e:
             logger.log_line(
@@ -515,14 +556,24 @@ class OllamaDetailManager(APIView):
                 "Error in OllamaDetailManager DELETE: %s" % (e,),
                 level="error",
             )
-            return Response({"status": False, "message": "An error occurred while deleting the model."}, status=500)
+            return Response(
+                {
+                    "status": False,
+                    "message": "An error occurred while deleting the model.",
+                },
+                status=500,
+            )
 
     def put(self, request, model_name):
         if not model_name:
-            return Response({"status": False, "message": "Model name is required"}, status=400)
+            return Response(
+                {"status": False, "message": "Model name is required"}, status=400
+            )
 
         try:
-            use_ollama = all(model["name"] != model_name for model in DEFAULT_GPT_MODELS)
+            use_ollama = all(
+                model["name"] != model_name for model in DEFAULT_GPT_MODELS
+            )
 
             OllamaSettings.objects.update_or_create(
                 id=1, defaults={"selected_model": model_name, "use_ollama": use_ollama}
@@ -536,7 +587,11 @@ class OllamaDetailManager(APIView):
                 level="error",
             )
             return Response(
-                {"status": False, "message": "An error occurred while updating the model selection."}, status=500
+                {
+                    "status": False,
+                    "message": "An error occurred while updating the model selection.",
+                },
+                status=500,
             )
 
 
@@ -561,13 +616,18 @@ class AvailableOllamaModels(APIView):
             try:
                 response = requests.get(f"{OLLAMA_INSTANCE}/api/tags", timeout=5)
                 if response.status_code == 200:
-                    installed_models = {model["name"]: model for model in response.json().get("models", [])}
+                    installed_models = {
+                        model["name"]: model
+                        for model in response.json().get("models", [])
+                    }
 
                     # Mark installed models and add their details
                     for model in recommended_models:
                         base_name = model["name"]
                         model["installed_versions"] = [
-                            name.replace(f"{base_name}:", "") for name in installed_models if name.startswith(base_name)
+                            name.replace(f"{base_name}:", "")
+                            for name in installed_models
+                            if name.startswith(base_name)
                         ]
                         model["installed"] = len(model["installed_versions"]) > 0
 
@@ -595,7 +655,9 @@ class AvailableOllamaModels(APIView):
                     model["installed"] = False
                     model["installed_versions"] = []
 
-            recommended_models.sort(key=lambda m: llm_model_name_sort_key(m.get("name")))
+            recommended_models.sort(
+                key=lambda m: llm_model_name_sort_key(m.get("name"))
+            )
             response_data = {"status": True, "models": recommended_models}
 
             cache.set(cache_key, response_data, 300)
@@ -608,7 +670,9 @@ class AvailableOllamaModels(APIView):
                 "Error in AvailableOllamaModels: %s" % (e,),
                 level="error",
             )
-            return Response({"status": False, "error": get_safe_user_message(e, None)}, status=500)
+            return Response(
+                {"status": False, "error": get_safe_user_message(e, None)}, status=500
+            )
 
 
 class LLMAttackSuggestion(APIView):
@@ -671,9 +735,13 @@ class LLMAttackSuggestion(APIView):
             return
         raw_desc = response.get("description")
         if isinstance(raw_desc, str) and raw_desc.strip():
-            row = upsert_llm_attack_surface_analysis(obj, selected_model, raw_desc.strip())
+            row = upsert_llm_attack_surface_analysis(
+                obj, selected_model, raw_desc.strip()
+            )
             response["description"] = analysis_body_as_html(row)
-            response["saved_analyses"] = serialized_saved_analyses(analyses_for_parent(obj))
+            response["saved_analyses"] = serialized_saved_analyses(
+                analyses_for_parent(obj)
+            )
             response["selected_analysis_id"] = row.id
         else:
             response["description"] = ""
@@ -681,7 +749,9 @@ class LLMAttackSuggestion(APIView):
     def get(self, request):
         req = request
         if err := attack_surface_entity_query_params_invalid_error(req.query_params):
-            return Response({"status": False, "error": err}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": False, "error": err}, status=HTTP_400_BAD_REQUEST
+            )
 
         subdomain_id = safe_int_cast(req.query_params.get("subdomain_id"))
         ip_address_id = safe_int_cast(req.query_params.get("ip_address_id"))
@@ -692,7 +762,9 @@ class LLMAttackSuggestion(APIView):
         force_regenerate = req.query_params.get("force_regenerate") == "true"
         check_only = req.query_params.get("check_only") == "true"
         selected_model = req.query_params.get("llm_model")
-        attack_surface_analysis_id = safe_int_cast(req.query_params.get("attack_surface_analysis_id"))
+        attack_surface_analysis_id = safe_int_cast(
+            req.query_params.get("attack_surface_analysis_id")
+        )
 
         if err := xor_attack_surface_entity_ids_error(
             subdomain_id,
@@ -702,7 +774,9 @@ class LLMAttackSuggestion(APIView):
             organization_id,
             scan_history_id,
         ):
-            return Response({"status": False, "error": err}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": False, "error": err}, status=HTTP_400_BAD_REQUEST
+            )
 
         resolved = resolve_attack_surface_entity_kind_and_pk(
             subdomain_id,
@@ -752,7 +826,14 @@ class LLMAttackSuggestion(APIView):
                 {"status": False, "error": "Invalid attack surface entity type"},
                 status=HTTP_400_BAD_REQUEST,
             )
-        return handler(user, entity_pk, force_regenerate, check_only, selected_model, attack_surface_analysis_id)
+        return handler(
+            user,
+            entity_pk,
+            force_regenerate,
+            check_only,
+            selected_model,
+            attack_surface_analysis_id,
+        )
 
     def _get_for_subdomain(
         self,
@@ -765,7 +846,10 @@ class LLMAttackSuggestion(APIView):
     ) -> Response:
         subdomain = get_subdomain_for_llm_attack_surface(user, subdomain_id)
         if subdomain is None:
-            return Response({"status": False, "error": "Subdomain not found"}, status=HTTP_404_NOT_FOUND)
+            return Response(
+                {"status": False, "error": "Subdomain not found"},
+                status=HTTP_404_NOT_FOUND,
+            )
 
         cached = self._maybe_return_cached_attack_surface(
             subdomain,
@@ -789,7 +873,11 @@ class LLMAttackSuggestion(APIView):
             )
 
         ip_addrs = subdomain.ip_addresses.prefetch_related("ports").all()
-        open_ports = ", ".join("%s/%s" % (port.number, port.service_name) for ip in ip_addrs for port in ip.ports.all())
+        open_ports = ", ".join(
+            "%s/%s" % (port.number, port.service_name)
+            for ip in ip_addrs
+            for port in ip.ports.all()
+        )
         tech_used = ", ".join(tech.name for tech in subdomain.technologies.all())
 
         input_data = """
@@ -813,7 +901,9 @@ class LLMAttackSuggestion(APIView):
         )
 
         llm = LLMAttackSuggestionGenerator()
-        response = llm.get_attack_suggestion(input_data, selected_model, prompt_key="asset")
+        response = llm.get_attack_suggestion(
+            input_data, selected_model, prompt_key="asset"
+        )
         response["subdomain_name"] = subdomain.name
         self._persist_attack_surface_llm_result(subdomain, response, selected_model)
         return Response(response)
@@ -833,7 +923,10 @@ class LLMAttackSuggestion(APIView):
             prefetch_attack_surface=False,
         )
         if ip_row is None:
-            return Response({"status": False, "error": "IP address not found"}, status=HTTP_404_NOT_FOUND)
+            return Response(
+                {"status": False, "error": "IP address not found"},
+                status=HTTP_404_NOT_FOUND,
+            )
         display_name = ip_row.address or ("IP #%s" % ip_address_id)
         cached = self._maybe_return_cached_attack_surface(
             ip_row,
@@ -856,8 +949,13 @@ class LLMAttackSuggestion(APIView):
                 }
             )
 
-        open_ports = ", ".join("%s/%s" % (port.number, port.service_name or "") for port in ip_row.ports.all())
-        hostnames = list(ip_row.ip_addresses.values_list("name", flat=True).distinct()[:50])
+        open_ports = ", ".join(
+            "%s/%s" % (port.number, port.service_name or "")
+            for port in ip_row.ports.all()
+        )
+        hostnames = list(
+            ip_row.ip_addresses.values_list("name", flat=True).distinct()[:50]
+        )
         hostnames_str = ", ".join(h for h in hostnames if h)
 
         input_data = """
@@ -880,7 +978,9 @@ class LLMAttackSuggestion(APIView):
         )
 
         llm = LLMAttackSuggestionGenerator()
-        response = llm.get_attack_suggestion(input_data, selected_model, prompt_key="asset")
+        response = llm.get_attack_suggestion(
+            input_data, selected_model, prompt_key="asset"
+        )
         response["subdomain_name"] = display_name
         self._persist_attack_surface_llm_result(ip_row, response, selected_model)
         return Response(response)
@@ -896,7 +996,10 @@ class LLMAttackSuggestion(APIView):
     ) -> Response:
         target = get_target_for_llm_attack_surface(user, target_id)
         if target is None:
-            return Response({"status": False, "error": "Target not found"}, status=HTTP_404_NOT_FOUND)
+            return Response(
+                {"status": False, "error": "Target not found"},
+                status=HTTP_404_NOT_FOUND,
+            )
 
         display_name = "Target: %s" % (target.value,)
         cached = self._maybe_return_cached_attack_surface(
@@ -921,7 +1024,9 @@ class LLMAttackSuggestion(APIView):
 
         input_data = build_context_for_target(target)
         llm = LLMAttackSuggestionGenerator()
-        response = llm.get_attack_suggestion(input_data, selected_model, prompt_key="target")
+        response = llm.get_attack_suggestion(
+            input_data, selected_model, prompt_key="target"
+        )
         response["subdomain_name"] = display_name
         self._persist_attack_surface_llm_result(target, response, selected_model)
         return Response(response)
@@ -937,7 +1042,9 @@ class LLMAttackSuggestion(APIView):
     ) -> Response:
         scope = get_scope_for_llm_attack_surface(user, scope_id)
         if scope is None:
-            return Response({"status": False, "error": "Scope not found"}, status=HTTP_404_NOT_FOUND)
+            return Response(
+                {"status": False, "error": "Scope not found"}, status=HTTP_404_NOT_FOUND
+            )
 
         display_name = "Scope: %s" % (scope.name,)
         cached = self._maybe_return_cached_attack_surface(
@@ -962,7 +1069,9 @@ class LLMAttackSuggestion(APIView):
 
         input_data = build_context_for_scope(scope)
         llm = LLMAttackSuggestionGenerator()
-        response = llm.get_attack_suggestion(input_data, selected_model, prompt_key="scope")
+        response = llm.get_attack_suggestion(
+            input_data, selected_model, prompt_key="scope"
+        )
         response["subdomain_name"] = display_name
         self._persist_attack_surface_llm_result(scope, response, selected_model)
         return Response(response)
@@ -978,7 +1087,10 @@ class LLMAttackSuggestion(APIView):
     ) -> Response:
         organization = get_organization_for_llm_attack_surface(user, organization_id)
         if organization is None:
-            return Response({"status": False, "error": "Organization not found"}, status=HTTP_404_NOT_FOUND)
+            return Response(
+                {"status": False, "error": "Organization not found"},
+                status=HTTP_404_NOT_FOUND,
+            )
 
         display_name = "Organization: %s" % (organization.name,)
         cached = self._maybe_return_cached_attack_surface(
@@ -1003,7 +1115,9 @@ class LLMAttackSuggestion(APIView):
 
         input_data = build_context_for_organization(organization)
         llm = LLMAttackSuggestionGenerator()
-        response = llm.get_attack_suggestion(input_data, selected_model, prompt_key="organization")
+        response = llm.get_attack_suggestion(
+            input_data, selected_model, prompt_key="organization"
+        )
         response["subdomain_name"] = display_name
         self._persist_attack_surface_llm_result(organization, response, selected_model)
         return Response(response)
@@ -1019,7 +1133,10 @@ class LLMAttackSuggestion(APIView):
     ) -> Response:
         scan = get_scan_history_for_llm_attack_surface(user, scan_history_id)
         if scan is None:
-            return Response({"status": False, "error": "Scan history not found"}, status=HTTP_404_NOT_FOUND)
+            return Response(
+                {"status": False, "error": "Scan history not found"},
+                status=HTTP_404_NOT_FOUND,
+            )
 
         display_name = "ScanHistory: %s" % (scan.id,)
         if scan.target and scan.target.value:
@@ -1048,7 +1165,9 @@ class LLMAttackSuggestion(APIView):
 
         input_data = build_context_for_scan_history(scan)
         llm = LLMAttackSuggestionGenerator()
-        response = llm.get_attack_suggestion(input_data, selected_model, prompt_key="scan_history")
+        response = llm.get_attack_suggestion(
+            input_data, selected_model, prompt_key="scan_history"
+        )
         response["subdomain_name"] = display_name
         self._persist_attack_surface_llm_result(scan, response, selected_model)
         return Response(response)
@@ -1070,13 +1189,19 @@ class LLMAttackSuggestion(APIView):
         }
         getter = getters.get(kind)
         if getter is None:
-            return Response({"status": False, "error": "Invalid attack surface entity type"}, status=400)
+            return Response(
+                {"status": False, "error": "Invalid attack surface entity type"},
+                status=400,
+            )
         obj = getter(user, entity_pk)
         if obj is None:
             return Response({"status": False, "error": "Entity not found"}, status=404)
         if attack_surface_analysis_id is not None and attack_surface_analysis_id > 0:
             if not delete_one_analysis_for_parent(obj, attack_surface_analysis_id):
-                return Response({"status": False, "error": "Attack surface analysis not found"}, status=404)
+                return Response(
+                    {"status": False, "error": "Attack surface analysis not found"},
+                    status=404,
+                )
             remaining = analyses_for_parent(obj).exists()
             return Response(
                 {
@@ -1095,7 +1220,9 @@ class LLMAttackSuggestion(APIView):
         )
 
     def delete(self, request):
-        if err := attack_surface_entity_query_params_invalid_error(request.query_params):
+        if err := attack_surface_entity_query_params_invalid_error(
+            request.query_params
+        ):
             return Response({"status": False, "error": err}, status=400)
 
         subdomain_id = safe_int_cast(request.query_params.get("subdomain_id"))
@@ -1104,7 +1231,9 @@ class LLMAttackSuggestion(APIView):
         scope_id = safe_int_cast(request.query_params.get("scope_id"))
         organization_id = safe_int_cast(request.query_params.get("organization_id"))
         scan_history_id = safe_int_cast(request.query_params.get("scan_history_id"))
-        attack_surface_analysis_id = safe_int_cast(request.query_params.get("attack_surface_analysis_id"))
+        attack_surface_analysis_id = safe_int_cast(
+            request.query_params.get("attack_surface_analysis_id")
+        )
 
         if err := xor_attack_surface_entity_ids_error(
             subdomain_id,
@@ -1124,10 +1253,15 @@ class LLMAttackSuggestion(APIView):
             scan_history_id,
         )
         if resolved is None:
-            return Response({"status": False, "error": ATTACK_SURFACE_ENTITY_XOR_MESSAGE}, status=400)
+            return Response(
+                {"status": False, "error": ATTACK_SURFACE_ENTITY_XOR_MESSAGE},
+                status=400,
+            )
         kind, entity_pk = resolved
         try:
-            return self._delete_attack_surface_entity(request.user, kind, entity_pk, attack_surface_analysis_id)
+            return self._delete_attack_surface_entity(
+                request.user, kind, entity_pk, attack_surface_analysis_id
+            )
         except Exception as e:
             logger.log_line(
                 PREFIX_API,
@@ -1135,7 +1269,13 @@ class LLMAttackSuggestion(APIView):
                 "Error deleting attack surface analysis: %s" % (e,),
                 level="error",
             )
-            return Response({"status": False, "error": "An error occurred while deleting the analysis"}, status=500)
+            return Response(
+                {
+                    "status": False,
+                    "error": "An error occurred while deleting the analysis",
+                },
+                status=500,
+            )
 
 
 class LLMVulnerabilityReportGenerator(APIView):
@@ -1143,7 +1283,9 @@ class LLMVulnerabilityReportGenerator(APIView):
         req = self.request
         vulnerability_id = safe_int_cast(req.query_params.get("id"))
         if not vulnerability_id:
-            return Response({"status": False, "error": "Missing GET param Vulnerability `id`"})
+            return Response(
+                {"status": False, "error": "Missing GET param Vulnerability `id`"}
+            )
         # Preflight checks for LLM configuration
         # Get default model first - if this fails, log and proceed to task
         try:
@@ -1181,7 +1323,10 @@ class LLMVulnerabilityReportGenerator(APIView):
             if (
                 ollama_settings
                 and ollama_settings.use_ollama
-                and not (ollama_settings.selected_model and ollama_settings.selected_model.strip())
+                and not (
+                    ollama_settings.selected_model
+                    and ollama_settings.selected_model.strip()
+                )
             ):
                 ollama_default_missing = True
         except Exception:
@@ -1197,7 +1342,9 @@ class LLMVulnerabilityReportGenerator(APIView):
             r = requests.get(f"{OLLAMA_INSTANCE}/api/tags", timeout=3)
             if r.ok:
                 data = r.json()
-                available_ollama_models = [m.get("name") for m in data.get("models", []) if m.get("name")]
+                available_ollama_models = [
+                    m.get("name") for m in data.get("models", []) if m.get("name")
+                ]
                 ollama_ok = len(available_ollama_models) > 0
         except Exception:
             ollama_ok = False
@@ -1226,7 +1373,10 @@ class LLMVulnerabilityReportGenerator(APIView):
         req = self.request
         vulnerability_id = safe_int_cast(req.query_params.get("id"))
         if not vulnerability_id:
-            return Response({"status": False, "error": "Missing GET param Vulnerability `id`"}, status=400)
+            return Response(
+                {"status": False, "error": "Missing GET param Vulnerability `id`"},
+                status=400,
+            )
 
         try:
             from urllib.parse import urlparse as _urlparse
@@ -1236,12 +1386,18 @@ class LLMVulnerabilityReportGenerator(APIView):
             title = vuln.name
             path = lookup_url.path
 
-            deleted, _ = LLMVulnerabilityReport.objects.filter(url_path=path, title=title).delete()
+            deleted, _ = LLMVulnerabilityReport.objects.filter(
+                url_path=path, title=title
+            ).delete()
 
             return Response({"status": True, "deleted": deleted})
         except Vulnerability.DoesNotExist:
             return Response(
-                {"status": False, "error": f"Vulnerability not found with id {vulnerability_id}"}, status=404
+                {
+                    "status": False,
+                    "error": f"Vulnerability not found with id {vulnerability_id}",
+                },
+                status=404,
             )
         except Exception as e:
             logger.log_line(
@@ -1250,7 +1406,13 @@ class LLMVulnerabilityReportGenerator(APIView):
                 "Error deleting LLM vulnerability report: %s" % (e,),
                 level="error",
             )
-            return Response({"status": False, "error": "An error occurred while deleting the analysis"}, status=500)
+            return Response(
+                {
+                    "status": False,
+                    "error": "An error occurred while deleting the analysis",
+                },
+                status=500,
+            )
 
 
 class CreateProjectApi(APIView):
@@ -1260,7 +1422,9 @@ class CreateProjectApi(APIView):
         insert_date = timezone.now()
 
         try:
-            project = Project.objects.create(name=project_name, slug=slug, insert_date=insert_date)
+            project = Project.objects.create(
+                name=project_name, slug=slug, insert_date=insert_date
+            )
             # Add the creator to the project's users so they can access it
             project.users.add(request.user)
             return Response({"status": True, "project_name": project_name})
@@ -1271,7 +1435,10 @@ class CreateProjectApi(APIView):
                 "Error in CreateProjectApi: %s" % (e,),
                 level="error",
             )
-            return Response({"status": False, "message": "Failed to create project."}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": False, "message": "Failed to create project."},
+                status=HTTP_400_BAD_REQUEST,
+            )
 
 
 class QueryInterestingSubdomains(APIView):
@@ -1292,7 +1459,9 @@ class QueryInterestingSubdomains(APIView):
         return Response(InterestingSubdomainSerializer(queryset, many=True).data)
 
 
-class ListTargetsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet):
+class ListTargetsDatatableViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet
+):
     """DataTables list API for targets. Filter params: filter_organization, filter_scope, filter_has_scan. See wiki datatables-api-filters.md."""
 
     queryset = Target.objects.all()
@@ -1302,7 +1471,11 @@ class ListTargetsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, 
     def get_queryset(self):
         slug = self.request.GET.get("slug", None)
         base_qs = Target.objects.for_project(slug) if slug else self.queryset
-        first_scope_name = Scope.objects.filter(targets=OuterRef("pk")).order_by("name").values("name")[:1]
+        first_scope_name = (
+            Scope.objects.filter(targets=OuterRef("pk"))
+            .order_by("name")
+            .values("name")[:1]
+        )
         domain_count_subq = (
             Domain.objects.filter(scan_history__target_id=OuterRef("pk"))
             .values("scan_history__target_id")
@@ -1346,10 +1519,14 @@ class ListTargetsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, 
                 domain_count=Coalesce(Subquery(domain_count_subq), Value(0)),
                 subdomain_count=Coalesce(Subquery(subdomain_count_subq), Value(0)),
                 endpoint_count=Coalesce(Subquery(endpoint_count_subq), Value(0)),
-                vulnerability_count=Coalesce(Subquery(vulnerability_count_subq), Value(0)),
+                vulnerability_count=Coalesce(
+                    Subquery(vulnerability_count_subq), Value(0)
+                ),
                 secret_count=Coalesce(Subquery(secret_count_subq), Value(0)),
                 exploit_count=Coalesce(Subquery(exploit_count_subq), Value(0)),
-                scope_group_name=Coalesce(Subquery(first_scope_name), Value("No scope")),
+                scope_group_name=Coalesce(
+                    Subquery(first_scope_name), Value("No scope")
+                ),
             )
         )
         return annotate_queryset_with_llm_attack_surface_count(qs, Target)
@@ -1365,13 +1542,21 @@ class ListTargetsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, 
             ).distinct()
         # Per-column search values from DataTables (individual column filters).
         # Column map uses "value" for target name; reuse it here.
-        name_search = get_datatables_column_search_value(self.request, self.datatable_column_map, "value")
+        name_search = get_datatables_column_search_value(
+            self.request, self.datatable_column_map, "value"
+        )
         if name_search:
             qs = qs.filter(value__icontains=name_search)
         qs = apply_filter_list_in_by_param(
-            qs, self.request, FILTER_PARAM_ORGANIZATION, "organizations__name__in", distinct=True
+            qs,
+            self.request,
+            FILTER_PARAM_ORGANIZATION,
+            "organizations__name__in",
+            distinct=True,
         )
-        qs = apply_filter_list_in_by_param(qs, self.request, FILTER_PARAM_SCOPE, "scopes__name__in", distinct=True)
+        qs = apply_filter_list_in_by_param(
+            qs, self.request, FILTER_PARAM_SCOPE, "scopes__name__in", distinct=True
+        )
         has_scan_values = get_request_filter_list(self.request, FILTER_PARAM_HAS_SCAN)
         has_scan_value = has_scan_values[0] if has_scan_values else None
         if has_scan_value == "scanned":
@@ -1399,14 +1584,20 @@ class ListTargetsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, 
         ):
             records_total = base_queryset.count()
             records_filtered = filtered_queryset.count()
-            slice_qs = filtered_queryset[pagination["start"] : pagination["start"] + pagination["length"]]
+            slice_qs = filtered_queryset[
+                pagination["start"] : pagination["start"] + pagination["length"]
+            ]
             page_targets = list(slice_qs)
             attach_ip_metrics_to_targets(page_targets)
-            if hasattr(self, "get_list_serializer_context") and callable(self.get_list_serializer_context):
+            if hasattr(self, "get_list_serializer_context") and callable(
+                self.get_list_serializer_context
+            ):
                 context = {**context, **self.get_list_serializer_context(page_targets)}
             serializer = self.get_serializer(page_targets, many=True, context=context)
             return Response(
-                build_datatables_serverside_response(request, records_total, records_filtered, serializer.data)
+                build_datatables_serverside_response(
+                    request, records_total, records_filtered, serializer.data
+                )
             )
 
         queryset = filtered_queryset
@@ -1414,20 +1605,26 @@ class ListTargetsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, 
         if page is not None:
             page_list = list(page)
             attach_ip_metrics_to_targets(page_list)
-            if hasattr(self, "get_list_serializer_context") and callable(self.get_list_serializer_context):
+            if hasattr(self, "get_list_serializer_context") and callable(
+                self.get_list_serializer_context
+            ):
                 context = {**context, **self.get_list_serializer_context(page_list)}
             serializer = self.get_serializer(page_list, many=True, context=context)
             return self.get_paginated_response(serializer.data)
 
         all_targets = list(queryset)
         attach_ip_metrics_to_targets(all_targets)
-        if hasattr(self, "get_list_serializer_context") and callable(self.get_list_serializer_context):
+        if hasattr(self, "get_list_serializer_context") and callable(
+            self.get_list_serializer_context
+        ):
             context = {**context, **self.get_list_serializer_context(all_targets)}
         serializer = self.get_serializer(all_targets, many=True, context=context)
         return Response(serializer.data)
 
 
-class ListScopesDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet):
+class ListScopesDatatableViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet
+):
     """DataTables list API for scopes, filtered by project slug. Filter params: filter_organization, filter_scope_type. See wiki datatables-api-filters.md."""
 
     serializer_class = ScopeDatatableSerializer
@@ -1451,8 +1648,13 @@ class ListScopesDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, v
     def filter_queryset(self, qs):
         search_value = self.request.GET.get("search[value]", None)
         if search_value:
-            qs = qs.filter(Q(name__icontains=search_value) | Q(organization__name__icontains=search_value)).distinct()
-        name_search = get_datatables_column_search_value(self.request, self.datatable_column_map, "name")
+            qs = qs.filter(
+                Q(name__icontains=search_value)
+                | Q(organization__name__icontains=search_value)
+            ).distinct()
+        name_search = get_datatables_column_search_value(
+            self.request, self.datatable_column_map, "name"
+        )
         if name_search:
             qs = qs.filter(name__icontains=name_search)
         organization_search = get_datatables_column_search_value(
@@ -1460,17 +1662,27 @@ class ListScopesDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, v
         )
         if organization_search:
             qs = qs.filter(organization__name__icontains=organization_search)
-        scope_type_search = get_datatables_column_search_value(self.request, self.datatable_column_map, "scope_type")
+        scope_type_search = get_datatables_column_search_value(
+            self.request, self.datatable_column_map, "scope_type"
+        )
         if scope_type_search:
             qs = qs.filter(scope_type__icontains=scope_type_search)
         qs = apply_filter_list_in_by_param(
-            qs, self.request, FILTER_PARAM_ORGANIZATION, "organization__name__in", distinct=True
+            qs,
+            self.request,
+            FILTER_PARAM_ORGANIZATION,
+            "organization__name__in",
+            distinct=True,
         )
         qs = apply_filter_scope_type(qs, self.request)
-        return apply_datatables_order(qs, self.request, self.datatable_column_map, default_order="-insert_date")
+        return apply_datatables_order(
+            qs, self.request, self.datatable_column_map, default_order="-insert_date"
+        )
 
 
-class ListOrganizationsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet):
+class ListOrganizationsDatatableViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet
+):
     """DataTables list API for organizations, filtered by project slug. Filter params: filter_name. See wiki datatables-api-filters.md."""
 
     serializer_class = OrganizationDatatableSerializer
@@ -1493,18 +1705,30 @@ class ListOrganizationsDatatableViewSet(DatatableListMixin, DatatablePaginationM
     def filter_queryset(self, qs):
         search_value = self.request.GET.get("search[value]", None)
         if search_value:
-            qs = qs.filter(Q(name__icontains=search_value) | Q(description__icontains=search_value)).distinct()
-        name_search = get_datatables_column_search_value(self.request, self.datatable_column_map, "name")
+            qs = qs.filter(
+                Q(name__icontains=search_value) | Q(description__icontains=search_value)
+            ).distinct()
+        name_search = get_datatables_column_search_value(
+            self.request, self.datatable_column_map, "name"
+        )
         if name_search:
             qs = qs.filter(name__icontains=name_search)
-        description_search = get_datatables_column_search_value(self.request, self.datatable_column_map, "description")
+        description_search = get_datatables_column_search_value(
+            self.request, self.datatable_column_map, "description"
+        )
         if description_search:
             qs = qs.filter(description__icontains=description_search)
-        qs = apply_filter_list_in_by_param(qs, self.request, FILTER_PARAM_NAME, "name__in", distinct=True)
-        return apply_datatables_order(qs, self.request, self.datatable_column_map, default_order="-insert_date")
+        qs = apply_filter_list_in_by_param(
+            qs, self.request, FILTER_PARAM_NAME, "name__in", distinct=True
+        )
+        return apply_datatables_order(
+            qs, self.request, self.datatable_column_map, default_order="-insert_date"
+        )
 
 
-class ListScheduledScansDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet):
+class ListScheduledScansDatatableViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet
+):
     """DataTables list API for scheduled scans (ScanSchedule)."""
 
     serializer_class = ScanScheduleDatatableSerializer
@@ -1575,14 +1799,16 @@ class UniversalSearch(APIView):
         subdomain_data = SubdomainSerializer(subdomain, many=True).data
         response["results"]["subdomains"] = subdomain_data
 
-        endpoint = EndPoint.objects.filter(Q(http_url__icontains=query) | Q(page_title__icontains=query)).distinct(
-            "http_url"
-        )
+        endpoint = EndPoint.objects.filter(
+            Q(http_url__icontains=query) | Q(page_title__icontains=query)
+        ).distinct("http_url")
         endpoint_data = EndpointSerializer(endpoint, many=True).data
         response["results"]["endpoints"] = endpoint_data
 
         vulnerability = Vulnerability.objects.filter(
-            Q(http_url__icontains=query) | Q(name__icontains=query) | Q(description__icontains=query)
+            Q(http_url__icontains=query)
+            | Q(name__icontains=query)
+            | Q(description__icontains=query)
         ).distinct()
         vulnerability_data = VulnerabilitySerializer(vulnerability, many=True).data
         response["results"]["vulnerabilities"] = vulnerability_data
@@ -1608,23 +1834,33 @@ class FetchMostCommonVulnerability(APIView):
             is_ignore_info = data.get("ignore_info", False)
 
             base_filter = (
-                Vulnerability.objects.filter(domain__scan_history__target__project__slug=project_slug)
+                Vulnerability.objects.filter(
+                    domain__scan_history__target__project__slug=project_slug
+                )
                 if project_slug
                 else Vulnerability.objects.all()
             )
             if scan_history_id:
-                vuln_query = base_filter.filter(scan_history__id=scan_history_id).values("name", "severity")
+                vuln_query = base_filter.filter(
+                    scan_history__id=scan_history_id
+                ).values("name", "severity")
             elif target_id:
-                vuln_query = base_filter.filter(domain__scan_history__target_id=target_id).values("name", "severity")
+                vuln_query = base_filter.filter(
+                    domain__scan_history__target_id=target_id
+                ).values("name", "severity")
             else:
                 vuln_query = base_filter.values("name", "severity")
 
             if is_ignore_info:
                 most_common_vulnerabilities = (
-                    vuln_query.exclude(severity=0).annotate(count=Count("name")).order_by("-count")[:limit]
+                    vuln_query.exclude(severity=0)
+                    .annotate(count=Count("name"))
+                    .order_by("-count")[:limit]
                 )
             else:
-                most_common_vulnerabilities = vuln_query.annotate(count=Count("name")).order_by("-count")[:limit]
+                most_common_vulnerabilities = vuln_query.annotate(
+                    count=Count("name")
+                ).order_by("-count")[:limit]
 
             most_common_vulnerabilities = list(most_common_vulnerabilities)
 
@@ -1659,7 +1895,9 @@ class FetchMostVulnerable(APIView):
 
         if project_slug:
             project = Project.objects.get(slug=project_slug)
-            subdomains = Subdomain.objects.filter(domain__scan_history__target__project=project)
+            subdomains = Subdomain.objects.filter(
+                domain__scan_history__target__project=project
+            )
             domains = Domain.objects.filter(scan_history__target__project=project)
         else:
             subdomains = Subdomain.objects.all()
@@ -1705,12 +1943,20 @@ class FetchMostVulnerable(APIView):
                 response["status"] = True
                 ctx = {}
                 if scan_history_id:
-                    interesting = get_interesting_subdomains(scan_history=scan_history_id)
-                    ctx["datatable_interesting_names"] = set(interesting.values_list("name", flat=True))
-                response["result"] = SubdomainSerializer(most_vulnerable_subdomains, many=True, context=ctx).data
+                    interesting = get_interesting_subdomains(
+                        scan_history=scan_history_id
+                    )
+                    ctx["datatable_interesting_names"] = set(
+                        interesting.values_list("name", flat=True)
+                    )
+                response["result"] = SubdomainSerializer(
+                    most_vulnerable_subdomains, many=True, context=ctx
+                ).data
 
         elif target_id:
-            subdomain_query = subdomains.filter(domain__scan_history__target_id=target_id)
+            subdomain_query = subdomains.filter(
+                domain__scan_history__target_id=target_id
+            )
             # Scalar count subquery avoids cartesian products vs annotate(Count(..., distinct=True)).
             vuln_annot = count_subquery(
                 Vulnerability,
@@ -1737,8 +1983,12 @@ class FetchMostVulnerable(APIView):
                 ctx = {}
                 interesting = get_interesting_subdomains(target_id=target_id)
                 if interesting.exists():
-                    ctx["datatable_interesting_names"] = set(interesting.values_list("name", flat=True))
-                response["result"] = SubdomainSerializer(most_vulnerable_subdomains, many=True, context=ctx).data
+                    ctx["datatable_interesting_names"] = set(
+                        interesting.values_list("name", flat=True)
+                    )
+                response["result"] = SubdomainSerializer(
+                    most_vulnerable_subdomains, many=True, context=ctx
+                ).data
         else:
             # Count Vulnerability rows per domain (each row has one subdomain_id, so same semantics as
             # previous join-based count: one vuln on two subdomains = two Vulnerability rows = count 2).
@@ -1748,12 +1998,16 @@ class FetchMostVulnerable(APIView):
                 filter_kwargs={"severity__gt": 0} if is_ignore_info else None,
             )
             most_vulnerable_targets = (
-                domains.annotate(vuln_count=domain_vuln_annot).order_by("-vuln_count").exclude(vuln_count=0)[:limit]
+                domains.annotate(vuln_count=domain_vuln_annot)
+                .order_by("-vuln_count")
+                .exclude(vuln_count=0)[:limit]
             )
 
             if most_vulnerable_targets:
                 response["status"] = True
-                response["result"] = DomainSerializer(most_vulnerable_targets, many=True).data
+                response["result"] = DomainSerializer(
+                    most_vulnerable_targets, many=True
+                ).data
 
         return Response(response)
 
@@ -1771,9 +2025,13 @@ class AddReconNote(APIView):
         project = data.get("project")
 
         if not title:
-            return Response({"status": False, "error": "Title is required."}, status=400)
+            return Response(
+                {"status": False, "error": "Title is required."}, status=400
+            )
         if not project:
-            return Response({"status": False, "error": "Project is required."}, status=400)
+            return Response(
+                {"status": False, "error": "Project is required."}, status=400
+            )
         # Recon notes: forbid both targets at once (both_subdomain_and_ip_provided_error).
         if err := both_subdomain_and_ip_provided_error(subdomain_id, ip_address_id):
             return Response({"status": False, "error": err}, status=400)
@@ -1810,7 +2068,9 @@ class AddReconNote(APIView):
                 "AddReconNote error: %s" % (e,),
                 level="error",
             )
-            return Response({"status": False, "error": "An error occurred."}, status=400)
+            return Response(
+                {"status": False, "error": "An error occurred."}, status=400
+            )
 
 
 class ToggleSubdomainImportantStatus(APIView):
@@ -1842,11 +2102,15 @@ class ToggleIpAddressImportantStatus(APIView):
         data = request.data
         ip_id = safe_int_cast(data.get("ip_address_id"))
         if not ip_id:
-            return ip_action_error("No ip_address_id provided", IP_ERR_MISSING_IP_ADDRESS_ID, status=400)
+            return ip_action_error(
+                "No ip_address_id provided", IP_ERR_MISSING_IP_ADDRESS_ID, status=400
+            )
 
         ip_row = IpAddress.objects.filter(id=ip_id).first()
         if not ip_row:
-            return ip_action_error("IP address not found", IP_ERR_IP_NOT_FOUND, status=404)
+            return ip_action_error(
+                "IP address not found", IP_ERR_IP_NOT_FOUND, status=404
+            )
         ip_row.is_important = not bool(ip_row.is_important)
         ip_row.save()
         return Response({"status": True, "is_important": bool(ip_row.is_important)})
@@ -1865,7 +2129,11 @@ class UnlinkScanIpAddresses(APIView):
             )
         scan_history_id = safe_int_cast(data.get("scan_history_id"), default=None)
         if isinstance(scan_history_id, list):
-            scan_history_id = safe_int_cast(scan_history_id[0], default=None) if scan_history_id else None
+            scan_history_id = (
+                safe_int_cast(scan_history_id[0], default=None)
+                if scan_history_id
+                else None
+            )
         if scan_history_id is None or scan_history_id < 1:
             return ip_action_error(
                 "ip_address_ids and scan_history_id are required",
@@ -1880,16 +2148,26 @@ class UnlinkScanIpAddresses(APIView):
             )
         # Body list/string coercion: coerce_json_ip_address_ids + positive_ip_ids.
         try:
-            ip_ids = positive_ip_ids(coerce_json_ip_address_ids(data.get("ip_address_ids")))
+            ip_ids = positive_ip_ids(
+                coerce_json_ip_address_ids(data.get("ip_address_ids"))
+            )
         except ValueError:
-            return ip_action_error("Invalid ip_address_ids", IP_ERR_INVALID_IP_ADDRESS_IDS, status=400)
+            return ip_action_error(
+                "Invalid ip_address_ids", IP_ERR_INVALID_IP_ADDRESS_IDS, status=400
+            )
         if not ip_ids:
-            return ip_action_error("No valid ip_address_ids provided", IP_ERR_INVALID_IP_ADDRESS_IDS, status=400)
+            return ip_action_error(
+                "No valid ip_address_ids provided",
+                IP_ERR_INVALID_IP_ADDRESS_IDS,
+                status=400,
+            )
         # In-scan membership: partition_ip_address_ids_for_scan_history (scan_finding_metrics).
         scan = ScanHistory.objects.filter(pk=scan_history_id).first()
         if not scan:
             return ip_action_error("Scan not found", IP_ERR_SCAN_NOT_FOUND, status=404)
-        validated_ids, invalid_ids = partition_ip_address_ids_for_scan_history(ip_ids, scan_history_id)
+        validated_ids, invalid_ids = partition_ip_address_ids_for_scan_history(
+            ip_ids, scan_history_id
+        )
         if not validated_ids:
             return ip_action_error(
                 "None of the provided ip_address_ids are linked to this scan",
@@ -1944,17 +2222,29 @@ class UnlinkTargetIpAddresses(APIView):
                 status=400,
             )
         try:
-            ip_ids = positive_ip_ids(coerce_json_ip_address_ids(data.get("ip_address_ids")))
+            ip_ids = positive_ip_ids(
+                coerce_json_ip_address_ids(data.get("ip_address_ids"))
+            )
         except ValueError:
-            return ip_action_error("Invalid ip_address_ids", IP_ERR_INVALID_IP_ADDRESS_IDS, status=400)
+            return ip_action_error(
+                "Invalid ip_address_ids", IP_ERR_INVALID_IP_ADDRESS_IDS, status=400
+            )
         if not ip_ids:
-            return ip_action_error("No valid ip_address_ids provided", IP_ERR_INVALID_IP_ADDRESS_IDS, status=400)
+            return ip_action_error(
+                "No valid ip_address_ids provided",
+                IP_ERR_INVALID_IP_ADDRESS_IDS,
+                status=400,
+            )
 
         target = Target.objects.filter(pk=target_id).first()
         if not target:
-            return ip_action_error("Target not found", IP_ERR_TARGET_NOT_FOUND, status=404)
+            return ip_action_error(
+                "Target not found", IP_ERR_TARGET_NOT_FOUND, status=404
+            )
 
-        validated_ids, invalid_ids = partition_ip_address_ids_for_target(ip_ids, target_id)
+        validated_ids, invalid_ids = partition_ip_address_ids_for_target(
+            ip_ids, target_id
+        )
         if not validated_ids:
             return ip_action_error(
                 "None of the provided ip_address_ids are linked to this target",
@@ -1984,12 +2274,18 @@ class AddTarget(APIView):
         slug = data.get("slug")
 
         if not validators.domain(domain_name):
-            return Response({"status": False, "message": "Invalid domain or IP"}, status=400)
+            return Response(
+                {"status": False, "message": "Invalid domain or IP"}, status=400
+            )
 
         project = Project.objects.get(slug=slug)
 
-        if Target.objects.filter(project=project, value=domain_name, target_type=TARGET_TYPE_HOST).exists():
-            return Response({"status": False, "message": "Target already exists!"}, status=400)
+        if Target.objects.filter(
+            project=project, value=domain_name, target_type=TARGET_TYPE_HOST
+        ).exists():
+            return Response(
+                {"status": False, "message": "Target already exists!"}, status=400
+            )
 
         target, _ = Target.objects.get_or_create(
             project=project,
@@ -2013,7 +2309,11 @@ class AddTarget(APIView):
                     PREFIX_API,
                     "ADD_TARGET",
                     "Attempt to attach target from project %s to organization %s (project %s)"
-                    % (target.project_id, organization_obj.id, organization_obj.project_id),
+                    % (
+                        target.project_id,
+                        organization_obj.id,
+                        organization_obj.project_id,
+                    ),
                     level="warning",
                 )
                 return Response(
@@ -2029,7 +2329,9 @@ class AddTarget(APIView):
                 "message": "Target successfully added!",
                 "domain_name": domain_name,
                 "target_id": target.id,
-                "initiate_scan_url": reverse("start_scan", kwargs={"slug": slug, "target_id": target.id}),
+                "initiate_scan_url": reverse(
+                    "start_scan", kwargs={"slug": slug, "target_id": target.id}
+                ),
             }
         )
 
@@ -2041,7 +2343,9 @@ class FetchSubscanResults(APIView):
         subscan_id = safe_int_cast(req.query_params.get("subscan_id"))
         subscan = SubScan.objects.filter(id=subscan_id)
         if not subscan.exists():
-            return Response({"status": False, "error": f"Subscan {subscan_id} does not exist"})
+            return Response(
+                {"status": False, "error": f"Subscan {subscan_id} does not exist"}
+            )
 
         subscan_data = SubScanResultSerializer(subscan.first(), many=False).data
         task_name = subscan_data["type"]
@@ -2058,15 +2362,21 @@ class FetchSubscanResults(APIView):
             ips_in_subscan = IpAddress.objects.filter(ip_subscan_ids__in=subscan)
             ip_subdomain_data = get_ip_subdomain_data(ips_in_subscan)
             subscan_results = IpSerializer(
-                ips_in_subscan, many=True, context={"ip_subdomain_data": ip_subdomain_data}
+                ips_in_subscan,
+                many=True,
+                context={"ip_subdomain_data": ip_subdomain_data},
             ).data
 
         elif task_name in vuln_scan_types:
-            vulns_in_subscan = Vulnerability.objects.filter(vuln_subscan_ids__in=subscan)
+            vulns_in_subscan = Vulnerability.objects.filter(
+                vuln_subscan_ids__in=subscan
+            )
             subscan_results = VulnerabilitySerializer(vulns_in_subscan, many=True).data
 
         elif task_name in fetch_url_types:
-            endpoints_in_subscan = EndPoint.objects.filter(endpoint_subscan_ids__in=subscan)
+            endpoints_in_subscan = EndPoint.objects.filter(
+                endpoint_subscan_ids__in=subscan
+            )
             subscan_results = EndpointSerializer(endpoints_in_subscan, many=True).data
 
         elif task_name in dir_fuzz_types:
@@ -2074,7 +2384,9 @@ class FetchSubscanResults(APIView):
             subscan_results = DirectoryScanSerializer(dirs_in_subscan, many=True).data
 
         elif task_name in subdomain_types:
-            subdomains_in_subscan = Subdomain.objects.filter(subdomain_subscan_ids__in=subscan).prefetch_related(
+            subdomains_in_subscan = Subdomain.objects.filter(
+                subdomain_subscan_ids__in=subscan
+            ).prefetch_related(
                 "ip_addresses",
                 "ip_addresses__ports",
                 "technologies",
@@ -2084,7 +2396,9 @@ class FetchSubscanResults(APIView):
                 "domain",
                 Prefetch(
                     "endpoint_set",
-                    queryset=apply_endpoint_port_and_techs_related(subdomain_all_endpoints_for_tech_queryset()),
+                    queryset=apply_endpoint_port_and_techs_related(
+                        subdomain_all_endpoints_for_tech_queryset()
+                    ),
                     to_attr="all_endpoints_for_tech_list",
                 ),
             )
@@ -2111,9 +2425,13 @@ class FetchSubscanResults(APIView):
 
         subscan_obj = subscan.first()
         project_slug = ""
-        if subscan_obj.scan_history and getattr(subscan_obj.scan_history, "target", None):
+        if subscan_obj.scan_history and getattr(
+            subscan_obj.scan_history, "target", None
+        ):
             target = subscan_obj.scan_history.target
-            if getattr(target, "project", None) and getattr(target.project, "slug", None):
+            if getattr(target, "project", None) and getattr(
+                target.project, "slug", None
+            ):
                 project_slug = target.project.slug
 
         return Response(
@@ -2139,21 +2457,37 @@ class ListSubScans(APIView):
         limit = parse_limit_from_request(request)
 
         subscan_base = SubScan.objects.select_related(
-            "scan_history", "scan_history__target", "subdomain", "engine", "secator_runner"
+            "scan_history",
+            "scan_history__target",
+            "subdomain",
+            "engine",
+            "secator_runner",
         )
         if subdomain_id:
-            qs = subscan_base.filter(subdomain__id=subdomain_id).order_by("-stop_scan_date")
+            qs = subscan_base.filter(subdomain__id=subdomain_id).order_by(
+                "-stop_scan_date"
+            )
         elif scan_history:
-            qs = subscan_base.filter(scan_history__id=scan_history).order_by("-stop_scan_date")
+            qs = subscan_base.filter(scan_history__id=scan_history).order_by(
+                "-stop_scan_date"
+            )
         elif target_id:
             scan_history_qs = ScanHistory.objects.filter(target_id=target_id)
-            qs = subscan_base.filter(scan_history__in=scan_history_qs).order_by("-stop_scan_date")
+            qs = subscan_base.filter(scan_history__in=scan_history_qs).order_by(
+                "-stop_scan_date"
+            )
         elif domain_id:
             domain = get_domain_by_id(domain_id)
-            target_id = domain.scan_history.target_id if (domain and domain.scan_history_id) else None
+            target_id = (
+                domain.scan_history.target_id
+                if (domain and domain.scan_history_id)
+                else None
+            )
             if target_id is not None:
                 scan_history_qs = ScanHistory.objects.filter(target_id=target_id)
-                qs = subscan_base.filter(scan_history__in=scan_history_qs).order_by("-stop_scan_date")
+                qs = subscan_base.filter(scan_history__in=scan_history_qs).order_by(
+                    "-stop_scan_date"
+                )
             else:
                 qs = subscan_base.none()
         else:
@@ -2175,7 +2509,9 @@ class ListSubScans(APIView):
         return Response(response)
 
 
-class ListSubScansDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet):
+class ListSubScansDatatableViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet
+):
     """DataTables list API for subscans, filtered by project slug. Filter params: filter_organization, filter_scope, filter_status, filter_target, filter_scan_engine. See wiki datatables-api-filters.md."""
 
     serializer_class = SubScanDatatableSerializer
@@ -2187,7 +2523,13 @@ class ListSubScansDatatableViewSet(DatatableListMixin, DatatablePaginationMixin,
             return SubScan.objects.none()
         return (
             SubScan.objects.filter(scan_history__target__project__slug=project)
-            .select_related("scan_history", "scan_history__target", "subdomain", "engine", "secator_runner")
+            .select_related(
+                "scan_history",
+                "scan_history__target",
+                "subdomain",
+                "engine",
+                "secator_runner",
+            )
             .prefetch_related("scan_history__target__scopes")
             .order_by("-start_scan_date")
         )
@@ -2197,21 +2539,38 @@ class ListSubScansDatatableViewSet(DatatableListMixin, DatatablePaginationMixin,
         search_value = req.GET.get("search[value]", None)
         if search_value:
             qs = qs.filter(
-                Q(subdomain__name__icontains=search_value) | Q(scan_history__target__value__icontains=search_value)
+                Q(subdomain__name__icontains=search_value)
+                | Q(scan_history__target__value__icontains=search_value)
             ).distinct()
         qs = apply_filter_list_in_by_param(
-            qs, req, FILTER_PARAM_ORGANIZATION, "scan_history__target__organizations__name__in", distinct=True
+            qs,
+            req,
+            FILTER_PARAM_ORGANIZATION,
+            "scan_history__target__organizations__name__in",
+            distinct=True,
         )
         qs = apply_filter_list_in_by_param(
-            qs, req, FILTER_PARAM_SCOPE, "scan_history__target__scopes__name__in", distinct=True
+            qs,
+            req,
+            FILTER_PARAM_SCOPE,
+            "scan_history__target__scopes__name__in",
+            distinct=True,
         )
         qs = apply_filter_task_status(qs, req)
-        qs = apply_filter_list_in_by_param(qs, req, FILTER_PARAM_TARGET, "scan_history__target__value__in")
-        qs = apply_filter_list_in_by_param(qs, req, FILTER_PARAM_SCAN_ENGINE, "engine__engine_name__in")
-        return apply_datatables_order(qs, req, self.datatable_column_map, default_order="-start_scan_date")
+        qs = apply_filter_list_in_by_param(
+            qs, req, FILTER_PARAM_TARGET, "scan_history__target__value__in"
+        )
+        qs = apply_filter_list_in_by_param(
+            qs, req, FILTER_PARAM_SCAN_ENGINE, "engine__engine_name__in"
+        )
+        return apply_datatables_order(
+            qs, req, self.datatable_column_map, default_order="-start_scan_date"
+        )
 
 
-class ListS3BucketsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet):
+class ListS3BucketsDatatableViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet
+):
     """
     DataTables list API for S3 buckets of a scan (scan_history_id).
     Filter params: filter_bucket_name. See wiki datatables-api-filters.md.
@@ -2236,11 +2595,17 @@ class ListS3BucketsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin
                 | Q(region__icontains=search_value)
                 | Q(provider__icontains=search_value)
             )
-        qs = apply_filter_list_in_by_param(qs, req, FILTER_PARAM_BUCKET_NAME, "name__in")
-        return apply_datatables_order(qs, req, self.datatable_column_map, default_order="name")
+        qs = apply_filter_list_in_by_param(
+            qs, req, FILTER_PARAM_BUCKET_NAME, "name__in"
+        )
+        return apply_datatables_order(
+            qs, req, self.datatable_column_map, default_order="name"
+        )
 
 
-class ListWordlistsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet):
+class ListWordlistsDatatableViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet
+):
     """
     DataTables list API for wordlists. Filter params: filter_name. See wiki datatables-api-filters.md.
     Consuming template: scanEngine/wordlist/index.html. Column map: DATATABLE_COLUMN_MAP_WORDLIST.
@@ -2257,12 +2622,18 @@ class ListWordlistsDatatableViewSet(DatatableListMixin, DatatablePaginationMixin
         req = self.request
         search_value = req.GET.get("search[value]", "").strip()
         if search_value:
-            qs = qs.filter(Q(name__icontains=search_value) | Q(short_name__icontains=search_value))
+            qs = qs.filter(
+                Q(name__icontains=search_value) | Q(short_name__icontains=search_value)
+            )
         qs = apply_filter_list_in_by_param(qs, req, FILTER_PARAM_NAME, "name__in")
-        return apply_datatables_order(qs, req, self.datatable_column_map, default_order="name")
+        return apply_datatables_order(
+            qs, req, self.datatable_column_map, default_order="name"
+        )
 
 
-class ListScanEnginesDatatableViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet):
+class ListScanEnginesDatatableViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.GenericViewSet
+):
     """
     DataTables list API for scan engines (EngineType). Filter params: filter_engine_name. See wiki datatables-api-filters.md.
     Consuming template: scanEngine/index.html. Column map: DATATABLE_COLUMN_MAP_SCAN_ENGINE.
@@ -2277,14 +2648,20 @@ class ListScanEnginesDatatableViewSet(DatatableListMixin, DatatablePaginationMix
 
     def filter_queryset(self, qs):
         req = self.request
-        filter_scan_type = (req.query_params.get("filter_scan_type") or "").strip().lower()
+        filter_scan_type = (
+            (req.query_params.get("filter_scan_type") or "").strip().lower()
+        )
         if filter_scan_type in ("internet", "internal_network"):
             qs = qs.filter(scan_type=filter_scan_type)
-        qs = apply_filter_list_in_by_param(qs, req, FILTER_PARAM_ENGINE_NAME, "engine_name__in")
+        qs = apply_filter_list_in_by_param(
+            qs, req, FILTER_PARAM_ENGINE_NAME, "engine_name__in"
+        )
         search_value = req.GET.get("search[value]", "").strip()
         if search_value:
             qs = qs.filter(engine_name__icontains=search_value)
-        return apply_datatables_order(qs, req, self.datatable_column_map, default_order="engine_name")
+        return apply_datatables_order(
+            qs, req, self.datatable_column_map, default_order="engine_name"
+        )
 
 
 class DeleteMultipleRows(APIView):
@@ -2298,10 +2675,16 @@ class DeleteMultipleRows(APIView):
                 SubScan.objects.filter(id__in=subscan_ids).delete()
                 return Response({"status": True})
         except ValueError:
-            return Response({"status": False, "message": "Invalid subscan ID provided"}, status=400)
+            return Response(
+                {"status": False, "message": "Invalid subscan ID provided"}, status=400
+            )
         except Exception as e:
             return Response(
-                {"status": False, "message": get_safe_user_message(e, None) or GENERIC_USER_ERROR_MESSAGE},
+                {
+                    "status": False,
+                    "message": get_safe_user_message(e, None)
+                    or GENERIC_USER_ERROR_MESSAGE,
+                },
                 status=500,
             )
 
@@ -2373,7 +2756,11 @@ class StopScan(APIView):
 
         # Abort running scan activities
         if scan:
-            tasks = ScanActivity.objects.filter(scan_of=scan).filter(status=RUNNING_TASK).order_by("-pk")
+            tasks = (
+                ScanActivity.objects.filter(scan_of=scan)
+                .filter(status=RUNNING_TASK)
+                .order_by("-pk")
+            )
             for task in tasks:
                 task.status = ABORTED_TASK
                 task.time = timezone.now()
@@ -2395,7 +2782,10 @@ class StopActivity(APIView):
         activity_id = safe_int_cast(data.get("activity_id"))
 
         if not activity_id:
-            return Response({"status": False, "message": "activity_id is required"}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": False, "message": "activity_id is required"},
+                status=HTTP_400_BAD_REQUEST,
+            )
 
         try:
             activity = get_object_or_404(ScanActivity, id=activity_id)
@@ -2403,7 +2793,8 @@ class StopActivity(APIView):
 
             if not scan:
                 return Response(
-                    {"status": False, "message": "Activity has no associated scan"}, status=HTTP_400_BAD_REQUEST
+                    {"status": False, "message": "Activity has no associated scan"},
+                    status=HTTP_400_BAD_REQUEST,
                 )
 
             # Use SecatorScanController to stop the activity
@@ -2425,7 +2816,10 @@ class StopActivity(APIView):
                 "Stop activity error: %s" % (e,),
                 level="error",
             )
-            return Response({"status": False, "message": get_safe_user_message(e, None)}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": False, "message": get_safe_user_message(e, None)},
+                status=HTTP_400_BAD_REQUEST,
+            )
 
 
 class StartScan(APIView):
@@ -2493,7 +2887,9 @@ class StartScan(APIView):
         if hasattr(data, "get"):
             secator_config = data.get("secator_config", {})
             # Ensure profiles is a list
-            if "profiles" in secator_config and not isinstance(secator_config["profiles"], list):
+            if "profiles" in secator_config and not isinstance(
+                secator_config["profiles"], list
+            ):
                 secator_config["profiles"] = []
             # reconPoint parameters
             imported_subdomains = data.get("imported_subdomains", [])
@@ -2532,7 +2928,10 @@ class StartScan(APIView):
                 execution_mode,
             )
         except ValueError as exc:
-            return Response({"error": get_safe_user_message(exc, logger)}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": get_safe_user_message(exc, logger)},
+                status=HTTP_400_BAD_REQUEST,
+            )
 
         if resolved["use_per_task"]:
             selected_targets_per_task = resolved["selected_targets_per_task"]
@@ -2572,11 +2971,16 @@ class StartScan(APIView):
                             "task_type": item["task_type"],
                             "status": "error",
                             "reason": "start_failed",
-                            "detail": item.get("detail", item.get("error", "Unknown error")),
+                            "detail": item.get(
+                                "detail", item.get("error", "Unknown error")
+                            ),
                         }
                     )
 
-            has_unknown_tasks = any(e["reason"] == "unknown_task_type" for e in run_result["validation_errors"])
+            has_unknown_tasks = any(
+                e["reason"] == "unknown_task_type"
+                for e in run_result["validation_errors"]
+            )
             if has_unknown_tasks:
                 return Response(
                     {
@@ -2655,7 +3059,11 @@ class GetSubdomainNames(APIView):
             return Response({"results": []})
         subdomains = Subdomain.objects.filter(id__in=subdomain_ids)
         id_to_subdomain = {s.id: s for s in subdomains}
-        results = [{"id": sid, "name": id_to_subdomain[sid].name} for sid in subdomain_ids if sid in id_to_subdomain]
+        results = [
+            {"id": sid, "name": id_to_subdomain[sid].name}
+            for sid in subdomain_ids
+            if sid in id_to_subdomain
+        ]
         return Response({"results": results})
 
 
@@ -2688,9 +3096,13 @@ class InitiateSubTask(APIView):
         try:
             ip_address_ids = coerce_json_ip_address_ids(ip_address_ids_raw)
         except ValueError:
-            return Response({"status": False, "error": "Invalid ip_address_ids"}, status=400)
+            return Response(
+                {"status": False, "error": "Invalid ip_address_ids"}, status=400
+            )
 
-        if err := xor_subdomain_ids_or_ip_address_ids_error(subdomain_ids, ip_address_ids):
+        if err := xor_subdomain_ids_or_ip_address_ids_error(
+            subdomain_ids, ip_address_ids
+        ):
             return Response({"status": False, "error": err}, status=400)
 
         has_subdomains = bool(subdomain_ids)
@@ -2708,7 +3120,13 @@ class InitiateSubTask(APIView):
                 workflow = SecatorWorkflow.objects.get(id=workflow_id)
                 workflow_id_for_scan = workflow_id
             except SecatorWorkflow.DoesNotExist:
-                return Response({"status": False, "error": f"Workflow with ID {workflow_id} not found"}, status=404)
+                return Response(
+                    {
+                        "status": False,
+                        "error": f"Workflow with ID {workflow_id} not found",
+                    },
+                    status=404,
+                )
         elif workflow_name:
             # Secator workflow mode - find by name
             execution_mode = "workflow"
@@ -2717,7 +3135,11 @@ class InitiateSubTask(APIView):
                 workflow_id_for_scan = workflow.id
             except SecatorWorkflow.DoesNotExist:
                 return Response(
-                    {"status": False, "error": f"Workflow with name '{workflow_name}' not found"}, status=404
+                    {
+                        "status": False,
+                        "error": f"Workflow with name '{workflow_name}' not found",
+                    },
+                    status=404,
                 )
         elif task_names:
             # Secator tasks mode - convert task names to task IDs
@@ -2725,11 +3147,19 @@ class InitiateSubTask(APIView):
 
             # Use unique task names to handle duplicates correctly
             unique_task_names = list(set(task_names))
-            tasks = SecatorTask.objects.filter(task_type__in=unique_task_names, is_active=True)
+            tasks = SecatorTask.objects.filter(
+                task_type__in=unique_task_names, is_active=True
+            )
             found_task_types = set(tasks.values_list("task_type", flat=True))
             if len(found_task_types) != len(unique_task_names):
                 missing = set(unique_task_names) - found_task_types
-                return Response({"status": False, "error": f"Some tasks not found: {', '.join(missing)}"}, status=404)
+                return Response(
+                    {
+                        "status": False,
+                        "error": f"Some tasks not found: {', '.join(missing)}",
+                    },
+                    status=404,
+                )
             task_ids_for_scan = list(tasks.values_list("id", flat=True))
             task_type_to_id = dict(tasks.values_list("task_type", "id"))
         elif secator_scan_type:
@@ -2752,34 +3182,54 @@ class InitiateSubTask(APIView):
             if has_subdomains:
                 subdomains = Subdomain.objects.filter(id__in=subdomain_ids)
                 if not subdomains.exists():
-                    return Response({"status": False, "error": "No valid subdomains found"}, status=404)
+                    return Response(
+                        {"status": False, "error": "No valid subdomains found"},
+                        status=404,
+                    )
 
-                target_ids = list(subdomains.values_list("scan_history__target_id", flat=True).distinct())
+                target_ids = list(
+                    subdomains.values_list(
+                        "scan_history__target_id", flat=True
+                    ).distinct()
+                )
                 target_ids = [tid for tid in target_ids if tid is not None]
                 if not target_ids:
                     return Response(
-                        {"status": False, "error": "Could not resolve target from subdomains"},
+                        {
+                            "status": False,
+                            "error": "Could not resolve target from subdomains",
+                        },
                         status=400,
                     )
                 if len(target_ids) > 1:
                     return Response(
-                        {"status": False, "error": "All subdomains must belong to the same target"},
+                        {
+                            "status": False,
+                            "error": "All subdomains must belong to the same target",
+                        },
                         status=400,
                     )
                 target_id_from_domain = target_ids[0]
             else:
                 if scan_history_id is None:
                     return Response(
-                        {"status": False, "error": "scan_history_id is required for IP subscans"},
+                        {
+                            "status": False,
+                            "error": "scan_history_id is required for IP subscans",
+                        },
                         status=400,
                     )
-                ip_scan_targets, target_id_from_domain = _validate_ip_addresses_in_scan_context(
-                    ip_address_ids, scan_history_id=scan_history_id
+                ip_scan_targets, target_id_from_domain = (
+                    _validate_ip_addresses_in_scan_context(
+                        ip_address_ids, scan_history_id=scan_history_id
+                    )
                 )
         except ValueError as exc:
             return Response({"status": False, "error": str(exc)}, status=400)
         except Exception as e:
-            return Response({"status": False, "error": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": False, "error": get_safe_user_message(e, logger)}, status=400
+            )
 
         # selected_targets_per_task only (no selected_targets here). Use resolve_selected_targets for consistent parsing.
         try:
@@ -2789,7 +3239,10 @@ class InitiateSubTask(APIView):
                 "tasks",
             )
         except ValueError as exc:
-            return Response({"error": get_safe_user_message(exc, logger)}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": get_safe_user_message(exc, logger)},
+                status=HTTP_400_BAD_REQUEST,
+            )
 
         selected_targets_per_task = resolved["selected_targets_per_task"]
         scan_results = []
@@ -2797,7 +3250,10 @@ class InitiateSubTask(APIView):
         if execution_mode == "tasks" and selected_targets_per_task:
             if target_id_from_domain is None:
                 return Response(
-                    {"status": False, "error": "Subdomains have no linked scan/target; cannot run per-task scans"},
+                    {
+                        "status": False,
+                        "error": "Subdomains have no linked scan/target; cannot run per-task scans",
+                    },
                     status=400,
                 )
             run_result = run_per_task_secator_scans(
@@ -2814,7 +3270,13 @@ class InitiateSubTask(APIView):
                 ip_address_id=ip_address_ids[0] if ip_address_ids else None,
             )
             for err in run_result["validation_errors"]:
-                scan_results.append({"task_type": err["task_type"], "status": "error", "error": err["detail"]})
+                scan_results.append(
+                    {
+                        "task_type": err["task_type"],
+                        "status": "error",
+                        "error": err["detail"],
+                    }
+                )
             for item in run_result["results"]:
                 if item["status"] == "success":
                     scan_results.append(
@@ -2829,7 +3291,9 @@ class InitiateSubTask(APIView):
                         {
                             "task_type": item["task_type"],
                             "status": "error",
-                            "error": item.get("error", item.get("detail", "Unknown error")),
+                            "error": item.get(
+                                "error", item.get("detail", "Unknown error")
+                            ),
                         }
                     )
             if not run_result["results"]:
@@ -2856,28 +3320,40 @@ class InitiateSubTask(APIView):
         if scan_history_id is not None:
             try:
                 scan = ScanHistory.objects.get(pk=scan_history_id)
-                if target_id_from_domain is not None and scan.target_id != target_id_from_domain:
+                if (
+                    target_id_from_domain is not None
+                    and scan.target_id != target_id_from_domain
+                ):
                     return Response(
                         {
                             "status": False,
-                            "error": "ScanHistory %s does not belong to this target" % (scan_history_id,),
+                            "error": "ScanHistory %s does not belong to this target"
+                            % (scan_history_id,),
                         },
                         status=400,
                     )
                 if execution_mode == "workflow" and workflow_id_for_scan:
-                    subscan_type = SecatorWorkflow.objects.get(pk=workflow_id_for_scan).name
+                    subscan_type = SecatorWorkflow.objects.get(
+                        pk=workflow_id_for_scan
+                    ).name
                 elif execution_mode == "scan" and secator_scan_type:
                     subscan_type = secator_scan_type
                 else:
                     subscan_type = execution_mode or "subscan"
             except ScanHistory.DoesNotExist:
                 return Response(
-                    {"status": False, "error": f"ScanHistory {scan_history_id} not found"},
+                    {
+                        "status": False,
+                        "error": f"ScanHistory {scan_history_id} not found",
+                    },
                     status=404,
                 )
             except SecatorWorkflow.DoesNotExist:
                 return Response(
-                    {"status": False, "error": f"Workflow {workflow_id_for_scan} not found"},
+                    {
+                        "status": False,
+                        "error": f"Workflow {workflow_id_for_scan} not found",
+                    },
                     status=404,
                 )
 
@@ -2940,7 +3416,8 @@ class InitiateSubTask(APIView):
                     logger.log_line(
                         PREFIX_API,
                         "SECATOR_SUBSCAN",
-                        "Secator subscan initiated for subdomain %s (ID: %s)" % (subdomain.name, subdomain.id),
+                        "Secator subscan initiated for subdomain %s (ID: %s)"
+                        % (subdomain.name, subdomain.id),
                         level="info",
                     )
                 else:
@@ -2964,7 +3441,8 @@ class InitiateSubTask(APIView):
                 logger.log_line(
                     PREFIX_API,
                     "SECATOR_SUBSCAN",
-                    "Error initiating subscan for subdomain %s: %s" % (subdomain.name, e),
+                    "Error initiating subscan for subdomain %s: %s"
+                    % (subdomain.name, e),
                     level="error",
                 )
                 scan_results.append(
@@ -3045,7 +3523,8 @@ class InitiateSubTask(APIView):
                     logger.log_line(
                         PREFIX_API,
                         "SECATOR_SUBSCAN",
-                        "Secator subscan initiated for IP %s (ID: %s)" % (addr, ip_row.id),
+                        "Secator subscan initiated for IP %s (ID: %s)"
+                        % (addr, ip_row.id),
                         level="info",
                     )
                 else:
@@ -3060,7 +3539,8 @@ class InitiateSubTask(APIView):
                     logger.log_line(
                         PREFIX_API,
                         "SECATOR_SUBSCAN",
-                        "Failed to start subscan for IP %s: %s" % (addr, result.get("error", "Unknown error")),
+                        "Failed to start subscan for IP %s: %s"
+                        % (addr, result.get("error", "Unknown error")),
                         level="error",
                     )
 
@@ -3085,7 +3565,8 @@ class InitiateSubTask(APIView):
         return Response(
             {
                 "status": True,
-                "message": "Subscans initiated for %s %s" % (initiated_count, entity_word),
+                "message": "Subscans initiated for %s %s"
+                % (initiated_count, entity_word),
                 "results": scan_results,
             },
         )
@@ -3128,7 +3609,9 @@ def _validate_ip_addresses_in_scan_context(
         if i not in seen:
             seen.add(i)
             ordered_unique.append(i)
-    ips = list(IpAddress.objects.filter(id__in=ordered_unique).prefetch_related("ports"))
+    ips = list(
+        IpAddress.objects.filter(id__in=ordered_unique).prefetch_related("ports")
+    )
     found_ids = {ip.id for ip in ips}
     if found_ids != set(ordered_unique):
         raise ValueError("One or more IP address ids are invalid")
@@ -3148,12 +3631,21 @@ def _validate_ip_addresses_in_scan_context(
         scan_ids = {ip.scan_history_id for ip in ordered_ips if ip.scan_history_id}
         scan_to_target: dict[int, int] = {}
         if scan_ids:
-            scan_to_target = dict(ScanHistory.objects.filter(id__in=scan_ids).values_list("id", "target_id"))
+            scan_to_target = dict(
+                ScanHistory.objects.filter(id__in=scan_ids).values_list(
+                    "id", "target_id"
+                )
+            )
         for ip in ordered_ips:
-            if not ip.scan_history_id or scan_to_target.get(ip.scan_history_id) != target_id:
+            if (
+                not ip.scan_history_id
+                or scan_to_target.get(ip.scan_history_id) != target_id
+            ):
                 raise ValueError("IP is not associated with this target")
         return ordered_ips, int(target_id)
-    raise ValueError("scan_history_id or target_id is required for IP address scope validation")
+    raise ValueError(
+        "scan_history_id or target_id is required for IP address scope validation"
+    )
 
 
 def _flat_targets_for_scan_ip_objects(
@@ -3245,12 +3737,16 @@ class GetSecatorInputTypesAndTargets(APIView):
         domain_id_param = request.query_params.get("domain_id")
         subdomain_ids_param = request.query_params.get("subdomain_ids")
         ip_address_ids_param = request.query_params.get("ip_address_ids")
-        scan_history_for_ips = safe_int_cast(request.query_params.get("scan_history_id"), default=None)
+        scan_history_for_ips = safe_int_cast(
+            request.query_params.get("scan_history_id"), default=None
+        )
 
         subdomain_ids = []
         if subdomain_ids_param:
             if isinstance(subdomain_ids_param, str):
-                subdomain_ids = [int(x.strip()) for x in subdomain_ids_param.split(",") if x.strip()]
+                subdomain_ids = [
+                    int(x.strip()) for x in subdomain_ids_param.split(",") if x.strip()
+                ]
             else:
                 subdomain_ids = safe_int_cast(subdomain_ids_param)
             if isinstance(subdomain_ids, int):
@@ -3259,17 +3755,31 @@ class GetSecatorInputTypesAndTargets(APIView):
         ip_targets_mode_objs: list[IpAddress] = []
         target_id = None
         target_id_list = None
-        if target_ids_param and isinstance(target_ids_param, str) and target_ids_param.strip():
+        if (
+            target_ids_param
+            and isinstance(target_ids_param, str)
+            and target_ids_param.strip()
+        ):
             try:
-                target_id_list = parse_comma_separated_int_ids(target_ids_param, field_label="target_ids")
+                target_id_list = parse_comma_separated_int_ids(
+                    target_ids_param, field_label="target_ids"
+                )
             except ValueError as exc:
                 return Response({"error": str(exc)}, status=HTTP_400_BAD_REQUEST)
             target_id = target_id_list[0]
-        elif ip_address_ids_param and isinstance(ip_address_ids_param, str) and ip_address_ids_param.strip():
-            if err := subdomain_ids_conflict_when_ip_address_ids_requested_error(subdomain_ids):
+        elif (
+            ip_address_ids_param
+            and isinstance(ip_address_ids_param, str)
+            and ip_address_ids_param.strip()
+        ):
+            if err := subdomain_ids_conflict_when_ip_address_ids_requested_error(
+                subdomain_ids
+            ):
                 return Response({"error": err}, status=HTTP_400_BAD_REQUEST)
             try:
-                ip_ids = parse_comma_separated_int_ids(ip_address_ids_param, field_label="ip_address_ids")
+                ip_ids = parse_comma_separated_int_ids(
+                    ip_address_ids_param, field_label="ip_address_ids"
+                )
             except ValueError as exc:
                 return Response({"error": str(exc)}, status=HTTP_400_BAD_REQUEST)
             try:
@@ -3279,12 +3789,17 @@ class GetSecatorInputTypesAndTargets(APIView):
                         try:
                             fallback_target_id = int(target_id_param)
                         except (TypeError, ValueError):
-                            return Response({"error": "target_id must be an integer"}, status=HTTP_400_BAD_REQUEST)
+                            return Response(
+                                {"error": "target_id must be an integer"},
+                                status=HTTP_400_BAD_REQUEST,
+                            )
 
                     try:
-                        ip_targets_mode_objs, target_id = _validate_ip_addresses_in_scan_context(
-                            ip_ids,
-                            scan_history_id=scan_history_for_ips,
+                        ip_targets_mode_objs, target_id = (
+                            _validate_ip_addresses_in_scan_context(
+                                ip_ids,
+                                scan_history_id=scan_history_for_ips,
+                            )
                         )
                     except ValueError as scan_exc:
                         # UI can pass target id in scan_history_id depending on launch origin (target summary vs scan detail).
@@ -3300,9 +3815,11 @@ class GetSecatorInputTypesAndTargets(APIView):
                         resolved = False
                         for candidate_target_id in fallback_candidates:
                             try:
-                                ip_targets_mode_objs, target_id = _validate_ip_addresses_in_scan_context(
-                                    ip_ids,
-                                    target_id=candidate_target_id,
+                                ip_targets_mode_objs, target_id = (
+                                    _validate_ip_addresses_in_scan_context(
+                                        ip_ids,
+                                        target_id=candidate_target_id,
+                                    )
                                 )
                                 resolved = True
                                 break
@@ -3312,7 +3829,9 @@ class GetSecatorInputTypesAndTargets(APIView):
                             raise scan_exc
                 elif target_id_param:
                     tid = int(target_id_param)
-                    ip_targets_mode_objs, target_id = _validate_ip_addresses_in_scan_context(ip_ids, target_id=tid)
+                    ip_targets_mode_objs, target_id = (
+                        _validate_ip_addresses_in_scan_context(ip_ids, target_id=tid)
+                    )
                 else:
                     return Response(
                         {
@@ -3365,14 +3884,18 @@ class GetSecatorInputTypesAndTargets(APIView):
             target_id = target_ids[0]
         else:
             return Response(
-                {"error": "target_id, domain_id, subdomain_ids, or ip_address_ids is required"},
+                {
+                    "error": "target_id, domain_id, subdomain_ids, or ip_address_ids is required"
+                },
                 status=HTTP_400_BAD_REQUEST,
             )
 
         workflow_name = request.query_params.get("workflow_name") or ""
         scan_name = request.query_params.get("scan_name") or ""
         task_name = request.query_params.get("task_name") or ""
-        has_workflow = (workflow_id is not None and workflow_id != "") or bool(workflow_name.strip())
+        has_workflow = (workflow_id is not None and workflow_id != "") or bool(
+            workflow_name.strip()
+        )
         has_scan = (scan_id is not None and scan_id != "") or bool(scan_name.strip())
         has_task = (task_id is not None and task_id != "") or bool(task_name.strip())
         provided = sum([has_workflow, has_scan, has_task])
@@ -3390,19 +3913,27 @@ class GetSecatorInputTypesAndTargets(APIView):
 
             if has_workflow:
                 if workflow_id:
-                    input_types = InputTypeService.get_input_types(workflow_id=int(workflow_id))
+                    input_types = InputTypeService.get_input_types(
+                        workflow_id=int(workflow_id)
+                    )
                 else:
-                    input_types = InputTypeService.get_input_types(workflow_name=workflow_name.strip())
+                    input_types = InputTypeService.get_input_types(
+                        workflow_name=workflow_name.strip()
+                    )
             elif has_scan:
                 if scan_id:
                     input_types = InputTypeService.get_input_types(scan_id=int(scan_id))
                 else:
-                    input_types = InputTypeService.get_input_types(scan_name=scan_name.strip())
+                    input_types = InputTypeService.get_input_types(
+                        scan_name=scan_name.strip()
+                    )
             else:
                 if task_id:
                     input_types = InputTypeService.get_input_types(task_id=int(task_id))
                 else:
-                    input_types = InputTypeService.get_input_types(task_name=task_name.strip())
+                    input_types = InputTypeService.get_input_types(
+                        task_name=task_name.strip()
+                    )
 
             if target_id_list is not None and len(target_id_list) > 1:
                 # Deduplicate by value; flat_targets are plain strings (no type/source).
@@ -3410,7 +3941,9 @@ class GetSecatorInputTypesAndTargets(APIView):
                 seen: set = set()
                 flat_targets = []
                 for tid in target_id_list:
-                    one_flat, _ = _build_secator_flat_targets_and_by_type(tid, [], input_types)
+                    one_flat, _ = _build_secator_flat_targets_and_by_type(
+                        tid, [], input_types
+                    )
                     for t in one_flat:
                         key = t if isinstance(t, str) else str(t)
                         if key not in seen:
@@ -3423,7 +3956,9 @@ class GetSecatorInputTypesAndTargets(APIView):
                 proposed_targets = flat_targets[: self.TARGETS_DISPLAY_LIMIT]
                 truncated = total_count > self.TARGETS_DISPLAY_LIMIT
             elif ip_targets_mode_objs:
-                flat_targets, targets_by_type = _flat_targets_for_scan_ip_objects(ip_targets_mode_objs, input_types)
+                flat_targets, targets_by_type = _flat_targets_for_scan_ip_objects(
+                    ip_targets_mode_objs, input_types
+                )
                 total_count = len(flat_targets)
                 proposed_targets = flat_targets[: self.TARGETS_DISPLAY_LIMIT]
                 truncated = total_count > self.TARGETS_DISPLAY_LIMIT
@@ -3447,10 +3982,16 @@ class GetSecatorInputTypesAndTargets(APIView):
                 "uncommon_web_ports": list(UNCOMMON_WEB_PORTS),
             }
             return Response(payload)
-        except (SecatorWorkflow.DoesNotExist, SecatorScan.DoesNotExist, SecatorTask.DoesNotExist):
+        except (
+            SecatorWorkflow.DoesNotExist,
+            SecatorScan.DoesNotExist,
+            SecatorTask.DoesNotExist,
+        ):
             return Response({"error": "Workflow, scan or task not found"}, status=404)
         except ValueError:
-            return Response({"error": "Invalid request parameters"}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid request parameters"}, status=HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
             logger.log_line(
                 PREFIX_API,
@@ -3513,18 +4054,25 @@ class GetScanParamsEffectiveHtml(APIView):
                 '<p class="text-muted small">Effective parameters depend on the scan target.</p>',
                 content_type="text/html",
             )
-        target = Target.objects.filter(id=int(target_id)).select_related("project").first()
+        target = (
+            Target.objects.filter(id=int(target_id)).select_related("project").first()
+        )
         if not target:
             return HttpResponse(
                 '<p class="text-muted small">Target not found.</p>',
                 content_type="text/html",
             )
-        from targetApp.services.scope_params import build_effective_params_display, get_scope_for_target
+        from targetApp.services.scope_params import (
+            build_effective_params_display,
+            get_scope_for_target,
+        )
 
         scope = get_scope_for_target(target)
         organization = scope.organization if scope else target.organizations.first()
 
-        scan_params_effective = build_effective_params_display(target=target, scope=scope, organization=organization)
+        scan_params_effective = build_effective_params_display(
+            target=target, scope=scope, organization=organization
+        )
         html = render_to_string(
             "shared/_scan_params_effective_display.html",
             {
@@ -3556,7 +4104,10 @@ class PostScanParamsEffectivePreview(APIView):
             _preview_config_scope,
             _preview_config_target,
         )
-        from targetApp.services.scan_param_definitions import ORDERED_PARAM_KEYS_FOR_FORM, PARAM_KEYS
+        from targetApp.services.scan_param_definitions import (
+            ORDERED_PARAM_KEYS_FOR_FORM,
+            PARAM_KEYS,
+        )
         from targetApp.services.scope_params import (
             _normalize_scan_config,
             build_effective_params_display_from_configs,
@@ -3592,7 +4143,11 @@ class PostScanParamsEffectivePreview(APIView):
         scan_params_level = level
 
         scope_for_worker = None
-        if level in ("scan", "target") and data.get("target_id") and (data.get("project_slug") or "").strip():
+        if (
+            level in ("scan", "target")
+            and data.get("target_id")
+            and (data.get("project_slug") or "").strip()
+        ):
             from targetApp.models import Target
             from targetApp.services.scope_params import get_scope_for_target
 
@@ -3607,18 +4162,20 @@ class PostScanParamsEffectivePreview(APIView):
 
         try:
             if level == "organization":
-                org_config, scope_config, target_config, user_override = _preview_config_organization(draft)
+                org_config, scope_config, target_config, user_override = (
+                    _preview_config_organization(draft)
+                )
             elif level == "scope":
-                org_config, scope_config, target_config, user_override = _preview_config_scope(
-                    data, draft, _normalize_scan_config
+                org_config, scope_config, target_config, user_override = (
+                    _preview_config_scope(data, draft, _normalize_scan_config)
                 )
             elif level == "target":
-                org_config, scope_config, target_config, user_override = _preview_config_target(
-                    data, draft, _normalize_scan_config
+                org_config, scope_config, target_config, user_override = (
+                    _preview_config_target(data, draft, _normalize_scan_config)
                 )
             else:
-                org_config, scope_config, target_config, user_override = _preview_config_scan(
-                    data, draft, _normalize_scan_config
+                org_config, scope_config, target_config, user_override = (
+                    _preview_config_scan(data, draft, _normalize_scan_config)
                 )
         except ScanParamsPreviewError as e:
             msg = str(e).strip() or "Invalid request."
@@ -3637,7 +4194,9 @@ class PostScanParamsEffectivePreview(APIView):
             )
             html = render_to_string(
                 "shared/_scan_params_effective_display_error.html",
-                {"error_message": "Unable to preview scan parameters due to an internal error."},
+                {
+                    "error_message": "Unable to preview scan parameters due to an internal error."
+                },
                 request=request,
             )
             return HttpResponse(html, content_type="text/html", status=500)
@@ -3650,7 +4209,9 @@ class PostScanParamsEffectivePreview(APIView):
             )
             html = render_to_string(
                 "shared/_scan_params_effective_display_error.html",
-                {"error_message": "Unable to preview scan parameters due to an internal error."},
+                {
+                    "error_message": "Unable to preview scan parameters due to an internal error."
+                },
                 request=request,
             )
             return HttpResponse(html, content_type="text/html", status=500)
@@ -3663,7 +4224,9 @@ class PostScanParamsEffectivePreview(APIView):
             scope=scope_for_worker,
         )
         scan_params_effective_ordered = [
-            (p, scan_params_effective[p]) for p in ORDERED_PARAM_KEYS_FOR_FORM if p in scan_params_effective
+            (p, scan_params_effective[p])
+            for p in ORDERED_PARAM_KEYS_FOR_FORM
+            if p in scan_params_effective
         ]
 
         html = render_to_string(
@@ -3686,10 +4249,17 @@ class DeleteSubdomain(APIView):
             Subdomain.objects.filter(id__in=subdomain_ids).delete()
             return Response({"status": True})
         except ValueError:
-            return Response({"status": False, "message": "Invalid subdomain ID provided"}, status=400)
+            return Response(
+                {"status": False, "message": "Invalid subdomain ID provided"},
+                status=400,
+            )
         except Exception as e:
             return Response(
-                {"status": False, "message": get_safe_user_message(e, None) or GENERIC_USER_ERROR_MESSAGE},
+                {
+                    "status": False,
+                    "message": get_safe_user_message(e, None)
+                    or GENERIC_USER_ERROR_MESSAGE,
+                },
                 status=500,
             )
 
@@ -3700,7 +4270,13 @@ class DeleteVulnerability(APIView):
 
         # Check if vulnerability_ids is iterable
         if not isinstance(vulnerability_ids, (list, tuple)):
-            return Response({"status": False, "message": "vulnerability_ids must be a list or tuple"}, status=400)
+            return Response(
+                {
+                    "status": False,
+                    "message": "vulnerability_ids must be a list or tuple",
+                },
+                status=400,
+            )
 
         try:
             # Convert to integers
@@ -3709,7 +4285,10 @@ class DeleteVulnerability(APIView):
             Vulnerability.objects.filter(id__in=vulnerability_ids).delete()
             return Response({"status": True})
         except ValueError:
-            return Response({"status": False, "message": "Invalid vulnerability ID provided"}, status=400)
+            return Response(
+                {"status": False, "message": "Invalid vulnerability ID provided"},
+                status=400,
+            )
 
 
 class ListInterestingKeywords(APIView):
@@ -3793,7 +4372,9 @@ class ScanStatus(APIView):
             "tasks": {
                 "pending": SubScanSerializer(qs["pending_tasks"], many=True).data,
                 "running": ScanActivitySerializer(qs["current_tasks"], many=True).data,
-                "completed": ScanActivitySerializer(qs["recently_completed_tasks"], many=True).data,
+                "completed": ScanActivitySerializer(
+                    qs["recently_completed_tasks"], many=True
+                ).data,
             },
         }
         return Response(response)
@@ -3802,7 +4383,9 @@ class ScanStatus(APIView):
 class DomainIPHistory(APIView):
     def get(self, request):
         # NOTE: IP history functionality moved to Secator
-        return Response({"status": False, "message": "IP history functionality moved to Secator"})
+        return Response(
+            {"status": False, "message": "IP history functionality moved to Secator"}
+        )
 
 
 class VulnerabilityReport(APIView):
@@ -3812,7 +4395,9 @@ class VulnerabilityReport(APIView):
         return Response({"status": send_hackerone_report(vulnerability_id)})
 
 
-def _read_asset_preview(base_dir: str, name: str, extension: str) -> tuple[bool, str, str]:
+def _read_asset_preview(
+    base_dir: str, name: str, extension: str
+) -> tuple[bool, str, str]:
     """Read asset file for preview with size limit and UTF-8 validation.
 
     Reads up to MAX_ASSET_PREVIEW_BYTES + 1; large files get a truncated preview
@@ -3894,7 +4479,9 @@ class GetFileContents(APIView):
 
         for param, (base_dir, extension) in self.ASSET_PARAMS.items():
             if param in req.query_params:
-                success, content, message = _read_asset_preview(base_dir, name, extension)
+                success, content, message = _read_asset_preview(
+                    base_dir, name, extension
+                )
                 if success:
                     response["status"] = True
                     response["content"] = content
@@ -3915,7 +4502,8 @@ class GetFileContents(APIView):
         logger.log_line(
             PREFIX_API,
             "GET_FILE_CONTENTS",
-            "GetFileContents returned 410 Gone (unsupported params); query_params=%s" % (dict(req.query_params),),
+            "GetFileContents returned 410 Gone (unsupported params); query_params=%s"
+            % (dict(req.query_params),),
             level="warning",
         )
         return Response(response, status=HTTP_410_GONE)
@@ -3925,7 +4513,12 @@ class GfList(APIView):
     def get(self, request):
         try:
             # NOTE: GF patterns functionality moved to Secator
-            return Response({"status": False, "message": "GF patterns functionality moved to Secator"})
+            return Response(
+                {
+                    "status": False,
+                    "message": "GF patterns functionality moved to Secator",
+                }
+            )
         except Exception as e:
             logger.log_line(
                 PREFIX_API,
@@ -3933,7 +4526,10 @@ class GfList(APIView):
                 "Error in GfList: %s" % (e,),
                 level="error",
             )
-            return Response({"error": "An unexpected error occurred. Please try again later."}, status=500)
+            return Response(
+                {"error": "An unexpected error occurred. Please try again later."},
+                status=500,
+            )
 
 
 class ListTodoNotes(APIView):
@@ -3948,7 +4544,9 @@ class ListTodoNotes(APIView):
         todo_id = req.query_params.get("todo_id")
         subdomain_id = safe_int_cast(req.query_params.get("subdomain_id"))
         if target_id:
-            notes = notes.filter(scan_history__in=ScanHistory.objects.filter(target_id=target_id))
+            notes = notes.filter(
+                scan_history__in=ScanHistory.objects.filter(target_id=target_id)
+            )
         elif scan_id:
             notes = notes.filter(scan_history__id=scan_id)
         if todo_id:
@@ -3957,7 +4555,11 @@ class ListTodoNotes(APIView):
             notes = notes.filter(subdomain__id=subdomain_id)
 
         notes = notes.select_related(
-            "scan_history", "scan_history__target", "subdomain", "subdomain__domain", "project"
+            "scan_history",
+            "scan_history__target",
+            "subdomain",
+            "subdomain__domain",
+            "project",
         )
         limit = parse_limit_from_request(request)
         total_count = notes.count()
@@ -3993,7 +4595,10 @@ def _get_scan_runner_metadata(scan_obj: ScanHistory) -> tuple[str, str, list[str
         runners = list(scan_obj.secatorrunner_set.all())
     except Exception:
         runners = []
-    main_runner = next((runner for runner in runners if runner.runner_type in ("workflow", "scan")), None)
+    main_runner = next(
+        (runner for runner in runners if runner.runner_type in ("workflow", "scan")),
+        None,
+    )
     main_runner_type = (getattr(main_runner, "runner_type", "") or "").strip().lower()
     main_runner_name = (getattr(main_runner, "runner_name", "") or "").strip().lower()
     task_names = sorted(
@@ -4068,11 +4673,18 @@ class ScanHistoryFilterChoices(APIView):
         engine_options.sort(key=lambda item: item["label"].lower())
         engines = [item["label"] for item in engine_options]
         orgs = list(
-            Organization.objects.for_project(project_slug).order_by("name").values_list("name", flat=True).distinct()
+            Organization.objects.for_project(project_slug)
+            .order_by("name")
+            .values_list("name", flat=True)
+            .distinct()
         )
-        target_ids = [tid for tid in scan_qs.values_list("target_id", flat=True).distinct() if tid]
+        target_ids = [
+            tid for tid in scan_qs.values_list("target_id", flat=True).distinct() if tid
+        ]
         scope_names = sorted(
-            Scope.objects.filter(targets__id__in=target_ids).values_list("name", flat=True).distinct(),
+            Scope.objects.filter(targets__id__in=target_ids)
+            .values_list("name", flat=True)
+            .distinct(),
             key=str.lower,
         )
         return Response(
@@ -4108,14 +4720,17 @@ class ListScanHistory(APIView):
     @classmethod
     def _apply_scan_engine_filter(cls, qs, req):
         selected = {
-            value.strip() for value in get_request_filter_list(req, FILTER_PARAM_SCAN_ENGINE) if value and value.strip()
+            value.strip()
+            for value in get_request_filter_list(req, FILTER_PARAM_SCAN_ENGINE)
+            if value and value.strip()
         }
         if not selected:
             return qs
         selected_keys = {
             value
             for value in selected
-            if ":" in value and value.split(":", 1)[0] in {"legacy_id", "runner", "task_names"}
+            if ":" in value
+            and value.split(":", 1)[0] in {"legacy_id", "runner", "task_names"}
         }
         selected_labels = selected.difference(selected_keys)
         include_task = False
@@ -4135,11 +4750,17 @@ class ListScanHistory(APIView):
             if key.startswith("runner:"):
                 parts = key.split(":", 2)
                 if len(parts) == 3 and parts[1] and parts[2]:
-                    selected_runner_keys.add((parts[1].strip().lower(), parts[2].strip().lower()))
+                    selected_runner_keys.add(
+                        (parts[1].strip().lower(), parts[2].strip().lower())
+                    )
                 continue
             if key.startswith("task_names:"):
                 names_raw = key[len("task_names:") :].strip()
-                names = sorted(name.strip().lower() for name in names_raw.split(",") if name and name.strip())
+                names = sorted(
+                    name.strip().lower()
+                    for name in names_raw.split(",")
+                    if name and name.strip()
+                )
                 if names:
                     selected_task_name_keys.add(",".join(names))
 
@@ -4165,17 +4786,33 @@ class ListScanHistory(APIView):
         if include_task:
             db_conditions |= Q(is_legacy_scan=False)
         if legacy_engine_names:
-            db_conditions |= Q(is_legacy_scan=True, scan_type__engine_name__in=legacy_engine_names)
+            db_conditions |= Q(
+                is_legacy_scan=True, scan_type__engine_name__in=legacy_engine_names
+            )
         if selected_legacy_ids:
-            db_conditions |= Q(is_legacy_scan=True, scan_type_id__in=selected_legacy_ids)
-        matched_ids = set(qs.filter(db_conditions).distinct().values_list("id", flat=True))
-        if not typed_labels and not unresolved_labels and not selected_task_name_keys and not selected_runner_keys:
+            db_conditions |= Q(
+                is_legacy_scan=True, scan_type_id__in=selected_legacy_ids
+            )
+        matched_ids = set(
+            qs.filter(db_conditions).distinct().values_list("id", flat=True)
+        )
+        if (
+            not typed_labels
+            and not unresolved_labels
+            and not selected_task_name_keys
+            and not selected_runner_keys
+        ):
             if not matched_ids:
                 return qs.none()
             return qs.filter(id__in=matched_ids)
 
         typed_label_set = {label for label, _runner_type, _runner_name in typed_labels}
-        if typed_label_set or unresolved_labels or selected_task_name_keys or selected_runner_keys:
+        if (
+            typed_label_set
+            or unresolved_labels
+            or selected_task_name_keys
+            or selected_runner_keys
+        ):
             typed_runner_types = set()
             task_runner_names = set()
             has_task_typed_label = False
@@ -4183,7 +4820,11 @@ class ListScanHistory(APIView):
                 lowered_type = runner_type.lower()
                 if lowered_type == "task":
                     has_task_typed_label = True
-                    task_runner_names.update(name.strip() for name in runner_name.split(",") if name and name.strip())
+                    task_runner_names.update(
+                        name.strip()
+                        for name in runner_name.split(",")
+                        if name and name.strip()
+                    )
                 else:
                     typed_runner_types.add(lowered_type)
 
@@ -4191,10 +4832,18 @@ class ListScanHistory(APIView):
             if not unresolved_labels:
                 typed_candidate_conditions = Q(pk__in=[])
                 if typed_runner_types:
-                    typed_candidate_conditions |= Q(secatorrunner__runner_type__in=typed_runner_types)
+                    typed_candidate_conditions |= Q(
+                        secatorrunner__runner_type__in=typed_runner_types
+                    )
                 if selected_runner_keys:
-                    selected_runner_types = {runner_type for runner_type, _runner_name in selected_runner_keys}
-                    selected_runner_names = {runner_name for _runner_type, runner_name in selected_runner_keys}
+                    selected_runner_types = {
+                        runner_type
+                        for runner_type, _runner_name in selected_runner_keys
+                    }
+                    selected_runner_names = {
+                        runner_name
+                        for _runner_type, runner_name in selected_runner_keys
+                    }
                     typed_candidate_conditions |= Q(
                         secatorrunner__runner_type__in=selected_runner_types,
                         secatorrunner__runner_name__in=selected_runner_names,
@@ -4206,19 +4855,29 @@ class ListScanHistory(APIView):
                             secatorrunner__runner_name__in=task_runner_names,
                         )
                     else:
-                        typed_candidate_conditions |= Q(secatorrunner__runner_type="task")
+                        typed_candidate_conditions |= Q(
+                            secatorrunner__runner_type="task"
+                        )
                 if selected_task_name_keys:
                     selected_task_names = set()
                     for key in selected_task_name_keys:
-                        selected_task_names.update(name.strip() for name in key.split(",") if name and name.strip())
+                        selected_task_names.update(
+                            name.strip()
+                            for name in key.split(",")
+                            if name and name.strip()
+                        )
                     if selected_task_names:
                         typed_candidate_conditions |= Q(
                             secatorrunner__runner_type="task",
                             secatorrunner__runner_name__in=selected_task_names,
                         )
                     else:
-                        typed_candidate_conditions |= Q(secatorrunner__runner_type="task")
-                python_candidate_qs = python_candidate_qs.filter(typed_candidate_conditions)
+                        typed_candidate_conditions |= Q(
+                            secatorrunner__runner_type="task"
+                        )
+                python_candidate_qs = python_candidate_qs.filter(
+                    typed_candidate_conditions
+                )
 
             python_candidate_qs = python_candidate_qs.distinct()
             candidate_count = python_candidate_qs.count()
@@ -4245,7 +4904,10 @@ class ListScanHistory(APIView):
                 if key in selected_keys:
                     matched_ids.add(scan.id)
                     continue
-                if key.startswith("task_names:") and key[len("task_names:") :] in selected_task_name_keys:
+                if (
+                    key.startswith("task_names:")
+                    and key[len("task_names:") :] in selected_task_name_keys
+                ):
                     matched_ids.add(scan.id)
 
         if not matched_ids:
@@ -4273,11 +4935,14 @@ class ListScanHistory(APIView):
             search_value = req.GET.get("search[value]", None)
             if search_value:
                 qs = qs.filter(
-                    Q(target__value__icontains=search_value) | Q(initiated_by__username__icontains=search_value)
+                    Q(target__value__icontains=search_value)
+                    | Q(initiated_by__username__icontains=search_value)
                 ).distinct()
 
             # Per-column search values from DataTables (individual column filters).
-            target_search = get_datatables_column_search_value(req, DATATABLE_COLUMN_MAP_SCAN_HISTORY, "target__value")
+            target_search = get_datatables_column_search_value(
+                req, DATATABLE_COLUMN_MAP_SCAN_HISTORY, "target__value"
+            )
             if target_search:
                 qs = qs.filter(target__value__icontains=target_search)
             engine_search = get_datatables_column_search_value(
@@ -4292,11 +4957,19 @@ class ListScanHistory(APIView):
                 qs = qs.filter(initiated_by__username__icontains=initiated_by_search)
 
             qs = apply_filter_list_in_by_param(
-                qs, req, FILTER_PARAM_ORGANIZATION, "target__organizations__name__in", distinct=True
+                qs,
+                req,
+                FILTER_PARAM_ORGANIZATION,
+                "target__organizations__name__in",
+                distinct=True,
             )
-            qs = apply_filter_list_in_by_param(qs, req, FILTER_PARAM_SCOPE, "target__scopes__name__in", distinct=True)
+            qs = apply_filter_list_in_by_param(
+                qs, req, FILTER_PARAM_SCOPE, "target__scopes__name__in", distinct=True
+            )
             qs = apply_filter_scan_status(qs, req)
-            qs = apply_filter_list_in_by_param(qs, req, FILTER_PARAM_TARGET, "target__value__in")
+            qs = apply_filter_list_in_by_param(
+                qs, req, FILTER_PARAM_TARGET, "target__value__in"
+            )
             qs = self._apply_scan_engine_filter(qs, req)
             qs = apply_datatables_order(
                 qs,
@@ -4307,12 +4980,20 @@ class ListScanHistory(APIView):
             )
             qs = qs.distinct()
             total_count = qs.count()
-            page_qs = qs[pagination["start"] : pagination["start"] + pagination["length"]]
-            page_qs = annotate_queryset_with_llm_attack_surface_count(page_qs, ScanHistory)
+            page_qs = qs[
+                pagination["start"] : pagination["start"] + pagination["length"]
+            ]
+            page_qs = annotate_queryset_with_llm_attack_surface_count(
+                page_qs, ScanHistory
+            )
             page_scans = list(page_qs)
             attach_ip_metrics_to_scans(page_scans)
             serializer = ScanHistoryDatatableSerializer(page_scans, many=True)
-            return Response(build_datatables_serverside_response(req, total_count, total_count, serializer.data))
+            return Response(
+                build_datatables_serverside_response(
+                    req, total_count, total_count, serializer.data
+                )
+            )
 
         qs = qs.order_by("-start_scan_date")
         serializer = ScanHistorySerializer(qs, many=True)
@@ -4350,7 +5031,9 @@ class ListOrganizations(APIView):
     def get(self, request, format=None):
         project_slug = request.query_params.get("project")
         if project_slug:
-            organizations = Organization.objects.for_project(project_slug).order_by("name")
+            organizations = Organization.objects.for_project(project_slug).order_by(
+                "name"
+            )
         else:
             organizations = Organization.objects.all().order_by("name")
         organization_serializer = OrganizationSerializer(organizations, many=True)
@@ -4365,7 +5048,8 @@ class ListScopes(APIView):
         if project_slug:
             scopes = (
                 Scope.objects.filter(
-                    Q(organization__project__slug=project_slug) | Q(targets__project__slug=project_slug)
+                    Q(organization__project__slug=project_slug)
+                    | Q(targets__project__slug=project_slug)
                 )
                 .order_by("name")
                 .values("name")
@@ -4383,17 +5067,26 @@ class ListTargetsInOrganization(APIView):
         organization_id = safe_int_cast(req.query_params.get("organization_id"))
         try:
             organization = Organization.objects.get(id=organization_id)
-            targets = Domain.objects.filter(scan_history__target__organizations=organization)
+            targets = Domain.objects.filter(
+                scan_history__target__organizations=organization
+            )
             organization_serializer = OrganizationSerializer(organization)
             targets_serializer = OrganizationTargetsSerializer(targets, many=True)
-            return Response({"organization": organization_serializer.data, "domains": targets_serializer.data})
+            return Response(
+                {
+                    "organization": organization_serializer.data,
+                    "domains": targets_serializer.data,
+                }
+            )
         except Organization.DoesNotExist:
             return Response({"error": "Organization not found"}, status=404)
 
 
 class ListTargetsWithoutOrganization(APIView):
     def get(self, request, format=None):
-        targets = Domain.objects.exclude(scan_history__target__organizations__in=Organization.objects.all())
+        targets = Domain.objects.exclude(
+            scan_history__target__organizations__in=Organization.objects.all()
+        )
         targets_serializer = OrganizationTargetsSerializer(targets, many=True)
         return Response({"domains": targets_serializer.data})
 
@@ -4449,7 +5142,9 @@ class ListTechnology(APIView):
 
         # Single subdomain filter reused for both count subquery and Technology filter to avoid drift.
         if target_id := safe_int_cast(req.query_params.get("target_id")):
-            subdomain_filter = Subdomain.objects.filter(domain__scan_history__target_id=target_id)
+            subdomain_filter = Subdomain.objects.filter(
+                domain__scan_history__target_id=target_id
+            )
         elif scan_id:
             subdomain_filter = Subdomain.objects.filter(scan_history__id=scan_id)
         else:
@@ -4458,14 +5153,21 @@ class ListTechnology(APIView):
         subdomain_id_subquery = Subquery(subdomain_filter.values("id"))
         # Correlated subquery: OuterRef("pk") is resolved against Technology.pk (outer queryset),
         # and the inner query counts distinct Subdomain rows carrying that technology.
-        tech_count_subquery = list_technology_subdomain_count_values_subquery(subdomain_id_subquery)
+        tech_count_subquery = list_technology_subdomain_count_values_subquery(
+            subdomain_id_subquery
+        )
         tech_count_annot = Coalesce(
             Subquery(tech_count_subquery[:1]),
             Value(0),
             output_field=IntegerField(),
         )
         tech_scope = technology_scope_q_for_subdomains(subdomain_filter)
-        tech_qs = Technology.objects.filter(tech_scope).distinct().annotate(count=tech_count_annot).order_by("-count")
+        tech_qs = (
+            Technology.objects.filter(tech_scope)
+            .distinct()
+            .annotate(count=tech_count_annot)
+            .order_by("-count")
+        )
         limit = parse_limit_from_request(request)
         total_count = tech_qs.count()
         tech = list(tech_qs[:limit])
@@ -4508,7 +5210,9 @@ class ListEmails(APIView):
         req = self.request
         scan_id = safe_int_cast(req.query_params.get("scan_id"))
         if scan_id:
-            email = Email.objects.filter(emails__in=ScanHistory.objects.filter(id=scan_id)).order_by("password")
+            email = Email.objects.filter(
+                emails__in=ScanHistory.objects.filter(id=scan_id)
+            ).order_by("password")
             serializer = EmailSerializer(email, many=True)
             return Response({"emails": serializer.data})
 
@@ -4539,7 +5243,9 @@ class ListEmployees(APIView):
         req = self.request
         scan_id = safe_int_cast(req.query_params.get("scan_id"))
         if scan_id:
-            employee = Employee.objects.filter(employees__in=ScanHistory.objects.filter(id=scan_id))
+            employee = Employee.objects.filter(
+                employees__in=ScanHistory.objects.filter(id=scan_id)
+            )
             serializer = EmployeeSerializer(employee, many=True)
             return Response({"employees": serializer.data})
 
@@ -4556,7 +5262,9 @@ class ListPorts(APIView):
 
         # Filter based on parameters (same IP-in-scan semantics as metrics: M2M or EndPoint.ip_address)
         if target_id:
-            scan_ids = ScanHistory.objects.filter(target_id=target_id).values_list("id", flat=True)
+            scan_ids = ScanHistory.objects.filter(target_id=target_id).values_list(
+                "id", flat=True
+            )
             port_query = filter_ports_queryset_by_scan_ids(port_query, scan_ids)
         elif scan_id:
             port_query = filter_ports_queryset_by_scan_ids(port_query, [scan_id])
@@ -4611,7 +5319,9 @@ class ListSubdomains(SubdomainTechnologySearchMixin, AdvancedSearchMixin, APIVie
         tech = req.query_params.get("tech")
 
         subdomains = (
-            Subdomain.objects.filter(domain__scan_history__target__project__slug=project)
+            Subdomain.objects.filter(
+                domain__scan_history__target__project__slug=project
+            )
             if project
             else Subdomain.objects.all()
         )
@@ -4619,7 +5329,9 @@ class ListSubdomains(SubdomainTechnologySearchMixin, AdvancedSearchMixin, APIVie
         if scan_id:
             subdomain_query = subdomains.filter(scan_history__id=scan_id)
         elif target_id:
-            subdomain_query = subdomains.filter(domain__scan_history__target_id=target_id)
+            subdomain_query = subdomains.filter(
+                domain__scan_history__target_id=target_id
+            )
         else:
             subdomain_query = subdomains.all()
 
@@ -4654,7 +5366,9 @@ class ListSubdomains(SubdomainTechnologySearchMixin, AdvancedSearchMixin, APIVie
         subdomain_query = subdomain_query.filter(_name_rank=1)
 
         # Optimize queries with select_related and prefetch_related to avoid N+1 queries
-        subdomain_query = subdomain_query.select_related("scan_history", "domain").prefetch_related(
+        subdomain_query = subdomain_query.select_related(
+            "scan_history", "domain"
+        ).prefetch_related(
             "ip_addresses",
             "ip_addresses__ports",
             "technologies",
@@ -4662,7 +5376,9 @@ class ListSubdomains(SubdomainTechnologySearchMixin, AdvancedSearchMixin, APIVie
             "directories",
             Prefetch(
                 "endpoint_set",
-                queryset=apply_endpoint_port_and_techs_related(subdomain_all_endpoints_for_tech_queryset()),
+                queryset=apply_endpoint_port_and_techs_related(
+                    subdomain_all_endpoints_for_tech_queryset()
+                ),
                 to_attr="all_endpoints_for_tech_list",
             ),
         )
@@ -4689,14 +5405,22 @@ class ListSubdomains(SubdomainTechnologySearchMixin, AdvancedSearchMixin, APIVie
 
         if pagination:
             total_count = subdomain_query.count()
-            paginated_queryset = subdomain_query[pagination["start"] : pagination["start"] + pagination["length"]]
+            paginated_queryset = subdomain_query[
+                pagination["start"] : pagination["start"] + pagination["length"]
+            ]
 
             if "no_lookup_interesting" in req.query_params:
                 serializer = OnlySubdomainNameSerializer(paginated_queryset, many=True)
             else:
-                serializer = SubdomainSerializer(paginated_queryset, many=True, context=serializer_context)
+                serializer = SubdomainSerializer(
+                    paginated_queryset, many=True, context=serializer_context
+                )
 
-            return Response(build_datatables_serverside_response(req, total_count, total_count, serializer.data))
+            return Response(
+                build_datatables_serverside_response(
+                    req, total_count, total_count, serializer.data
+                )
+            )
 
         # Default response (no pagination) - use shared limit parsing and return total_count/limit
         limit = parse_limit_from_request(req)
@@ -4705,8 +5429,12 @@ class ListSubdomains(SubdomainTechnologySearchMixin, AdvancedSearchMixin, APIVie
         if "no_lookup_interesting" in req.query_params:
             serializer = OnlySubdomainNameSerializer(subdomain_slice, many=True)
         else:
-            serializer = SubdomainSerializer(subdomain_slice, many=True, context=serializer_context)
-        return Response({"subdomains": serializer.data, "total_count": total_count, "limit": limit})
+            serializer = SubdomainSerializer(
+                subdomain_slice, many=True, context=serializer_context
+            )
+        return Response(
+            {"subdomains": serializer.data, "total_count": total_count, "limit": limit}
+        )
 
     def post(self, req):
         req = self.request
@@ -4745,7 +5473,9 @@ class ListMetadata(APIView):
         req = self.request
         scan_id = safe_int_cast(req.query_params.get("scan_id"))
         if scan_id:
-            documents = MetaFinderDocument.objects.filter(scan_history__id=scan_id).distinct()
+            documents = MetaFinderDocument.objects.filter(
+                scan_history__id=scan_id
+            ).distinct()
             serializer = MetafinderDocumentSerializer(documents, many=True)
             return Response({"metadata": serializer.data})
 
@@ -4812,9 +5542,13 @@ class ListIPs(AdvancedSearchMixin, APIView):
                 ips = self.apply_advanced_search(ips, search_value)
             ips = ips.distinct()
             records_filtered = ips.count()
-            order_str = get_datatables_order_column(req, DATATABLE_COLUMN_MAP_IPS, default_order="address")
+            order_str = get_datatables_order_column(
+                req, DATATABLE_COLUMN_MAP_IPS, default_order="address"
+            )
             ips = ips.order_by(order_str)
-            paginated = list(ips[pagination["start"] : pagination["start"] + pagination["length"]])
+            paginated = list(
+                ips[pagination["start"] : pagination["start"] + pagination["length"]]
+            )
             ip_subdomain_data = get_ip_subdomain_data(paginated)
             serializer = IpSerializer(
                 paginated,
@@ -4826,7 +5560,11 @@ class ListIPs(AdvancedSearchMixin, APIView):
                     ip_subdomain_data=ip_subdomain_data,
                 ),
             )
-            return Response(build_datatables_serverside_response(req, records_total, records_filtered, serializer.data))
+            return Response(
+                build_datatables_serverside_response(
+                    req, records_total, records_filtered, serializer.data
+                )
+            )
 
         ip_subdomain_data = get_ip_subdomain_data(ips)
         serializer = IpSerializer(
@@ -4854,11 +5592,15 @@ class IpAddressViewSet(DatatablePaginationMixin, viewsets.ModelViewSet):
 
         if scan_id:
             self.queryset = (
-                Subdomain.objects.filter(scan_history__id=scan_id).exclude(ip_addresses__isnull=True).distinct()
+                Subdomain.objects.filter(scan_history__id=scan_id)
+                .exclude(ip_addresses__isnull=True)
+                .distinct()
             )
         else:
             self.serializer_class = IpSerializer
-            self.queryset = annotate_queryset_with_llm_attack_surface_count(IpAddress.objects.all(), IpAddress)
+            self.queryset = annotate_queryset_with_llm_attack_surface_count(
+                IpAddress.objects.all(), IpAddress
+            )
         return self.queryset
 
     def list(self, request, *args, **kwargs):
@@ -4890,11 +5632,15 @@ class SubdomainsViewSet(DatatablePaginationMixin, viewsets.ModelViewSet):
             if "only_screenshot" in self.request.query_params:
                 # Get subdomains that have endpoints with screenshots
                 endpoint_subdomains = (
-                    EndPoint.objects.filter(scan_history__id=scan_id, screenshot_path__isnull=False)
+                    EndPoint.objects.filter(
+                        scan_history__id=scan_id, screenshot_path__isnull=False
+                    )
                     .values_list("subdomain", flat=True)
                     .distinct()
                 )
-                queryset = Subdomain.objects.filter(scan_history__id=scan_id).filter(id__in=endpoint_subdomains)
+                queryset = Subdomain.objects.filter(scan_history__id=scan_id).filter(
+                    id__in=endpoint_subdomains
+                )
             else:
                 queryset = Subdomain.objects.filter(scan_history=scan_id)
 
@@ -4909,7 +5655,9 @@ class SubdomainsViewSet(DatatablePaginationMixin, viewsets.ModelViewSet):
                 "domain",
                 Prefetch(
                     "endpoint_set",
-                    queryset=apply_endpoint_port_and_techs_related(subdomain_all_endpoints_for_tech_queryset()),
+                    queryset=apply_endpoint_port_and_techs_related(
+                        subdomain_all_endpoints_for_tech_queryset()
+                    ),
                     to_attr="all_endpoints_for_tech_list",
                 ),
             )
@@ -4917,7 +5665,9 @@ class SubdomainsViewSet(DatatablePaginationMixin, viewsets.ModelViewSet):
         return Subdomain.objects.none()
 
 
-class SubdomainChangesViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet):
+class SubdomainChangesViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet
+):
     """
     This viewset will return the Subdomain changes
     To get the new subdomains, we will look for ScanHistory with
@@ -4942,7 +5692,9 @@ class SubdomainChangesViewSet(DatatableListMixin, DatatablePaginationMixin, view
                 | Q(page_title__icontains=search_value)
                 | Q(http_status__icontains=search_value)
             )
-        return apply_datatables_order(qs, self.request, self.datatable_column_map, default_order="content_length")
+        return apply_datatables_order(
+            qs, self.request, self.datatable_column_map, default_order="content_length"
+        )
 
     datatable_default_ordering = None
 
@@ -4953,7 +5705,9 @@ class SubdomainChangesViewSet(DatatableListMixin, DatatablePaginationMixin, view
         project = req.query_params.get("project")
 
         if scan_id:
-            current_scan = ScanHistory.objects.filter(id=scan_id).select_related("target").first()
+            current_scan = (
+                ScanHistory.objects.filter(id=scan_id).select_related("target").first()
+            )
             if not current_scan or not current_scan.target_id:
                 return Subdomain.objects.none()
             scans_with_subdomain_discovery = (
@@ -4968,12 +5722,16 @@ class SubdomainChangesViewSet(DatatableListMixin, DatatablePaginationMixin, view
 
                 # Get subdomains from current scan
                 current_subdomains = (
-                    Subdomain.objects.filter(scan_history=current_scan).values_list("name", flat=True).distinct()
+                    Subdomain.objects.filter(scan_history=current_scan)
+                    .values_list("name", flat=True)
+                    .distinct()
                 )
 
                 # Get subdomains from previous scan
                 previous_subdomains = (
-                    Subdomain.objects.filter(scan_history=previous_scan).values_list("name", flat=True).distinct()
+                    Subdomain.objects.filter(scan_history=previous_scan)
+                    .values_list("name", flat=True)
+                    .distinct()
                 )
 
                 # Calculate new subdomains
@@ -4996,7 +5754,9 @@ class SubdomainChangesViewSet(DatatableListMixin, DatatablePaginationMixin, view
             )
         elif project:
             queryset = (
-                Subdomain.objects.filter(domain__scan_history__target__project__slug=project)
+                Subdomain.objects.filter(
+                    domain__scan_history__target__project__slug=project
+                )
                 .select_related("domain")
                 .annotate(change=Value("unknown", output_field=CharField()))
             )
@@ -5009,13 +5769,20 @@ class SubdomainChangesViewSet(DatatableListMixin, DatatablePaginationMixin, view
 
         # domain is a FK: use select_related only (already applied above). Prefetch M2M and reverse relations.
         queryset = queryset.prefetch_related(
-            "ip_addresses", "ip_addresses__ports", "technologies", "waf", "directories", "scan_history"
+            "ip_addresses",
+            "ip_addresses__ports",
+            "technologies",
+            "waf",
+            "directories",
+            "scan_history",
         )
 
         return queryset
 
 
-class EndPointChangesViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet):
+class EndPointChangesViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet
+):
     """
     This viewset will return the EndPoint changes
     """
@@ -5038,7 +5805,9 @@ class EndPointChangesViewSet(DatatableListMixin, DatatablePaginationMixin, views
                 | Q(page_title__icontains=search_value)
                 | Q(http_status__icontains=search_value)
             )
-        return apply_datatables_order(qs, self.request, self.datatable_column_map, default_order="content_length")
+        return apply_datatables_order(
+            qs, self.request, self.datatable_column_map, default_order="content_length"
+        )
 
     def get_queryset(self):
         req = self.request
@@ -5060,11 +5829,17 @@ class EndPointChangesViewSet(DatatableListMixin, DatatablePaginationMixin, views
         if len(scans_list) < 2:
             return EndPoint.objects.none()
         last_scan = scans_list[1]
-        scanned_host_q1 = EndPoint.objects.filter(scan_history__id=scan_id).values("http_url")
-        scanned_host_q2 = EndPoint.objects.filter(scan_history__id=last_scan.id).values("http_url")
+        scanned_host_q1 = EndPoint.objects.filter(scan_history__id=scan_id).values(
+            "http_url"
+        )
+        scanned_host_q2 = EndPoint.objects.filter(scan_history__id=last_scan.id).values(
+            "http_url"
+        )
         added_endpoint = scanned_host_q1.difference(scanned_host_q2)
         removed_endpoints = scanned_host_q2.difference(scanned_host_q1)
-        endpoint_base = apply_endpoint_techs_prefetch(EndPoint.objects.select_related("subdomain", "scan_history"))
+        endpoint_base = apply_endpoint_techs_prefetch(
+            EndPoint.objects.select_related("subdomain", "scan_history")
+        )
         if changes == "added":
             return (
                 endpoint_base.filter(scan_history__id=scan_id)
@@ -5098,8 +5873,14 @@ class EndPointChangesViewSet(DatatableListMixin, DatatablePaginationMixin, views
                 endpoint_base.filter(pk__in=union_ids)
                 .annotate(
                     change=Case(
-                        When(pk__in=added_ids, then=Value("added", output_field=CharField())),
-                        When(pk__in=removed_ids, then=Value("removed", output_field=CharField())),
+                        When(
+                            pk__in=added_ids,
+                            then=Value("added", output_field=CharField()),
+                        ),
+                        When(
+                            pk__in=removed_ids,
+                            then=Value("removed", output_field=CharField()),
+                        ),
                         default=Value("", output_field=CharField()),
                         output_field=CharField(),
                     )
@@ -5108,7 +5889,9 @@ class EndPointChangesViewSet(DatatableListMixin, DatatablePaginationMixin, views
             )
 
 
-class InterestingSubdomainViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet):
+class InterestingSubdomainViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet
+):
     queryset = Subdomain.objects.none()
     serializer_class = SubdomainSerializer
     ordering = ("name",)
@@ -5134,7 +5917,9 @@ class InterestingSubdomainViewSet(DatatableListMixin, DatatablePaginationMixin, 
 
         # Cache interesting names for serializer context to avoid running get_interesting_subdomains twice
         if scan_id or target_id:
-            self._datatable_interesting_names = set(queryset.values_list("name", flat=True))
+            self._datatable_interesting_names = set(
+                queryset.values_list("name", flat=True)
+            )
         else:
             self._datatable_interesting_names = None
 
@@ -5171,10 +5956,14 @@ class InterestingSubdomainViewSet(DatatableListMixin, DatatablePaginationMixin, 
                 | Q(page_title__icontains=search_value)
                 | Q(http_status__icontains=search_value)
             )
-        return apply_datatables_order(qs, self.request, self.datatable_column_map, default_order="content_length")
+        return apply_datatables_order(
+            qs, self.request, self.datatable_column_map, default_order="content_length"
+        )
 
 
-class InterestingEndpointViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet):
+class InterestingEndpointViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet
+):
     queryset = EndPoint.objects.none()
     serializer_class = EndpointSerializer
     ordering = ("http_url",)
@@ -5193,7 +5982,9 @@ class InterestingEndpointViewSet(DatatableListMixin, DatatablePaginationMixin, v
                 | Q(page_title__icontains=search_value)
                 | Q(http_status__icontains=search_value)
             )
-        return apply_datatables_order(qs, self.request, self.datatable_column_map, default_order="http_url")
+        return apply_datatables_order(
+            qs, self.request, self.datatable_column_map, default_order="http_url"
+        )
 
     def get_queryset(self):
         req = self.request
@@ -5211,7 +6002,9 @@ class InterestingEndpointViewSet(DatatableListMixin, DatatablePaginationMixin, v
 
         # FKs: select_related. M2M: prefetch_related (techs, endpoint_subscan_ids).
         if hasattr(queryset, "select_related"):
-            queryset = queryset.select_related("subdomain", "subdomain__domain", "domain", "scan_history")
+            queryset = queryset.select_related(
+                "subdomain", "subdomain__domain", "domain", "scan_history"
+            )
         if hasattr(queryset, "prefetch_related"):
             queryset = queryset.prefetch_related("endpoint_subscan_ids")
 
@@ -5280,7 +6073,9 @@ class SubdomainDatatableViewSet(
             },
         }
 
-    def _custom_handler_to_q(self, lookup_title: str, operator: str, lookup_content: str):
+    def _custom_handler_to_q(
+        self, lookup_title: str, operator: str, lookup_content: str
+    ):
         if lookup_title == "port":
             if operator == "!":
                 return None
@@ -5292,14 +6087,19 @@ class SubdomainDatatableViewSet(
 
     def general_lookup_q(self, search_value: str):
         q = super().general_lookup_q(search_value)
-        if getattr(self, "request", None) and "only_directory" in self.request.query_params:
+        if (
+            getattr(self, "request", None)
+            and "only_directory" in self.request.query_params
+        ):
             q |= Q(directories__directory_files__name__icontains=search_value)
         return q
 
     def get_queryset(self):
         kwargs = parse_subdomain_datatable_request(self.request)
         self._datatable_scan_id = kwargs["scan_id"]
-        queryset, self._datatable_interesting_names = build_subdomain_datatable_queryset(**kwargs)
+        queryset, self._datatable_interesting_names = (
+            build_subdomain_datatable_queryset(**kwargs)
+        )
         self.queryset = queryset
         return self.queryset
 
@@ -5307,7 +6107,9 @@ class SubdomainDatatableViewSet(
         """Override to add only_directory support."""
         qs = super().general_lookup(queryset, search_value)
         if "only_directory" in self.request.query_params:
-            qs = qs | queryset.filter(Q(directories__directory_files__name__icontains=search_value))
+            qs = qs | queryset.filter(
+                Q(directories__directory_files__name__icontains=search_value)
+            )
         return qs
 
     datatable_column_map = DATATABLE_COLUMN_MAP_SUBDOMAIN
@@ -5318,11 +6120,23 @@ class SubdomainDatatableViewSet(
         if search_value:
             qs = self.apply_advanced_search(qs, search_value)
         qs = apply_filter_list_in(
-            qs, "http_status__in", get_request_filter_list(self.request, FILTER_PARAM_HTTP_STATUS)
+            qs,
+            "http_status__in",
+            get_request_filter_list(self.request, FILTER_PARAM_HTTP_STATUS),
         )
-        qs = apply_filter_list_in(qs, "page_title__in", get_request_filter_list(self.request, FILTER_PARAM_PAGE_TITLE))
-        qs = apply_filter_list_in(qs, "name__in", get_request_filter_list(self.request, FILTER_PARAM_SUBDOMAIN))
-        order_str = get_datatables_order_column(self.request, self.datatable_column_map, default_order="content_length")
+        qs = apply_filter_list_in(
+            qs,
+            "page_title__in",
+            get_request_filter_list(self.request, FILTER_PARAM_PAGE_TITLE),
+        )
+        qs = apply_filter_list_in(
+            qs,
+            "name__in",
+            get_request_filter_list(self.request, FILTER_PARAM_SUBDOMAIN),
+        )
+        order_str = get_datatables_order_column(
+            self.request, self.datatable_column_map, default_order="content_length"
+        )
         return qs.distinct().order_by(order_str)
 
     def get_serializer_context(self):
@@ -5350,7 +6164,9 @@ class ListScanLogsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         req = self.request
         scan_id = safe_int_cast(req.query_params.get("scan_id"))
-        include_pending = req.query_params.get("include_pending", "false").lower() == "true"
+        include_pending = (
+            req.query_params.get("include_pending", "false").lower() == "true"
+        )
 
         queryset = Command.objects.filter(scan_history__id=scan_id)
 
@@ -5410,7 +6226,9 @@ class ListEndpoints(APIView):
         if scan_id:
             endpoints = EndPoint.objects.filter(scan_history__id=scan_id)
         elif target_id:
-            endpoints = EndPoint.objects.filter(domain__scan_history__target_id=target_id).distinct()
+            endpoints = EndPoint.objects.filter(
+                domain__scan_history__target_id=target_id
+            ).distinct()
         else:
             endpoints = EndPoint.objects.all()
 
@@ -5452,7 +6270,12 @@ class ListCertificates(APIView):
         return Response({"certificates": serializer.data})
 
 
-class EndPointViewSet(DatatableListMixin, DatatablePaginationMixin, AdvancedSearchMixin, viewsets.ModelViewSet):
+class EndPointViewSet(
+    DatatableListMixin,
+    DatatablePaginationMixin,
+    AdvancedSearchMixin,
+    viewsets.ModelViewSet,
+):
     queryset = EndPoint.objects.none()
     serializer_class = EndpointSerializer
     datatable_default_ordering = ("id",)
@@ -5499,13 +6322,17 @@ class EndPointViewSet(DatatableListMixin, DatatablePaginationMixin, AdvancedSear
         search_value = self.request.GET.get("search[value]", None)
         if search_value:
             qs = self.apply_advanced_search(qs, search_value)
-        order_str = get_datatables_order_column(self.request, self.datatable_column_map, default_order="content_length")
+        order_str = get_datatables_order_column(
+            self.request, self.datatable_column_map, default_order="content_length"
+        )
         if not (order_str and order_str.strip()):
             order_str = "content_length"
         return qs.order_by(order_str)
 
 
-class DirectoryViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet):
+class DirectoryViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.ModelViewSet
+):
     """List directory files by scan_history or subdomain_id. Supports DataTables server-side (start, length, order, search)."""
 
     queryset = DirectoryFile.objects.none()
@@ -5514,37 +6341,52 @@ class DirectoryViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.Mo
     datatable_column_map = DATATABLE_COLUMN_MAP_DIRECTORY
 
     def list(self, request, *args, **kwargs):
-        scan_id = safe_int_cast(request.query_params.get("scan_history")) or safe_int_cast(
-            request.query_params.get("scan_id")
-        )
+        scan_id = safe_int_cast(
+            request.query_params.get("scan_history")
+        ) or safe_int_cast(request.query_params.get("scan_id"))
         subdomain_id = safe_int_cast(request.query_params.get("subdomain_id"))
         if not (scan_id or subdomain_id):
             return Response(
-                {"status": False, "message": "Scan id or subdomain id must be provided."},
+                {
+                    "status": False,
+                    "message": "Scan id or subdomain id must be provided.",
+                },
                 status=HTTP_400_BAD_REQUEST,
             )
         return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
         req = self.request
-        scan_id = safe_int_cast(req.query_params.get("scan_history")) or safe_int_cast(req.query_params.get("scan_id"))
+        scan_id = safe_int_cast(req.query_params.get("scan_history")) or safe_int_cast(
+            req.query_params.get("scan_id")
+        )
         subdomain_id = safe_int_cast(req.query_params.get("subdomain_id"))
 
         if not (scan_id or subdomain_id):
             return DirectoryFile.objects.none()
 
         subdomains = (
-            Subdomain.objects.filter(scan_history__id=scan_id) if scan_id else Subdomain.objects.filter(id=subdomain_id)
+            Subdomain.objects.filter(scan_history__id=scan_id)
+            if scan_id
+            else Subdomain.objects.filter(id=subdomain_id)
         )
         dirs_scans = DirectoryScan.objects.filter(directories__in=subdomains)
 
-        return DirectoryFile.objects.filter(directory_files__in=dirs_scans).distinct().order_by("id")
+        return (
+            DirectoryFile.objects.filter(directory_files__in=dirs_scans)
+            .distinct()
+            .order_by("id")
+        )
 
     def filter_queryset(self, qs):
         search_value = self.request.GET.get("search[value]", None)
         if search_value:
-            qs = qs.filter(Q(url__icontains=search_value) | Q(name__icontains=search_value)).distinct()
-        order_str = get_datatables_order_column(self.request, self.datatable_column_map, default_order="name")
+            qs = qs.filter(
+                Q(url__icontains=search_value) | Q(name__icontains=search_value)
+            ).distinct()
+        order_str = get_datatables_order_column(
+            self.request, self.datatable_column_map, default_order="name"
+        )
         if order_str and order_str.strip():
             return qs.order_by(order_str)
         return qs.order_by("id")
@@ -5572,7 +6414,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
-class VulnerabilityViewSet(DatatableListMixin, DatatablePaginationMixin, AdvancedSearchMixin, viewsets.ModelViewSet):
+class VulnerabilityViewSet(
+    DatatableListMixin,
+    DatatablePaginationMixin,
+    AdvancedSearchMixin,
+    viewsets.ModelViewSet,
+):
     queryset = Vulnerability.objects.none()
     serializer_class = VulnerabilitySerializer
     datatable_default_ordering = ("-severity",)
@@ -5598,7 +6445,9 @@ class VulnerabilityViewSet(DatatableListMixin, DatatablePaginationMixin, Advance
     def _handle_description(self, queryset, operator, value):
         """Custom handler for description field - searches across multiple fields."""
         description_q = (
-            Q(description__icontains=value) | Q(template__icontains=value) | Q(extracted_results__icontains=value)
+            Q(description__icontains=value)
+            | Q(template__icontains=value)
+            | Q(extracted_results__icontains=value)
         )
         if operator == "=":
             return queryset.filter(description_q)
@@ -5627,7 +6476,9 @@ class VulnerabilityViewSet(DatatableListMixin, DatatablePaginationMixin, Advance
             )
         return queryset
 
-    def _custom_handler_to_q(self, lookup_title: str, operator: str, lookup_content: str):
+    def _custom_handler_to_q(
+        self, lookup_title: str, operator: str, lookup_content: str
+    ):
         if lookup_title == "severity":
             severity_value = NUCLEI_SEVERITY_MAP.get(lookup_content.lower(), -1)
             if operator == "=":
@@ -5755,12 +6606,18 @@ class VulnerabilityViewSet(DatatableListMixin, DatatablePaginationMixin, Advance
                     status_bool.append(False)
             if status_bool:
                 qs = qs.filter(open_status__in=status_bool)
-        qs = apply_filter_list_in(qs, "source__in", get_request_filter_list(self.request, FILTER_PARAM_SOURCE))
-        order_str = get_datatables_order_column(self.request, self.datatable_column_map, default_order="-severity")
+        qs = apply_filter_list_in(
+            qs, "source__in", get_request_filter_list(self.request, FILTER_PARAM_SOURCE)
+        )
+        order_str = get_datatables_order_column(
+            self.request, self.datatable_column_map, default_order="-severity"
+        )
         return qs.order_by(order_str)
 
 
-class SecretViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.ReadOnlyModelViewSet):
+class SecretViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.ReadOnlyModelViewSet
+):
     queryset = Secret.objects.none()
     serializer_class = SecretSerializer
     datatable_default_ordering = ("-discovered_date",)
@@ -5785,7 +6642,9 @@ class SecretViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.ReadO
         return self.queryset
 
 
-class ExploitViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.ReadOnlyModelViewSet):
+class ExploitViewSet(
+    DatatableListMixin, DatatablePaginationMixin, viewsets.ReadOnlyModelViewSet
+):
     queryset = Exploit.objects.none()
     serializer_class = ExploitSerializer
     datatable_default_ordering = ("-discovered_date",)
@@ -5810,7 +6669,9 @@ class ExploitViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.Read
         else:
             qs = Exploit.objects.none()
 
-        qs = qs.select_related("scan_history", "ip_address", "endpoint", "domain").prefetch_related("cve_ids", "tags")
+        qs = qs.select_related(
+            "scan_history", "ip_address", "endpoint", "domain"
+        ).prefetch_related("cve_ids", "tags")
         self.queryset = qs
         return self.queryset
 
@@ -5826,11 +6687,25 @@ class ExploitViewSet(DatatableListMixin, DatatablePaginationMixin, viewsets.Read
                 | Q(reference__icontains=search_value)
                 | Q(domain__name__icontains=search_value)
             ).distinct()
-        for field_name in ("name", "exploit_id", "provider", "matched_at", "reference", "domain__name"):
-            value = get_datatables_column_search_value(self.request, self.datatable_column_map, field_name)
+        for field_name in (
+            "name",
+            "exploit_id",
+            "provider",
+            "matched_at",
+            "reference",
+            "domain__name",
+        ):
+            value = get_datatables_column_search_value(
+                self.request, self.datatable_column_map, field_name
+            )
             if value:
                 qs = qs.filter(**{f"{field_name}__icontains": value})
-        return apply_datatables_order(qs, self.request, self.datatable_column_map, default_order="-discovered_date")
+        return apply_datatables_order(
+            qs,
+            self.request,
+            self.datatable_column_map,
+            default_order="-discovered_date",
+        )
 
 
 class GetIpDetails(APIView):
@@ -5846,7 +6721,9 @@ class GetIpDetails(APIView):
         if scan_id:
             ip_row = get_ip_linked_to_scan_ids(ip_address, [scan_id])
         elif target_id:
-            scan_ids = ScanHistory.objects.filter(target_id=target_id).values_list("id", flat=True)
+            scan_ids = ScanHistory.objects.filter(target_id=target_id).values_list(
+                "id", flat=True
+            )
             ip_row = get_ip_linked_to_scan_ids(ip_address, scan_ids)
         else:
             normalized = normalize_ip_address_string((ip_address or "").strip())
@@ -5873,7 +6750,12 @@ class UncommonWebPortsView(APIView):
     def get(self, request):
         from reconPoint.definitions import COMMON_WEB_PORTS, UNCOMMON_WEB_PORTS
 
-        return Response({"uncommon_web_ports": UNCOMMON_WEB_PORTS, "common_web_ports": COMMON_WEB_PORTS})
+        return Response(
+            {
+                "uncommon_web_ports": UNCOMMON_WEB_PORTS,
+                "common_web_ports": COMMON_WEB_PORTS,
+            }
+        )
 
 
 class LLMModelsManager(APIView):
@@ -5941,7 +6823,9 @@ class LLMModelsManager(APIView):
 
             # Get currently selected model
             selected_model = OllamaSettings.objects.first()
-            selected_model_name = selected_model.selected_model if selected_model else "gpt-3.5-turbo"
+            selected_model_name = (
+                selected_model.selected_model if selected_model else "gpt-3.5-turbo"
+            )
 
             # Mark selected model
             for model in all_models:
@@ -5962,7 +6846,8 @@ class LLMModelsManager(APIView):
                     "status": True,
                     "models": all_models,
                     "selected_model": selected_model_name,
-                    "openai_key_error": not get_open_ai_key() and "gpt" in selected_model_name,
+                    "openai_key_error": not get_open_ai_key()
+                    and "gpt" in selected_model_name,
                 }
             )
 
@@ -5974,7 +6859,11 @@ class LLMModelsManager(APIView):
                 level="error",
             )
             return Response(
-                {"status": False, "error": "Failed to fetch LLM models", "message": get_safe_user_message(e, None)},
+                {
+                    "status": False,
+                    "error": "Failed to fetch LLM models",
+                    "message": get_safe_user_message(e, None),
+                },
                 status=500,
             )
 
@@ -5996,7 +6885,9 @@ def websocket_status(request):
             }
         )
     except Exception as e:
-        return Response({"status": False, "error": get_safe_user_message(e, logger)}, status=500)
+        return Response(
+            {"status": False, "error": get_safe_user_message(e, logger)}, status=500
+        )
 
 
 class FetchScreenshots(APIView):
@@ -6009,7 +6900,9 @@ class FetchScreenshots(APIView):
         port = req.query_params.get("port")
 
         if not scan_id and not target_id:
-            return Response({"status": False, "error": "Missing scan_id or target_id parameter"})
+            return Response(
+                {"status": False, "error": "Missing scan_id or target_id parameter"}
+            )
 
         def extract_port_from_url(url):
             """Extract port from URL, return default ports for HTTP/HTTPS"""
@@ -6035,13 +6928,19 @@ class FetchScreenshots(APIView):
 
         # Filter by scan_id or target_id
         if scan_id:
-            endpoints_with_screenshots = endpoints_with_screenshots.filter(scan_history__id=scan_id)
+            endpoints_with_screenshots = endpoints_with_screenshots.filter(
+                scan_history__id=scan_id
+            )
         elif target_id:
-            endpoints_with_screenshots = endpoints_with_screenshots.filter(scan_history__target_id=target_id)
+            endpoints_with_screenshots = endpoints_with_screenshots.filter(
+                scan_history__target_id=target_id
+            )
 
         # Filter by subdomain if provided
         if subdomain_id:
-            endpoints_with_screenshots = endpoints_with_screenshots.filter(subdomain__id=subdomain_id)
+            endpoints_with_screenshots = endpoints_with_screenshots.filter(
+                subdomain__id=subdomain_id
+            )
 
         # Filter by port if provided - handle default ports correctly
         if port:
@@ -6068,10 +6967,14 @@ class FetchScreenshots(APIView):
 
             # URLs served with project-scoped access via api.scan_file.ServeScanFile
             screenshot_urls = get_scan_file_urls(endpoint.screenshot_path, req)
-            stored_response_urls = get_scan_file_urls(endpoint.stored_response_path, req)
+            stored_response_urls = get_scan_file_urls(
+                endpoint.stored_response_path, req
+            )
             screenshot_url = screenshot_urls.absolute
             stored_response_url = stored_response_urls.absolute
-            port_is_uncommon = endpoint_port is not None and endpoint_port in UNCOMMON_WEB_PORTS
+            port_is_uncommon = (
+                endpoint_port is not None and endpoint_port in UNCOMMON_WEB_PORTS
+            )
             # Frontend uses screenshot_url (and stored_response_url) for display; screenshot_path
             # is included for API consumers that need the stored path (e.g. export/debug).
             screenshots_data[subdomain_key] = {
@@ -6087,8 +6990,13 @@ class FetchScreenshots(APIView):
                 "endpoint_id": endpoint.id,
                 "port": endpoint_port,
                 "port_is_uncommon": port_is_uncommon,
-                "ip_addresses": [{"address": ip.address, "is_cdn": ip.is_cdn} for ip in subdomain.ip_addresses.all()],
-                "technologies": [{"name": tech.name} for tech in subdomain.technologies.all()],
+                "ip_addresses": [
+                    {"address": ip.address, "is_cdn": ip.is_cdn}
+                    for ip in subdomain.ip_addresses.all()
+                ],
+                "technologies": [
+                    {"name": tech.name} for tech in subdomain.technologies.all()
+                ],
             }
 
         return Response(screenshots_data)
@@ -6138,11 +7046,18 @@ class CreateSecatorWorkflow(APIView):
             )
 
             return Response(
-                {"status": "success", "workflow_id": workflow.id, "message": "Workflow created successfully"}
+                {
+                    "status": "success",
+                    "workflow_id": workflow.id,
+                    "message": "Workflow created successfully",
+                }
             )
 
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class CreateSecatorTask(APIView):
@@ -6162,10 +7077,19 @@ class CreateSecatorTask(APIView):
                 yaml_configuration=data.get("yaml_configuration", ""),
             )
 
-            return Response({"status": "success", "task_id": task.id, "message": "Task created successfully"})
+            return Response(
+                {
+                    "status": "success",
+                    "task_id": task.id,
+                    "message": "Task created successfully",
+                }
+            )
 
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class CreateSecatorScan(APIView):
@@ -6192,11 +7116,18 @@ class CreateSecatorScan(APIView):
             scan.save()
 
             return Response(
-                {"status": "success", "scan_id": scan.id, "message": "Scan configuration created successfully"}
+                {
+                    "status": "success",
+                    "scan_id": scan.id,
+                    "message": "Scan configuration created successfully",
+                }
             )
 
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class LoadBuiltinWorkflows(APIView):
@@ -6215,10 +7146,17 @@ class LoadBuiltinWorkflows(APIView):
             call_command("load_workflows", "--builtin-only", "--force", stdout=out)
 
             return Response(
-                {"status": "success", "message": "Built-in workflows loaded successfully", "output": out.getvalue()}
+                {
+                    "status": "success",
+                    "message": "Built-in workflows loaded successfully",
+                    "output": out.getvalue(),
+                }
             )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class LoadBuiltinTasks(APIView):
@@ -6236,10 +7174,17 @@ class LoadBuiltinTasks(APIView):
             call_command("load_tasks", stdout=out)
 
             return Response(
-                {"status": "success", "message": "Built-in tasks loaded successfully", "output": out.getvalue()}
+                {
+                    "status": "success",
+                    "message": "Built-in tasks loaded successfully",
+                    "output": out.getvalue(),
+                }
             )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class LoadBuiltinProfiles(APIView):
@@ -6258,10 +7203,17 @@ class LoadBuiltinProfiles(APIView):
             call_command("load_profiles", "--builtin-only", stdout=out)
 
             return Response(
-                {"status": "success", "message": "Built-in profiles loaded successfully", "output": out.getvalue()}
+                {
+                    "status": "success",
+                    "message": "Built-in profiles loaded successfully",
+                    "output": out.getvalue(),
+                }
             )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class GetDefaultProfileOpts(APIView):
@@ -6278,7 +7230,10 @@ class GetDefaultProfileOpts(APIView):
 
             return Response({"status": "success", "opts": opts_yaml})
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class LoadBuiltinScans(APIView):
@@ -6297,10 +7252,17 @@ class LoadBuiltinScans(APIView):
             call_command("load_scans", "--builtin-only", stdout=out)
 
             return Response(
-                {"status": "success", "message": "Built-in scans loaded successfully", "output": out.getvalue()}
+                {
+                    "status": "success",
+                    "message": "Built-in scans loaded successfully",
+                    "output": out.getvalue(),
+                }
             )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class GetWorkflowTasks(APIView):
@@ -6316,7 +7278,10 @@ class GetWorkflowTasks(APIView):
             return Response({"status": "success", "tasks": tasks})
 
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class GetAvailableTasks(APIView):
@@ -6326,12 +7291,17 @@ class GetAvailableTasks(APIView):
 
     def get(self, request):
         try:
-            tasks = SecatorTask.objects.all().values("id", "name", "task_type", "description")
+            tasks = SecatorTask.objects.all().values(
+                "id", "name", "task_type", "description"
+            )
 
             return Response({"status": "success", "tasks": list(tasks)})
 
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class GetAvailableWorkflows(APIView):
@@ -6348,7 +7318,10 @@ class GetAvailableWorkflows(APIView):
             return Response({"status": "success", "workflows": list(workflows)})
 
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class GetWorkflowDetail(APIView):
@@ -6373,9 +7346,14 @@ class GetWorkflowDetail(APIView):
             return Response({"status": "success", "workflow": workflow_data})
 
         except SecatorWorkflow.DoesNotExist:
-            return Response({"status": "error", "message": "Workflow not found"}, status=404)
+            return Response(
+                {"status": "error", "message": "Workflow not found"}, status=404
+            )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class UpdateSecatorWorkflow(APIView):
@@ -6388,19 +7366,30 @@ class UpdateSecatorWorkflow(APIView):
             # Update fields
             workflow.name = request.data.get("name", workflow.name)
             workflow.description = request.data.get("description", workflow.description)
-            workflow.workflow_type = request.data.get("workflow_type", workflow.workflow_type)
-            workflow.yaml_configuration = request.data.get("yaml_configuration", workflow.yaml_configuration)
+            workflow.workflow_type = request.data.get(
+                "workflow_type", workflow.workflow_type
+            )
+            workflow.yaml_configuration = request.data.get(
+                "yaml_configuration", workflow.yaml_configuration
+            )
             workflow.is_active = request.data.get("is_active", workflow.is_active)
             workflow.scan_type = request.data.get("scan_type", workflow.scan_type)
 
             workflow.save()
 
-            return Response({"status": "success", "message": "Workflow updated successfully"})
+            return Response(
+                {"status": "success", "message": "Workflow updated successfully"}
+            )
 
         except SecatorWorkflow.DoesNotExist:
-            return Response({"status": "error", "message": "Workflow not found"}, status=404)
+            return Response(
+                {"status": "error", "message": "Workflow not found"}, status=404
+            )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class DeleteSecatorWorkflow(APIView):
@@ -6412,12 +7401,22 @@ class DeleteSecatorWorkflow(APIView):
             workflow_name = workflow.name
             workflow.delete()
 
-            return Response({"status": "success", "message": f'Workflow "{workflow_name}" deleted successfully'})
+            return Response(
+                {
+                    "status": "success",
+                    "message": f'Workflow "{workflow_name}" deleted successfully',
+                }
+            )
 
         except SecatorWorkflow.DoesNotExist:
-            return Response({"status": "error", "message": "Workflow not found"}, status=404)
+            return Response(
+                {"status": "error", "message": "Workflow not found"}, status=404
+            )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class GetTaskDetail(APIView):
@@ -6441,9 +7440,14 @@ class GetTaskDetail(APIView):
             return Response({"status": "success", "task": task_data})
 
         except SecatorTask.DoesNotExist:
-            return Response({"status": "error", "message": "Task not found"}, status=404)
+            return Response(
+                {"status": "error", "message": "Task not found"}, status=404
+            )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class UpdateSecatorTask(APIView):
@@ -6457,16 +7461,25 @@ class UpdateSecatorTask(APIView):
             task.name = request.data.get("name", task.name)
             task.task_type = request.data.get("task_type", task.task_type)
             task.description = request.data.get("description", task.description)
-            task.yaml_configuration = request.data.get("yaml_configuration", task.yaml_configuration)
+            task.yaml_configuration = request.data.get(
+                "yaml_configuration", task.yaml_configuration
+            )
 
             task.save()
 
-            return Response({"status": "success", "message": "Task updated successfully"})
+            return Response(
+                {"status": "success", "message": "Task updated successfully"}
+            )
 
         except SecatorTask.DoesNotExist:
-            return Response({"status": "error", "message": "Task not found"}, status=404)
+            return Response(
+                {"status": "error", "message": "Task not found"}, status=404
+            )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class DeleteSecatorTask(APIView):
@@ -6478,12 +7491,22 @@ class DeleteSecatorTask(APIView):
             task_name = task.name
             task.delete()
 
-            return Response({"status": "success", "message": f'Task "{task_name}" deleted successfully'})
+            return Response(
+                {
+                    "status": "success",
+                    "message": f'Task "{task_name}" deleted successfully',
+                }
+            )
 
         except SecatorTask.DoesNotExist:
-            return Response({"status": "error", "message": "Task not found"}, status=404)
+            return Response(
+                {"status": "error", "message": "Task not found"}, status=404
+            )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class GetScanDetail(APIView):
@@ -6512,9 +7535,15 @@ class GetScanDetail(APIView):
             return Response({"status": "success", "scan": scan_data})
 
         except SecatorScan.DoesNotExist:
-            return Response({"status": "error", "message": "Scan configuration not found"}, status=404)
+            return Response(
+                {"status": "error", "message": "Scan configuration not found"},
+                status=404,
+            )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class UpdateSecatorScan(APIView):
@@ -6535,12 +7564,23 @@ class UpdateSecatorScan(APIView):
 
             scan.save()
 
-            return Response({"status": "success", "message": "Scan configuration updated successfully"})
+            return Response(
+                {
+                    "status": "success",
+                    "message": "Scan configuration updated successfully",
+                }
+            )
 
         except SecatorScan.DoesNotExist:
-            return Response({"status": "error", "message": "Scan configuration not found"}, status=404)
+            return Response(
+                {"status": "error", "message": "Scan configuration not found"},
+                status=404,
+            )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class DeleteSecatorScan(APIView):
@@ -6552,12 +7592,23 @@ class DeleteSecatorScan(APIView):
             scan_name = scan.name
             scan.delete()
 
-            return Response({"status": "success", "message": f'Scan configuration "{scan_name}" deleted successfully'})
+            return Response(
+                {
+                    "status": "success",
+                    "message": f'Scan configuration "{scan_name}" deleted successfully',
+                }
+            )
 
         except SecatorScan.DoesNotExist:
-            return Response({"status": "error", "message": "Scan configuration not found"}, status=404)
+            return Response(
+                {"status": "error", "message": "Scan configuration not found"},
+                status=404,
+            )
         except Exception as e:
-            return Response({"status": "error", "message": get_safe_user_message(e, logger)}, status=400)
+            return Response(
+                {"status": "error", "message": get_safe_user_message(e, logger)},
+                status=400,
+            )
 
 
 class SecatorRunnerCreate(SecatorAPIBase):
@@ -6617,7 +7668,11 @@ class SecatorRunnerCreate(SecatorAPIBase):
                 except ScanHistory.DoesNotExist:
                     self.logger.log_warning(
                         "ScanHistory %s not found, skipping link" % (scan_history_id,),
-                        {"prefix": self.logger.PREFIX_SYNC, "action": "CREATE", "scan_id": scan_history_id},
+                        {
+                            "prefix": self.logger.PREFIX_SYNC,
+                            "action": "CREATE",
+                            "scan_id": scan_history_id,
+                        },
                     )
 
             worker_id = get_request_worker_id(request, context=context)
@@ -6636,7 +7691,11 @@ class SecatorRunnerCreate(SecatorAPIBase):
                 except Exception as e:
                     self.logger.log_error(
                         e,
-                        {"prefix": self.logger.PREFIX_SYNC, "action": "CREATE", "worker_id": worker_id},
+                        {
+                            "prefix": self.logger.PREFIX_SYNC,
+                            "action": "CREATE",
+                            "worker_id": worker_id,
+                        },
                         exc_info=True,
                     )
 
@@ -6647,7 +7706,9 @@ class SecatorRunnerCreate(SecatorAPIBase):
             # Link SubScan to this runner when subscan_id is in context (per-task subscans)
             subscan_id = safe_int_cast(context.get("subscan_id"))
             if subscan_id is not None:
-                if SubScan.objects.filter(id=subscan_id).update(secator_runner_id=secator_runner.id):
+                if SubScan.objects.filter(id=subscan_id).update(
+                    secator_runner_id=secator_runner.id
+                ):
                     self.logger.log_runner_sync(
                         "CREATE",
                         runner_name or "unknown",
@@ -6659,7 +7720,11 @@ class SecatorRunnerCreate(SecatorAPIBase):
                 else:
                     self.logger.log_warning(
                         f"SubScan {subscan_id} not found, skipping runner link",
-                        {"prefix": self.logger.PREFIX_SYNC, "action": "CREATE", "subscan_id": subscan_id},
+                        {
+                            "prefix": self.logger.PREFIX_SYNC,
+                            "action": "CREATE",
+                            "subscan_id": subscan_id,
+                        },
                     )
 
             # Log success
@@ -6676,10 +7741,16 @@ class SecatorRunnerCreate(SecatorAPIBase):
         except Exception as e:
             self.logger.log_error(
                 e,
-                {"prefix": self.logger.PREFIX_SYNC, "action": "CREATE", "error": get_safe_user_message(e, logger)},
+                {
+                    "prefix": self.logger.PREFIX_SYNC,
+                    "action": "CREATE",
+                    "error": get_safe_user_message(e, logger),
+                },
                 exc_info=True,
             )
-            return Response({"status": False, "error": get_safe_user_message(e, logger)}, status=500)
+            return Response(
+                {"status": False, "error": get_safe_user_message(e, logger)}, status=500
+            )
 
 
 class SecatorRunnerUpdate(SecatorAPIBase):
@@ -6700,15 +7771,25 @@ class SecatorRunnerUpdate(SecatorAPIBase):
             except Exception as parse_error:
                 self.logger.log_error(
                     parse_error,
-                    {"prefix": self.logger.PREFIX_SYNC, "action": "UPDATE", "id": runner_id},
+                    {
+                        "prefix": self.logger.PREFIX_SYNC,
+                        "action": "UPDATE",
+                        "id": runner_id,
+                    },
                     exc_info=True,
                 )
                 return Response(
-                    {"status": False, "error": f"Error parsing request data: {str(parse_error)}"}, status=400
+                    {
+                        "status": False,
+                        "error": f"Error parsing request data: {str(parse_error)}",
+                    },
+                    status=400,
                 )
 
             # Validate request data
-            is_valid, error_response = self.validate_request_data(runner_data, runner_id)
+            is_valid, error_response = self.validate_request_data(
+                runner_data, runner_id
+            )
             if not is_valid:
                 return error_response
 
@@ -6721,7 +7802,9 @@ class SecatorRunnerUpdate(SecatorAPIBase):
                 secator_runner.runner_data = runner_data
 
                 # Update runner name if provided
-                runner_name = runner_data.get("config", {}).get("name") or runner_data.get("name")
+                runner_name = runner_data.get("config", {}).get(
+                    "name"
+                ) or runner_data.get("name")
                 if runner_name:
                     secator_runner.runner_name = runner_name
 
@@ -6730,13 +7813,17 @@ class SecatorRunnerUpdate(SecatorAPIBase):
                 celery_id = context.get("celery_id")
                 if celery_id:
                     secator_runner.celery_id = celery_id
-                    self.logger.log_runner_field_extraction("celery_id", celery_id, runner_id)
+                    self.logger.log_runner_field_extraction(
+                        "celery_id", celery_id, runner_id
+                    )
 
                 # Extract and store status from runner_data
                 runner_status = runner_data.get("status")
                 if runner_status:
                     secator_runner.status = runner_status.upper()
-                    self.logger.log_runner_field_extraction("status", runner_status, runner_id)
+                    self.logger.log_runner_field_extraction(
+                        "status", runner_status, runner_id
+                    )
 
                 worker_id = get_request_worker_id(request, context=context)
                 if worker_id is not None:
@@ -6744,7 +7831,8 @@ class SecatorRunnerUpdate(SecatorAPIBase):
                         secator_runner.worker_id = worker_id
                     except (ValueError, TypeError):
                         self.logger.log_warning(
-                            "Invalid worker_id '%s' provided; ignoring assignment" % (worker_id,),
+                            "Invalid worker_id '%s' provided; ignoring assignment"
+                            % (worker_id,),
                             {
                                 "prefix": self.logger.PREFIX_SYNC,
                                 "action": "UPDATE",
@@ -6788,22 +7876,42 @@ class SecatorRunnerUpdate(SecatorAPIBase):
             except SecatorRunner.DoesNotExist:
                 self.logger.log_warning(
                     f"Runner {runner_id} not found, cannot update",
-                    {"prefix": self.logger.PREFIX_SYNC, "action": "UPDATE", "id": runner_id},
+                    {
+                        "prefix": self.logger.PREFIX_SYNC,
+                        "action": "UPDATE",
+                        "id": runner_id,
+                    },
                 )
-                return Response({"status": False, "error": f"Runner {runner_id} not found"}, status=404)
+                return Response(
+                    {"status": False, "error": f"Runner {runner_id} not found"},
+                    status=404,
+                )
 
             return Response({"status": True, "id": runner_id})
         except Exception as e:
             self.logger.log_error(
                 e,
-                {"prefix": self.logger.PREFIX_SYNC, "action": "UPDATE", "id": runner_id},
+                {
+                    "prefix": self.logger.PREFIX_SYNC,
+                    "action": "UPDATE",
+                    "id": runner_id,
+                },
                 exc_info=True,
             )
             # Check if it's a validation error that should return 400
             error_str = str(e).lower()
-            if "validation" in error_str or "invalid" in error_str or "required" in error_str:
-                return Response({"status": False, "error": get_safe_user_message(e, logger)}, status=400)
-            return Response({"status": False, "error": get_safe_user_message(e, logger)}, status=500)
+            if (
+                "validation" in error_str
+                or "invalid" in error_str
+                or "required" in error_str
+            ):
+                return Response(
+                    {"status": False, "error": get_safe_user_message(e, logger)},
+                    status=400,
+                )
+            return Response(
+                {"status": False, "error": get_safe_user_message(e, logger)}, status=500
+            )
 
     def _is_all_runners_completed(self, scan_history_id: int) -> bool:
         """Delegate to standalone helper (view passes self.logger)."""
@@ -6827,7 +7935,9 @@ class SecatorFindingCreate(SecatorAPIBase):
             finding_data = request.data
 
             # Validate request data
-            is_valid, error_response = self.validate_request_data(finding_data, prefix=self.logger.PREFIX_FINDING)
+            is_valid, error_response = self.validate_request_data(
+                finding_data, prefix=self.logger.PREFIX_FINDING
+            )
             if not is_valid:
                 return error_response
 
@@ -6853,14 +7963,21 @@ class SecatorFindingCreate(SecatorAPIBase):
                         runner = SecatorRunner.objects.get(id=runner_id)
                         if getattr(runner, "subscan_id", None):
                             context["subscan_id"] = runner.subscan_id
-                            subscan = SubScan.objects.filter(id=runner.subscan_id).select_related("subdomain").first()
+                            subscan = (
+                                SubScan.objects.filter(id=runner.subscan_id)
+                                .select_related("subdomain")
+                                .first()
+                            )
                             if subscan and subscan.subdomain_id:
                                 context["subdomain_id"] = subscan.subdomain_id
                     except SecatorRunner.DoesNotExist:
                         pass
 
             if not finding_type:
-                return Response({"status": False, "error": "Missing _type in finding data"}, status=400)
+                return Response(
+                    {"status": False, "error": "Missing _type in finding data"},
+                    status=400,
+                )
 
             # Centralized tag dispatch (whois, ASN, url_pattern, secrets, Nuclei tech, ignored, Technology fallback)
             if finding_type == "tag":
@@ -6885,7 +8002,12 @@ class SecatorFindingCreate(SecatorAPIBase):
                 if result[0] == "success":
                     saved_obj = result[1]
                     self.logger.log_finding_save(
-                        "CREATE", finding_type, saved_obj, scan_history_id, target_id, success=True
+                        "CREATE",
+                        finding_type,
+                        saved_obj,
+                        scan_history_id,
+                        target_id,
+                        success=True,
                     )
                     return Response({"status": True, "id": str(saved_obj.id)})
                 if result[0] == "error":
@@ -6899,7 +8021,9 @@ class SecatorFindingCreate(SecatorAPIBase):
                         success=False,
                         error_message=err_msg,
                     )
-                    return Response({"status": False, "error": err_msg}, status=status_code)
+                    return Response(
+                        {"status": False, "error": err_msg}, status=status_code
+                    )
                 # fallback: continue to TechnologyRepository below
 
             # Get repository for finding type
@@ -6918,25 +8042,34 @@ class SecatorFindingCreate(SecatorAPIBase):
             if not is_valid:
                 return error_response
             target_id = target.id
-            from targetApp.services.scope_params import get_finding_scope_filters_for_target
+            from targetApp.services.scope_params import (
+                get_finding_scope_filters_for_target,
+            )
 
-            context["finding_scope_filters"] = get_finding_scope_filters_for_target(target_id)
+            context["finding_scope_filters"] = get_finding_scope_filters_for_target(
+                target_id
+            )
 
             # Instantiate repository and save finding
             repository = repository_class()
             self.logger.log_debug(
-                self.logger.PREFIX_FINDING, "CREATE", "Using repository: %s" % (repository_class.__name__,)
+                self.logger.PREFIX_FINDING,
+                "CREATE",
+                "Using repository: %s" % (repository_class.__name__,),
             )
             self.logger.log_debug(
                 self.logger.PREFIX_FINDING,
                 "CREATE",
-                "Calling save_from_secator with finding_data (keys: %s)" % (list(finding_data.keys()),),
+                "Calling save_from_secator with finding_data (keys: %s)"
+                % (list(finding_data.keys()),),
             )
 
             try:
                 if finding_type == "subdomain":
                     self.logger.log_debug(
-                        self.logger.PREFIX_FINDING, "CREATE", "Saving subdomain with context: %s" % (context,)
+                        self.logger.PREFIX_FINDING,
+                        "CREATE",
+                        "Saving subdomain with context: %s" % (context,),
                     )
                 saved_object = repository.save_from_secator(
                     finding_data, scan_history_id, target_id, reconpoint_context=context
@@ -6957,14 +8090,16 @@ class SecatorFindingCreate(SecatorAPIBase):
                             scan_history_id,
                             target_id,
                             success=False,
-                            error_message="Repository returned None - %s" % (error_detail,),
+                            error_message="Repository returned None - %s"
+                            % (error_detail,),
                         )
                     except Exception:
                         pass
                     return Response(
                         {
                             "status": False,
-                            "error": "Failed to save %s finding. %s" % (finding_type, error_detail),
+                            "error": "Failed to save %s finding. %s"
+                            % (finding_type, error_detail),
                         },
                         status=422,
                     )
@@ -6991,7 +8126,10 @@ class SecatorFindingCreate(SecatorAPIBase):
                         success=False,
                         error_message="Saved object has no 'id' attribute",
                     )
-                    return Response({"status": False, "error": "Saved object has no ID attribute"}, status=500)
+                    return Response(
+                        {"status": False, "error": "Saved object has no ID attribute"},
+                        status=500,
+                    )
 
             except FindingOutOfScopeError:
                 synthetic_id = synthetic_id_skipped_scope(finding_type)
@@ -7005,15 +8143,23 @@ class SecatorFindingCreate(SecatorAPIBase):
                     {"status": True, "skipped": True, "id": synthetic_id},
                 )
             except Exception as e:
-                return self.handle_repository_error(e, finding_type, scan_history_id, target_id)
+                return self.handle_repository_error(
+                    e, finding_type, scan_history_id, target_id
+                )
 
         except Exception as e:
             self.logger.log_error(
                 e,
-                {"prefix": self.logger.PREFIX_FINDING, "action": "CREATE", "error": get_safe_user_message(e, logger)},
+                {
+                    "prefix": self.logger.PREFIX_FINDING,
+                    "action": "CREATE",
+                    "error": get_safe_user_message(e, logger),
+                },
                 exc_info=True,
             )
-            return Response({"status": False, "error": get_safe_user_message(e, logger)}, status=500)
+            return Response(
+                {"status": False, "error": get_safe_user_message(e, logger)}, status=500
+            )
 
 
 class SecatorFindingUpdate(SecatorAPIBase):
@@ -7032,11 +8178,19 @@ class SecatorFindingUpdate(SecatorAPIBase):
             except Exception as parse_error:
                 self.logger.log_error(
                     parse_error,
-                    {"prefix": self.logger.PREFIX_FINDING, "action": "UPDATE", "id": finding_id},
+                    {
+                        "prefix": self.logger.PREFIX_FINDING,
+                        "action": "UPDATE",
+                        "id": finding_id,
+                    },
                     exc_info=True,
                 )
                 return Response(
-                    {"status": False, "error": f"Error parsing request data: {str(parse_error)}"}, status=400
+                    {
+                        "status": False,
+                        "error": f"Error parsing request data: {str(parse_error)}",
+                    },
+                    status=400,
                 )
 
             # Validate request data
@@ -7051,10 +8205,16 @@ class SecatorFindingUpdate(SecatorAPIBase):
             if not isinstance(context, dict):
                 self.logger.log_error(
                     ValueError(f"_context is not a dict: {type(context)}"),
-                    {"prefix": self.logger.PREFIX_FINDING, "action": "UPDATE", "id": finding_id},
+                    {
+                        "prefix": self.logger.PREFIX_FINDING,
+                        "action": "UPDATE",
+                        "id": finding_id,
+                    },
                     exc_info=False,
                 )
-                return Response({"status": False, "error": "Invalid _context format"}, status=400)
+                return Response(
+                    {"status": False, "error": "Invalid _context format"}, status=400
+                )
 
             # Log API call
             self.logger.log_finding_api_call("UPDATE", finding_data, finding_id)
@@ -7078,7 +8238,11 @@ class SecatorFindingUpdate(SecatorAPIBase):
                         runner = SecatorRunner.objects.get(id=runner_id)
                         if getattr(runner, "subscan_id", None):
                             context["subscan_id"] = runner.subscan_id
-                            subscan = SubScan.objects.filter(id=runner.subscan_id).select_related("subdomain").first()
+                            subscan = (
+                                SubScan.objects.filter(id=runner.subscan_id)
+                                .select_related("subdomain")
+                                .first()
+                            )
                             if subscan and subscan.subdomain_id:
                                 context["subdomain_id"] = subscan.subdomain_id
                     except SecatorRunner.DoesNotExist:
@@ -7087,16 +8251,25 @@ class SecatorFindingUpdate(SecatorAPIBase):
             if not finding_type:
                 self.logger.log_warning(
                     "Missing _type in finding data for finding_id=%s" % (finding_id,),
-                    {"prefix": self.logger.PREFIX_FINDING, "action": "UPDATE", "id": finding_id},
+                    {
+                        "prefix": self.logger.PREFIX_FINDING,
+                        "action": "UPDATE",
+                        "id": finding_id,
+                    },
                 )
-                return Response({"status": False, "error": "Missing _type in finding data"}, status=400)
+                return Response(
+                    {"status": False, "error": "Missing _type in finding data"},
+                    status=400,
+                )
 
             # Centralized tag dispatch (whois, ASN, url_pattern, secrets, Nuclei tech, ignored, Technology fallback)
             if finding_type == "tag":
                 from reconPoint.secator.tag_dispatch import dispatch_secator_tag
 
                 def _validate_tag_context_update(sh_id, t_id):
-                    return self.validate_scan_context(sh_id, t_id, "tag", prefix=self.logger.PREFIX_FINDING)
+                    return self.validate_scan_context(
+                        sh_id, t_id, "tag", prefix=self.logger.PREFIX_FINDING
+                    )
 
                 result = dispatch_secator_tag(
                     finding_data,
@@ -7114,7 +8287,12 @@ class SecatorFindingUpdate(SecatorAPIBase):
                 if result[0] == "success":
                     saved_obj = result[1]
                     self.logger.log_finding_save(
-                        "UPDATE", finding_type, saved_obj, scan_history_id, target_id, success=True
+                        "UPDATE",
+                        finding_type,
+                        saved_obj,
+                        scan_history_id,
+                        target_id,
+                        success=True,
                     )
                     return Response({"status": True, "id": str(saved_obj.id)})
                 if result[0] == "error":
@@ -7128,7 +8306,9 @@ class SecatorFindingUpdate(SecatorAPIBase):
                         success=False,
                         error_message=err_msg,
                     )
-                    return Response({"status": False, "error": err_msg}, status=status_code)
+                    return Response(
+                        {"status": False, "error": err_msg}, status=status_code
+                    )
                 # fallback: continue to TechnologyRepository below
 
             # Get repository for finding type
@@ -7138,22 +8318,39 @@ class SecatorFindingUpdate(SecatorAPIBase):
                 if self.is_metadata_type(finding_type):
                     self.logger.log_metadata_ignored(finding_type, finding_id)
                     return Response(
-                        {"status": True, "message": "Ignored metadata type: %s" % (finding_type,)}, status=200
+                        {
+                            "status": True,
+                            "message": "Ignored metadata type: %s" % (finding_type,),
+                        },
+                        status=200,
                     )
 
                 self.logger.log_unknown_type("finding", finding_type, finding_id)
-                return Response({"status": False, "error": "Unknown finding type: %s" % (finding_type,)}, status=400)
+                return Response(
+                    {
+                        "status": False,
+                        "error": "Unknown finding type: %s" % (finding_type,),
+                    },
+                    status=400,
+                )
 
             # Validate scan context (target_id required)
             is_valid, error_response, scan_history, target = self.validate_scan_context(
-                scan_history_id, target_id, finding_type, prefix=self.logger.PREFIX_FINDING
+                scan_history_id,
+                target_id,
+                finding_type,
+                prefix=self.logger.PREFIX_FINDING,
             )
             if not is_valid:
                 return error_response
             target_id = target.id
-            from targetApp.services.scope_params import get_finding_scope_filters_for_target
+            from targetApp.services.scope_params import (
+                get_finding_scope_filters_for_target,
+            )
 
-            context["finding_scope_filters"] = get_finding_scope_filters_for_target(target_id)
+            context["finding_scope_filters"] = get_finding_scope_filters_for_target(
+                target_id
+            )
 
             # Instantiate repository and save finding (upsert: create or update)
             repository = repository_class()
@@ -7170,7 +8367,8 @@ class SecatorFindingUpdate(SecatorAPIBase):
                     logger.log_line(
                         PREFIX_API,
                         "FINDING_UPDATE",
-                        "Saving subdomain with context: %s, finding_id: %s" % (context, finding_id),
+                        "Saving subdomain with context: %s, finding_id: %s"
+                        % (context, finding_id),
                         level="debug",
                     )
                 saved_object = repository.save_from_secator(
@@ -7218,7 +8416,10 @@ class SecatorFindingUpdate(SecatorAPIBase):
                         success=False,
                         error_message="Saved object has no 'id' attribute",
                     )
-                    return Response({"status": False, "error": "Saved object has no ID attribute"}, status=500)
+                    return Response(
+                        {"status": False, "error": "Saved object has no ID attribute"},
+                        status=500,
+                    )
 
             except FindingOutOfScopeError:
                 synthetic_id = synthetic_id_skipped_scope(finding_type)
@@ -7232,19 +8433,34 @@ class SecatorFindingUpdate(SecatorAPIBase):
                     {"status": True, "skipped": True, "id": synthetic_id},
                 )
             except Exception as e:
-                return self.handle_repository_error(e, finding_type, scan_history_id, target_id, finding_id)
+                return self.handle_repository_error(
+                    e, finding_type, scan_history_id, target_id, finding_id
+                )
 
         except Exception as e:
             self.logger.log_error(
                 e,
-                {"prefix": self.logger.PREFIX_FINDING, "action": "UPDATE", "id": finding_id},
+                {
+                    "prefix": self.logger.PREFIX_FINDING,
+                    "action": "UPDATE",
+                    "id": finding_id,
+                },
                 exc_info=True,
             )
             # Check if it's a validation error that should return 400
             error_str = str(e).lower()
-            if "validation" in error_str or "invalid" in error_str or "required" in error_str:
-                return Response({"status": False, "error": get_safe_user_message(e, logger)}, status=400)
-            return Response({"status": False, "error": get_safe_user_message(e, logger)}, status=500)
+            if (
+                "validation" in error_str
+                or "invalid" in error_str
+                or "required" in error_str
+            ):
+                return Response(
+                    {"status": False, "error": get_safe_user_message(e, logger)},
+                    status=400,
+                )
+            return Response(
+                {"status": False, "error": get_safe_user_message(e, logger)}, status=500
+            )
 
 
 class SecatorHealth(APIView):
@@ -7268,7 +8484,10 @@ class DatatableFilterHealth(APIView):
 
     def get(self, request):
         if not django_settings.DEBUG:
-            return Response({"detail": "Not available when DEBUG is False"}, status=HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Not available when DEBUG is False"},
+                status=HTTP_404_NOT_FOUND,
+            )
         clear = request.GET.get("clear", "").lower() in ("1", "true", "yes")
         warnings = get_datatable_filter_warnings(clear=clear)
         return Response({"warnings": warnings})
@@ -7292,7 +8511,9 @@ class SecatorWorkerCheckIn(APIView):
             if "last_error" in data:
                 worker.last_error = data["last_error"] or None
             worker.last_status_at = timezone.now()
-            worker.save_partial(update_fields=["api_reachable", "last_error", "last_status_at"])
+            worker.save_partial(
+                update_fields=["api_reachable", "last_error", "last_status_at"]
+            )
             from reconPoint.utilities.websocket import send_worker_status_update
 
             send_worker_status_update(worker.id)
@@ -7339,7 +8560,11 @@ class SecatorWorkerViewSet(viewsets.ModelViewSet):
         return SecatorWorkerCreateUpdateSerializer
 
     def get_queryset(self):
-        return SecatorWorker.objects.all().order_by("name").prefetch_related("secatorrunner_set")
+        return (
+            SecatorWorker.objects.all()
+            .order_by("name")
+            .prefetch_related("secatorrunner_set")
+        )
 
     @action(detail=True, methods=["post"], url_path="check-connection")
     def check_connection(self, request, pk=None):
@@ -7385,7 +8610,10 @@ class SecatorWorkerViewSet(viewsets.ModelViewSet):
                 status=HTTP_400_BAD_REQUEST,
             )
 
-        from reconPoint.utilities.websocket import send_worker_deploy_log, send_worker_status_update
+        from reconPoint.utilities.websocket import (
+            send_worker_deploy_log,
+            send_worker_status_update,
+        )
 
         def progress_callback(step: str, message: str) -> None:
             send_worker_deploy_log(worker.id, step, message, done=False)
@@ -7404,7 +8632,9 @@ class SecatorWorkerViewSet(viewsets.ModelViewSet):
                     exc_info=True,
                 )
                 safe_msg = get_safe_user_message(e, logger)
-                send_worker_deploy_log(worker.id, "error", None, done=True, error=safe_msg)
+                send_worker_deploy_log(
+                    worker.id, "error", None, done=True, error=safe_msg
+                )
 
         thread = threading.Thread(target=run_deploy, daemon=True)
         thread.start()
@@ -7417,7 +8647,10 @@ class SecatorWorkerViewSet(viewsets.ModelViewSet):
     def refresh(self, request, pk=None):
         """Start worker status refresh in background; progress is streamed via WebSocket (worker-refresh-{id})."""
         worker = self.get_object()
-        from reconPoint.utilities.websocket import send_worker_refresh_log, send_worker_status_update
+        from reconPoint.utilities.websocket import (
+            send_worker_refresh_log,
+            send_worker_status_update,
+        )
 
         def progress_callback(step: str, message: str) -> None:
             send_worker_refresh_log(worker.id, step, message, done=False)
@@ -7426,7 +8659,10 @@ class SecatorWorkerViewSet(viewsets.ModelViewSet):
             tunnel_handle = None
             try:
                 if worker.api_access_type == SecatorWorker.API_ACCESS_TUNNEL:
-                    from scanEngine.services.worker_tunnel import start_worker_tunnel, stop_worker_tunnel
+                    from scanEngine.services.worker_tunnel import (
+                        start_worker_tunnel,
+                        stop_worker_tunnel,
+                    )
 
                     try:
                         tunnel_handle = start_worker_tunnel(worker)
@@ -7434,10 +8670,16 @@ class SecatorWorkerViewSet(viewsets.ModelViewSet):
                             progress_callback("tunnel", "SSH tunnel started.")
                     except ValueError as e:
                         send_worker_refresh_log(
-                            worker.id, "error", None, done=True, error=get_safe_user_message(e, logger)
+                            worker.id,
+                            "error",
+                            None,
+                            done=True,
+                            error=get_safe_user_message(e, logger),
                         )
                         return
-                status = refresh_worker_status(worker, progress_callback=progress_callback)
+                status = refresh_worker_status(
+                    worker, progress_callback=progress_callback
+                )
                 worker.last_status_at = timezone.now()
                 worker.last_error = status.get("last_error") or worker.last_error
                 worker.ssh_ok = status.get("ssh_ok", False)
@@ -7474,7 +8716,13 @@ class SecatorWorkerViewSet(viewsets.ModelViewSet):
                     level="error",
                     exc_info=True,
                 )
-                send_worker_refresh_log(worker.id, "error", None, done=True, error=get_safe_user_message(e, logger))
+                send_worker_refresh_log(
+                    worker.id,
+                    "error",
+                    None,
+                    done=True,
+                    error=get_safe_user_message(e, logger),
+                )
             finally:
                 if tunnel_handle is not None:
                     from scanEngine.services.worker_tunnel import stop_worker_tunnel
@@ -7596,7 +8844,9 @@ class SecatorWorkerViewSet(viewsets.ModelViewSet):
         worker.ssh_auth_type = SecatorWorker.AUTH_KEY
         worker.ssh_key_path = ""
         worker.ssh_password_encrypted = ""
-        worker.save_partial(update_fields=["ssh_auth_type", "ssh_key_path", "ssh_password_encrypted"])
+        worker.save_partial(
+            update_fields=["ssh_auth_type", "ssh_key_path", "ssh_password_encrypted"]
+        )
         return Response({"ok": True})
 
     @action(detail=True, methods=["post"], url_path="sync-configs")

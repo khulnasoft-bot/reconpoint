@@ -20,14 +20,16 @@ def handle_subdomain_deletion(sender, instance, **kwargs):
         logger.log_line(
             PREFIX_SIGNALS,
             "SUBDOMAIN_DELETE",
-            "Handling deletion of subdomain %s (ID: %s). Checking its associated IPs" % (instance.name, instance.id),
+            "Handling deletion of subdomain %s (ID: %s). Checking its associated IPs"
+            % (instance.name, instance.id),
             level="info",
         )
         if ips_to_check:
             logger.log_line(
                 PREFIX_SIGNALS,
                 "SUBDOMAIN_DELETE",
-                "Found %s IPs associated with subdomain %s" % (len(ips_to_check), instance.name),
+                "Found %s IPs associated with subdomain %s"
+                % (len(ips_to_check), instance.name),
                 level="info",
             )
         else:
@@ -84,13 +86,18 @@ def handle_subdomain_ip_changes(sender, instance, action, pk_set, **kwargs):
                     if not Subdomain.objects.filter(ip_addresses=ip).exists():
                         # Validation and cleanup of the IP address
                         cleaned_ip = (
-                            ip.address.strip()[:45].replace("\r\n", "").replace("\n", "")
+                            ip.address.strip()[:45]
+                            .replace("\r\n", "")
+                            .replace("\n", "")
                         )  # Limit the length and sanitize
-                        sanitized_subdomain = instance.name[:255].replace("\r\n", "").replace("\n", "")
+                        sanitized_subdomain = (
+                            instance.name[:255].replace("\r\n", "").replace("\n", "")
+                        )
                         logger.log_line(
                             PREFIX_SIGNALS,
                             "M2M_IP_CLEANUP",
-                            "Deleting orphaned IP %s (subdomain: %s)" % (cleaned_ip, sanitized_subdomain),
+                            "Deleting orphaned IP %s (subdomain: %s)"
+                            % (cleaned_ip, sanitized_subdomain),
                             level="warning",
                         )
                         ip.delete()

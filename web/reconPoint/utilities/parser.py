@@ -83,9 +83,9 @@ def parse_nmap_results(xml_file, output_file=None, parse_type="vulnerabilities")
                 # Convert to list if it's a unique dictionary
                 if isinstance(hostname_data, dict):
                     hostname_data = [hostname_data]
-                hostnames = [entry.get("@name") for entry in hostname_data if entry.get("@name")] or [
-                    addresses[0]["addr"] if addresses else "unknown"
-                ]
+                hostnames = [
+                    entry.get("@name") for entry in hostname_data if entry.get("@name")
+                ] or [addresses[0]["addr"] if addresses else "unknown"]
         else:
             hostnames = [addresses[0]["addr"] if addresses else "unknown"]
 
@@ -162,7 +162,8 @@ def parse_nmap_results(xml_file, output_file=None, parse_type="vulnerabilities")
                             logger.log_line(
                                 PREFIX_PARSER,
                                 "PARSE_NMAP",
-                                'Script output parsing for script "%s" is not supported yet.' % (script_id,),
+                                'Script output parsing for script "%s" is not supported yet.'
+                                % (script_id,),
                                 level="warning",
                             )
 
@@ -422,7 +423,9 @@ def process_nmap_service_results(xml_file):
 
             ip_address, _ = IpAddress.objects.get_or_create(address=ip)
             create_or_update_port_with_service(
-                port_number=int(service["port"]), service_info=service, ip_address=ip_address
+                port_number=int(service["port"]),
+                service_info=service,
+                ip_address=ip_address,
             )
         except Exception as e:
             logger.log_line(

@@ -13,7 +13,10 @@ class Migration(migrations.Migration):
             model_name="enginetype",
             name="scan_type",
             field=models.CharField(
-                choices=[("internet", "Internet"), ("internal_network", "Internal Network")],
+                choices=[
+                    ("internet", "Internet"),
+                    ("internal_network", "Internal Network"),
+                ],
                 default="internet",
                 help_text="Type of scan this engine is designed for",
                 max_length=20,

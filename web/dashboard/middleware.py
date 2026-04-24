@@ -60,7 +60,9 @@ class SlugMiddleware(MiddlewareMixin):
         return project, False
 
     def _assign_project_context(self, request, slug_value, allowed_project_ids):
-        project, is_forbidden = self._resolve_project_for_context(slug_value, allowed_project_ids)
+        project, is_forbidden = self._resolve_project_for_context(
+            slug_value, allowed_project_ids
+        )
         if project:
             request.current_project = project
             request.slug = project.slug
@@ -73,14 +75,18 @@ class SlugMiddleware(MiddlewareMixin):
             return False
         if resolved and "slug" in getattr(resolved, "kwargs", {}):
             return False
-        return request.path_info.startswith(HEADER_PROJECT_CONTEXT_ALLOWED_PATH_PREFIXES)
+        return request.path_info.startswith(
+            HEADER_PROJECT_CONTEXT_ALLOWED_PATH_PREFIXES
+        )
 
     def process_request(self, request):
         request.current_project = None
         request.slug = None
         allowed_project_ids = set()
         if request.user.is_authenticated:
-            allowed_project_ids = set(get_user_projects(request.user).values_list("id", flat=True))
+            allowed_project_ids = set(
+                get_user_projects(request.user).values_list("id", flat=True)
+            )
 
         resolved = getattr(request, "resolver_match", None)
         if resolved is None:
@@ -95,17 +101,25 @@ class SlugMiddleware(MiddlewareMixin):
             request.current_project = get_object_or_404(Project, slug=slug)
         elif self._can_apply_header_context(request, resolved):
             if raw := (request.META.get(X_PROJECT_SLUG_HEADER) or "").strip():
-                query_project_slug = (request.GET.get(PROJECT_CONTEXT_QUERY_PARAM) or "").strip()
+                query_project_slug = (
+                    request.GET.get(PROJECT_CONTEXT_QUERY_PARAM) or ""
+                ).strip()
                 if query_project_slug and query_project_slug != raw:
                     logger.log_line(
                         "[DASHBOARD]",
                         "SLUG_MW",
                         "X-Project-Slug ignored due to query mismatch header=%s query=%s user_id=%s"
-                        % (raw[:120], query_project_slug[:120], getattr(request.user, "pk", "")),
+                        % (
+                            raw[:120],
+                            query_project_slug[:120],
+                            getattr(request.user, "pk", ""),
+                        ),
                         level="debug",
                     )
                 else:
-                    assigned, is_forbidden = self._assign_project_context(request, raw, allowed_project_ids)
+                    assigned, is_forbidden = self._assign_project_context(
+                        request, raw, allowed_project_ids
+                    )
                     if not assigned and is_forbidden:
                         logger.log_line(
                             "[DASHBOARD]",
@@ -117,7 +131,9 @@ class SlugMiddleware(MiddlewareMixin):
 
         if request.current_project is None and request.user.is_authenticated:
             if qp := (request.GET.get(PROJECT_CONTEXT_QUERY_PARAM) or "").strip():
-                assigned, _is_forbidden = self._assign_project_context(request, qp, allowed_project_ids)
+                assigned, _is_forbidden = self._assign_project_context(
+                    request, qp, allowed_project_ids
+                )
                 if not assigned:
                     logger.log_line(
                         "[DASHBOARD]",

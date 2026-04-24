@@ -20,7 +20,9 @@ from recon_note.models import (
     TodoNote,
 )
 from reconPoint.definitions import ENGINE_NAMES
-from reconPoint.services.default_endpoint_queryset import apply_endpoint_port_and_techs_related
+from reconPoint.services.default_endpoint_queryset import (
+    apply_endpoint_port_and_techs_related,
+)
 from reconPoint.utilities.logger import get_module_logger
 from reconPoint.utilities.subdomain import get_interesting_subdomains
 from scanEngine.models import (
@@ -263,7 +265,9 @@ class TargetSerializer(serializers.ModelSerializer):
         c = getattr(obj, "llm_attack_surface_count", None)
         if c is not None:
             return int(c) > 0
-        from reconPoint.llm.attack_surface_storage import parent_has_llm_attack_surface_analyses
+        from reconPoint.llm.attack_surface_storage import (
+            parent_has_llm_attack_surface_analyses,
+        )
 
         return parent_has_llm_attack_surface_analyses(obj)
 
@@ -271,7 +275,9 @@ class TargetSerializer(serializers.ModelSerializer):
         c = getattr(obj, "llm_attack_surface_count", None)
         if c is not None:
             return int(c)
-        from reconPoint.llm.attack_surface_storage import count_llm_attack_surface_analyses_for_parent
+        from reconPoint.llm.attack_surface_storage import (
+            count_llm_attack_surface_analyses_for_parent,
+        )
 
         return count_llm_attack_surface_analyses_for_parent(obj)
 
@@ -647,7 +653,9 @@ class ScanHistorySerializer(serializers.ModelSerializer):
         val = getattr(scan_history, "ip_address_count", _CACHE_MISSING)
         if val is not _CACHE_MISSING:
             return val
-        from reconPoint.services.scan_finding_metrics import get_ip_address_total_for_scan
+        from reconPoint.services.scan_finding_metrics import (
+            get_ip_address_total_for_scan,
+        )
 
         return get_ip_address_total_for_scan(scan_history.id)
 
@@ -729,7 +737,10 @@ class ScanActivitySerializer(serializers.ModelSerializer):
         task_name = scan_activity.name
 
         # If title is set and different from default name, use it (e.g. for Nuclei severity)
-        if scan_activity.title and scan_activity.title != task_name.replace("_", " ").capitalize():
+        if (
+            scan_activity.title
+            and scan_activity.title != task_name.replace("_", " ").capitalize()
+        ):
             return scan_activity.title
 
         task_display_names = {
@@ -910,7 +921,9 @@ class SecatorWorkerListSerializer(serializers.ModelSerializer):
 class SecatorWorkerDetailSerializer(serializers.ModelSerializer):
     """Serializer for SecatorWorker detail with runners; excludes secret fields."""
 
-    runners = SecatorRunnerSerializer(source="secatorrunner_set", many=True, read_only=True)
+    runners = SecatorRunnerSerializer(
+        source="secatorrunner_set", many=True, read_only=True
+    )
 
     class Meta:
         model = SecatorWorker
@@ -1008,7 +1021,9 @@ class OrganizationTargetsSerializer(serializers.ModelSerializer):
 class ScopeDatatableSerializer(serializers.ModelSerializer):
     """Serializer for scope list DataTables API. Expects annotated target_count, worker_count."""
 
-    organization_name = serializers.CharField(source="organization.name", read_only=True)
+    organization_name = serializers.CharField(
+        source="organization.name", read_only=True
+    )
     scope_type = serializers.SerializerMethodField()
     target_count = serializers.IntegerField(read_only=True, default=0)
     worker_count = serializers.IntegerField(read_only=True, default=0)
@@ -1157,12 +1172,36 @@ class ScanHistoryDatatableSerializer(serializers.ModelSerializer):
             get_ip_address_metrics_for_scan,
         )
 
-        domain_count = obj.get_domain_count() if callable(getattr(obj, "get_domain_count", None)) else 0
-        subdomain_count = obj.get_subdomain_count() if callable(getattr(obj, "get_subdomain_count", None)) else 0
-        endpoint_count = obj.get_endpoint_count() if callable(getattr(obj, "get_endpoint_count", None)) else 0
-        vuln_count = obj.get_vulnerability_count() if callable(getattr(obj, "get_vulnerability_count", None)) else 0
-        secret_count = obj.get_secret_count() if callable(getattr(obj, "get_secret_count", None)) else 0
-        exploit_count = obj.get_exploit_count() if callable(getattr(obj, "get_exploit_count", None)) else 0
+        domain_count = (
+            obj.get_domain_count()
+            if callable(getattr(obj, "get_domain_count", None))
+            else 0
+        )
+        subdomain_count = (
+            obj.get_subdomain_count()
+            if callable(getattr(obj, "get_subdomain_count", None))
+            else 0
+        )
+        endpoint_count = (
+            obj.get_endpoint_count()
+            if callable(getattr(obj, "get_endpoint_count", None))
+            else 0
+        )
+        vuln_count = (
+            obj.get_vulnerability_count()
+            if callable(getattr(obj, "get_vulnerability_count", None))
+            else 0
+        )
+        secret_count = (
+            obj.get_secret_count()
+            if callable(getattr(obj, "get_secret_count", None))
+            else 0
+        )
+        exploit_count = (
+            obj.get_exploit_count()
+            if callable(getattr(obj, "get_exploit_count", None))
+            else 0
+        )
         ip_total = getattr(obj, SCAN_HISTORY_IP_COUNT_ATTR, _CACHE_MISSING)
         ip_alive = getattr(obj, SCAN_HISTORY_IP_ALIVE_ATTR, _CACHE_MISSING)
         if ip_total is not _CACHE_MISSING and ip_alive is not _CACHE_MISSING:
@@ -1264,7 +1303,11 @@ class SubScanDatatableSerializer(serializers.ModelSerializer):
         return getattr(obj.scan_history, "secator_worker_name", None) or "Local"
 
     def get_status_code(self, obj):
-        return getattr(obj, "status_code", None) if hasattr(obj, "status_code") else getattr(obj, "status", None)
+        return (
+            getattr(obj, "status_code", None)
+            if hasattr(obj, "status_code")
+            else getattr(obj, "status", None)
+        )
 
     def get_status_text(self, obj):
         code = self.get_status_code(obj)
@@ -1428,7 +1471,12 @@ def _engine_type_tasks_html(engine):
         ),
     }
     tasks = getattr(engine, "tasks", None) or []
-    parts = [task_badges.get(t, (f'<span class="badge badge-soft-secondary task-badge">{t}</span>',))[0] for t in tasks]
+    parts = [
+        task_badges.get(
+            t, (f'<span class="badge badge-soft-secondary task-badge">{t}</span>',)
+        )[0]
+        for t in tasks
+    ]
     if config_params := getattr(engine, "get_config_parameters", lambda: {})():
         config_display = getattr(engine, "get_config_parameters_display", lambda: "")()
         config_title = html.escape(config_display) if config_display else ""
@@ -1439,7 +1487,13 @@ def _engine_type_tasks_html(engine):
         )
     count = getattr(engine, "get_tasks_count", lambda: 0)()
     summary = f"{count} task{'s' if count != 1 else ''} enabled"
-    return '<div class="task-badges">' + "".join(parts) + '</div><div class="task-summary">' + summary + "</div>"
+    return (
+        '<div class="task-badges">'
+        + "".join(parts)
+        + '</div><div class="task-summary">'
+        + summary
+        + "</div>"
+    )
 
 
 class EngineTypeDatatableSerializer(serializers.ModelSerializer):
@@ -1470,9 +1524,7 @@ class EngineTypeDatatableSerializer(serializers.ModelSerializer):
 
     def get_engine_name_display(self, obj):
         update_url = reverse("update_engine", args=[obj.id])
-        return (
-            f'<a href="{html.escape(update_url)}" class="open-domain text-primary">{html.escape(obj.engine_name)}</a>'
-        )
+        return f'<a href="{html.escape(update_url)}" class="open-domain text-primary">{html.escape(obj.engine_name)}</a>'
 
     def get_engine_type_display(self, obj):
         return "Default" if obj.default_engine else "Custom"
@@ -1579,15 +1631,23 @@ class VisualiseSubdomainSerializer(serializers.ModelSerializer):
         return subdomain.name
 
     def get_title(self, subdomain):
-        if get_interesting_subdomains(subdomain.scan_history.id).filter(name=subdomain.name).exists():
+        if (
+            get_interesting_subdomains(subdomain.scan_history.id)
+            .filter(name=subdomain.name)
+            .exists()
+        ):
             return "Interesting"
 
     def get_children(self, subdomain_name):
         scan_history = self.context.get("scan_history")
-        subdomains = Subdomain.objects.filter(scan_history=scan_history).filter(name=subdomain_name)
+        subdomains = Subdomain.objects.filter(scan_history=scan_history).filter(
+            name=subdomain_name
+        )
 
         ips = IpAddress.objects.filter(ip_addresses__in=subdomains)
-        ip_serializer = VisualiseIpSerializer(ips, many=True, context={"scan_id": scan_history.id})
+        ip_serializer = VisualiseIpSerializer(
+            ips, many=True, context={"scan_id": scan_history.id}
+        )
 
         # endpoint = EndPoint.objects.filter(
         #     scan_history=self.context.get('scan_history')).filter(
@@ -1597,7 +1657,9 @@ class VisualiseSubdomainSerializer(serializers.ModelSerializer):
         technologies = Technology.objects.filter(technologies__in=subdomains)
         tech_serializer = VisualiseTechnologySerializer(technologies, many=True)
 
-        vulnerability = Vulnerability.objects.filter(scan_history=scan_history).filter(subdomain=subdomain_name)
+        vulnerability = Vulnerability.objects.filter(scan_history=scan_history).filter(
+            subdomain=subdomain_name
+        )
 
         return_data = []
         if ip_serializer.data:
@@ -1608,14 +1670,18 @@ class VisualiseSubdomainSerializer(serializers.ModelSerializer):
         #         'children': endpoint_serializer.data
         #     })
         if tech_serializer.data:
-            return_data.append({"description": "Technologies", "children": tech_serializer.data})
+            return_data.append(
+                {"description": "Technologies", "children": tech_serializer.data}
+            )
 
         if vulnerability:
             self._group_vulnerabilities_by_severity_(vulnerability, return_data)
 
         # Get screenshots from endpoints instead of subdomains
         endpoints_with_screenshots = EndPoint.objects.filter(
-            scan_history=scan_history, subdomain__name=subdomain_name.name, screenshot_path__isnull=False
+            scan_history=scan_history,
+            subdomain__name=subdomain_name.name,
+            screenshot_path__isnull=False,
         )
         if endpoints_with_screenshots.exists():
             screenshot_data = [
@@ -1626,7 +1692,9 @@ class VisualiseSubdomainSerializer(serializers.ModelSerializer):
                 }
                 for endpoint in endpoints_with_screenshots
             ]
-            return_data.append({"description": "Screenshots", "children": screenshot_data})
+            return_data.append(
+                {"description": "Screenshots", "children": screenshot_data}
+            )
 
         return return_data
 
@@ -1634,25 +1702,39 @@ class VisualiseSubdomainSerializer(serializers.ModelSerializer):
         vulnerability_data = []
         if critical := vulnerability.filter(severity=4):
             critical_serializer = VisualiseVulnerabilitySerializer(critical, many=True)
-            vulnerability_data.append({"description": "Critical", "children": critical_serializer.data})
+            vulnerability_data.append(
+                {"description": "Critical", "children": critical_serializer.data}
+            )
         if high := vulnerability.filter(severity=3):
             high_serializer = VisualiseVulnerabilitySerializer(high, many=True)
-            vulnerability_data.append({"description": "High", "children": high_serializer.data})
+            vulnerability_data.append(
+                {"description": "High", "children": high_serializer.data}
+            )
         if medium := vulnerability.filter(severity=2):
             medium_serializer = VisualiseVulnerabilitySerializer(medium, many=True)
-            vulnerability_data.append({"description": "Medium", "children": medium_serializer.data})
+            vulnerability_data.append(
+                {"description": "Medium", "children": medium_serializer.data}
+            )
         if low := vulnerability.filter(severity=1):
             low_serializer = VisualiseVulnerabilitySerializer(low, many=True)
-            vulnerability_data.append({"description": "Low", "children": low_serializer.data})
+            vulnerability_data.append(
+                {"description": "Low", "children": low_serializer.data}
+            )
         if info := vulnerability.filter(severity=0):
             info_serializer = VisualiseVulnerabilitySerializer(info, many=True)
-            vulnerability_data.append({"description": "Informational", "children": info_serializer.data})
+            vulnerability_data.append(
+                {"description": "Informational", "children": info_serializer.data}
+            )
         if uknown := vulnerability.filter(severity=-1):
             uknown_serializer = VisualiseVulnerabilitySerializer(uknown, many=True)
-            vulnerability_data.append({"description": "Unknown", "children": uknown_serializer.data})
+            vulnerability_data.append(
+                {"description": "Unknown", "children": uknown_serializer.data}
+            )
 
         if vulnerability_data:
-            return_data.append({"description": "Vulnerabilities", "children": vulnerability_data})
+            return_data.append(
+                {"description": "Vulnerabilities", "children": vulnerability_data}
+            )
 
 
 class VisualiseEmailSerializer(serializers.ModelSerializer):
@@ -1721,7 +1803,9 @@ class VisualiseDataSerializer(serializers.ModelSerializer):
         scan_history = ScanHistory.objects.filter(id=history.id)
 
         subdomain = Subdomain.objects.filter(scan_history=history)
-        subdomain_serializer = VisualiseSubdomainSerializer(subdomain, many=True, context={"scan_history": history})
+        subdomain_serializer = VisualiseSubdomainSerializer(
+            subdomain, many=True, context={"scan_history": history}
+        )
 
         processed_subdomains = self.process_subdomains(subdomain_serializer.data)
 
@@ -1740,13 +1824,19 @@ class VisualiseDataSerializer(serializers.ModelSerializer):
         return_data = []
 
         if processed_subdomains:
-            return_data.append({"description": "Subdomains", "children": processed_subdomains})
+            return_data.append(
+                {"description": "Subdomains", "children": processed_subdomains}
+            )
 
         osint_data = []
         if email_serializer.data:
-            osint_data.append({"description": "Emails", "children": email_serializer.data})
+            osint_data.append(
+                {"description": "Emails", "children": email_serializer.data}
+            )
         if employee_serializer.data:
-            osint_data.append({"description": "Employees", "children": employee_serializer.data})
+            osint_data.append(
+                {"description": "Employees", "children": employee_serializer.data}
+            )
         if processed_dorks:
             osint_data.append({"description": "Dorks", "children": processed_dorks})
 
@@ -1807,16 +1897,34 @@ class VisualiseDataSerializer(serializers.ModelSerializer):
 
                 # Reconstruct vulnerabilities structure without duplicates
                 new_vuln_structure = []
-                for severity in ["Critical", "High", "Medium", "Low", "Informational", "Unknown"]:
-                    if severity_vulns := [v for k, v in vuln_dict.items() if k[1] == severity]:
-                        new_vuln_structure.append({"description": severity, "children": severity_vulns})
+                for severity in [
+                    "Critical",
+                    "High",
+                    "Medium",
+                    "Low",
+                    "Informational",
+                    "Unknown",
+                ]:
+                    if severity_vulns := [
+                        v for k, v in vuln_dict.items() if k[1] == severity
+                    ]:
+                        new_vuln_structure.append(
+                            {"description": severity, "children": severity_vulns}
+                        )
 
                 # Replace old structure with new
                 subdomain["children"] = [
-                    child for child in subdomain["children"] if child.get("description") != "Vulnerabilities"
+                    child
+                    for child in subdomain["children"]
+                    if child.get("description") != "Vulnerabilities"
                 ]
                 if new_vuln_structure:
-                    subdomain["children"].append({"description": "Vulnerabilities", "children": new_vuln_structure})
+                    subdomain["children"].append(
+                        {
+                            "description": "Vulnerabilities",
+                            "children": new_vuln_structure,
+                        }
+                    )
 
         return subdomains
 
@@ -1871,13 +1979,19 @@ class SubdomainChangesSerializer(serializers.ModelSerializer):
         return Subdomain.change
 
     def get_is_interesting(self, Subdomain):
-        return get_interesting_subdomains(Subdomain.scan_history.id).filter(name=Subdomain.name).exists()
+        return (
+            get_interesting_subdomains(Subdomain.scan_history.id)
+            .filter(name=Subdomain.name)
+            .exists()
+        )
 
     def get_attack_surface(self, obj):
         c = getattr(obj, "llm_attack_surface_count", None)
         if c is not None:
             return int(c) > 0
-        from reconPoint.llm.attack_surface_storage import parent_has_llm_attack_surface_analyses
+        from reconPoint.llm.attack_surface_storage import (
+            parent_has_llm_attack_surface_analyses,
+        )
 
         return parent_has_llm_attack_surface_analyses(obj)
 
@@ -1885,7 +1999,9 @@ class SubdomainChangesSerializer(serializers.ModelSerializer):
         c = getattr(obj, "llm_attack_surface_count", None)
         if c is not None:
             return int(c)
-        from reconPoint.llm.attack_surface_storage import count_llm_attack_surface_analyses_for_parent
+        from reconPoint.llm.attack_surface_storage import (
+            count_llm_attack_surface_analyses_for_parent,
+        )
 
         return count_llm_attack_surface_analyses_for_parent(obj)
 
@@ -2003,7 +2119,14 @@ class TechnologySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Technology
-        fields = ["id", "name", "value", "category", "stored_response_path", "stored_response_url"]
+        fields = [
+            "id",
+            "name",
+            "value",
+            "category",
+            "stored_response_path",
+            "stored_response_url",
+        ]
 
     def get_stored_response_url(self, obj):
         # Served with project-scoped access via api.scan_file.ServeScanFile
@@ -2086,7 +2209,9 @@ def _format_service_labels_tuple(labels: tuple[str, ...]) -> str:
 
 # Per-request serializer context keys (avoid mutable state on serializer instances).
 _CTX_WARN_ENDPOINT_TECHS_NOT_PREFETCHED = "_warned_endpoint_techs_not_prefetched"
-_CTX_WARN_DEFAULT_ENDPOINT_LIST_TECHS = "_warned_default_endpoint_list_missing_techs_prefetch"
+_CTX_WARN_DEFAULT_ENDPOINT_LIST_TECHS = (
+    "_warned_default_endpoint_list_missing_techs_prefetch"
+)
 _CTX_EVALUATED_DEFAULT_ENDPOINTS_BY_IP_ID = "_evaluated_default_endpoints_by_ip_id"
 _CTX_PREFETCHED_ENDPOINTS_BY_SUBDOMAIN_SCAN = "_prefetched_endpoints_by_subdomain_scan"
 _SERVICE_LABELS_BY_IP_PORT_CACHE_WARN_KEY = "__ports_prefetch_warning_emitted__"
@@ -2125,7 +2250,9 @@ class DefaultEndpointTechnologyMixin:
       back to rendering this flat list once per row with a one-time console warning.
     """
 
-    def _iter_endpoint_tech_instances_for_serialization(self, endpoint: Any) -> list[Any]:
+    def _iter_endpoint_tech_instances_for_serialization(
+        self, endpoint: Any
+    ) -> list[Any]:
         """
         Return ``Technology`` instances for ``endpoint.techs``, respecting prefetch when present.
 
@@ -2144,7 +2271,8 @@ class DefaultEndpointTechnologyMixin:
                 logger.log_line(
                     PREFIX_API_SERIALIZERS,
                     "DEFAULT_ENDPOINT_TECHS",
-                    "EndPoint id=%s: techs not prefetched during serialization; expect extra queries" % (endpoint.pk,),
+                    "EndPoint id=%s: techs not prefetched during serialization; expect extra queries"
+                    % (endpoint.pk,),
                     level="warning",
                 )
         return list(techs_rel.all())
@@ -2161,7 +2289,9 @@ class DefaultEndpointTechnologyMixin:
         }
 
     def _default_endpoints_queryset_for_ip_address(self, ip_address: Any) -> QuerySet:
-        query = apply_endpoint_port_and_techs_related(EndPoint.objects.filter(ip_address=ip_address, is_default=True))
+        query = apply_endpoint_port_and_techs_related(
+            EndPoint.objects.filter(ip_address=ip_address, is_default=True)
+        )
         scan_id = self.context.get("scan_id")
         target_id = self.context.get("target_id")
         if scan_id:
@@ -2171,19 +2301,29 @@ class DefaultEndpointTechnologyMixin:
         return query
 
     def _evaluated_default_endpoints_for_ip_address(self, ip_address: Any) -> list[Any]:
-        cache: dict[int, list[Any]] = self.context.setdefault(_CTX_EVALUATED_DEFAULT_ENDPOINTS_BY_IP_ID, {})
+        cache: dict[int, list[Any]] = self.context.setdefault(
+            _CTX_EVALUATED_DEFAULT_ENDPOINTS_BY_IP_ID, {}
+        )
         iid = ip_address.id
         if iid not in cache:
-            cache[iid] = list(self._default_endpoints_queryset_for_ip_address(ip_address))
+            cache[iid] = list(
+                self._default_endpoints_queryset_for_ip_address(ip_address)
+            )
         return cache[iid]
 
-    def _default_endpoints_for_subdomain_serialization(self, subdomain: Any) -> list[Any]:
+    def _default_endpoints_for_subdomain_serialization(
+        self, subdomain: Any
+    ) -> list[Any]:
         cache_attr = "_cached_default_endpoints_for_serialization"
         if hasattr(subdomain, cache_attr):
             return getattr(subdomain, cache_attr)
 
         if hasattr(subdomain, "all_endpoints_for_tech_list"):
-            endpoints = [endpoint for endpoint in (subdomain.all_endpoints_for_tech_list or []) if endpoint.is_default]
+            endpoints = [
+                endpoint
+                for endpoint in (subdomain.all_endpoints_for_tech_list or [])
+                if endpoint.is_default
+            ]
             if endpoints:
                 self._warn_if_default_endpoint_list_missing_techs_prefetch(endpoints)
             setattr(subdomain, cache_attr, endpoints)
@@ -2200,7 +2340,9 @@ class DefaultEndpointTechnologyMixin:
             setattr(subdomain, cache_attr, [])
             return []
 
-        qs = apply_endpoint_port_and_techs_related(EndPoint.objects.filter(subdomain=subdomain, is_default=True))
+        qs = apply_endpoint_port_and_techs_related(
+            EndPoint.objects.filter(subdomain=subdomain, is_default=True)
+        )
         endpoints = list(qs)
         setattr(subdomain, cache_attr, endpoints)
         return endpoints
@@ -2222,7 +2364,9 @@ class DefaultEndpointTechnologyMixin:
             # re-filter by subdomain_id and scan_history_id to guard against: wrong ``Prefetch.queryset``
             # or ``to_attr`` wiring, manual reuse of ``all_endpoints_for_tech_list`` on another
             # subdomain instance, or a future prefetch that stops correlating by parent row.
-            grouped_by_sub_scan = self.context.setdefault(_CTX_PREFETCHED_ENDPOINTS_BY_SUBDOMAIN_SCAN, {})
+            grouped_by_sub_scan = self.context.setdefault(
+                _CTX_PREFETCHED_ENDPOINTS_BY_SUBDOMAIN_SCAN, {}
+            )
             list_cache_key = id(prefetched_endpoints)
             endpoint_map = grouped_by_sub_scan.get(list_cache_key)
             if endpoint_map is None:
@@ -2243,13 +2387,17 @@ class DefaultEndpointTechnologyMixin:
             return []
 
         qs = apply_endpoint_port_and_techs_related(
-            EndPoint.objects.filter(subdomain=subdomain, scan_history_id=scan_history_id)
+            EndPoint.objects.filter(
+                subdomain=subdomain, scan_history_id=scan_history_id
+            )
         )
         endpoints = list(qs)
         setattr(subdomain, cache_attr, endpoints)
         return endpoints
 
-    def _warn_if_default_endpoint_list_missing_techs_prefetch(self, endpoints: Sequence[Any]) -> None:
+    def _warn_if_default_endpoint_list_missing_techs_prefetch(
+        self, endpoints: Sequence[Any]
+    ) -> None:
         if not endpoints:
             return
         endpoint = endpoints[0]
@@ -2268,7 +2416,9 @@ class DefaultEndpointTechnologyMixin:
             level="warning",
         )
 
-    def _serialize_endpoint_defaults_by_port(self, endpoints: Iterable[Any]) -> list[dict[str, Any]]:
+    def _serialize_endpoint_defaults_by_port(
+        self, endpoints: Iterable[Any]
+    ) -> list[dict[str, Any]]:
         """
         Build the list consumed by DataTables and `renderEndpointDefaultsByPortBadges` (JS).
 
@@ -2287,14 +2437,18 @@ class DefaultEndpointTechnologyMixin:
                     "webserver": endpoint.webserver or "",
                     "technologies": [
                         self._serialize_technology_payload(tech)
-                        for tech in self._iter_endpoint_tech_instances_for_serialization(endpoint)
+                        for tech in self._iter_endpoint_tech_instances_for_serialization(
+                            endpoint
+                        )
                     ],
                 }
             )
         payload.sort(key=lambda row: (row["port"] is None, row["port"] or 0, row["id"]))
         return payload
 
-    def _serialize_unique_technologies(self, endpoints: Iterable[Any]) -> list[dict[str, Any]]:
+    def _serialize_unique_technologies(
+        self, endpoints: Iterable[Any]
+    ) -> list[dict[str, Any]]:
         tech_by_key: dict[tuple[str, str, str], dict[str, Any]] = {}
         for endpoint in endpoints:
             for tech in self._iter_endpoint_tech_instances_for_serialization(endpoint):
@@ -2388,21 +2542,29 @@ class IpSerializer(DefaultEndpointTechnologyMixin, serializers.ModelSerializer):
         pn = self.context.get("filter_port_number")
         if not isinstance(pn, int) or not (1 <= pn <= 65535):
             return "-"
-        cache: MutableMapping[Any, Any] = self.context.setdefault("_service_labels_by_ip_port", {})
+        cache: MutableMapping[Any, Any] = self.context.setdefault(
+            "_service_labels_by_ip_port", {}
+        )
         tup = _collect_sorted_service_labels_for_ip_port(obj, pn, cache)
         return _format_service_labels_tuple(tup)
 
     def get_technologies(self, obj):
-        return self._serialize_unique_technologies(self._evaluated_default_endpoints_for_ip_address(obj))
+        return self._serialize_unique_technologies(
+            self._evaluated_default_endpoints_for_ip_address(obj)
+        )
 
     def get_endpoint_defaults_by_port(self, obj):
-        return self._serialize_endpoint_defaults_by_port(self._evaluated_default_endpoints_for_ip_address(obj))
+        return self._serialize_endpoint_defaults_by_port(
+            self._evaluated_default_endpoints_for_ip_address(obj)
+        )
 
     def get_attack_surface(self, obj):
         c = getattr(obj, "llm_attack_surface_count", None)
         if c is not None:
             return int(c) > 0
-        from reconPoint.llm.attack_surface_storage import parent_has_llm_attack_surface_analyses
+        from reconPoint.llm.attack_surface_storage import (
+            parent_has_llm_attack_surface_analyses,
+        )
 
         return parent_has_llm_attack_surface_analyses(obj)
 
@@ -2410,7 +2572,9 @@ class IpSerializer(DefaultEndpointTechnologyMixin, serializers.ModelSerializer):
         c = getattr(obj, "llm_attack_surface_count", None)
         if c is not None:
             return int(c)
-        from reconPoint.llm.attack_surface_storage import count_llm_attack_surface_analyses_for_parent
+        from reconPoint.llm.attack_surface_storage import (
+            count_llm_attack_surface_analyses_for_parent,
+        )
 
         return count_llm_attack_surface_analyses_for_parent(obj)
 
@@ -2418,7 +2582,16 @@ class IpSerializer(DefaultEndpointTechnologyMixin, serializers.ModelSerializer):
 class DirectoryFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = DirectoryFile
-        fields = ["id", "name", "url", "length", "lines", "http_status", "words", "content_type"]
+        fields = [
+            "id",
+            "name",
+            "url",
+            "length",
+            "lines",
+            "http_status",
+            "words",
+            "content_type",
+        ]
 
 
 class DirectoryScanSerializer(serializers.ModelSerializer):
@@ -2428,7 +2601,14 @@ class DirectoryScanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DirectoryScan
-        fields = ["id", "scanned_date", "command_line", "directory_files", "dir_subscan_ids", "formatted_date_for_id"]
+        fields = [
+            "id",
+            "scanned_date",
+            "command_line",
+            "directory_files",
+            "dir_subscan_ids",
+            "formatted_date_for_id",
+        ]
 
     def get_scanned_date(self, DirectoryScan):
         return DirectoryScan.scanned_date.strftime("%b %d, %Y %H:%M")
@@ -2522,7 +2702,9 @@ class SubdomainSerializer(DefaultEndpointTechnologyMixin, serializers.ModelSeria
     ports = serializers.SerializerMethodField("get_ports")
     waf = WafSerializer(many=True)
     technologies = serializers.SerializerMethodField("get_technologies")
-    endpoint_defaults_by_port = serializers.SerializerMethodField("get_endpoint_defaults_by_port")
+    endpoint_defaults_by_port = serializers.SerializerMethodField(
+        "get_endpoint_defaults_by_port"
+    )
     directories = DirectoryScanSerializer(many=True)
 
     # Use display properties for Secator scans (default endpoint values)
@@ -2576,7 +2758,11 @@ class SubdomainSerializer(DefaultEndpointTechnologyMixin, serializers.ModelSeria
             "subscan_count",
             "certificate_count",
         ]
-        datatables_always_serialize = ("certificate_count", "attack_surface_count", "endpoint_defaults_by_port")
+        datatables_always_serialize = (
+            "certificate_count",
+            "attack_surface_count",
+            "endpoint_defaults_by_port",
+        )
 
     def get_is_interesting(self, subdomain):
         interesting_names = self.context.get("datatable_interesting_names")
@@ -2589,7 +2775,9 @@ class SubdomainSerializer(DefaultEndpointTechnologyMixin, serializers.ModelSeria
         c = getattr(obj, "llm_attack_surface_count", None)
         if c is not None:
             return int(c) > 0
-        from reconPoint.llm.attack_surface_storage import parent_has_llm_attack_surface_analyses
+        from reconPoint.llm.attack_surface_storage import (
+            parent_has_llm_attack_surface_analyses,
+        )
 
         return parent_has_llm_attack_surface_analyses(obj)
 
@@ -2597,7 +2785,9 @@ class SubdomainSerializer(DefaultEndpointTechnologyMixin, serializers.ModelSeria
         c = getattr(obj, "llm_attack_surface_count", None)
         if c is not None:
             return int(c)
-        from reconPoint.llm.attack_surface_storage import count_llm_attack_surface_analyses_for_parent
+        from reconPoint.llm.attack_surface_storage import (
+            count_llm_attack_surface_analyses_for_parent,
+        )
 
         return count_llm_attack_surface_analyses_for_parent(obj)
 
@@ -2613,7 +2803,9 @@ class SubdomainSerializer(DefaultEndpointTechnologyMixin, serializers.ModelSeria
         pn = self.context.get("filter_port_number")
         if not isinstance(pn, int) or not (1 <= pn <= 65535):
             return "-"
-        cache: MutableMapping[Any, Any] = self.context.setdefault("_service_labels_by_ip_port", {})
+        cache: MutableMapping[Any, Any] = self.context.setdefault(
+            "_service_labels_by_ip_port", {}
+        )
         merged: list[str] = []
         seen: set[str] = set()
         for ip in obj.ip_addresses.all():
@@ -2689,25 +2881,35 @@ class SubdomainSerializer(DefaultEndpointTechnologyMixin, serializers.ModelSeria
         Get the default endpoint for this subdomain from prefetched data.
         Falls back to HybridProperty if prefetch was not used.
         """
-        if default_endpoints := self._default_endpoints_for_subdomain_serialization(obj):
+        if default_endpoints := self._default_endpoints_for_subdomain_serialization(
+            obj
+        ):
             return default_endpoints[0]
         # Fallback to HybridProperty for backward compatibility
         return obj._default_endpoint
 
     def get_technologies(self, obj):
         scan_history = getattr(obj, "scan_history", None)
-        if scan_history is not None and not getattr(scan_history, "is_legacy_scan", True):
-            from_endpoints = self._serialize_unique_technologies(self._all_endpoints_for_subdomain_tech_aggregate(obj))
+        if scan_history is not None and not getattr(
+            scan_history, "is_legacy_scan", True
+        ):
+            from_endpoints = self._serialize_unique_technologies(
+                self._all_endpoints_for_subdomain_tech_aggregate(obj)
+            )
             return from_endpoints
         endpoint_technologies = self._serialize_unique_technologies(
             self._default_endpoints_for_subdomain_serialization(obj)
         )
         if endpoint_technologies:
             return endpoint_technologies
-        return [self._serialize_technology_payload(tech) for tech in obj.technologies.all()]
+        return [
+            self._serialize_technology_payload(tech) for tech in obj.technologies.all()
+        ]
 
     def get_endpoint_defaults_by_port(self, obj):
-        return self._serialize_endpoint_defaults_by_port(self._default_endpoints_for_subdomain_serialization(obj))
+        return self._serialize_endpoint_defaults_by_port(
+            self._default_endpoints_for_subdomain_serialization(obj)
+        )
 
     def get_display_http_status(self, obj):
         """Return default endpoint http_status for Secator scans, otherwise subdomain http_status."""

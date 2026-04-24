@@ -6,7 +6,9 @@ from datetime import datetime
 
 from django.utils import timezone
 
-from reconPoint.services.repositories.certificate_repository import CertificateRepository
+from reconPoint.services.repositories.certificate_repository import (
+    CertificateRepository,
+)
 from startScan.models import Domain, IpAddress, Subdomain
 from utils.test_base import BaseTestCase
 
@@ -33,7 +35,9 @@ class TestCertificateRepository(BaseTestCase):
             "_source": "tlsx",
         }
 
-        result = self.cert_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.cert_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.host, "example.com")
@@ -49,7 +53,9 @@ class TestCertificateRepository(BaseTestCase):
             "fingerprint_sha256": "abc123def456",
         }
 
-        result = self.cert_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.cert_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -74,7 +80,9 @@ class TestCertificateRepository(BaseTestCase):
             "fingerprint_sha256": "abc123def456",
         }
 
-        result = self.cert_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.cert_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.subdomain, subdomain)
@@ -95,7 +103,9 @@ class TestCertificateRepository(BaseTestCase):
             "ip": "192.168.1.1",
         }
 
-        result = self.cert_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.cert_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         # IP association might not work if IP doesn't exist in domain context
@@ -116,7 +126,9 @@ class TestCertificateRepository(BaseTestCase):
             "not_after": not_after,
         }
 
-        result = self.cert_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.cert_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertIsNotNone(result.not_before)
@@ -131,7 +143,9 @@ class TestCertificateRepository(BaseTestCase):
             "subject_cn": "example.com",
         }
 
-        result1 = self.cert_repo.save_from_secator(item1, self.scan_history.id, self.data_generator.target.id)
+        result1 = self.cert_repo.save_from_secator(
+            item1, self.scan_history.id, self.data_generator.target.id
+        )
 
         item2 = {
             "_type": "certificate",
@@ -140,7 +154,9 @@ class TestCertificateRepository(BaseTestCase):
             "subject_cn": "example.com",
         }
 
-        result2 = self.cert_repo.save_from_secator(item2, self.scan_history.id, self.data_generator.target.id)
+        result2 = self.cert_repo.save_from_secator(
+            item2, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result1)
         self.assertIsNotNone(result2)
@@ -198,7 +214,9 @@ class TestCertificateRepository(BaseTestCase):
 
         # The code should handle seconds correctly
         # The code now handles milliseconds automatically
-        self.assertIsNotNone(result, "Timestamp parsing should work for valid timestamps")
+        self.assertIsNotNone(
+            result, "Timestamp parsing should work for valid timestamps"
+        )
         self.assertIsInstance(result, datetime)
 
     def test_parse_datetime_from_datetime_object(self):
@@ -231,7 +249,9 @@ class TestCertificateRepository(BaseTestCase):
             "self_signed": True,
         }
 
-        result = self.cert_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.cert_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertTrue(result.self_signed)
@@ -245,7 +265,9 @@ class TestCertificateRepository(BaseTestCase):
             "trusted": True,
         }
 
-        result = self.cert_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.cert_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertTrue(result.trusted)

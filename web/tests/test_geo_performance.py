@@ -27,7 +27,9 @@ class TestGeolocalizationPerformance(TestCase):
         self.data_generator.create_project_base()
 
         # Create user for initiated_by field
-        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
+        self.user = User.objects.create_user(
+            username="testuser", email="test@example.com", password="testpass123"
+        )
         self.data_generator.scan_history.initiated_by = self.user
         self.data_generator.scan_history.save()
 
@@ -166,7 +168,9 @@ class TestGeolocalizationPerformance(TestCase):
         results = []
 
         for i, ips in enumerate(thread_data):
-            thread = threading.Thread(target=lambda i=i, ips=ips: results.append(worker_thread(i, ips)))
+            thread = threading.Thread(
+                target=lambda i=i, ips=ips: results.append(worker_thread(i, ips))
+            )
             threads.append(thread)
             thread.start()
 
@@ -182,7 +186,14 @@ class TestGeolocalizationPerformance(TestCase):
             all_collected.extend(result)
 
         # Should have collected all public IPs
-        expected_public_ips = ["8.8.8.8", "1.1.1.1", "208.67.222.222", "9.9.9.9", "76.76.19.19", "185.199.108.153"]
+        expected_public_ips = [
+            "8.8.8.8",
+            "1.1.1.1",
+            "208.67.222.222",
+            "9.9.9.9",
+            "76.76.19.19",
+            "185.199.108.153",
+        ]
 
         self.assertEqual(len(all_collected), len(expected_public_ips))
         for ip in expected_public_ips:

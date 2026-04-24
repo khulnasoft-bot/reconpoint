@@ -63,7 +63,9 @@ class SecatorRunner:
             self.runner_logger.log_runner_error(
                 "Workflow", e, {"runner_name": workflow_name, "action": "LOAD_TEMPLATE"}
             )
-            raise RuntimeError(f"Could not load workflow template '{workflow_name}': {e}") from e
+            raise RuntimeError(
+                f"Could not load workflow template '{workflow_name}': {e}"
+            ) from e
 
     def _load_scan_template(self, scan_name: str):
         """
@@ -86,8 +88,12 @@ class SecatorRunner:
                 else TemplateLoader(scan_obj.yaml_configuration)
             )
         except Exception as e:
-            self.runner_logger.log_runner_error("Scan", e, {"runner_name": scan_name, "action": "LOAD_TEMPLATE"})
-            raise RuntimeError(f"Could not load scan template '{scan_name}': {e}") from e
+            self.runner_logger.log_runner_error(
+                "Scan", e, {"runner_name": scan_name, "action": "LOAD_TEMPLATE"}
+            )
+            raise RuntimeError(
+                f"Could not load scan template '{scan_name}': {e}"
+            ) from e
 
     def _execute_runner(
         self,
@@ -136,11 +142,18 @@ class SecatorRunner:
             else:
                 workspace = target_value_sanitized
                 self.runner_logger.log_warning(
-                    "No project for target %s, using target value as workspace" % (target.value,),
-                    {"prefix": self.runner_logger.PREFIX, "action": "WORKSPACE", "target": target.value},
+                    "No project for target %s, using target value as workspace"
+                    % (target.value,),
+                    {
+                        "prefix": self.runner_logger.PREFIX,
+                        "action": "WORKSPACE",
+                        "target": target.value,
+                    },
                 )
 
-            target_results_dir = os.path.abspath(os.path.join(SECATOR_RESULTS, target_value_sanitized))
+            target_results_dir = os.path.abspath(
+                os.path.join(SECATOR_RESULTS, target_value_sanitized)
+            )
             if not is_safe_path(SECATOR_RESULTS, target_results_dir):
                 raise ValueError(
                     "Target results path would escape SECATOR_RESULTS base; target.value may be invalid: %s"
@@ -209,14 +222,22 @@ class SecatorRunner:
                     hooks=hooks,
                 )
 
-                runner = runner_class(config, inputs=targets, hooks=hooks, run_opts=run_opts, context=context)
+                runner = runner_class(
+                    config,
+                    inputs=targets,
+                    hooks=hooks,
+                    run_opts=run_opts,
+                    context=context,
+                )
 
                 # Calculate and save results_dir in ScanHistory
                 # Format: $HOME/.secator/reports/<workspace>/<runner_type>
                 # runner_type should be lowercase and plural: workflows, scans, tasks
                 runner_type_plural = f"{runner_type.lower()}s"
                 home_dir = str(Path.home())
-                results_dir = os.path.join(home_dir, ".secator", "reports", workspace, runner_type_plural)
+                results_dir = os.path.join(
+                    home_dir, ".secator", "reports", workspace, runner_type_plural
+                )
 
                 try:
                     scan_history = ScanHistory.objects.get(id=scan_history_id)
@@ -230,11 +251,17 @@ class SecatorRunner:
                 except ScanHistory.DoesNotExist:
                     self.runner_logger.log_warning(
                         f"ScanHistory {scan_history_id} not found, cannot save results_dir",
-                        {"prefix": self.runner_logger.PREFIX, "action": "RESULTS_DIR", "scan_id": scan_history_id},
+                        {
+                            "prefix": self.runner_logger.PREFIX,
+                            "action": "RESULTS_DIR",
+                            "scan_id": scan_history_id,
+                        },
                     )
 
             except Exception as e:
-                self.runner_logger.log_runner_error(runner_type, e, {"runner_name": runner_name})
+                self.runner_logger.log_runner_error(
+                    runner_type, e, {"runner_name": runner_name}
+                )
                 raise RuntimeError(f"Could not create runner: {e}") from e
 
             try:
@@ -258,7 +285,9 @@ class SecatorRunner:
                     status="error",
                     result=None,
                 )
-                self.runner_logger.log_runner_error(runner_type, e, {"runner_name": runner_name})
+                self.runner_logger.log_runner_error(
+                    runner_type, e, {"runner_name": runner_name}
+                )
                 raise RuntimeError(f"Could not run runner: {e}") from e
 
             return {
@@ -273,7 +302,11 @@ class SecatorRunner:
             self.runner_logger.log_runner_error(
                 runner_type,
                 e,
-                {"runner_name": runner_name, "scan_history_id": scan_history_id, "target_id": target_id},
+                {
+                    "runner_name": runner_name,
+                    "scan_history_id": scan_history_id,
+                    "target_id": target_id,
+                },
             )
             return {
                 "status": "error",
@@ -307,7 +340,9 @@ class SecatorRunner:
                 runner_name=workflow_name,
             )
         except Exception as e:
-            self.runner_logger.log_runner_error("Workflow", e, {"runner_name": workflow_name})
+            self.runner_logger.log_runner_error(
+                "Workflow", e, {"runner_name": workflow_name}
+            )
             return {
                 "status": "error",
                 "workflow_name": workflow_name,
@@ -364,11 +399,17 @@ class SecatorRunner:
                         all_success = False
                         self.runner_logger.log_warning(
                             f"Task {task_name} failed: {result.get('error', 'Unknown error')}",
-                            {"prefix": self.runner_logger.PREFIX, "action": "TASK", "task_name": task_name},
+                            {
+                                "prefix": self.runner_logger.PREFIX,
+                                "action": "TASK",
+                                "task_name": task_name,
+                            },
                         )
 
                 except Exception as task_error:
-                    self.runner_logger.log_runner_error("Task", task_error, {"runner_name": task_name})
+                    self.runner_logger.log_runner_error(
+                        "Task", task_error, {"runner_name": task_name}
+                    )
                     task_results.append(
                         {
                             "task_name": task_name,
@@ -383,7 +424,11 @@ class SecatorRunner:
                     all_success = False
 
             return {
-                "status": "success" if all_success else "partial" if task_results else "error",
+                "status": "success"
+                if all_success
+                else "partial"
+                if task_results
+                else "error",
                 "task_names": task_names,
                 "tasks_executed": len(task_results),
                 "results": task_results,
@@ -451,7 +496,9 @@ class SecatorRunner:
 
             return secator.get_builtin_workflows()
         except Exception as e:
-            self.runner_logger.log_runner_error("Workflow", e, {"action": "GET_BUILTIN"})
+            self.runner_logger.log_runner_error(
+                "Workflow", e, {"action": "GET_BUILTIN"}
+            )
             return []
 
     def get_builtin_tasks(self) -> List[Dict[str, Any]]:
@@ -470,7 +517,9 @@ class SecatorRunner:
             self.runner_logger.log_runner_error("Task", e, {"action": "GET_BUILTIN"})
             return []
 
-    def _add_profile_to_list(self, profile_name: str, profile_list: List[Any], seen_profile_names: set[str]) -> None:
+    def _add_profile_to_list(
+        self, profile_name: str, profile_list: List[Any], seen_profile_names: set[str]
+    ) -> None:
         """
         Add a profile to the list if not already present.
 
@@ -509,7 +558,11 @@ class SecatorRunner:
         return TemplateLoader(input=profile_config_dict)
 
     def _process_profile(
-        self, profile_name: str, profile_list: List[Any], seen_profile_names: set[str], secator_config: Dict[str, Any]
+        self,
+        profile_name: str,
+        profile_list: List[Any],
+        seen_profile_names: set[str],
+        secator_config: Dict[str, Any],
     ) -> None:
         """
         Process a profile name and add it to the profile list.
@@ -537,15 +590,23 @@ class SecatorRunner:
                     profile_list.append(profile_loader)
                     seen_profile_names.add(custom_profile.name)
             else:
-                self._add_profile_to_list(profile_name, profile_list, seen_profile_names)
+                self._add_profile_to_list(
+                    profile_name, profile_list, seen_profile_names
+                )
         except RuntimeError as e:
             self.runner_logger.log_warning(
                 f"Error loading profile '{profile_name}': {e}, treating as builtin",
-                {"prefix": self.runner_logger.PREFIX, "action": "PROFILE", "profile_name": profile_name},
+                {
+                    "prefix": self.runner_logger.PREFIX,
+                    "action": "PROFILE",
+                    "profile_name": profile_name,
+                },
             )
             self._add_profile_to_list(profile_name, profile_list, seen_profile_names)
 
-    def _prepare_secator_config(self, config: Dict[str, Any] = None, profiles: List[str] = None) -> Dict[str, Any]:
+    def _prepare_secator_config(
+        self, config: Dict[str, Any] = None, profiles: List[str] = None
+    ) -> Dict[str, Any]:
         """
         Prepare Secator run_opts configuration dictionary.
 
@@ -563,7 +624,9 @@ class SecatorRunner:
                 if profile_item is None:
                     continue
                 if isinstance(profile_item, str):
-                    self._process_profile(profile_item, profile_list, seen_profile_names, run_opts)
+                    self._process_profile(
+                        profile_item, profile_list, seen_profile_names, run_opts
+                    )
                 else:
                     profile_list.append(str(profile_item))
 

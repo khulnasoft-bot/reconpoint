@@ -58,7 +58,9 @@ def analyses_for_parent(parent: models.Model) -> QuerySet:
     from startScan.models import LlmAttackSurfaceAnalysis
 
     ct = ContentType.objects.get_for_model(parent.__class__)
-    return LlmAttackSurfaceAnalysis.objects.filter(content_type=ct, object_id=parent.pk).order_by("-updated_at", "-id")
+    return LlmAttackSurfaceAnalysis.objects.filter(
+        content_type=ct, object_id=parent.pk
+    ).order_by("-updated_at", "-id")
 
 
 def parent_has_llm_attack_surface_analyses(parent: models.Model) -> bool:
@@ -98,7 +100,9 @@ def analysis_body_as_html(analysis: Any) -> str:
     return convert_markdown_to_html(analysis.body_markdown or "")
 
 
-def upsert_llm_attack_surface_analysis(parent: models.Model, selected_model: str | None, body_markdown: str) -> Any:
+def upsert_llm_attack_surface_analysis(
+    parent: models.Model, selected_model: str | None, body_markdown: str
+) -> Any:
     from startScan.models import LlmAttackSurfaceAnalysis
 
     ct = ContentType.objects.get_for_model(parent.__class__)
@@ -124,7 +128,9 @@ def delete_one_analysis_for_parent(parent: models.Model, analysis_id: int) -> bo
     return True
 
 
-def annotate_queryset_with_llm_attack_surface_count(queryset: QuerySet, model_cls: type[models.Model]) -> QuerySet:
+def annotate_queryset_with_llm_attack_surface_count(
+    queryset: QuerySet, model_cls: type[models.Model]
+) -> QuerySet:
     """
     Add ``llm_attack_surface_count`` (int) per row for any model keyed by ``pk`` in GenericFK rows.
     """
@@ -132,17 +138,23 @@ def annotate_queryset_with_llm_attack_surface_count(queryset: QuerySet, model_cl
 
     ct = ContentType.objects.get_for_model(model_cls)
     count_sq = (
-        LlmAttackSurfaceAnalysis.objects.filter(content_type=ct, object_id=OuterRef("pk"))
+        LlmAttackSurfaceAnalysis.objects.filter(
+            content_type=ct, object_id=OuterRef("pk")
+        )
         .values("object_id")
         .annotate(c=Count("pk"))
         .values("c")[:1]
     )
     return queryset.annotate(
-        llm_attack_surface_count=Coalesce(Subquery(count_sq, output_field=IntegerField()), Value(0))
+        llm_attack_surface_count=Coalesce(
+            Subquery(count_sq, output_field=IntegerField()), Value(0)
+        )
     )
 
 
-def annotate_subdomain_queryset_with_llm_attack_surface_flag(queryset: QuerySet) -> QuerySet:
+def annotate_subdomain_queryset_with_llm_attack_surface_flag(
+    queryset: QuerySet,
+) -> QuerySet:
     """Add ``llm_attack_surface_count`` (int) for Subdomain rows (DataTables / serializers)."""
     from startScan.models import Subdomain
 

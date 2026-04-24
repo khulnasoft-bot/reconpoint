@@ -23,7 +23,9 @@ def parse_comma_separated_int_ids(param: str, *, field_label: str) -> list[int]:
     try:
         ids = [int(x.strip()) for x in str(param).split(",") if x.strip()]
     except (TypeError, ValueError) as e:
-        raise ValueError("%s must be a comma-separated list of integers" % field_label) from e
+        raise ValueError(
+            "%s must be a comma-separated list of integers" % field_label
+        ) from e
     if not ids:
         raise ValueError("%s must contain at least one valid id" % field_label)
     return ids

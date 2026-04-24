@@ -135,7 +135,9 @@ def send_task_notif(
 
     # Add files to notif
     files = []
-    attach_file = notif.send_scan_output_file and output_path and result and not traceback
+    attach_file = (
+        notif.send_scan_output_file and output_path and result and not traceback
+    )
     if attach_file:
         output_title = output_path.split("/")[-1]
         files = [(output_path, output_title)]
@@ -161,7 +163,9 @@ def send_file_to_discord(file_path, title=None):
         return False
 
     webhook = DiscordWebhook(
-        url=notif.discord_hook_url, rate_limit_retry=True, username=title or "reconPoint Discord Plugin"
+        url=notif.discord_hook_url,
+        rate_limit_retry=True,
+        username=title or "reconPoint Discord Plugin",
     )
     with open(file_path, "rb") as f:
         head, tail = os.path.split(file_path)
@@ -194,9 +198,16 @@ def send_hackerone_report(vulnerability_id):
             tpl = tpl.replace("{vulnerability_name}", vulnerability.name)
             tpl = tpl.replace("{vulnerable_url}", vulnerability.http_url)
             tpl = tpl.replace("{vulnerability_severity}", severity_value)
-            tpl = tpl.replace("{vulnerability_description}", vulnerability.description or "")
-            tpl = tpl.replace("{vulnerability_extracted_results}", vulnerability.extracted_results or "")
-            tpl = tpl.replace("{vulnerability_reference}", vulnerability.reference or "")
+            tpl = tpl.replace(
+                "{vulnerability_description}", vulnerability.description or ""
+            )
+            tpl = tpl.replace(
+                "{vulnerability_extracted_results}",
+                vulnerability.extracted_results or "",
+            )
+            tpl = tpl.replace(
+                "{vulnerability_reference}", vulnerability.reference or ""
+            )
 
             data = {
                 "data": {

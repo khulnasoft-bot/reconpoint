@@ -47,7 +47,9 @@ class CertificateRepository:
             Certificate: Saved certificate object or None
         """
         try:
-            return self._process_secator_certificate_item(item, scan_history_id, domain_id)
+            return self._process_secator_certificate_item(
+                item, scan_history_id, domain_id
+            )
         except ObjectDoesNotExist as e:
             logger.log_line(
                 PREFIX_CERT_REPO,
@@ -83,12 +85,17 @@ class CertificateRepository:
             )
             return None
 
-        domain = get_or_create_domain_for_target(scan_history_id, host_or_ip) if host_or_ip else None
+        domain = (
+            get_or_create_domain_for_target(scan_history_id, host_or_ip)
+            if host_or_ip
+            else None
+        )
         if not domain:
             logger.log_line(
                 PREFIX_CERT_REPO,
                 "SAVE",
-                "Could not resolve domain for target_id=%s, host=%s" % (target_id, host_or_ip),
+                "Could not resolve domain for target_id=%s, host=%s"
+                % (target_id, host_or_ip),
                 level="warning",
             )
             return None
@@ -101,10 +108,14 @@ class CertificateRepository:
 
         subdomain = None
         if host_or_ip and is_acceptable_subdomain_name(host_or_ip):
-            subdomain = SubdomainRepository().get_or_create_from_host(scan_history_id, target_id, host_or_ip)
+            subdomain = SubdomainRepository().get_or_create_from_host(
+                scan_history_id, target_id, host_or_ip
+            )
         if not subdomain and host:
             with contextlib.suppress(Exception):
-                subdomain = Subdomain.objects.filter(name=host.strip().lower(), domain=domain).first()
+                subdomain = Subdomain.objects.filter(
+                    name=host.strip().lower(), domain=domain
+                ).first()
         # Get or create IP address if ip is provided
         ip_address = None
         if ip_str:
@@ -134,12 +145,17 @@ class CertificateRepository:
             "serial_number": item.get("serial_number", ""),
             "ciphers": item.get("ciphers", []),
         }
-        if src := extract_secator_tool_source(item, include_provider=False, max_length=200):
+        if src := extract_secator_tool_source(
+            item, include_provider=False, max_length=200
+        ):
             defaults["source"] = src
 
         # Get or create certificate (use host_or_ip when host is empty so IP-only certs work)
         certificate, created = Certificate.objects.get_or_create(
-            host=host_or_ip, fingerprint_sha256=fingerprint_sha256, scan_history=scan_history, defaults=defaults
+            host=host_or_ip,
+            fingerprint_sha256=fingerprint_sha256,
+            scan_history=scan_history,
+            defaults=defaults,
         )
 
         if not created:
@@ -152,14 +168,16 @@ class CertificateRepository:
             logger.log_line(
                 PREFIX_CERT_REPO,
                 "SAVE",
-                "Created certificate: %s - %s" % (host_or_ip, certificate.subject_cn or "N/A"),
+                "Created certificate: %s - %s"
+                % (host_or_ip, certificate.subject_cn or "N/A"),
                 level="info",
             )
         else:
             logger.log_line(
                 PREFIX_CERT_REPO,
                 "SAVE",
-                "Updated certificate: %s - %s" % (host, certificate.subject_cn or "N/A"),
+                "Updated certificate: %s - %s"
+                % (host, certificate.subject_cn or "N/A"),
                 level="debug",
             )
 

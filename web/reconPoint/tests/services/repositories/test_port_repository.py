@@ -2,7 +2,10 @@
 Tests for Port repository functionality.
 """
 
-from reconPoint.services.repositories.port_repository import PortRepository, secator_port_data_implies_alive_host
+from reconPoint.services.repositories.port_repository import (
+    PortRepository,
+    secator_port_data_implies_alive_host,
+)
 from startScan.models import Port, Subdomain
 from utils.test_base import BaseTestCase
 
@@ -31,7 +34,9 @@ class TestPortRepository(BaseTestCase):
             "description": "HTTP service",
         }
 
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.number, 80)
@@ -46,7 +51,9 @@ class TestPortRepository(BaseTestCase):
             "service_name": "https",
             "_source": "nmap",
         }
-        r2 = self.port_repo.save_from_secator(item_with_src, self.scan_history.id, self.data_generator.target.id)
+        r2 = self.port_repo.save_from_secator(
+            item_with_src, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(r2)
         r2.refresh_from_db()
         self.assertEqual(r2.source, "nmap")
@@ -59,7 +66,9 @@ class TestPortRepository(BaseTestCase):
             "ip": "192.168.1.1",
         }
 
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -70,7 +79,9 @@ class TestPortRepository(BaseTestCase):
             "ip": "192.168.1.1",
         }
 
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -81,7 +92,9 @@ class TestPortRepository(BaseTestCase):
             "port": 80,
         }
 
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -94,7 +107,9 @@ class TestPortRepository(BaseTestCase):
             "service_name": "https",
         }
 
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.number, 443)
@@ -113,7 +128,9 @@ class TestPortRepository(BaseTestCase):
         self.assertIsNotNone(result)
         self.assertTrue(created)
         self.assertEqual(result.number, 80)
-        self.assertEqual(result.ip_address.address, "192.168.1.1")  # Vérifier via address
+        self.assertEqual(
+            result.ip_address.address, "192.168.1.1"
+        )  # Vérifier via address
 
     def test_get_or_create_invalid_port(self):
         """Test get_or_create with invalid port."""
@@ -136,7 +153,9 @@ class TestPortRepository(BaseTestCase):
             {"port": 22, "ip": "192.168.1.1", "service_name": "ssh"},
         ]
 
-        result = self.port_repo.bulk_create(ports_data, self.scan_history.id, self.data_generator.domain.id)
+        result = self.port_repo.bulk_create(
+            ports_data, self.scan_history.id, self.data_generator.domain.id
+        )
 
         self.assertEqual(len(result), 3)
         port_numbers = [port.number for port in result]
@@ -149,11 +168,17 @@ class TestPortRepository(BaseTestCase):
         # IP will be created automatically by bulk_create if it doesn't exist
         ports_data = [
             {"port": 80, "ip": "192.168.1.1", "service_name": "http"},  # ← Ajouter "ip"
-            {"port": 99999, "ip": "192.168.1.1", "service_name": "invalid"},  # Invalid port
+            {
+                "port": 99999,
+                "ip": "192.168.1.1",
+                "service_name": "invalid",
+            },  # Invalid port
             {"port": 443, "ip": "192.168.1.1", "service_name": "https"},
         ]
 
-        result = self.port_repo.bulk_create(ports_data, self.scan_history.id, self.data_generator.domain.id)
+        result = self.port_repo.bulk_create(
+            ports_data, self.scan_history.id, self.data_generator.domain.id
+        )
 
         # Should only create valid ports
         self.assertEqual(len(result), 2)
@@ -212,7 +237,9 @@ class TestPortRepository(BaseTestCase):
             },
         }
 
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.number, 8080)
@@ -236,7 +263,9 @@ class TestPortRepository(BaseTestCase):
             "cpes": [],
             "confidence": "",
         }
-        first = self.port_repo.save_from_secator(item_naabu, self.scan_history.id, self.data_generator.target.id)
+        first = self.port_repo.save_from_secator(
+            item_naabu, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(first)
         self.assertEqual((first.service_name or "").strip(), "")
 
@@ -252,7 +281,9 @@ class TestPortRepository(BaseTestCase):
             "confidence": "low",
             "extra_data": {"method": "table", "conf": "3"},
         }
-        second = self.port_repo.save_from_secator(item_nmap, self.scan_history.id, self.data_generator.target.id)
+        second = self.port_repo.save_from_secator(
+            item_nmap, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(second)
         self.assertEqual(second.id, first.id)
         second.refresh_from_db()
@@ -271,7 +302,9 @@ class TestPortRepository(BaseTestCase):
             "host": ip_lit,
             "cpes": ["cpe:/a:openssh:openssh:8.0"],
         }
-        first = self.port_repo.save_from_secator(item_first, self.scan_history.id, self.data_generator.target.id)
+        first = self.port_repo.save_from_secator(
+            item_first, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(first)
         self.assertEqual(first.cpes, ["cpe:/a:openssh:openssh:8.0"])
 
@@ -285,7 +318,9 @@ class TestPortRepository(BaseTestCase):
                 "cpe:/o:linux:linux_kernel:5.4",
             ],
         }
-        second = self.port_repo.save_from_secator(item_second, self.scan_history.id, self.data_generator.target.id)
+        second = self.port_repo.save_from_secator(
+            item_second, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertEqual(second.id, first.id)
         second.refresh_from_db()
         self.assertEqual(
@@ -330,7 +365,9 @@ class TestPortRepository(BaseTestCase):
             "service_name": "http",
         }
 
-        result1 = self.port_repo.save_from_secator(item1, self.scan_history.id, self.data_generator.target.id)
+        result1 = self.port_repo.save_from_secator(
+            item1, self.scan_history.id, self.data_generator.target.id
+        )
 
         # Try to create same port again
         item2 = {
@@ -340,7 +377,9 @@ class TestPortRepository(BaseTestCase):
             "service_name": "http",
         }
 
-        result2 = self.port_repo.save_from_secator(item2, self.scan_history.id, self.data_generator.target.id)
+        result2 = self.port_repo.save_from_secator(
+            item2, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result1)
         self.assertIsNotNone(result2)
@@ -355,7 +394,9 @@ class TestPortRepository(BaseTestCase):
             "description": "HTTP service",
         }
 
-        result = self.port_repo._process_secator_port_item(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo._process_secator_port_item(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.number, 80)
@@ -368,7 +409,9 @@ class TestPortRepository(BaseTestCase):
             "ip": "192.168.1.1",
         }
 
-        result = self.port_repo._process_secator_port_item(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo._process_secator_port_item(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -378,7 +421,9 @@ class TestPortRepository(BaseTestCase):
             "port": 80,
         }
 
-        result = self.port_repo._process_secator_port_item(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo._process_secator_port_item(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -389,7 +434,9 @@ class TestPortRepository(BaseTestCase):
             {"port": 443, "ip": "192.168.1.1", "service_name": "https"},
         ]
 
-        result = self.port_repo._create_ports_in_bulk(self.scan_history.id, self.data_generator.domain.id, ports_data)
+        result = self.port_repo._create_ports_in_bulk(
+            self.scan_history.id, self.data_generator.domain.id, ports_data
+        )
 
         self.assertEqual(len(result), 2)
         port_numbers = [port.number for port in result]
@@ -398,7 +445,9 @@ class TestPortRepository(BaseTestCase):
 
     def test_create_ports_in_bulk_empty_list(self):
         """Test _create_ports_in_bulk with empty list."""
-        result = self.port_repo._create_ports_in_bulk(self.scan_history.id, self.data_generator.domain.id, [])
+        result = self.port_repo._create_ports_in_bulk(
+            self.scan_history.id, self.data_generator.domain.id, []
+        )
 
         self.assertEqual(result, [])
 
@@ -409,7 +458,9 @@ class TestPortRepository(BaseTestCase):
             {"port": 80, "ip": "invalid-ip"},  # Invalid IP
         ]
 
-        result = self.port_repo._create_ports_in_bulk(self.scan_history.id, self.data_generator.domain.id, ports_data)
+        result = self.port_repo._create_ports_in_bulk(
+            self.scan_history.id, self.data_generator.domain.id, ports_data
+        )
 
         self.assertEqual(result, [])
 
@@ -423,7 +474,9 @@ class TestPortRepository(BaseTestCase):
             "confidence": "high",
         }
 
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.number, 80)
@@ -438,7 +491,9 @@ class TestPortRepository(BaseTestCase):
             "service_name": "http",
         }
 
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.number, 80)
@@ -453,7 +508,9 @@ class TestPortRepository(BaseTestCase):
             "service_name": "https",
         }
 
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNotNone(result)
         self.assertEqual(result.number, 443)
@@ -467,7 +524,9 @@ class TestPortRepository(BaseTestCase):
             "host": "example.local",
         }
 
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
@@ -478,11 +537,15 @@ class TestPortRepository(BaseTestCase):
             "ip": "192.168.1.1",
         }
 
-        result = self.port_repo._process_secator_port_item(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo._process_secator_port_item(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
 
         self.assertIsNone(result)
 
-    def test_save_from_secator_with_host_creates_subdomain_via_get_or_create_from_host(self):
+    def test_save_from_secator_with_host_creates_subdomain_via_get_or_create_from_host(
+        self,
+    ):
         """Port item with host (hostname different from ip) creates/links Subdomain; name is normalized."""
         item = {
             "_type": "port",
@@ -491,12 +554,18 @@ class TestPortRepository(BaseTestCase):
             "host": "Server.Example.lan",
             "service_name": "https",
         }
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.number, 443)
         self.assertEqual(result.ip_address.address, "192.168.1.1")
-        subdomain = Subdomain.objects.filter(scan_history=self.scan_history, name="server.example.lan").first()
-        self.assertIsNotNone(subdomain, "Subdomain should be created via get_or_create_from_host")
+        subdomain = Subdomain.objects.filter(
+            scan_history=self.scan_history, name="server.example.lan"
+        ).first()
+        self.assertIsNotNone(
+            subdomain, "Subdomain should be created via get_or_create_from_host"
+        )
         self.assertEqual(subdomain.name, "server.example.lan")
 
     def test_secator_port_data_implies_alive_host(self):
@@ -505,7 +574,9 @@ class TestPortRepository(BaseTestCase):
         self.assertFalse(secator_port_data_implies_alive_host({"state": "unknown"}))
         self.assertFalse(secator_port_data_implies_alive_host({"state": "timeout"}))
         self.assertTrue(secator_port_data_implies_alive_host({"state": "open"}))
-        self.assertTrue(secator_port_data_implies_alive_host({"state": "open|filtered"}))
+        self.assertTrue(
+            secator_port_data_implies_alive_host({"state": "open|filtered"})
+        )
         self.assertFalse(secator_port_data_implies_alive_host({"state": "closed"}))
         self.assertFalse(secator_port_data_implies_alive_host({"state": "filtered"}))
 
@@ -518,7 +589,9 @@ class TestPortRepository(BaseTestCase):
             "service_name": "https-alt",
             "state": "open",
         }
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertTrue(result.ip_address.alive)
 
@@ -530,17 +603,31 @@ class TestPortRepository(BaseTestCase):
             "ip": "203.0.113.51",
             "state": "closed",
         }
-        result = self.port_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
+        result = self.port_repo.save_from_secator(
+            item, self.scan_history.id, self.data_generator.target.id
+        )
         self.assertIsNotNone(result)
         self.assertFalse(result.ip_address.alive)
 
     def test_bulk_create_sets_ip_alive_for_open_style_rows(self):
         """Bulk port import sets alive on IPs only for explicit open-style states."""
         ports_data = [
-            {"port": 80, "ip": "198.51.100.77", "service_name": "http", "state": "open"},
-            {"port": 443, "ip": "198.51.100.78", "service_name": "https", "state": "closed"},
+            {
+                "port": 80,
+                "ip": "198.51.100.77",
+                "service_name": "http",
+                "state": "open",
+            },
+            {
+                "port": 443,
+                "ip": "198.51.100.78",
+                "service_name": "https",
+                "state": "closed",
+            },
         ]
-        created = self.port_repo.bulk_create(ports_data, self.scan_history.id, self.data_generator.domain.id)
+        created = self.port_repo.bulk_create(
+            ports_data, self.scan_history.id, self.data_generator.domain.id
+        )
         self.assertEqual(len(created), 2)
         by_number = {p.number: p for p in created}
         self.assertTrue(by_number[80].ip_address.alive)

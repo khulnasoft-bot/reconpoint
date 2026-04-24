@@ -63,7 +63,11 @@ class Command(SecatorLoaderBase):
                     # Extract task information from TemplateLoader
                     # Ensure task_name is a string, not an object
                     if not hasattr(task_loader, "name"):
-                        self.stdout.write(self.style.WARNING("Task loader has no name attribute, skipping"))
+                        self.stdout.write(
+                            self.style.WARNING(
+                                "Task loader has no name attribute, skipping"
+                            )
+                        )
                         failed_count += 1
                         continue
 
@@ -72,7 +76,9 @@ class Command(SecatorLoaderBase):
                     if not isinstance(task_name, str):
                         task_name = str(task_name)
                     if not task_name:
-                        self.stdout.write(self.style.WARNING("Task loader has empty name, skipping"))
+                        self.stdout.write(
+                            self.style.WARNING("Task loader has empty name, skipping")
+                        )
                         failed_count += 1
                         continue
 
@@ -114,13 +120,21 @@ class Command(SecatorLoaderBase):
 
                 except Exception as e:
                     self.stdout.write(
-                        self.style.ERROR(f"Error processing task {getattr(task_loader, 'name', 'unknown')}: {e}")
+                        self.style.ERROR(
+                            f"Error processing task {getattr(task_loader, 'name', 'unknown')}: {e}"
+                        )
                     )
                     failed_count += 1
 
-            self.stdout.write(f"Loaded {created_count} new tasks, updated {updated_count} existing tasks")
+            self.stdout.write(
+                f"Loaded {created_count} new tasks, updated {updated_count} existing tasks"
+            )
             if failed_count > 0:
-                self.stdout.write(self.style.WARNING(f"Failed to load {failed_count} tasks"))
+                self.stdout.write(
+                    self.style.WARNING(f"Failed to load {failed_count} tasks")
+                )
 
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f"Failed to get tasks from secator: {e}"))
+            self.stdout.write(
+                self.style.ERROR(f"Failed to get tasks from secator: {e}")
+            )

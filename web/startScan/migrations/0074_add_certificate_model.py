@@ -21,7 +21,10 @@ class Migration(migrations.Migration):
             model_name="port",
             name="cpes",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=500), blank=True, null=True, size=None
+                base_field=models.CharField(max_length=500),
+                blank=True,
+                null=True,
+                size=None,
             ),
         ),
         migrations.AlterField(
@@ -43,7 +46,10 @@ class Migration(migrations.Migration):
             model_name="subdomain",
             name="sources",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=200), blank=True, null=True, size=None
+                base_field=models.CharField(max_length=200),
+                blank=True,
+                null=True,
+                size=None,
             ),
         ),
         migrations.AlterField(
@@ -100,23 +106,44 @@ class Migration(migrations.Migration):
             name="Certificate",
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
-                ("host", models.CharField(help_text="Hostname for the certificate", max_length=1000)),
+                (
+                    "host",
+                    models.CharField(
+                        help_text="Hostname for the certificate", max_length=1000
+                    ),
+                ),
                 (
                     "fingerprint_sha256",
                     models.CharField(
-                        blank=True, help_text="SHA256 fingerprint of the certificate", max_length=64, null=True
+                        blank=True,
+                        help_text="SHA256 fingerprint of the certificate",
+                        max_length=64,
+                        null=True,
                     ),
                 ),
                 (
                     "ip",
                     models.CharField(
-                        blank=True, help_text="IP address where certificate was found", max_length=100, null=True
+                        blank=True,
+                        help_text="IP address where certificate was found",
+                        max_length=100,
+                        null=True,
                     ),
                 ),
-                ("raw_value", models.TextField(blank=True, help_text="Raw certificate value", null=True)),
+                (
+                    "raw_value",
+                    models.TextField(
+                        blank=True, help_text="Raw certificate value", null=True
+                    ),
+                ),
                 (
                     "subject_cn",
-                    models.CharField(blank=True, help_text="Subject Common Name", max_length=500, null=True),
+                    models.CharField(
+                        blank=True,
+                        help_text="Subject Common Name",
+                        max_length=500,
+                        null=True,
+                    ),
                 ),
                 (
                     "subject_an",
@@ -130,32 +157,83 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "not_before",
-                    models.DateTimeField(blank=True, help_text="Certificate validity start date", null=True),
+                    models.DateTimeField(
+                        blank=True,
+                        help_text="Certificate validity start date",
+                        null=True,
+                    ),
                 ),
-                ("not_after", models.DateTimeField(blank=True, help_text="Certificate validity end date", null=True)),
+                (
+                    "not_after",
+                    models.DateTimeField(
+                        blank=True, help_text="Certificate validity end date", null=True
+                    ),
+                ),
                 (
                     "issuer_dn",
-                    models.CharField(blank=True, help_text="Issuer Distinguished Name", max_length=1000, null=True),
+                    models.CharField(
+                        blank=True,
+                        help_text="Issuer Distinguished Name",
+                        max_length=1000,
+                        null=True,
+                    ),
                 ),
-                ("issuer_cn", models.CharField(blank=True, help_text="Issuer Common Name", max_length=500, null=True)),
-                ("issuer", models.CharField(blank=True, help_text="Issuer name", max_length=500, null=True)),
+                (
+                    "issuer_cn",
+                    models.CharField(
+                        blank=True,
+                        help_text="Issuer Common Name",
+                        max_length=500,
+                        null=True,
+                    ),
+                ),
+                (
+                    "issuer",
+                    models.CharField(
+                        blank=True, help_text="Issuer name", max_length=500, null=True
+                    ),
+                ),
                 (
                     "self_signed",
                     models.BooleanField(
-                        blank=True, default=False, help_text="Whether the certificate is self-signed", null=True
+                        blank=True,
+                        default=False,
+                        help_text="Whether the certificate is self-signed",
+                        null=True,
                     ),
                 ),
                 (
                     "trusted",
                     models.BooleanField(
-                        blank=True, default=False, help_text="Whether the certificate is trusted", null=True
+                        blank=True,
+                        default=False,
+                        help_text="Whether the certificate is trusted",
+                        null=True,
                     ),
                 ),
-                ("status", models.CharField(blank=True, help_text="Certificate status", max_length=50, null=True)),
-                ("keysize", models.IntegerField(blank=True, help_text="Certificate key size in bits", null=True)),
+                (
+                    "status",
+                    models.CharField(
+                        blank=True,
+                        help_text="Certificate status",
+                        max_length=50,
+                        null=True,
+                    ),
+                ),
+                (
+                    "keysize",
+                    models.IntegerField(
+                        blank=True, help_text="Certificate key size in bits", null=True
+                    ),
+                ),
                 (
                     "serial_number",
-                    models.CharField(blank=True, help_text="Certificate serial number", max_length=200, null=True),
+                    models.CharField(
+                        blank=True,
+                        help_text="Certificate serial number",
+                        max_length=200,
+                        null=True,
+                    ),
                 ),
                 (
                     "ciphers",
@@ -169,30 +247,45 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "discovered_date",
-                    models.DateTimeField(auto_now_add=True, help_text="Date when certificate was discovered"),
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        help_text="Date when certificate was discovered",
+                    ),
                 ),
                 (
                     "domain",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="targetApp.domain"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="targetApp.domain",
                     ),
                 ),
                 (
                     "ip_address",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.ipaddress"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.ipaddress",
                     ),
                 ),
                 (
                     "scan_history",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.scanhistory",
                     ),
                 ),
                 (
                     "subdomain",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.subdomain"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.subdomain",
                     ),
                 ),
             ],

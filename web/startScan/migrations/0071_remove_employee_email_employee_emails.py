@@ -16,6 +16,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="employee",
             name="emails",
-            field=models.ManyToManyField(blank=True, related_name="employees", to="startScan.email"),
+            field=models.ManyToManyField(
+                blank=True, related_name="employees", to="startScan.email"
+            ),
         ),
     ]

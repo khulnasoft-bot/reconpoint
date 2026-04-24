@@ -89,7 +89,9 @@ class OrganizationDashboardViewTest(BaseTestCase):
         self.data_generator.create_organization()
         self.slug = self.data_generator.project.slug
 
-    def test_organization_dashboard_returns_200_when_org_belongs_to_project(self) -> None:
+    def test_organization_dashboard_returns_200_when_org_belongs_to_project(
+        self,
+    ) -> None:
         """Dashboard returns 200 and uses dashboard template when org belongs to project."""
         org = self.data_generator.organization
         response = self.client.get(
@@ -104,7 +106,9 @@ class OrganizationDashboardViewTest(BaseTestCase):
         self.assertIn("scopes_data", response.context)
         self.assertIn("target_count", response.context)
 
-    def test_organization_dashboard_returns_404_when_organization_does_not_exist(self) -> None:
+    def test_organization_dashboard_returns_404_when_organization_does_not_exist(
+        self,
+    ) -> None:
         """Dashboard returns 404 when organization_id does not exist."""
         response = self.client.get(
             reverse(
@@ -114,7 +118,9 @@ class OrganizationDashboardViewTest(BaseTestCase):
         )
         self.assertEqual(response.status_code, 404)
 
-    def test_organization_dashboard_returns_404_when_org_belongs_to_other_project(self) -> None:
+    def test_organization_dashboard_returns_404_when_org_belongs_to_other_project(
+        self,
+    ) -> None:
         """Dashboard returns 404 when organization belongs to another project."""
         other_project = Project.objects.create(
             name="Other Project",

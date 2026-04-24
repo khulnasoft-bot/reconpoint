@@ -14,11 +14,18 @@ from reconPoint.core.exceptions import FindingOutOfScopeError
 from reconPoint.core.validators import is_valid_ip, is_valid_url
 from reconPoint.secator.path_utils import strip_secator_reports_prefix
 from reconPoint.secator.source_extraction import extract_secator_tool_source
-from reconPoint.secator.subdomain_technology_link import upsert_subdomain_technology_link
-from reconPoint.services.repositories.ip_repository import IpRepository, normalize_ip_address_string
+from reconPoint.secator.subdomain_technology_link import (
+    upsert_subdomain_technology_link,
+)
+from reconPoint.services.repositories.ip_repository import (
+    IpRepository,
+    normalize_ip_address_string,
+)
 from reconPoint.services.repositories.subdomain_repository import SubdomainRepository
 from reconPoint.utilities.logger import format_exception_for_log, get_module_logger
-from reconPoint.utilities.scan_lookups import get_or_create_endpoint_in_scan_for_ingestion
+from reconPoint.utilities.scan_lookups import (
+    get_or_create_endpoint_in_scan_for_ingestion,
+)
 from reconPoint.utilities.url import is_acceptable_subdomain_name
 from startScan.models import EndPoint, ScanHistory, Subdomain, Technology
 
@@ -42,7 +49,9 @@ def _endpoint_ids_for_subdomain_scan(
     if precomputed_endpoint_ids is not None:
         return precomputed_endpoint_ids
     return list(
-        EndPoint.objects.filter(scan_history_id=scan_history_id, subdomain_id=subdomain_id)
+        EndPoint.objects.filter(
+            scan_history_id=scan_history_id, subdomain_id=subdomain_id
+        )
         .only("id")
         .values_list("id", flat=True)
     )
@@ -69,7 +78,10 @@ def _bulk_link_technology_to_endpoints_through(
         existing_endpoint_tech_links.update(missing_pairs)
         return
     through.objects.bulk_create(
-        [through(endpoint_id=endpoint_id, technology_id=tech_obj.id) for endpoint_id in endpoint_ids],
+        [
+            through(endpoint_id=endpoint_id, technology_id=tech_obj.id)
+            for endpoint_id in endpoint_ids
+        ],
         ignore_conflicts=True,
     )
 
@@ -99,7 +111,9 @@ def _upsert_subdomain_m2m_technology_with_log(
     logger.log_line(
         PREFIX_TECH_REPO,
         "ASSOCIATE_TECH_TO_SUBDOMAIN",
-        ("Technology %s linked to subdomain via legacy M2M (%s): subdomain=%s scan_id=%s")
+        (
+            "Technology %s linked to subdomain via legacy M2M (%s): subdomain=%s scan_id=%s"
+        )
         % (tech_obj.name, fallback_reason, subdomain.name, scan_history_id),
         level="debug",
     )
@@ -136,13 +150,19 @@ def _link_technology_to_subdomain_via_endpoints_or_m2m(
             precomputed_endpoint_ids=precomputed_endpoint_ids,
         )
         if endpoint_ids:
-            _bulk_link_technology_to_endpoints_through(tech_obj, endpoint_ids, existing_endpoint_tech_links)
-            _log_technology_linked_to_subdomain_endpoints(tech_obj, subdomain, scan_history_id)
+            _bulk_link_technology_to_endpoints_through(
+                tech_obj, endpoint_ids, existing_endpoint_tech_links
+            )
+            _log_technology_linked_to_subdomain_endpoints(
+                tech_obj, subdomain, scan_history_id
+            )
             return
         fallback_reason = "no endpoints fallback"
     else:
         fallback_reason = "legacy scan fallback"
-    _upsert_subdomain_m2m_technology_with_log(subdomain, tech_obj, source, scan_history_id, fallback_reason)
+    _upsert_subdomain_m2m_technology_with_log(
+        subdomain, tech_obj, source, scan_history_id, fallback_reason
+    )
 
 
 class TechnologyRepository:
@@ -163,22 +183,29 @@ class TechnologyRepository:
 
         Useful for ingestion loops that repeatedly resolve scan mode.
         """
-        unknown_ids = [sid for sid in scan_history_ids if sid not in self._is_legacy_scan_by_id]
+        unknown_ids = [
+            sid for sid in scan_history_ids if sid not in self._is_legacy_scan_by_id
+        ]
         if not unknown_ids:
             return
-        scans_by_id = ScanHistory.objects.only("id", "is_legacy_scan").in_bulk(unknown_ids)
+        scans_by_id = ScanHistory.objects.only("id", "is_legacy_scan").in_bulk(
+            unknown_ids
+        )
         for sid in unknown_ids:
             scan = scans_by_id.get(sid)
             if scan is None:
                 logger.log_line(
                     PREFIX_TECH_REPO,
                     "SCAN_LOOKUP",
-                    "ScanHistory not found while resolving is_legacy_scan: scan_id=%s" % (sid,),
+                    "ScanHistory not found while resolving is_legacy_scan: scan_id=%s"
+                    % (sid,),
                     level="warning",
                 )
                 self._cache_is_legacy_scan(sid, False)
                 continue
-            self._cache_is_legacy_scan(sid, bool(getattr(scan, "is_legacy_scan", False)))
+            self._cache_is_legacy_scan(
+                sid, bool(getattr(scan, "is_legacy_scan", False))
+            )
 
     def _get_is_legacy_scan(self, scan_history_id: int) -> bool:
         self._prime_is_legacy_scan_cache([scan_history_id])
@@ -205,7 +232,9 @@ class TechnologyRepository:
             Technology: Saved technology object or None
         """
         try:
-            return self._process_secator_technology_item(item, scan_history_id, target_id)
+            return self._process_secator_technology_item(
+                item, scan_history_id, target_id
+            )
         except ObjectDoesNotExist as e:
             logger.log_line(
                 PREFIX_TECH_REPO,
@@ -242,7 +271,8 @@ class TechnologyRepository:
             logger.log_line(
                 PREFIX_TECH_REPO,
                 "SAVE",
-                "Technology item missing name field. Available fields: %s" % (list(item.keys()),),
+                "Technology item missing name field. Available fields: %s"
+                % (list(item.keys()),),
                 level="warning",
             )
             return None
@@ -251,7 +281,8 @@ class TechnologyRepository:
             logger.log_line(
                 PREFIX_TECH_REPO,
                 "SAVE",
-                "Technology item missing match field. Available fields: %s" % (list(item.keys()),),
+                "Technology item missing match field. Available fields: %s"
+                % (list(item.keys()),),
                 level="warning",
             )
             return None
@@ -261,7 +292,9 @@ class TechnologyRepository:
         raw_stored_path = item.get("stored_response_path") or ""
         path_max_length = Technology._meta.get_field("stored_response_path").max_length
         stored_response_path = (
-            strip_secator_reports_prefix(raw_stored_path, max_length=path_max_length) if raw_stored_path else ""
+            strip_secator_reports_prefix(raw_stored_path, max_length=path_max_length)
+            if raw_stored_path
+            else ""
         )
         tech_obj, created = Technology.objects.get_or_create(
             scan_history_id=scan_history_id,
@@ -288,7 +321,9 @@ class TechnologyRepository:
                 level="debug",
             )
 
-        tool_source = extract_secator_tool_source(item, include_provider=False, max_length=200)
+        tool_source = extract_secator_tool_source(
+            item, include_provider=False, max_length=200
+        )
         is_legacy_scan = self._get_is_legacy_scan(scan_history_id)
         self._associate_technology(
             tech_obj,
@@ -300,7 +335,9 @@ class TechnologyRepository:
 
         return tech_obj
 
-    def get_or_create(self, name: str, scan_history_id: int, **kwargs) -> Tuple[Optional[Technology], bool]:
+    def get_or_create(
+        self, name: str, scan_history_id: int, **kwargs
+    ) -> Tuple[Optional[Technology], bool]:
         """
         Get or create a technology.
 
@@ -337,7 +374,9 @@ class TechnologyRepository:
             )
             return None, False
 
-    def bulk_create(self, technologies: List[str], scan_history_id: int) -> List[Technology]:
+    def bulk_create(
+        self, technologies: List[str], scan_history_id: int
+    ) -> List[Technology]:
         """
         Bulk create technologies efficiently.
 
@@ -363,10 +402,17 @@ class TechnologyRepository:
 
         try:
             existing_technologies = list(
-                Technology.objects.filter(scan_history_id=scan_history_id, name__in=normalized_names)
+                Technology.objects.filter(
+                    scan_history_id=scan_history_id, name__in=normalized_names
+                )
             )
-            if missing_names := normalized_names - {tech.name for tech in existing_technologies}:
-                new_instances = [Technology(scan_history_id=scan_history_id, name=name) for name in missing_names]
+            if missing_names := normalized_names - {
+                tech.name for tech in existing_technologies
+            }:
+                new_instances = [
+                    Technology(scan_history_id=scan_history_id, name=name)
+                    for name in missing_names
+                ]
                 Technology.objects.bulk_create(new_instances)
                 logger.log_line(
                     PREFIX_TECH_REPO,
@@ -376,7 +422,11 @@ class TechnologyRepository:
                     level="info",
                 )
 
-            return list(Technology.objects.filter(scan_history_id=scan_history_id, name__in=normalized_names))
+            return list(
+                Technology.objects.filter(
+                    scan_history_id=scan_history_id, name__in=normalized_names
+                )
+            )
 
         except DatabaseError as e:
             logger.log_line(
@@ -388,7 +438,11 @@ class TechnologyRepository:
             return []
 
     def associate_with_subdomain(
-        self, tech_name: str, subdomain_name: str, scan_history_id: int, source: Optional[str] = None
+        self,
+        tech_name: str,
+        subdomain_name: str,
+        scan_history_id: int,
+        source: Optional[str] = None,
     ) -> bool:
         """
         Associate technology with a specific subdomain.
@@ -402,10 +456,14 @@ class TechnologyRepository:
             bool: True if successful, False otherwise
         """
         try:
-            tech_obj, _ = Technology.objects.get_or_create(scan_history_id=scan_history_id, name=tech_name)
+            tech_obj, _ = Technology.objects.get_or_create(
+                scan_history_id=scan_history_id, name=tech_name
+            )
 
             is_legacy_scan = self._get_is_legacy_scan(scan_history_id)
-            if subdomain := Subdomain.objects.filter(name=subdomain_name, scan_history_id=scan_history_id).first():
+            if subdomain := Subdomain.objects.filter(
+                name=subdomain_name, scan_history_id=scan_history_id
+            ).first():
                 _link_technology_to_subdomain_via_endpoints_or_m2m(
                     subdomain,
                     tech_obj,
@@ -418,7 +476,8 @@ class TechnologyRepository:
                 logger.log_line(
                     PREFIX_TECH_REPO,
                     "ASSOCIATE_TECH_TO_SUBDOMAIN",
-                    "Subdomain not found in scan: subdomain=%s scan_id=%s" % (subdomain_name, scan_history_id),
+                    "Subdomain not found in scan: subdomain=%s scan_id=%s"
+                    % (subdomain_name, scan_history_id),
                     level="warning",
                 )
                 return False
@@ -434,7 +493,9 @@ class TechnologyRepository:
             )
             return False
 
-    def associate_with_endpoint(self, tech_name: str, endpoint_url: str, scan_history_id: int) -> bool:
+    def associate_with_endpoint(
+        self, tech_name: str, endpoint_url: str, scan_history_id: int
+    ) -> bool:
         """
         Associate technology with a specific endpoint.
 
@@ -460,9 +521,13 @@ class TechnologyRepository:
                 )
                 return False
 
-            tech_obj, _ = Technology.objects.get_or_create(scan_history_id=scan_history_id, name=normalized_name)
+            tech_obj, _ = Technology.objects.get_or_create(
+                scan_history_id=scan_history_id, name=normalized_name
+            )
 
-            endpoint = get_or_create_endpoint_in_scan_for_ingestion(endpoint_url, scan_history_id)
+            endpoint = get_or_create_endpoint_in_scan_for_ingestion(
+                endpoint_url, scan_history_id
+            )
             if not endpoint:
                 logger.log_line(
                     PREFIX_TECH_REPO,
@@ -476,7 +541,8 @@ class TechnologyRepository:
             logger.log_line(
                 PREFIX_TECH_REPO,
                 "ASSOCIATE_TECH_TO_ENDPOINT",
-                "Technology %s linked to endpoint %s" % (normalized_name, endpoint_url[:80] if endpoint_url else ""),
+                "Technology %s linked to endpoint %s"
+                % (normalized_name, endpoint_url[:80] if endpoint_url else ""),
                 level="debug",
             )
             return True
@@ -501,7 +567,9 @@ class TechnologyRepository:
             )
             return False
 
-    def get_technologies_for_subdomain(self, subdomain_name: str, scan_history_id: int) -> List[Technology]:
+    def get_technologies_for_subdomain(
+        self, subdomain_name: str, scan_history_id: int
+    ) -> List[Technology]:
         """
         Get all technologies associated with a subdomain.
 
@@ -513,7 +581,9 @@ class TechnologyRepository:
             list: List of Technology objects
         """
         try:
-            if subdomain := Subdomain.objects.filter(name=subdomain_name, scan_history_id=scan_history_id).first():
+            if subdomain := Subdomain.objects.filter(
+                name=subdomain_name, scan_history_id=scan_history_id
+            ).first():
                 return list(subdomain.technologies.all())
             logger.log_line(
                 PREFIX_TECH_REPO,
@@ -532,7 +602,9 @@ class TechnologyRepository:
             )
             return []
 
-    def get_technologies_for_endpoint(self, endpoint_url: str, scan_history_id: int) -> List[Technology]:
+    def get_technologies_for_endpoint(
+        self, endpoint_url: str, scan_history_id: int
+    ) -> List[Technology]:
         """
         Get all technologies associated with an endpoint.
 
@@ -544,7 +616,9 @@ class TechnologyRepository:
             list: List of Technology objects
         """
         try:
-            if endpoint := EndPoint.objects.filter(http_url=endpoint_url, scan_history_id=scan_history_id).first():
+            if endpoint := EndPoint.objects.filter(
+                http_url=endpoint_url, scan_history_id=scan_history_id
+            ).first():
                 return list(endpoint.techs.all())
             logger.log_line(
                 PREFIX_TECH_REPO,
@@ -587,14 +661,19 @@ class TechnologyRepository:
             # Check if match_target is a URL
             if match_target.startswith(("http://", "https://")):
                 if is_valid_url(match_target):
-                    endpoint = get_or_create_endpoint_in_scan_for_ingestion(match_target, scan_history_id)
+                    endpoint = get_or_create_endpoint_in_scan_for_ingestion(
+                        match_target, scan_history_id
+                    )
                     if endpoint:
                         endpoint.techs.add(tech_obj)
                         logger.log_line(
                             PREFIX_TECH_REPO,
                             "ASSOCIATE_TECH_TO_ENDPOINT",
                             "Technology %s linked to endpoint %s"
-                            % (tech_obj.name, match_target[:80] if match_target else ""),
+                            % (
+                                tech_obj.name,
+                                match_target[:80] if match_target else "",
+                            ),
                             level="debug",
                         )
                         return
@@ -625,7 +704,8 @@ class TechnologyRepository:
                 logger.log_line(
                     PREFIX_TECH_REPO,
                     "ASSOCIATE_TECH_TO_TARGET",
-                    "Invalid match target, cannot link technology: %s" % (match_target[:80] if match_target else "",),
+                    "Invalid match target, cannot link technology: %s"
+                    % (match_target[:80] if match_target else "",),
                     level="warning",
                 )
 
@@ -658,12 +738,15 @@ class TechnologyRepository:
                 ip_obj = IpRepository().first_ip_in_scan(normalized, scan_history_id)
                 if not ip_obj:
                     return
-                for ep in EndPoint.objects.filter(scan_history_id=scan_history_id, ip_address_id=ip_obj.id):
+                for ep in EndPoint.objects.filter(
+                    scan_history_id=scan_history_id, ip_address_id=ip_obj.id
+                ):
                     ep.techs.add(tech_obj)
                 logger.log_line(
                     PREFIX_TECH_REPO,
                     "ASSOCIATE_TECH_TO_ENDPOINT",
-                    "Technology %s linked to IP %s endpoints in scan %s" % (tech_obj.name, normalized, scan_history_id),
+                    "Technology %s linked to IP %s endpoints in scan %s"
+                    % (tech_obj.name, normalized, scan_history_id),
                     level="debug",
                 )
                 return
@@ -673,7 +756,9 @@ class TechnologyRepository:
                 scan_history = ScanHistory.objects.get(id=scan_history_id)
                 target_id = getattr(scan_history, "target_id", None)
                 if target_id and is_acceptable_subdomain_name(hostname):
-                    subdomain = SubdomainRepository().get_or_create_from_host(scan_history_id, target_id, hostname)
+                    subdomain = SubdomainRepository().get_or_create_from_host(
+                        scan_history_id, target_id, hostname
+                    )
             except ObjectDoesNotExist:
                 pass
             if not subdomain:
@@ -692,7 +777,8 @@ class TechnologyRepository:
                 logger.log_line(
                     PREFIX_TECH_REPO,
                     "ASSOCIATE_TECH_TO_SUBDOMAIN",
-                    "Subdomain not found in scan: hostname=%s scan_id=%s" % (hostname, scan_history_id),
+                    "Subdomain not found in scan: hostname=%s scan_id=%s"
+                    % (hostname, scan_history_id),
                     level="debug",
                 )
 
@@ -701,7 +787,8 @@ class TechnologyRepository:
             logger.log_line(
                 PREFIX_TECH_REPO,
                 "ASSOCIATE_TECH_TO_SUBDOMAIN",
-                "Skipped (out of scope): hostname=%s | %s scan_id=%s" % (hostname, reason, scan_history_id),
+                "Skipped (out of scope): hostname=%s | %s scan_id=%s"
+                % (hostname, reason, scan_history_id),
                 level="info",
             )
         except Exception as e:
@@ -714,7 +801,9 @@ class TechnologyRepository:
                 level="error",
             )
 
-    def extract_technologies_from_list(self, tech_list: List[str], scan_history_id: int) -> List[Technology]:
+    def extract_technologies_from_list(
+        self, tech_list: List[str], scan_history_id: int
+    ) -> List[Technology]:
         """
         Extract and create technologies from a list of technology names.
 

@@ -28,7 +28,10 @@ def _run_revoke_mode(celery_id: str) -> None:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python worker_run_job.py <job.json> | revoke <celery_id>", file=sys.stderr)
+        print(
+            "Usage: python worker_run_job.py <job.json> | revoke <celery_id>",
+            file=sys.stderr,
+        )
         sys.exit(1)
     if sys.argv[1] == "revoke":
         if len(sys.argv) < 3:
@@ -96,14 +99,18 @@ if __name__ == "__main__":
                 print("workflow_name required", file=sys.stderr)
                 sys.exit(1)
             config = TemplateLoader(name=f"workflows/{workflow_name}")
-            runner = Workflow(config, inputs=targets, hooks=hooks, run_opts=run_opts, context=context)
+            runner = Workflow(
+                config, inputs=targets, hooks=hooks, run_opts=run_opts, context=context
+            )
         elif execution_mode == "scan":
             scan_type = job.get("scan_type")
             if not scan_type:
                 print("scan_type required", file=sys.stderr)
                 sys.exit(1)
             config = TemplateLoader(name=f"scans/{scan_type}")
-            runner = Scan(config, inputs=targets, hooks=hooks, run_opts=run_opts, context=context)
+            runner = Scan(
+                config, inputs=targets, hooks=hooks, run_opts=run_opts, context=context
+            )
         elif execution_mode == "tasks":
             task_names = job.get("task_names") or []
             if not task_names:
@@ -112,7 +119,13 @@ if __name__ == "__main__":
             all_success = True
             for task_name in task_names:
                 config = TemplateLoader({"type": "task", "name": task_name})
-                runner = Task(config, inputs=targets, hooks=hooks, run_opts=run_opts, context=context)
+                runner = Task(
+                    config,
+                    inputs=targets,
+                    hooks=hooks,
+                    run_opts=run_opts,
+                    context=context,
+                )
                 result = runner.run()
                 if not _run_success(result):
                     all_success = False

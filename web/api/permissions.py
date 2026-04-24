@@ -13,7 +13,10 @@ class HasAPIKeyOrIsAuthenticated(BasePermission):
 
     def has_permission(self, request, view):
         # Check if middleware set API key authentication
-        if hasattr(request, "_api_key_authenticated") and request._api_key_authenticated:
+        if (
+            hasattr(request, "_api_key_authenticated")
+            and request._api_key_authenticated
+        ):
             return True
 
         # Check if user is authenticated via session

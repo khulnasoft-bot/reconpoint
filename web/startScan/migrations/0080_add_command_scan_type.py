@@ -12,6 +12,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="command",
             name="scan_type",
-            field=models.CharField(blank=True, help_text="Scan type from run_opts.scan_type", max_length=50, null=True),
+            field=models.CharField(
+                blank=True,
+                help_text="Scan type from run_opts.scan_type",
+                max_length=50,
+                null=True,
+            ),
         ),
     ]

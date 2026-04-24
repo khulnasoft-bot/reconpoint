@@ -46,12 +46,16 @@ class Migration(migrations.Migration):
                 migrations.AddField(
                     model_name="domaininfo",
                     name="source",
-                    field=models.CharField(blank=True, db_index=True, max_length=200, null=True),
+                    field=models.CharField(
+                        blank=True, db_index=True, max_length=200, null=True
+                    ),
                 ),
                 migrations.AddField(
                     model_name="dnsrecord",
                     name="source",
-                    field=models.CharField(blank=True, db_index=True, max_length=200, null=True),
+                    field=models.CharField(
+                        blank=True, db_index=True, max_length=200, null=True
+                    ),
                 ),
             ],
         ),
@@ -69,35 +73,60 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="ipaddress",
             name="source",
-            field=models.CharField(blank=True, db_index=True, max_length=200, null=True),
+            field=models.CharField(
+                blank=True, db_index=True, max_length=200, null=True
+            ),
         ),
         migrations.AddField(
             model_name="port",
             name="source",
-            field=models.CharField(blank=True, db_index=True, max_length=200, null=True),
+            field=models.CharField(
+                blank=True, db_index=True, max_length=200, null=True
+            ),
         ),
         migrations.AddField(
             model_name="employee",
             name="source",
-            field=models.CharField(blank=True, db_index=True, max_length=200, null=True),
+            field=models.CharField(
+                blank=True, db_index=True, max_length=200, null=True
+            ),
         ),
         migrations.AddField(
             model_name="exploit",
             name="source",
-            field=models.CharField(blank=True, db_index=True, max_length=200, null=True),
+            field=models.CharField(
+                blank=True, db_index=True, max_length=200, null=True
+            ),
         ),
         migrations.CreateModel(
             name="SubdomainTechnology",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("source", models.CharField(blank=True, db_index=True, max_length=200, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "source",
+                    models.CharField(
+                        blank=True, db_index=True, max_length=200, null=True
+                    ),
+                ),
                 (
                     "subdomain",
-                    models.ForeignKey(on_delete=models.deletion.CASCADE, to="startScan.subdomain"),
+                    models.ForeignKey(
+                        on_delete=models.deletion.CASCADE, to="startScan.subdomain"
+                    ),
                 ),
                 (
                     "technology",
-                    models.ForeignKey(on_delete=models.deletion.CASCADE, to="startScan.technology"),
+                    models.ForeignKey(
+                        on_delete=models.deletion.CASCADE, to="startScan.technology"
+                    ),
                 ),
             ],
             options={

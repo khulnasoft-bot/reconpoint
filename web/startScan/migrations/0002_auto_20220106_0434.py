@@ -36,7 +36,10 @@ class Migration(migrations.Migration):
             model_name="vulnerability",
             name="cve_ids",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=50), blank=True, null=True, size=None
+                base_field=models.CharField(max_length=50),
+                blank=True,
+                null=True,
+                size=None,
             ),
         ),
         migrations.AddField(
@@ -53,14 +56,20 @@ class Migration(migrations.Migration):
             model_name="vulnerability",
             name="cwe_ids",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=50), blank=True, null=True, size=None
+                base_field=models.CharField(max_length=50),
+                blank=True,
+                null=True,
+                size=None,
             ),
         ),
         migrations.AddField(
             model_name="vulnerability",
             name="references",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=500), blank=True, null=True, size=None
+                base_field=models.CharField(max_length=500),
+                blank=True,
+                null=True,
+                size=None,
             ),
         ),
         migrations.AddField(
@@ -77,7 +86,10 @@ class Migration(migrations.Migration):
             model_name="vulnerability",
             name="extracted_results",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=1000), blank=True, null=True, size=None
+                base_field=models.CharField(max_length=1000),
+                blank=True,
+                null=True,
+                size=None,
             ),
         ),
         migrations.AlterField(
@@ -94,7 +106,10 @@ class Migration(migrations.Migration):
             model_name="vulnerability",
             name="tags",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=50), blank=True, null=True, size=None
+                base_field=models.CharField(max_length=50),
+                blank=True,
+                null=True,
+                size=None,
             ),
         ),
     ]

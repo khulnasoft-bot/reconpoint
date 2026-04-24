@@ -50,11 +50,17 @@ class ScanOrchestrator:
         """
         try:
             if execution_mode == "workflow":
-                return self._execute_workflow(scan_history_id, target_id, targets, config, profiles)
+                return self._execute_workflow(
+                    scan_history_id, target_id, targets, config, profiles
+                )
             elif execution_mode == "tasks":
-                return self._execute_tasks(scan_history_id, target_id, targets, config, profiles)
+                return self._execute_tasks(
+                    scan_history_id, target_id, targets, config, profiles
+                )
             elif execution_mode == "scan":
-                return self._execute_scan_type(scan_history_id, target_id, targets, config, profiles)
+                return self._execute_scan_type(
+                    scan_history_id, target_id, targets, config, profiles
+                )
             else:
                 raise ValueError(f"Unknown execution mode: {execution_mode}")
 

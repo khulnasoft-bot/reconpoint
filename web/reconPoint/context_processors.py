@@ -105,7 +105,9 @@ def oauth_providers(request):
 
     # Only hit the DB when OAuth is configured and the user is logged in
     _is_oauth_user = False
-    if has_any_oauth and getattr(getattr(request, "user", None), "is_authenticated", False):
+    if has_any_oauth and getattr(
+        getattr(request, "user", None), "is_authenticated", False
+    ):
         _is_oauth_user = is_oauth_user(request.user)
 
     return {
@@ -141,7 +143,8 @@ def _get_external_ip_with_fallback() -> str:
                 logger.log_line(
                     PREFIX_CONTEXT_PROCESSORS,
                     "EXTERNAL_IP",
-                    "Successfully retrieved external IP: %s from %s" % (ip_text, service_url),
+                    "Successfully retrieved external IP: %s from %s"
+                    % (ip_text, service_url),
                     level="info",
                 )
                 return ip_text
@@ -200,7 +203,10 @@ def _get_cached_external_ip() -> str:
 
     with _cached_external_ip_lock:
         now = time.monotonic()
-        if _cached_external_ip_value is not None and now < _cached_external_ip_expires_at:
+        if (
+            _cached_external_ip_value is not None
+            and now < _cached_external_ip_expires_at
+        ):
             return _cached_external_ip_value
 
         external_ip = cache.get(EXTERNAL_IP_CACHE_KEY)
@@ -215,7 +221,11 @@ def _get_cached_external_ip() -> str:
             return external_ip
 
         external_ip = _get_external_ip_with_fallback()
-        ttl = EXTERNAL_IP_CACHE_TTL_SUCCESS if external_ip != "Unable to retrieve IP" else EXTERNAL_IP_CACHE_TTL_FAILURE
+        ttl = (
+            EXTERNAL_IP_CACHE_TTL_SUCCESS
+            if external_ip != "Unable to retrieve IP"
+            else EXTERNAL_IP_CACHE_TTL_FAILURE
+        )
         cache.set(EXTERNAL_IP_CACHE_KEY, external_ip, timeout=ttl)
         _cached_external_ip_value = external_ip
         _cached_external_ip_expires_at = time.monotonic() + ttl
@@ -225,7 +235,10 @@ def _get_cached_external_ip() -> str:
 def user_preferences(request):
     """Expose user interface preferences (e.g. DataTables display mode, page length) for templates."""
     from dashboard.models import DATATABLES_PAGE_LENGTH_MENU_VALUES
-    from dashboard.services.user_preferences import get_datatables_display, get_datatables_page_length
+    from dashboard.services.user_preferences import (
+        get_datatables_display,
+        get_datatables_page_length,
+    )
 
     user = getattr(request, "user", None)
     datatables_display = get_datatables_display(user)

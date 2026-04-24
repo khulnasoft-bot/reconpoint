@@ -27,14 +27,23 @@ class Migration(migrations.Migration):
                         max_length=20,
                     ),
                 ),
-                ("description", models.TextField(help_text="Description of the profile")),
+                (
+                    "description",
+                    models.TextField(help_text="Description of the profile"),
+                ),
                 (
                     "enforce",
                     models.BooleanField(
-                        default=False, help_text="Whether this profile should enforce its options (handled by Secator)"
+                        default=False,
+                        help_text="Whether this profile should enforce its options (handled by Secator)",
                     ),
                 ),
-                ("opts", models.TextField(help_text="YAML configuration options for the profile")),
+                (
+                    "opts",
+                    models.TextField(
+                        help_text="YAML configuration options for the profile"
+                    ),
+                ),
                 (
                     "profile_type",
                     models.CharField(
@@ -44,7 +53,13 @@ class Migration(migrations.Migration):
                         max_length=20,
                     ),
                 ),
-                ("is_active", models.BooleanField(default=True, help_text="Whether this profile is available for use")),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Whether this profile is available for use",
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
             ],

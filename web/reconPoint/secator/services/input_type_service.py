@@ -165,7 +165,9 @@ class InputTypeService:
             raise ValueError("Provide either task_id or task_name, not both.")
 
         if workflow_id is not None:
-            name = SecatorWorkflow.objects.values_list("name", flat=True).get(id=workflow_id)
+            name = SecatorWorkflow.objects.values_list("name", flat=True).get(
+                id=workflow_id
+            )
             return cls.get_input_types_for_workflow(name)
         if workflow_name:
             return cls.get_input_types_for_workflow(workflow_name)
@@ -177,7 +179,9 @@ class InputTypeService:
             return cls.get_input_types_for_scan(scan_name)
 
         if task_id is not None:
-            task_type = SecatorTask.objects.values_list("task_type", flat=True).get(id=task_id)
+            task_type = SecatorTask.objects.values_list("task_type", flat=True).get(
+                id=task_id
+            )
             return cls.get_input_types_for_task(task_type)
         if task_name:
             return cls.get_input_types_for_task(task_name)

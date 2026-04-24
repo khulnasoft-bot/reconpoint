@@ -50,7 +50,13 @@ def secator_worker_pull_claim(request, worker_id: int):
     try:
         cmd = claim_next_command(worker)
     except Exception:
-        logger.log_line("WORKER_PULL", "CLAIM", "failed for worker %s" % wid, level="error", exc_info=True)
+        logger.log_line(
+            "WORKER_PULL",
+            "CLAIM",
+            "failed for worker %s" % wid,
+            level="error",
+            exc_info=True,
+        )
         return _bad("Server error.", 500)
     if cmd is None:
         return HttpResponse(status=204)
@@ -96,9 +102,17 @@ def secator_worker_pull_complete(request, worker_id: int):
     err = body.get("error")
     error_message = str(err).strip()[:4000] if err else ""
     try:
-        updated = complete_command(command_uuid, worker, succeeded=ok, error_message=error_message)
+        updated = complete_command(
+            command_uuid, worker, succeeded=ok, error_message=error_message
+        )
     except Exception:
-        logger.log_line("WORKER_PULL", "COMPLETE", "failed for worker %s" % wid, level="error", exc_info=True)
+        logger.log_line(
+            "WORKER_PULL",
+            "COMPLETE",
+            "failed for worker %s" % wid,
+            level="error",
+            exc_info=True,
+        )
         return _bad("Server error.", 500)
     if not updated:
         return _bad("Command not found or not running.", 409)
@@ -142,10 +156,16 @@ def secator_worker_pull_checkin(request, worker_id: int):
 
     has_last_error_key = "last_error" in body
     last_error_raw = body.get("last_error")
-    if has_last_error_key and last_error_raw is not None and not isinstance(last_error_raw, str):
+    if (
+        has_last_error_key
+        and last_error_raw is not None
+        and not isinstance(last_error_raw, str)
+    ):
         return _bad("last_error must be a string or null.", 400)
     if isinstance(last_error_raw, str) and len(last_error_raw) > LAST_ERROR_MAX_LEN:
-        return _bad("last_error must be at most %s characters." % LAST_ERROR_MAX_LEN, 400)
+        return _bad(
+            "last_error must be at most %s characters." % LAST_ERROR_MAX_LEN, 400
+        )
     update_fields = ["last_status_at"]
     if has_api_reachable_key:
         worker.api_reachable = api_reachable

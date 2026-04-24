@@ -44,34 +44,44 @@ class ResolveDbHostPortTestCase(unittest.TestCase):
 
     def test_createsuperuser_uses_direct_when_use_pgbouncer(self):
         environ = _make_environ()
-        host, port = resolve_db_host_port(environ, True, False, ["manage.py", "createsuperuser"])
+        host, port = resolve_db_host_port(
+            environ, True, False, ["manage.py", "createsuperuser"]
+        )
         self.assertEqual(host, "db")
         self.assertEqual(port, "5432")
 
     def test_makemigrations_uses_direct_when_use_pgbouncer(self):
         environ = _make_environ()
-        host, port = resolve_db_host_port(environ, True, False, ["manage.py", "makemigrations"])
+        host, port = resolve_db_host_port(
+            environ, True, False, ["manage.py", "makemigrations"]
+        )
         self.assertEqual(host, "db")
         self.assertEqual(port, "5432")
 
     def test_makemigrations_uses_direct_when_argv_is_python_manage_py_cmd(self):
         """Invocation as python3 manage.py makemigrations (e.g. from entrypoint) uses direct DB."""
         environ = _make_environ()
-        host, port = resolve_db_host_port(environ, True, False, ["python3", "manage.py", "makemigrations"])
+        host, port = resolve_db_host_port(
+            environ, True, False, ["python3", "manage.py", "makemigrations"]
+        )
         self.assertEqual(host, "db")
         self.assertEqual(port, "5432")
 
     def test_entrypoint_setup_uses_direct_when_use_pgbouncer(self):
         """entrypoint_setup (and its sub-calls) use direct DB to avoid PgBouncer SCRAM issues."""
         environ = _make_environ()
-        host, port = resolve_db_host_port(environ, True, False, ["manage.py", "entrypoint_setup"])
+        host, port = resolve_db_host_port(
+            environ, True, False, ["manage.py", "entrypoint_setup"]
+        )
         self.assertEqual(host, "db")
         self.assertEqual(port, "5432")
 
     def test_run_scheduled_scans_uses_direct_when_use_pgbouncer(self):
         """run_scheduled_scans (background loop in container) uses direct DB to avoid PgBouncer."""
         environ = _make_environ()
-        host, port = resolve_db_host_port(environ, True, False, ["manage.py", "run_scheduled_scans"])
+        host, port = resolve_db_host_port(
+            environ, True, False, ["manage.py", "run_scheduled_scans"]
+        )
         self.assertEqual(host, "db")
         self.assertEqual(port, "5432")
 
@@ -83,7 +93,9 @@ class ResolveDbHostPortTestCase(unittest.TestCase):
 
     def test_no_probe_returns_primary(self):
         environ = _make_environ()
-        host, port = resolve_db_host_port(environ, True, False, ["manage.py", "runserver"])
+        host, port = resolve_db_host_port(
+            environ, True, False, ["manage.py", "runserver"]
+        )
         self.assertEqual(host, "pgbouncer")
         self.assertEqual(port, "6432")
 
@@ -94,7 +106,9 @@ class ResolveDbHostPortTestCase(unittest.TestCase):
         m_psycopg2.connect.return_value = m_conn
         m_psycopg2.Error = Exception
         with mock.patch.dict(sys.modules, {"psycopg2": m_psycopg2}):
-            host, port = resolve_db_host_port(environ, True, True, ["manage.py", "runserver"])
+            host, port = resolve_db_host_port(
+                environ, True, True, ["manage.py", "runserver"]
+            )
         self.assertEqual(host, "pgbouncer")
         self.assertEqual(port, "6432")
         m_conn.close.assert_called_once()
@@ -105,6 +119,8 @@ class ResolveDbHostPortTestCase(unittest.TestCase):
         m_psycopg2.Error = type("Error", (Exception,), {})
         m_psycopg2.connect.side_effect = m_psycopg2.Error("connection refused")
         with mock.patch.dict(sys.modules, {"psycopg2": m_psycopg2}):
-            host, port = resolve_db_host_port(environ, True, True, ["manage.py", "runserver"])
+            host, port = resolve_db_host_port(
+                environ, True, True, ["manage.py", "runserver"]
+            )
         self.assertEqual(host, "db")
         self.assertEqual(port, "5432")

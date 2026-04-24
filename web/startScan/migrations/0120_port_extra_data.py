@@ -3,7 +3,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("startScan", "0119_ip_host_endpoint_subscan_data_constraints_and_ipaddress_metadata"),
+        (
+            "startScan",
+            "0119_ip_host_endpoint_subscan_data_constraints_and_ipaddress_metadata",
+        ),
     ]
 
     operations = [

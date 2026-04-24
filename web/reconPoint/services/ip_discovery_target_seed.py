@@ -18,7 +18,11 @@ from reconPoint.services.repositories.ip_repository import IpRepository
 from reconPoint.services.repositories.subdomain_repository import SubdomainRepository
 from reconPoint.utilities.domain import normalize_domain_name
 from reconPoint.utilities.logger import get_module_logger
-from reconPoint.utilities.url import get_domain_from_subdomain, is_acceptable_subdomain_name, normalize_subdomain_host
+from reconPoint.utilities.url import (
+    get_domain_from_subdomain,
+    is_acceptable_subdomain_name,
+    normalize_subdomain_host,
+)
 from startScan.models import Domain, ScanHistory, Subdomain
 from targetApp.models import Target
 
@@ -103,12 +107,15 @@ def get_or_create_ip_discovery_seed_scan(
         scan_status=SCAN_STATUS_COMPLETED,
         tasks=["ip_discovery_seed"],
         scan_config={"seed_source": IP_DISCOVERY_SEED_SOURCE},
-        initiated_by=initiated_by if getattr(initiated_by, "is_authenticated", False) else None,
+        initiated_by=initiated_by
+        if getattr(initiated_by, "is_authenticated", False)
+        else None,
     )
     logger.log_line(
         PREFIX,
         "SCAN",
-        "Created ip_discovery seed ScanHistory id=%s for target_id=%s" % (scan.id, target.id),
+        "Created ip_discovery seed ScanHistory id=%s for target_id=%s"
+        % (scan.id, target.id),
         level="info",
     )
     return scan
@@ -219,7 +226,9 @@ def seed_findings_from_ip_discovery(
             continue
         seen_hosts.add(norm_host)
 
-        had_sub = Subdomain.objects.filter(name=norm_host, scan_history_id=scan.id).exists()
+        had_sub = Subdomain.objects.filter(
+            name=norm_host, scan_history_id=scan.id
+        ).exists()
         sub = sub_repo.get_or_create_from_host(
             scan.id,
             target.id,
@@ -261,7 +270,10 @@ def compute_total_processed(
 ) -> int:
     """Derive a positive count for UX when the operation should count as success."""
     created = (
-        (1 if target_created else 0) + stats["domains_created"] + stats["subdomains_created"] + stats["ips_created"]
+        (1 if target_created else 0)
+        + stats["domains_created"]
+        + stats["subdomains_created"]
+        + stats["ips_created"]
     )
     if created > 0:
         return created

@@ -110,7 +110,9 @@ class TestIpDiscoveryServiceHelpers(BaseTestCase):
         self.assertEqual(out, ["203.0.113.1", "203.0.113.2"])
 
     def test_normalize_ip_list_rejects_overflow(self) -> None:
-        ips = ["10.0.%d.%d" % (n // 256, n % 256) for n in range(ipd.MAX_PING_TARGETS + 1)]
+        ips = [
+            "10.0.%d.%d" % (n // 256, n % 256) for n in range(ipd.MAX_PING_TARGETS + 1)
+        ]
         with self.assertRaises(ValueError):
             ipd.normalize_ip_list_for_ping(ips)
 
@@ -128,7 +130,9 @@ class TestIpDiscoveryServiceHelpers(BaseTestCase):
         self.assertEqual(sum(len(chunk) for chunk in chunks), 256)
 
     @patch("reconPoint.services.ip_discovery_secator.emit_ip_scan_progress")
-    @patch("reconPoint.services.ip_discovery_secator.ptr_lookup", return_value=(None, None))
+    @patch(
+        "reconPoint.services.ip_discovery_secator.ptr_lookup", return_value=(None, None)
+    )
     @patch("reconPoint.services.ip_discovery_secator.run_fping_sync")
     def test_run_cidr_discovery_chunks_fping_calls_for_large_range(
         self,
@@ -145,15 +149,22 @@ class TestIpDiscoveryServiceHelpers(BaseTestCase):
         )
         self.assertFalse(out.get("status"))
         self.assertEqual(mock_fping.call_count, 4)
-        workspace_names = {call.kwargs.get("workspace_name") for call in mock_fping.call_args_list}
+        workspace_names = {
+            call.kwargs.get("workspace_name") for call in mock_fping.call_args_list
+        }
         self.assertEqual(len(workspace_names), 4)
         self.assertTrue(
-            all(name and name.startswith("reconpoint-ephemeral-ip-discovery-c") for name in workspace_names)
+            all(
+                name and name.startswith("reconpoint-ephemeral-ip-discovery-c")
+                for name in workspace_names
+            )
         )
         self.assertEqual(mock_ptr.call_count, 0)
 
     @patch("reconPoint.services.ip_discovery_secator.emit_ip_scan_progress")
-    @patch("reconPoint.services.ip_discovery_secator.ptr_lookup", return_value=(None, None))
+    @patch(
+        "reconPoint.services.ip_discovery_secator.ptr_lookup", return_value=(None, None)
+    )
     @patch("reconPoint.services.ip_discovery_secator.run_fping_sync")
     def test_run_cidr_discovery_calls_fping_without_live_dns_flags(
         self,
@@ -181,7 +192,9 @@ class TestIpDiscoveryServiceHelpers(BaseTestCase):
         self.assertFalse(kwargs.get("show_name"))
 
     @patch("reconPoint.services.ip_discovery_secator.emit_ip_scan_progress")
-    @patch("reconPoint.services.ip_discovery_secator.ptr_lookup", return_value=(None, None))
+    @patch(
+        "reconPoint.services.ip_discovery_secator.ptr_lookup", return_value=(None, None)
+    )
     @patch("reconPoint.services.ip_discovery_secator.run_fping_sync")
     def test_run_cidr_discovery_sets_large_range_warning_for_more_than_slash24(
         self,
@@ -263,7 +276,9 @@ class TestPingHostsV2Api(BaseTestCase):
     ) -> None:
         mock_ping.return_value = {"203.0.113.20": True, "203.0.113.21": False}
         key = PING_CACHE_KEY % ("test-task-id",)
-        cache.set(key, {"status": True, "task_status": "running", "result": None}, timeout=600)
+        cache.set(
+            key, {"status": True, "task_status": "running", "result": None}, timeout=600
+        )
         views_ip_discovery._ping_worker(key, ["203.0.113.20", "203.0.113.21"], None)
         mock_emit.assert_called()
         entry = cache.get(key)
@@ -305,5 +320,7 @@ class TestPingHostsV2Api(BaseTestCase):
 
     def test_get_unknown_task_returns_404(self) -> None:
         url = reverse("api:ping_hosts_v2")
-        response = self.client.get(url, {"task_id": "00000000-0000-0000-0000-000000000000"})
+        response = self.client.get(
+            url, {"task_id": "00000000-0000-0000-0000-000000000000"}
+        )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

@@ -20,7 +20,12 @@ class TestSyncIpAliveFromHttpCommand(BaseTestCase):
 
     def test_command_no_ips_linked_warns(self):
         out = StringIO()
-        call_command("sync_ip_alive_from_http", "--scan-history", str(self.scan_history.id), stdout=out)
+        call_command(
+            "sync_ip_alive_from_http",
+            "--scan-history",
+            str(self.scan_history.id),
+            stdout=out,
+        )
         self.assertIn("No IP addresses linked", out.getvalue())
 
     def test_command_sets_alive_from_subdomain_http(self):
@@ -43,7 +48,12 @@ class TestSyncIpAliveFromHttpCommand(BaseTestCase):
         ip_obj.save(update_fields=["alive"])
 
         out = StringIO()
-        call_command("sync_ip_alive_from_http", "--scan-history", str(self.scan_history.id), stdout=out)
+        call_command(
+            "sync_ip_alive_from_http",
+            "--scan-history",
+            str(self.scan_history.id),
+            stdout=out,
+        )
         ip_obj.refresh_from_db()
         self.assertTrue(ip_obj.alive)
         self.assertIn("set alive=True for 1 row", out.getvalue())

@@ -55,27 +55,43 @@ def _merge_ip_rows(apps, canonical_id: int, duplicate_id: int) -> None:
         sub.ip_addresses.add(canon)
         sub.ip_addresses.remove(dup)
 
-    EndPoint.objects.filter(ip_address_id=duplicate_id).update(ip_address_id=canonical_id)
+    EndPoint.objects.filter(ip_address_id=duplicate_id).update(
+        ip_address_id=canonical_id
+    )
     Port.objects.filter(ip_address_id=duplicate_id).update(ip_address_id=canonical_id)
-    Vulnerability.objects.filter(ip_address_id=duplicate_id).update(ip_address_id=canonical_id)
-    Certificate.objects.filter(ip_address_id=duplicate_id).update(ip_address_id=canonical_id)
-    Exploit.objects.filter(ip_address_id=duplicate_id).update(ip_address_id=canonical_id)
+    Vulnerability.objects.filter(ip_address_id=duplicate_id).update(
+        ip_address_id=canonical_id
+    )
+    Certificate.objects.filter(ip_address_id=duplicate_id).update(
+        ip_address_id=canonical_id
+    )
+    Exploit.objects.filter(ip_address_id=duplicate_id).update(
+        ip_address_id=canonical_id
+    )
 
     dup.delete()
 
 
 def _ips_in_scan_for_address(apps, scan_history_id: int, address: str):
     IpAddress = apps.get_model("startScan", "IpAddress")
-    q = Q(ip_addresses__scan_history_id=scan_history_id) | Q(ip_endpoints__scan_history_id=scan_history_id)
-    return list(IpAddress.objects.filter(address=address).filter(q).distinct().order_by("id"))
+    q = Q(ip_addresses__scan_history_id=scan_history_id) | Q(
+        ip_endpoints__scan_history_id=scan_history_id
+    )
+    return list(
+        IpAddress.objects.filter(address=address).filter(q).distinct().order_by("id")
+    )
 
 
 def _merge_duplicate_ips_per_scan(apps, schema_editor) -> None:
     Subdomain = apps.get_model("startScan", "Subdomain")
     total_subs = _subdomains_with_scan_ordered(Subdomain).count()
-    _migration_log.info("0119 merge_duplicate_ips_per_scan: subdomains_with_scan=%s", total_subs)
+    _migration_log.info(
+        "0119 merge_duplicate_ips_per_scan: subdomains_with_scan=%s", total_subs
+    )
     seen: dict[tuple[int | None, str], int] = {}
-    for sub in _subdomains_with_scan_ordered(Subdomain).prefetch_related("ip_addresses"):
+    for sub in _subdomains_with_scan_ordered(Subdomain).prefetch_related(
+        "ip_addresses"
+    ):
         sid = sub.scan_history_id
         for ip_obj in sub.ip_addresses.all():
             key = (sid, ip_obj.address or "")
@@ -102,7 +118,9 @@ def _migrate_ip_subdomains(apps, schema_editor) -> None:
     processed_ip_literal = 0
     _migration_log.info("0119 migrate_ip_subdomains: start")
 
-    for sub in _subdomains_with_scan_ordered(Subdomain).iterator(chunk_size=_IP_SUBDOMAIN_ITER_CHUNK):
+    for sub in _subdomains_with_scan_ordered(Subdomain).iterator(
+        chunk_size=_IP_SUBDOMAIN_ITER_CHUNK
+    ):
         if not is_ip_literal_text(sub.name):
             continue
         sub = Subdomain.objects.filter(pk=sub.pk).first()
@@ -117,7 +135,12 @@ def _migrate_ip_subdomains(apps, schema_editor) -> None:
         scan_id = sub.scan_history_id
         normalized = normalize_ip_address_text(sub.name)
         if not normalized:
-            _warn_skip("migrate_ip_subdomains", "skip subdomain pk=%s name=%r (normalize failed)", sub.pk, sub.name)
+            _warn_skip(
+                "migrate_ip_subdomains",
+                "skip subdomain pk=%s name=%r (normalize failed)",
+                sub.pk,
+                sub.name,
+            )
             continue
 
         if linked := _ips_in_scan_for_address(apps, scan_id, normalized):
@@ -127,7 +150,11 @@ def _migrate_ip_subdomains(apps, schema_editor) -> None:
         elif ips_on_row := list(sub.ip_addresses.all().order_by("id")):
             canon = ips_on_row[0]
             if canon.address != normalized:
-                if clash := IpAddress.objects.filter(address=normalized).exclude(pk=canon.pk).first():
+                if (
+                    clash := IpAddress.objects.filter(address=normalized)
+                    .exclude(pk=canon.pk)
+                    .first()
+                ):
                     _merge_ip_rows(apps, clash.id, canon.id)
                     canon = IpAddress.objects.filter(pk=clash.id).first()
                 else:
@@ -154,27 +181,39 @@ def _migrate_ip_subdomains(apps, schema_editor) -> None:
         for ip_obj in list(sub.ip_addresses.exclude(pk=canon.pk)):
             _merge_ip_rows(apps, canon.id, ip_obj.id)
 
-        EndPoint.objects.filter(subdomain_id=sub.pk).update(ip_address_id=canon.id, subdomain_id=None)
+        EndPoint.objects.filter(subdomain_id=sub.pk).update(
+            ip_address_id=canon.id, subdomain_id=None
+        )
 
-        SubScan.objects.filter(subdomain_id=sub.pk).update(ip_address_id=canon.id, subdomain_id=None)
+        SubScan.objects.filter(subdomain_id=sub.pk).update(
+            ip_address_id=canon.id, subdomain_id=None
+        )
 
-        Vulnerability.objects.filter(subdomain_id=sub.pk, ip_address__isnull=True).update(
+        Vulnerability.objects.filter(
+            subdomain_id=sub.pk, ip_address__isnull=True
+        ).update(
             ip_address_id=canon.id,
             subdomain_id=None,
         )
-        Vulnerability.objects.filter(subdomain_id=sub.pk).exclude(ip_address__isnull=True).update(subdomain_id=None)
+        Vulnerability.objects.filter(subdomain_id=sub.pk).exclude(
+            ip_address__isnull=True
+        ).update(subdomain_id=None)
 
         Certificate.objects.filter(subdomain_id=sub.pk, ip_address__isnull=True).update(
             ip_address_id=canon.id,
             subdomain_id=None,
         )
-        Certificate.objects.filter(subdomain_id=sub.pk).exclude(ip_address__isnull=True).update(subdomain_id=None)
+        Certificate.objects.filter(subdomain_id=sub.pk).exclude(
+            ip_address__isnull=True
+        ).update(subdomain_id=None)
 
         Exploit.objects.filter(subdomain_id=sub.pk, ip_address__isnull=True).update(
             ip_address_id=canon.id,
             subdomain_id=None,
         )
-        Exploit.objects.filter(subdomain_id=sub.pk).exclude(ip_address__isnull=True).update(subdomain_id=None)
+        Exploit.objects.filter(subdomain_id=sub.pk).exclude(
+            ip_address__isnull=True
+        ).update(subdomain_id=None)
 
         MetaFinderDocument.objects.filter(subdomain_id=sub.pk).update(subdomain_id=None)
         Employee.objects.filter(subdomain_id=sub.pk).update(subdomain_id=None)
@@ -184,7 +223,10 @@ def _migrate_ip_subdomains(apps, schema_editor) -> None:
 
         sub.delete()
 
-    _migration_log.info("0119 migrate_ip_subdomains: finished ip-literal-subdomains=%s", processed_ip_literal)
+    _migration_log.info(
+        "0119 migrate_ip_subdomains: finished ip-literal-subdomains=%s",
+        processed_ip_literal,
+    )
 
 
 def _fix_orphan_endpoints(apps, schema_editor) -> None:
@@ -208,13 +250,20 @@ def _fix_orphan_endpoints(apps, schema_editor) -> None:
         scan_id = ep.scan_history_id
         normalized = normalize_ip_address_text(host)
         if not normalized:
-            _warn_skip("fix_orphan_endpoints", "skip endpoint pk=%s host=%r (normalize failed)", ep.pk, host)
+            _warn_skip(
+                "fix_orphan_endpoints",
+                "skip endpoint pk=%s host=%r (normalize failed)",
+                ep.pk,
+                host,
+            )
             continue
         if linked := _ips_in_scan_for_address(apps, scan_id, normalized):
             canon_id = linked[0].id
         else:
             ep_other = (
-                EndPoint.objects.filter(scan_history_id=scan_id, ip_address__address=normalized)
+                EndPoint.objects.filter(
+                    scan_history_id=scan_id, ip_address__address=normalized
+                )
                 .exclude(pk=ep.pk)
                 .first()
             )
@@ -247,7 +296,9 @@ def _fix_dns_orphan_endpoints(apps, schema_editor) -> None:
         host = (urlparse(ep.http_url or "").hostname or "").strip().lower()
         if not host or is_ip_literal_text(host):
             continue
-        if sub := Subdomain.objects.filter(scan_history_id=ep.scan_history_id, name=host).first():
+        if sub := Subdomain.objects.filter(
+            scan_history_id=ep.scan_history_id, name=host
+        ).first():
             EndPoint.objects.filter(pk=ep.pk).update(subdomain_id=sub.id)
 
 

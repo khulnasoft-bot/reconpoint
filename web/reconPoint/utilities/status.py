@@ -23,7 +23,9 @@ def assert_scan_status(code: int) -> None:
     task status constant (e.g. FAILED_TASK vs SCAN_STATUS_FAILED).
     """
     if code not in SCAN_STATUS_VALUES:
-        raise ValueError(f"Invalid scan status: {code} (expected one of {sorted(SCAN_STATUS_VALUES)})")
+        raise ValueError(
+            f"Invalid scan status: {code} (expected one of {sorted(SCAN_STATUS_VALUES)})"
+        )
 
 
 def assert_task_status(code: int) -> None:
@@ -34,7 +36,9 @@ def assert_task_status(code: int) -> None:
     scan status constant.
     """
     if code not in TASK_STATUS_VALUES:
-        raise ValueError(f"Invalid task status: {code} (expected one of {sorted(TASK_STATUS_VALUES)})")
+        raise ValueError(
+            f"Invalid task status: {code} (expected one of {sorted(TASK_STATUS_VALUES)})"
+        )
 
 
 def is_scan_status_pending(scan_status: int) -> bool:

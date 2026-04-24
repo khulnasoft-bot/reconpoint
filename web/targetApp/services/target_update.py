@@ -35,13 +35,16 @@ def process_target_scan_override_from_post(
         errors is non-empty (so the template can re-display POSTed values).
     """
     profiles_dict = parse_secator_profiles_to_dict(post)
-    scan_override, errors = parse_target_scan_override_from_post(post, profiles_dict=profiles_dict)
+    scan_override, errors = parse_target_scan_override_from_post(
+        post, profiles_dict=profiles_dict
+    )
     override_form_fallback = None
     override_header_initial = None
     if errors:
         override_header_initial = post.get(TARGET_OVERRIDE_PREFIX + "header", "")
         override_form_fallback = {
-            param: post.get(TARGET_OVERRIDE_PREFIX + param, "") for param in ORDERED_PARAM_KEYS_FOR_FORM
+            param: post.get(TARGET_OVERRIDE_PREFIX + param, "")
+            for param in ORDERED_PARAM_KEYS_FOR_FORM
         }
     return (
         scan_override,
@@ -72,10 +75,16 @@ def build_update_target_context(
         scan_params_values = dict(scan_override)
     else:
         scan_params_values = (
-            dict(target.scan_config) if target.scan_config and isinstance(target.scan_config, dict) else {}
+            dict(target.scan_config)
+            if target.scan_config and isinstance(target.scan_config, dict)
+            else {}
         )
 
-    header_val = scan_params_values.get("header") if isinstance(scan_params_values, dict) else None
+    header_val = (
+        scan_params_values.get("header")
+        if isinstance(scan_params_values, dict)
+        else None
+    )
     if isinstance(header_val, str):
         try:
             parsed = json.loads(header_val)
@@ -98,7 +107,9 @@ def build_update_target_context(
     else:
         header_initial = header_dict_to_lines(header_val)
 
-    form_ctx = build_scan_params_form_context(target=target, scan_params_values=scan_params_values)
+    form_ctx = build_scan_params_form_context(
+        target=target, scan_params_values=scan_params_values
+    )
     context = {
         "list_target_li": "active",
         "target_data_active": "active",

@@ -132,7 +132,15 @@ class NetlasAPIKeyAdmin(admin.ModelAdmin):
 class UserAPIKeyAdmin(admin.ModelAdmin):
     """Admin interface for UserAPIKey model."""
 
-    list_display = ["id", "name", "user", "created_at", "last_used", "is_active", "is_system"]
+    list_display = [
+        "id",
+        "name",
+        "user",
+        "created_at",
+        "last_used",
+        "is_active",
+        "is_system",
+    ]
     list_filter = ["is_active", "is_system", "created_at"]
     search_fields = ["name", "user__username"]
     readonly_fields = ["created_at"]

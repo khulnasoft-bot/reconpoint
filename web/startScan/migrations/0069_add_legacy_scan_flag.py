@@ -13,7 +13,8 @@ class Migration(migrations.Migration):
             model_name="scanhistory",
             name="is_legacy_scan",
             field=models.BooleanField(
-                default=False, help_text="Whether this scan uses legacy EngineType (True) or new SecatorScan (False)"
+                default=False,
+                help_text="Whether this scan uses legacy EngineType (True) or new SecatorScan (False)",
             ),
         ),
     ]

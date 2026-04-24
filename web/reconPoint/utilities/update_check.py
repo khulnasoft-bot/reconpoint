@@ -95,7 +95,9 @@ def get_update_info() -> dict[str, Any]:
             "rate limit",
         )
         lower_message = message.lower()
-        is_rate_limited = any(ind.lower() in lower_message for ind in rate_limit_indicators)
+        is_rate_limited = any(
+            ind.lower() in lower_message for ind in rate_limit_indicators
+        )
         if not is_rate_limited:
             remaining = response.headers.get("X-RateLimit-Remaining")
             if remaining is not None:
@@ -132,10 +134,14 @@ def get_update_info() -> dict[str, Any]:
 
     result["latest_version"] = latest_version
     try:
-        result["update_available"] = pkg_version.parse(current) < pkg_version.parse(latest_version)
+        result["update_available"] = pkg_version.parse(current) < pkg_version.parse(
+            latest_version
+        )
     except (pkg_version.InvalidVersion, TypeError) as e:
         result["status"] = False
-        result["message"] = "Invalid or uncomparable version (current or latest): %s" % (e,)
+        result["message"] = (
+            "Invalid or uncomparable version (current or latest): %s" % (e,)
+        )
         result["description"] = "Invalid version"
         result["error_type"] = "invalid_version"
         return result

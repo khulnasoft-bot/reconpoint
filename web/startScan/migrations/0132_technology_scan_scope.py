@@ -65,7 +65,9 @@ def _backfill_technology_scan_scope(apps, schema_editor):
 
     subdomain_updates = []
     subdomain_delete_ids = []
-    for row in SubdomainTechnology.objects.values("id", "subdomain_id", "technology_id").iterator(chunk_size=2000):
+    for row in SubdomainTechnology.objects.values(
+        "id", "subdomain_id", "technology_id"
+    ).iterator(chunk_size=2000):
         scan_id = subdomain_scan_by_id.get(row["subdomain_id"])
         tech_id = row["technology_id"]
         remember_scan(tech_id, scan_id)
@@ -73,18 +75,26 @@ def _backfill_technology_scan_scope(apps, schema_editor):
         remember_scan(scoped_id, scan_id)
         if not scoped_id or scoped_id == tech_id:
             continue
-        if SubdomainTechnology.objects.filter(subdomain_id=row["subdomain_id"], technology_id=scoped_id).exists():
+        if SubdomainTechnology.objects.filter(
+            subdomain_id=row["subdomain_id"], technology_id=scoped_id
+        ).exists():
             subdomain_delete_ids.append(row["id"])
             continue
-        subdomain_updates.append(SubdomainTechnology(id=row["id"], technology_id=scoped_id))
+        subdomain_updates.append(
+            SubdomainTechnology(id=row["id"], technology_id=scoped_id)
+        )
     if subdomain_updates:
-        SubdomainTechnology.objects.bulk_update(subdomain_updates, ["technology_id"], batch_size=1000)
+        SubdomainTechnology.objects.bulk_update(
+            subdomain_updates, ["technology_id"], batch_size=1000
+        )
     if subdomain_delete_ids:
         SubdomainTechnology.objects.filter(id__in=subdomain_delete_ids).delete()
 
     endpoint_updates = []
     endpoint_delete_ids = []
-    for row in endpoint_tech_through.objects.values("id", "endpoint_id", "technology_id").iterator(chunk_size=2000):
+    for row in endpoint_tech_through.objects.values(
+        "id", "endpoint_id", "technology_id"
+    ).iterator(chunk_size=2000):
         scan_id = endpoint_scan_by_id.get(row["endpoint_id"])
         tech_id = row["technology_id"]
         remember_scan(tech_id, scan_id)
@@ -92,12 +102,18 @@ def _backfill_technology_scan_scope(apps, schema_editor):
         remember_scan(scoped_id, scan_id)
         if not scoped_id or scoped_id == tech_id:
             continue
-        if endpoint_tech_through.objects.filter(endpoint_id=row["endpoint_id"], technology_id=scoped_id).exists():
+        if endpoint_tech_through.objects.filter(
+            endpoint_id=row["endpoint_id"], technology_id=scoped_id
+        ).exists():
             endpoint_delete_ids.append(row["id"])
             continue
-        endpoint_updates.append(endpoint_tech_through(id=row["id"], technology_id=scoped_id))
+        endpoint_updates.append(
+            endpoint_tech_through(id=row["id"], technology_id=scoped_id)
+        )
     if endpoint_updates:
-        endpoint_tech_through.objects.bulk_update(endpoint_updates, ["technology_id"], batch_size=1000)
+        endpoint_tech_through.objects.bulk_update(
+            endpoint_updates, ["technology_id"], batch_size=1000
+        )
     if endpoint_delete_ids:
         endpoint_tech_through.objects.filter(id__in=endpoint_delete_ids).delete()
 
@@ -105,7 +121,9 @@ def _backfill_technology_scan_scope(apps, schema_editor):
         if len(scan_ids) != 1:
             continue
         scan_id = next(iter(scan_ids))
-        Technology.objects.filter(id=technology_id, scan_history_id__isnull=True).update(scan_history_id=scan_id)
+        Technology.objects.filter(
+            id=technology_id, scan_history_id__isnull=True
+        ).update(scan_history_id=scan_id)
 
     duplicate_groups = (
         Technology.objects.exclude(scan_history_id__isnull=True)
@@ -128,8 +146,12 @@ def _backfill_technology_scan_scope(apps, schema_editor):
         keep_id = tech_ids[0]
         duplicate_ids = tech_ids[1:]
 
-        endpoint_tech_through.objects.filter(technology_id__in=duplicate_ids).update(technology_id=keep_id)
-        SubdomainTechnology.objects.filter(technology_id__in=duplicate_ids).update(technology_id=keep_id)
+        endpoint_tech_through.objects.filter(technology_id__in=duplicate_ids).update(
+            technology_id=keep_id
+        )
+        SubdomainTechnology.objects.filter(technology_id__in=duplicate_ids).update(
+            technology_id=keep_id
+        )
 
         duplicate_link_ids = []
         for link_group in (
@@ -178,7 +200,10 @@ class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ("startScan", "0131_rename_startscan_llm_at_content_16e0db_idx_startscan_l_content_6b1cca_idx_and_more"),
+        (
+            "startScan",
+            "0131_rename_startscan_llm_at_content_16e0db_idx_startscan_l_content_6b1cca_idx_and_more",
+        ),
     ]
 
     operations = [
@@ -193,5 +218,7 @@ class Migration(migrations.Migration):
                 to="startScan.scanhistory",
             ),
         ),
-        migrations.RunPython(_backfill_technology_scan_scope, migrations.RunPython.noop),
+        migrations.RunPython(
+            _backfill_technology_scan_scope, migrations.RunPython.noop
+        ),
     ]

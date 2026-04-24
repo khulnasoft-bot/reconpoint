@@ -25,7 +25,9 @@ class AttackOpenAiTokenBudgetTests(SimpleTestCase):
         allowed = gen._build_attack_openai_chat_kwargs("target")
 
         openai_cfg = LLM_CONFIG["providers"]["openai"]
-        expected = openai_cfg.get("max_tokens_aggregate", DEFAULT_OPENAI_MAX_TOKENS_AGGREGATE)
+        expected = openai_cfg.get(
+            "max_tokens_aggregate", DEFAULT_OPENAI_MAX_TOKENS_AGGREGATE
+        )
         self.assertEqual(allowed.get("max_tokens"), expected)
 
     def test_scan_history_uses_dedicated_scan_history_max_tokens(self) -> None:
@@ -33,7 +35,9 @@ class AttackOpenAiTokenBudgetTests(SimpleTestCase):
         allowed = gen._build_attack_openai_chat_kwargs("scan_history")
 
         openai_cfg = LLM_CONFIG["providers"]["openai"]
-        expected = openai_cfg.get("max_tokens_scan_history", DEFAULT_OPENAI_MAX_TOKENS_SCAN_HISTORY)
+        expected = openai_cfg.get(
+            "max_tokens_scan_history", DEFAULT_OPENAI_MAX_TOKENS_SCAN_HISTORY
+        )
         self.assertEqual(allowed.get("max_tokens"), expected)
 
     def test_asset_uses_provider_default_max_tokens(self) -> None:

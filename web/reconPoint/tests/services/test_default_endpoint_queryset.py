@@ -12,7 +12,9 @@ class DefaultEndpointQuerysetHelpersTestCase(BaseTestCase):
     If a Django upgrade changes these, update this module alongside ORM release notes.
     """
 
-    def test_apply_endpoint_port_and_techs_related_selects_port_and_prefetches_techs(self) -> None:
+    def test_apply_endpoint_port_and_techs_related_selects_port_and_prefetches_techs(
+        self,
+    ) -> None:
         qs = apply_endpoint_port_and_techs_related(EndPoint.objects.all())
         prefetch = getattr(qs, "_prefetch_related_lookups", ()) or ()
         flat_names: list[str] = []
@@ -42,6 +44,7 @@ class DefaultEndpointQuerysetHelpersTestCase(BaseTestCase):
         self.assertIn("techs", flat_names)
         sr_techs = qs.query.select_related
         self.assertTrue(
-            sr_techs is False or (isinstance(sr_techs, dict) and "port" not in sr_techs),
+            sr_techs is False
+            or (isinstance(sr_techs, dict) and "port" not in sr_techs),
             msg="apply_endpoint_techs_prefetch must not select_related port",
         )

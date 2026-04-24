@@ -29,7 +29,10 @@ class APIKeyAuthenticationMiddleware:
                 user_api_key
                 and user_api_key.is_active
                 and not user_api_key.revoked
-                and (not user_api_key.expiry_date or user_api_key.expiry_date > timezone.now())
+                and (
+                    not user_api_key.expiry_date
+                    or user_api_key.expiry_date > timezone.now()
+                )
             ):
                 # Simulate authenticated user for LoginRequiredMiddleware
                 request.user = user_api_key.user
@@ -40,7 +43,10 @@ class APIKeyAuthenticationMiddleware:
                 request._dont_enforce_csrf_checks = True
                 # Update last used timestamp (throttled to reduce DB writes)
                 now = timezone.now()
-                if not user_api_key.last_used or (now - user_api_key.last_used).total_seconds() > 300:  # 5 minutes
+                if (
+                    not user_api_key.last_used
+                    or (now - user_api_key.last_used).total_seconds() > 300
+                ):  # 5 minutes
                     user_api_key.last_used = now
                     user_api_key.save(update_fields=["last_used"])
 
@@ -55,7 +61,9 @@ class APIKeyAuthenticationMiddleware:
         if not auth_header:
             return None
 
-        configured_header_name = (getattr(settings, "SECATOR_ADDONS_API_HEADER_NAME", "") or "").strip()
+        configured_header_name = (
+            getattr(settings, "SECATOR_ADDONS_API_HEADER_NAME", "") or ""
+        ).strip()
         candidate_header_names = [configured_header_name, "Api-Key"]
 
         for header_name in candidate_header_names:

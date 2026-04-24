@@ -31,7 +31,10 @@ class Migration(migrations.Migration):
             model_name="subdomain",
             name="scan_history",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.scanhistory",
             ),
         ),
         # Vulnerability
@@ -39,7 +42,10 @@ class Migration(migrations.Migration):
             model_name="vulnerability",
             name="scan_history",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.scanhistory",
             ),
         ),
         # ScanHistory
@@ -90,20 +96,28 @@ class Migration(migrations.Migration):
             model_name="scanhistory",
             name="celery_ids",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=100), blank=True, default=list, size=None
+                base_field=models.CharField(max_length=100),
+                blank=True,
+                default=list,
+                size=None,
             ),
         ),
         migrations.AlterField(
             model_name="endpoint",
             name="scan_history",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.scanhistory",
             ),
         ),
         migrations.AlterField(
             model_name="scanhistory",
             name="scan_status",
-            field=models.IntegerField(choices=[(-1, -1), (0, 0), (1, 1), (2, 2), (3, 3)], default=-1),
+            field=models.IntegerField(
+                choices=[(-1, -1), (0, 0), (1, 1), (2, 2), (3, 3)], default=-1
+            ),
         ),
         # SubScan
         migrations.RemoveField(
@@ -139,13 +153,20 @@ class Migration(migrations.Migration):
             model_name="subscan",
             name="celery_ids",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=100), blank=True, default=list, size=None
+                base_field=models.CharField(max_length=100),
+                blank=True,
+                default=list,
+                size=None,
             ),
         ),
         migrations.AddField(
             model_name="subscan",
             name="subdomain_subscan_ids",
-            field=models.ManyToManyField(blank=True, related_name="subdomain_subscan_ids", to="startScan.Subdomain"),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="subdomain_subscan_ids",
+                to="startScan.Subdomain",
+            ),
         ),
         # ScanActivity
         migrations.AddField(
@@ -168,7 +189,10 @@ class Migration(migrations.Migration):
             model_name="scanactivity",
             name="scan_of",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.scanhistory",
             ),
         ),
         # MetaFinderDocument
@@ -176,7 +200,10 @@ class Migration(migrations.Migration):
             model_name="metafinderdocument",
             name="scan_history",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="startScan.scanhistory",
             ),
         ),
     ]

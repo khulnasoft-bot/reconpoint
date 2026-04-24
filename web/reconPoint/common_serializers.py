@@ -38,7 +38,18 @@ class DomainRegistrarSerializer(serializers.ModelSerializer):
 class DomainRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DomainRegistration
-        fields = ["name", "organization", "address", "city", "state", "zip_code", "country", "email", "phone", "fax"]
+        fields = [
+            "name",
+            "organization",
+            "address",
+            "city",
+            "state",
+            "zip_code",
+            "country",
+            "email",
+            "phone",
+            "fax",
+        ]
 
 
 class DomainWhoisStatusSerializer(serializers.ModelSerializer):

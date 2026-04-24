@@ -85,7 +85,9 @@ def _run_sync_worker(secator_runner_id: int) -> None:
             level="warning",
         )
     try:
-        secator_runner = SecatorRunner.objects.select_related("scan_history").get(id=secator_runner_id)
+        secator_runner = SecatorRunner.objects.select_related("scan_history").get(
+            id=secator_runner_id
+        )
     except SecatorRunner.DoesNotExist:
         logger.log_line(
             PREFIX_SYNC,

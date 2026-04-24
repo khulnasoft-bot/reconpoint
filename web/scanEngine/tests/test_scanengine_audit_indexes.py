@@ -49,5 +49,6 @@ class ScanEngineAuditIndexesTestCase(BaseTestCase):
             self.assertEqual(
                 actual_table,
                 expected_table,
-                "Index %s should be on table %s, found on %s" % (indexname, expected_table, actual_table),
+                "Index %s should be on table %s, found on %s"
+                % (indexname, expected_table, actual_table),
             )

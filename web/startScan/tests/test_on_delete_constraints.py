@@ -120,13 +120,17 @@ class TestDomainCascadeDeletion(BaseTestCase):
         metafinder_document_id = metafinder_document.id
 
         # Verify metafinder_document exists
-        self.assertTrue(MetaFinderDocument.objects.filter(id=metafinder_document_id).exists())
+        self.assertTrue(
+            MetaFinderDocument.objects.filter(id=metafinder_document_id).exists()
+        )
 
         # Delete domain
         domain.delete()
 
         # Verify metafinder_document was deleted
-        self.assertFalse(MetaFinderDocument.objects.filter(id=metafinder_document_id).exists())
+        self.assertFalse(
+            MetaFinderDocument.objects.filter(id=metafinder_document_id).exists()
+        )
 
     def test_delete_domain_cascades_to_employees(self):
         """Test that deleting a domain deletes all associated employees."""
@@ -152,7 +156,9 @@ class TestDomainCascadeDeletion(BaseTestCase):
     def test_delete_domain_cascades_to_exploits(self):
         """Test that deleting a domain deletes all associated exploits."""
         domain = self.data_generator.domain
-        exploit = self.data_generator.create_exploit(domain=domain, scan_history=self.data_generator.scan_history)
+        exploit = self.data_generator.create_exploit(
+            domain=domain, scan_history=self.data_generator.scan_history
+        )
 
         exploit_id = exploit.id
 
@@ -316,13 +322,17 @@ class TestScanHistoryCascadeDeletion(BaseTestCase):
         metafinder_document_id = metafinder_document.id
 
         # Verify metafinder_document exists
-        self.assertTrue(MetaFinderDocument.objects.filter(id=metafinder_document_id).exists())
+        self.assertTrue(
+            MetaFinderDocument.objects.filter(id=metafinder_document_id).exists()
+        )
 
         # Delete scan_history
         scan_history.delete()
 
         # Verify metafinder_document was deleted
-        self.assertFalse(MetaFinderDocument.objects.filter(id=metafinder_document_id).exists())
+        self.assertFalse(
+            MetaFinderDocument.objects.filter(id=metafinder_document_id).exists()
+        )
 
     def test_delete_scan_history_cascades_to_employees(self):
         """Test that deleting a scan_history deletes all associated employees."""
@@ -348,7 +358,9 @@ class TestScanHistoryCascadeDeletion(BaseTestCase):
     def test_delete_scan_history_cascades_to_exploits(self):
         """Test that deleting a scan_history deletes all associated exploits."""
         scan_history = self.data_generator.scan_history
-        exploit = self.data_generator.create_exploit(domain=self.data_generator.domain, scan_history=scan_history)
+        exploit = self.data_generator.create_exploit(
+            domain=self.data_generator.domain, scan_history=scan_history
+        )
 
         exploit_id = exploit.id
 
@@ -487,13 +499,17 @@ class TestSubdomainCascadeDeletion(BaseTestCase):
         metafinder_document_id = metafinder_document.id
 
         # Verify metafinder_document exists
-        self.assertTrue(MetaFinderDocument.objects.filter(id=metafinder_document_id).exists())
+        self.assertTrue(
+            MetaFinderDocument.objects.filter(id=metafinder_document_id).exists()
+        )
 
         # Delete subdomain
         subdomain.delete()
 
         # Verify metafinder_document was deleted
-        self.assertFalse(MetaFinderDocument.objects.filter(id=metafinder_document_id).exists())
+        self.assertFalse(
+            MetaFinderDocument.objects.filter(id=metafinder_document_id).exists()
+        )
 
     def test_delete_subdomain_cascades_to_employees(self):
         """Test that deleting a subdomain deletes all associated employees."""
@@ -740,7 +756,9 @@ class TestUserSetNull(BaseTestCase):
 
     def test_delete_user_cascades_to_scan_history_initiated_by(self):
         """Test that deleting a user deletes ScanHistory with initiated_by (CASCADE behavior in model)."""
-        user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass")
+        user = User.objects.create_user(
+            username="testuser", email="test@example.com", password="testpass"
+        )
         scan_history = self.data_generator.scan_history
         scan_history.initiated_by = user
         scan_history.save()
@@ -763,7 +781,9 @@ class TestUserSetNull(BaseTestCase):
 
     def test_delete_user_sets_scan_history_aborted_by_to_null(self):
         """Test that deleting a user sets ScanHistory.aborted_by to NULL."""
-        user = User.objects.create_user(username="testuser2", email="test2@example.com", password="testpass")
+        user = User.objects.create_user(
+            username="testuser2", email="test2@example.com", password="testpass"
+        )
         scan_history = self.data_generator.scan_history
         scan_history.aborted_by = user
         scan_history.save()

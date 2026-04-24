@@ -160,7 +160,9 @@ input_types:
 
     def test_load_secator_all_command(self):
         """Test the load_secator_all management command."""
-        with patch("scanEngine.management.commands.load_secator_all.call_command") as mock_call:
+        with patch(
+            "scanEngine.management.commands.load_secator_all.call_command"
+        ) as mock_call:
             # Run the command
             out = get_test_stdout()
             call_command("load_secator_all", stdout=out)
@@ -174,7 +176,9 @@ input_types:
 
     def test_load_secator_all_tasks_only(self):
         """Test the load_secator_all command with tasks-only flag."""
-        with patch("scanEngine.management.commands.load_secator_all.call_command") as mock_call:
+        with patch(
+            "scanEngine.management.commands.load_secator_all.call_command"
+        ) as mock_call:
             # Run the command with tasks-only
             out = StringIO()
             call_command("load_secator_all", tasks_only=True, stdout=out)
@@ -185,7 +189,9 @@ input_types:
 
     def test_load_secator_all_workflows_only(self):
         """Test the load_secator_all command with workflows-only flag."""
-        with patch("scanEngine.management.commands.load_secator_all.call_command") as mock_call:
+        with patch(
+            "scanEngine.management.commands.load_secator_all.call_command"
+        ) as mock_call:
             # Run the command with workflows-only
             out = StringIO()
             call_command("load_secator_all", workflows_only=True, stdout=out)
@@ -196,7 +202,9 @@ input_types:
 
     def test_load_secator_all_scans_only(self):
         """Test the load_secator_all command with scans-only flag."""
-        with patch("scanEngine.management.commands.load_secator_all.call_command") as mock_call:
+        with patch(
+            "scanEngine.management.commands.load_secator_all.call_command"
+        ) as mock_call:
             # Run the command with scans-only
             out = StringIO()
             call_command("load_secator_all", scans_only=True, stdout=out)
@@ -207,7 +215,9 @@ input_types:
 
     def test_entrypoint_setup_calls_all_commands(self):
         """Test entrypoint_setup invokes migrations, setup_oauth, cron, load_secator_all, collectstatic."""
-        with patch("scanEngine.management.commands.entrypoint_setup.call_command") as mock_call:
+        with patch(
+            "scanEngine.management.commands.entrypoint_setup.call_command"
+        ) as mock_call:
             out = StringIO()
             call_command("entrypoint_setup", stdout=out)
             self.assertGreaterEqual(mock_call.call_count, 6)
@@ -222,7 +232,9 @@ input_types:
 
     def test_entrypoint_setup_continues_when_optional_commands_fail(self):
         """Test entrypoint_setup still runs collectstatic when cron or load_secator_all raise."""
-        with patch("scanEngine.management.commands.entrypoint_setup.call_command") as mock_call:
+        with patch(
+            "scanEngine.management.commands.entrypoint_setup.call_command"
+        ) as mock_call:
 
             def side_effect(cmd, *args, **kwargs):
                 if cmd == "ensure_scheduled_scans_cron":
@@ -347,7 +359,9 @@ tasks:
         call_command("load_workflows", "--builtin-only", stdout=out)
 
         # Verify no workflows were created
-        self.assertEqual(SecatorWorkflow.objects.filter(workflow_type="builtin").count(), 0)
+        self.assertEqual(
+            SecatorWorkflow.objects.filter(workflow_type="builtin").count(), 0
+        )
 
     @patch("scanEngine.management.commands.load_workflows.get_configs_by_type")
     @patch("builtins.open", new_callable=mock_open)
@@ -373,10 +387,14 @@ tasks:
         call_command("load_workflows", "--builtin-only", stdout=out)
 
         # Verify no workflows were created
-        self.assertEqual(SecatorWorkflow.objects.filter(workflow_type="builtin").count(), 0)
+        self.assertEqual(
+            SecatorWorkflow.objects.filter(workflow_type="builtin").count(), 0
+        )
 
     @patch("scanEngine.management.commands.load_workflows.get_configs_by_type")
-    @patch("builtins.open", new_callable=mock_open, read_data="invalid: yaml: content: [")
+    @patch(
+        "builtins.open", new_callable=mock_open, read_data="invalid: yaml: content: ["
+    )
     def test_load_builtin_workflows_invalid_yaml(self, mock_file, mock_get_configs):
         """
         Test handling of invalid YAML content.
@@ -396,7 +414,9 @@ tasks:
         call_command("load_workflows", "--builtin-only", stdout=out)
 
         # Verify no workflows were created
-        self.assertEqual(SecatorWorkflow.objects.filter(workflow_type="builtin").count(), 0)
+        self.assertEqual(
+            SecatorWorkflow.objects.filter(workflow_type="builtin").count(), 0
+        )
 
     @patch("scanEngine.management.commands.load_workflows.get_configs_by_type")
     @patch(
@@ -458,7 +478,10 @@ tasks:
 
         # Test with internal keywords
         workflow_data = {
-            "workflows": {"nmap": {"description": "Port scan"}, "naabu": {"description": "Port discovery"}},
+            "workflows": {
+                "nmap": {"description": "Port scan"},
+                "naabu": {"description": "Port discovery"},
+            },
             "description": "Network reconnaissance",
         }
 
@@ -589,7 +612,9 @@ class TestLoadTasksCommand(BaseTestCase):
 
     @patch("scanEngine.management.commands.load_tasks.discover_tasks")
     @patch("scanEngine.management.commands.load_tasks.get_configs_by_type")
-    def test_load_builtin_tasks_tags_from_discover(self, mock_get_configs, mock_discover_tasks):
+    def test_load_builtin_tasks_tags_from_discover(
+        self, mock_get_configs, mock_discover_tasks
+    ):
         """Test that tags are loaded from Secator task classes (discover_tasks)."""
         mock_task = MagicMock()
         mock_task.name = "subfinder"
@@ -612,7 +637,9 @@ class TestLoadTasksCommand(BaseTestCase):
 
     @patch("scanEngine.management.commands.load_tasks.discover_tasks")
     @patch("scanEngine.management.commands.load_tasks.get_configs_by_type")
-    def test_load_builtin_tasks_update_existing(self, mock_get_configs, mock_discover_tasks):
+    def test_load_builtin_tasks_update_existing(
+        self, mock_get_configs, mock_discover_tasks
+    ):
         """Test updating existing built-in tasks."""
         existing_task = SecatorTask.objects.create(
             name="subfinder",
@@ -646,7 +673,9 @@ class TestLoadTasksCommand(BaseTestCase):
 
     @patch("scanEngine.management.commands.load_tasks.discover_tasks")
     @patch("scanEngine.management.commands.load_tasks.get_configs_by_type")
-    def test_load_builtin_tasks_name_collision_skips_update(self, mock_get_configs, mock_discover_tasks):
+    def test_load_builtin_tasks_name_collision_skips_update(
+        self, mock_get_configs, mock_discover_tasks
+    ):
         """Custom task with same name as Secator task is not overwritten; warning is logged."""
         custom_task = SecatorTask.objects.create(
             name="subfinder",
@@ -745,7 +774,9 @@ input_types:
         call_command("load_scans", "--builtin-only", stdout=out)
 
         # Verify no scans were created
-        self.assertEqual(SecatorScan.objects.filter(scan_config_type="builtin").count(), 0)
+        self.assertEqual(
+            SecatorScan.objects.filter(scan_config_type="builtin").count(), 0
+        )
 
     @patch("scanEngine.management.commands.load_scans.get_configs_by_type")
     @patch("builtins.open", new_callable=mock_open)
@@ -769,10 +800,14 @@ input_types:
         call_command("load_scans", "--builtin-only", stdout=out)
 
         # Verify no scans were created
-        self.assertEqual(SecatorScan.objects.filter(scan_config_type="builtin").count(), 0)
+        self.assertEqual(
+            SecatorScan.objects.filter(scan_config_type="builtin").count(), 0
+        )
 
     @patch("scanEngine.management.commands.load_scans.get_configs_by_type")
-    @patch("builtins.open", new_callable=mock_open, read_data="invalid: yaml: content: [")
+    @patch(
+        "builtins.open", new_callable=mock_open, read_data="invalid: yaml: content: ["
+    )
     def test_load_builtin_scans_invalid_yaml(self, mock_file, mock_get_configs):
         """
         Test handling of invalid YAML content.
@@ -790,7 +825,9 @@ input_types:
         call_command("load_scans", "--builtin-only", stdout=out)
 
         # Verify no scans were created
-        self.assertEqual(SecatorScan.objects.filter(scan_config_type="builtin").count(), 0)
+        self.assertEqual(
+            SecatorScan.objects.filter(scan_config_type="builtin").count(), 0
+        )
 
     @patch("scanEngine.management.commands.load_scans.get_configs_by_type")
     @patch(
@@ -863,7 +900,9 @@ input_types:
         call_command("load_scans", "--builtin-only", stdout=out)
 
         # Verify no scans were created
-        self.assertEqual(SecatorScan.objects.filter(scan_config_type="builtin").count(), 0)
+        self.assertEqual(
+            SecatorScan.objects.filter(scan_config_type="builtin").count(), 0
+        )
 
 
 class TestLoadProfilesCommand(BaseTestCase):
@@ -929,7 +968,9 @@ opts:
   delay: 0
 """,
     )
-    def test_load_profiles_sets_default_on_first_import(self, mock_file, mock_get_configs):
+    def test_load_profiles_sets_default_on_first_import(
+        self, mock_file, mock_get_configs
+    ):
         """Test that default profiles are set on first import."""
         mock_profile = MagicMock()
         mock_profile.name = "polite"
@@ -962,7 +1003,9 @@ opts:
   delay: 1
 """,
     )
-    def test_load_profiles_does_not_modify_default_on_update(self, mock_file, mock_get_configs):
+    def test_load_profiles_does_not_modify_default_on_update(
+        self, mock_file, mock_get_configs
+    ):
         """Test that default status is not modified on subsequent imports."""
         # Create existing profile with is_default=False
         existing_profile = SecatorProfile.objects.create(
@@ -1002,7 +1045,9 @@ opts:
         call_command("load_profiles", "--builtin-only", stdout=out)
 
         # Verify no profiles were created
-        self.assertEqual(SecatorProfile.objects.filter(profile_type="builtin").count(), 0)
+        self.assertEqual(
+            SecatorProfile.objects.filter(profile_type="builtin").count(), 0
+        )
 
     def test_load_profiles_full_keeps_config_dir_profiles_builtin(self) -> None:
         """Full CLI load must not reclassify reconPoint config/profiles YAML as custom (regression for load_secator_all)."""
@@ -1040,7 +1085,10 @@ opts:
                 "scanEngine.management.commands.load_profiles.get_configs_by_type",
                 return_value=[mock_profile],
             ):
-                with patch("scanEngine.management.commands.load_profiles.settings.BASE_DIR", tmp):
+                with patch(
+                    "scanEngine.management.commands.load_profiles.settings.BASE_DIR",
+                    tmp,
+                ):
                     out = get_test_stdout()
                     call_command("load_profiles", stdout=out)
 
@@ -1051,7 +1099,9 @@ opts:
         self.assertIsNotNone(sec)
         self.assertEqual(sec.profile_type, "builtin")
 
-    @patch("scanEngine.management.commands.check_secator_prefix.get_secator_prefix_diagnostic")
+    @patch(
+        "scanEngine.management.commands.check_secator_prefix.get_secator_prefix_diagnostic"
+    )
     def test_check_secator_prefix_ok_exits_zero(self, mock_diagnostic):
         """check_secator_prefix exits 0 when diagnostic reports ok."""
         mock_diagnostic.return_value = {
@@ -1071,7 +1121,9 @@ opts:
         self.assertEqual(cm.exception.code, 0)
         self.assertIn("OK", out.getvalue())
 
-    @patch("scanEngine.management.commands.check_secator_prefix.get_secator_prefix_diagnostic")
+    @patch(
+        "scanEngine.management.commands.check_secator_prefix.get_secator_prefix_diagnostic"
+    )
     def test_check_secator_prefix_failure_exits_one(self, mock_diagnostic):
         """check_secator_prefix exits 1 when diagnostic reports issues."""
         mock_diagnostic.return_value = {
@@ -1091,7 +1143,9 @@ opts:
         self.assertEqual(cm.exception.code, 1)
         self.assertIn("issues detected", err.getvalue())
 
-    @patch("scanEngine.management.commands.check_secator_prefix.get_secator_prefix_diagnostic")
+    @patch(
+        "scanEngine.management.commands.check_secator_prefix.get_secator_prefix_diagnostic"
+    )
     def test_check_secator_prefix_quiet(self, mock_diagnostic):
         """check_secator_prefix --quiet only writes to stderr on failure."""
         mock_diagnostic.return_value = {

@@ -91,11 +91,17 @@ class ScopeModelTest(BaseTestCase):
             organization=self.data_generator.organization,
             name="Normalize Test",
             scope_type=SCOPE_TYPE_ENGAGEMENT_EXTERNAL,
-            allowed_finding_hosts=["  Host.Example.COM  ", "host.example.com", "192.168.1.1"],
+            allowed_finding_hosts=[
+                "  Host.Example.COM  ",
+                "host.example.com",
+                "192.168.1.1",
+            ],
         )
         scope.save()
         scope.refresh_from_db()
-        self.assertEqual(scope.allowed_finding_hosts, ["host.example.com", "192.168.1.1"])
+        self.assertEqual(
+            scope.allowed_finding_hosts, ["host.example.com", "192.168.1.1"]
+        )
 
     def test_scope_save_non_list_allowed_finding_hosts_becomes_empty_list(self):
         scope = Scope(
@@ -114,7 +120,9 @@ class ScopeModelTest(BaseTestCase):
             name="Legacy String Test",
             scope_type=SCOPE_TYPE_ENGAGEMENT_EXTERNAL,
         )
-        scope.allowed_finding_hosts = "host1.example.com, host2.example.com\n  host3.example.com  "
+        scope.allowed_finding_hosts = (
+            "host1.example.com, host2.example.com\n  host3.example.com  "
+        )
         scope.save()
         scope.refresh_from_db()
         self.assertEqual(
@@ -213,7 +221,9 @@ class ScopeViewsTest(BaseTestCase):
 
     def test_update_scope_get(self):
         scope = self.data_generator.create_scope()
-        response = self.client.get(reverse("update_scope", kwargs={"slug": self.slug, "id": scope.id}))
+        response = self.client.get(
+            reverse("update_scope", kwargs={"slug": self.slug, "id": scope.id})
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "scope/update.html")
 
@@ -295,7 +305,9 @@ class ScopeViewsTest(BaseTestCase):
     def test_delete_scope_post(self):
         scope = self.data_generator.create_scope()
         scope_id = scope.pk
-        response = self.client.post(reverse("delete_scope", kwargs={"slug": self.slug, "id": scope_id}))
+        response = self.client.post(
+            reverse("delete_scope", kwargs={"slug": self.slug, "id": scope_id})
+        )
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["status"], "true")
@@ -303,21 +315,27 @@ class ScopeViewsTest(BaseTestCase):
 
     def test_delete_scope_get_fails(self):
         scope = self.data_generator.create_scope()
-        response = self.client.get(reverse("delete_scope", kwargs={"slug": self.slug, "id": scope.id}))
+        response = self.client.get(
+            reverse("delete_scope", kwargs={"slug": self.slug, "id": scope.id})
+        )
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["status"], "false")
         self.assertTrue(Scope.objects.filter(pk=scope.pk).exists())
 
     def test_delete_nonexistent_scope(self):
-        response = self.client.post(reverse("delete_scope", kwargs={"slug": self.slug, "id": 99999}))
+        response = self.client.post(
+            reverse("delete_scope", kwargs={"slug": self.slug, "id": 99999})
+        )
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["status"], "false")
 
     def test_scope_detail_view(self):
         scope = self.data_generator.create_scope()
-        response = self.client.get(reverse("scope_detail", kwargs={"slug": self.slug, "id": scope.id}))
+        response = self.client.get(
+            reverse("scope_detail", kwargs={"slug": self.slug, "id": scope.id})
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "scope/detail.html")
         self.assertEqual(response.context["scope"].pk, scope.pk)
@@ -325,7 +343,9 @@ class ScopeViewsTest(BaseTestCase):
     def test_scope_detail_wrong_project(self):
         from dashboard.models import Project
 
-        other_project = Project.objects.create(name="Other Project", slug="other-project", insert_date=timezone.now())
+        other_project = Project.objects.create(
+            name="Other Project", slug="other-project", insert_date=timezone.now()
+        )
         other_org = Organization.objects.create(
             name="Other Org",
             project=other_project,
@@ -336,7 +356,9 @@ class ScopeViewsTest(BaseTestCase):
             name="Other Scope",
             scope_type=SCOPE_TYPE_ENGAGEMENT_EXTERNAL,
         )
-        response = self.client.get(reverse("scope_detail", kwargs={"slug": self.slug, "id": other_scope.id}))
+        response = self.client.get(
+            reverse("scope_detail", kwargs={"slug": self.slug, "id": other_scope.id})
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_add_scope_with_targets(self):
@@ -378,10 +400,14 @@ class ScopeViewsTest(BaseTestCase):
         scope = Scope.objects.get(name="Scope With Pending Targets")
         scope_target_ids = list(scope.targets.values_list("id", flat=True))
         self.assertEqual(len(scope_target_ids), 3)
-        host_targets = Target.objects.filter(project=project, target_type="host").values_list("value", flat=True)
+        host_targets = Target.objects.filter(
+            project=project, target_type="host"
+        ).values_list("value", flat=True)
         self.assertIn("pending-domain.example.com", host_targets)
         self.assertIn("other-root.org", host_targets)
-        ip_targets = Target.objects.filter(project=project, target_type="ip").values_list("value", flat=True)
+        ip_targets = Target.objects.filter(
+            project=project, target_type="ip"
+        ).values_list("value", flat=True)
         self.assertIn("10.9.8.7", ip_targets)
 
     def test_add_scope_with_pending_cidr_and_url_targets(self):
@@ -408,14 +434,20 @@ class ScopeViewsTest(BaseTestCase):
         self.assertEqual(response.status_code, 302)
         scope = Scope.objects.get(name="Scope Pending CIDR URL")
         self.assertEqual(scope.targets.count(), 2)
-        self.assertTrue(scope.targets.filter(value="10.10.0.0/16", target_type=TARGET_TYPE_CIDR_RANGE).exists())
+        self.assertTrue(
+            scope.targets.filter(
+                value="10.10.0.0/16", target_type=TARGET_TYPE_CIDR_RANGE
+            ).exists()
+        )
         self.assertTrue(
             scope.targets.filter(
                 value="https://app.pending-scope.example.com/api",
                 target_type=TARGET_TYPE_URL,
             ).exists()
         )
-        self.assertTrue(Target.objects.filter(project=project, value="10.10.0.0/16").exists())
+        self.assertTrue(
+            Target.objects.filter(project=project, value="10.10.0.0/16").exists()
+        )
 
     def test_update_scope_with_pending_normalizer_targets_creates_targets_on_save(self):
         """Updating a scope with pending_normalizer_targets creates those targets and adds them to the scope."""
@@ -439,8 +471,14 @@ class ScopeViewsTest(BaseTestCase):
         )
         self.assertEqual(response.status_code, 302)
         scope.refresh_from_db()
-        self.assertEqual(scope.targets.filter(value="update-domain.example.com").count(), 1)
-        self.assertTrue(Target.objects.filter(project=project, value="update-domain.example.com").exists())
+        self.assertEqual(
+            scope.targets.filter(value="update-domain.example.com").count(), 1
+        )
+        self.assertTrue(
+            Target.objects.filter(
+                project=project, value="update-domain.example.com"
+            ).exists()
+        )
 
     def test_add_scope_with_scan_params(self):
         org = self.data_generator.organization

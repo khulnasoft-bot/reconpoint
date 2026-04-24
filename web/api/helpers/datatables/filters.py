@@ -216,13 +216,19 @@ def apply_filter_list_in(
     warning (tolerant of label drift / outdated filter values).
     """
     if queryset is None:
-        log_and_append_filter_warning("apply_filter_list_in: queryset is None; returning unchanged")
+        log_and_append_filter_warning(
+            "apply_filter_list_in: queryset is None; returning unchanged"
+        )
         return queryset
     if not lookup or not isinstance(lookup, str):
-        log_and_append_filter_warning("apply_filter_list_in: lookup is missing or not a string")
+        log_and_append_filter_warning(
+            "apply_filter_list_in: lookup is missing or not a string"
+        )
         return queryset
     if values is not None and not isinstance(values, list):
-        log_and_append_filter_warning(f"apply_filter_list_in: values must be a list; got {type(values).__name__}")
+        log_and_append_filter_warning(
+            f"apply_filter_list_in: values must be a list; got {type(values).__name__}"
+        )
         return queryset
     if not values:
         return queryset
@@ -232,7 +238,9 @@ def apply_filter_list_in(
     if not values:
         if empty_when_no_valid_values:
             return queryset.none()
-        log_and_append_filter_warning("apply_filter_list_in: all values mapped to None; leaving queryset unchanged")
+        log_and_append_filter_warning(
+            "apply_filter_list_in: all values mapped to None; leaving queryset unchanged"
+        )
         return queryset
     qs = queryset.filter(**{lookup: values})
     return qs.distinct() if distinct else qs
@@ -252,24 +260,36 @@ def apply_filter_list_in_by_param(
     optionally strips empty strings, then delegates to apply_filter_list_in.
     """
     if queryset is None:
-        log_and_append_filter_warning("apply_filter_list_in_by_param: queryset is None; returning unchanged")
+        log_and_append_filter_warning(
+            "apply_filter_list_in_by_param: queryset is None; returning unchanged"
+        )
         return queryset
     if request is None:
-        log_and_append_filter_warning(f"apply_filter_list_in_by_param: request is None for lookup {lookup}")
+        log_and_append_filter_warning(
+            f"apply_filter_list_in_by_param: request is None for lookup {lookup}"
+        )
         return queryset
     if not param_key or not isinstance(param_key, str):
-        log_and_append_filter_warning("apply_filter_list_in_by_param: param_key is missing or not a string")
+        log_and_append_filter_warning(
+            "apply_filter_list_in_by_param: param_key is missing or not a string"
+        )
         return queryset
     if not lookup or not isinstance(lookup, str):
-        log_and_append_filter_warning("apply_filter_list_in_by_param: lookup is missing or not a string")
+        log_and_append_filter_warning(
+            "apply_filter_list_in_by_param: lookup is missing or not a string"
+        )
         return queryset
     values = get_request_filter_list(request, param_key)
     if strip_empty:
         values = [v for v in values if v]
-    return apply_filter_list_in(queryset, lookup, values, value_mapper=value_mapper, distinct=distinct)
+    return apply_filter_list_in(
+        queryset, lookup, values, value_mapper=value_mapper, distinct=distinct
+    )
 
 
-def apply_filter_scan_status(queryset: QuerySet[Any], request: HttpRequest) -> QuerySet[Any]:
+def apply_filter_scan_status(
+    queryset: QuerySet[Any], request: HttpRequest
+) -> QuerySet[Any]:
     """Apply scan status filter (ScanHistory.scan_status) from filter_status param."""
     labels = get_request_filter_list(request, FILTER_PARAM_STATUS)
     if codes := get_scan_status_codes_for_labels(labels):
@@ -277,7 +297,9 @@ def apply_filter_scan_status(queryset: QuerySet[Any], request: HttpRequest) -> Q
     return queryset
 
 
-def apply_filter_task_status(queryset: QuerySet[Any], request: HttpRequest) -> QuerySet[Any]:
+def apply_filter_task_status(
+    queryset: QuerySet[Any], request: HttpRequest
+) -> QuerySet[Any]:
     """Apply task/subscan status filter (SubScan.status) from filter_status param."""
     labels = get_request_filter_list(request, FILTER_PARAM_STATUS)
     if codes := get_task_status_codes_for_labels(labels):
@@ -285,7 +307,9 @@ def apply_filter_task_status(queryset: QuerySet[Any], request: HttpRequest) -> Q
     return queryset
 
 
-def apply_filter_scope_type(queryset: QuerySet[Any], request: HttpRequest) -> QuerySet[Any]:
+def apply_filter_scope_type(
+    queryset: QuerySet[Any], request: HttpRequest
+) -> QuerySet[Any]:
     """Apply scope type filter (Scope.scope_type) from filter_scope_type param."""
     labels = get_request_filter_list(request, FILTER_PARAM_SCOPE_TYPE)
     if values := get_scope_type_values_for_labels(labels):

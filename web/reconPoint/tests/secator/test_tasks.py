@@ -42,10 +42,14 @@ class TestSecatorTasks(BaseTestCase):
 
         # Create some existing subdomains
         self.existing_subdomain1 = Subdomain.objects.create(
-            name=f"sub1.{self.domain_name}", domain=self.domain, scan_history=self.scan_history
+            name=f"sub1.{self.domain_name}",
+            domain=self.domain,
+            scan_history=self.scan_history,
         )
         self.existing_subdomain2 = Subdomain.objects.create(
-            name=f"sub2.{self.domain_name}", domain=self.domain, scan_history=self.scan_history
+            name=f"sub2.{self.domain_name}",
+            domain=self.domain,
+            scan_history=self.scan_history,
         )
 
     def test_initiate_secator_scan_exists(self):
@@ -105,7 +109,10 @@ class TestSecatorTasks(BaseTestCase):
             url_filter="/admin",
         )
         self.assertGreaterEqual(len(targets), 1)
-        self.assertTrue(any("/admin" in t for t in targets), msg=f"No target with /admin in {targets}")
+        self.assertTrue(
+            any("/admin" in t for t in targets),
+            msg=f"No target with /admin in {targets}",
+        )
 
     def test_build_enriched_targets_with_out_of_scope_filtering(self):
         """Test building enriched targets with out-of-scope filtering."""
@@ -136,8 +143,13 @@ class TestSecatorTasks(BaseTestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @patch("reconPoint.secator.orchestrator.ScanOrchestrator")
     @patch("reconPoint.secator.tasks.build_enriched_targets")
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types", return_value=["host"])
-    def test_initiate_secator_scan_passes_parameters(self, mock_get_input_types, mock_build_targets, mock_orchestrator):
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types",
+        return_value=["host"],
+    )
+    def test_initiate_secator_scan_passes_parameters(
+        self, mock_get_input_types, mock_build_targets, mock_orchestrator
+    ):
         """Test that initiate_secator_scan passes all reconPoint parameters correctly."""
         from scanEngine.models import SecatorWorkflow
 
@@ -152,8 +164,13 @@ class TestSecatorTasks(BaseTestCase):
         url_filter = "/admin"
         initiated_by_id = self.user.id
 
-        with patch("scanEngine.models.SecatorWorkflow.objects.get", return_value=mock_workflow):
-            with patch("startScan.models.ScanHistory.objects.get", return_value=self.scan_history):
+        with patch(
+            "scanEngine.models.SecatorWorkflow.objects.get", return_value=mock_workflow
+        ):
+            with patch(
+                "startScan.models.ScanHistory.objects.get",
+                return_value=self.scan_history,
+            ):
                 initiate_secator_scan(
                     scan_history_id=self.scan_history.id,
                     target_id=self.target.id,
@@ -178,7 +195,10 @@ class TestSecatorTasks(BaseTestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @patch("reconPoint.secator.orchestrator.ScanOrchestrator")
     @patch("reconPoint.secator.tasks.build_enriched_targets")
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types", return_value=["host"])
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types",
+        return_value=["host"],
+    )
     def test_initiate_secator_scan_passes_full_scan_config_to_orchestrator(
         self, mock_get_input_types, mock_build_targets, mock_orchestrator
     ):
@@ -199,8 +219,13 @@ class TestSecatorTasks(BaseTestCase):
             "extra_config": {"custom_key": "custom_value"},
         }
 
-        with patch("scanEngine.models.SecatorWorkflow.objects.get", return_value=mock_workflow):
-            with patch("startScan.models.ScanHistory.objects.get", return_value=self.scan_history):
+        with patch(
+            "scanEngine.models.SecatorWorkflow.objects.get", return_value=mock_workflow
+        ):
+            with patch(
+                "startScan.models.ScanHistory.objects.get",
+                return_value=self.scan_history,
+            ):
                 initiate_secator_scan(
                     scan_history_id=self.scan_history.id,
                     target_id=self.target.id,
@@ -215,28 +240,44 @@ class TestSecatorTasks(BaseTestCase):
                 self.assertEqual(config.get("threads"), 5)
                 self.assertEqual(config.get("rate_limit"), 10)
                 self.assertEqual(config.get("delay"), 0.5)
-                self.assertEqual(config.get("extra_config"), {"custom_key": "custom_value"})
+                self.assertEqual(
+                    config.get("extra_config"), {"custom_key": "custom_value"}
+                )
                 profiles = call_args[1]["profiles"]
                 self.assertEqual(profiles, ["insane"])
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @patch("reconPoint.secator.orchestrator.ScanOrchestrator")
     @patch("reconPoint.secator.tasks.build_enriched_targets")
-    @patch("reconPoint.secator.services.input_type_service.InputTypeService.get_input_types", return_value=["host"])
+    @patch(
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types",
+        return_value=["host"],
+    )
     def test_initiate_secator_scan_with_reconpoint_context(
         self, mock_get_input_types, mock_build_targets, mock_orchestrator
     ):
         """Test that initiate_secator_scan creates proper reconPoint context."""
         from scanEngine.models import SecatorWorkflow
 
-        mock_build_targets.return_value = [self.domain_name, f"imported1.{self.domain_name}"]
+        mock_build_targets.return_value = [
+            self.domain_name,
+            f"imported1.{self.domain_name}",
+        ]
         mock_workflow = Mock(spec=SecatorWorkflow)
         mock_workflow.name = "test_workflow"
 
         with patch("secator.utils.autodetect_type", return_value="host"):
-            with patch("scanEngine.models.SecatorWorkflow.objects.get", return_value=mock_workflow):
-                with patch("startScan.models.ScanHistory.objects.get", return_value=self.scan_history):
-                    mock_orchestrator.return_value.execute_scan.return_value = {"status": "success"}
+            with patch(
+                "scanEngine.models.SecatorWorkflow.objects.get",
+                return_value=mock_workflow,
+            ):
+                with patch(
+                    "startScan.models.ScanHistory.objects.get",
+                    return_value=self.scan_history,
+                ):
+                    mock_orchestrator.return_value.execute_scan.return_value = {
+                        "status": "success"
+                    }
 
                     initiate_secator_scan(
                         scan_history_id=self.scan_history.id,
@@ -263,7 +304,9 @@ class TestSecatorTasks(BaseTestCase):
         "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types_for_task",
         return_value=["host"],
     )
-    def test_initiate_secator_scan_uses_targets_override(self, mock_get_input_types_for_task, mock_orchestrator):
+    def test_initiate_secator_scan_uses_targets_override(
+        self, mock_get_input_types_for_task, mock_orchestrator
+    ):
         """Test that when targets_override is provided, build_enriched_targets is not used."""
         mock_orchestrator.return_value.execute_scan.return_value = {"status": "success"}
 
@@ -279,9 +322,17 @@ class TestSecatorTasks(BaseTestCase):
         override_targets = [self.domain_name, f"sub1.{self.domain_name}"]
 
         with patch("secator.utils.autodetect_type", return_value="host"):
-            with patch("scanEngine.models.SecatorTask.objects.filter", return_value=mock_tasks_qs):
-                with patch("startScan.models.ScanHistory.objects.get", return_value=self.scan_history):
-                    with patch("reconPoint.secator.tasks.build_enriched_targets") as mock_build:
+            with patch(
+                "scanEngine.models.SecatorTask.objects.filter",
+                return_value=mock_tasks_qs,
+            ):
+                with patch(
+                    "startScan.models.ScanHistory.objects.get",
+                    return_value=self.scan_history,
+                ):
+                    with patch(
+                        "reconPoint.secator.tasks.build_enriched_targets"
+                    ) as mock_build:
                         initiate_secator_scan(
                             scan_history_id=self.scan_history.id,
                             target_id=self.target.id,
@@ -292,7 +343,9 @@ class TestSecatorTasks(BaseTestCase):
                         )
                         mock_build.assert_not_called()
                         mock_orchestrator.return_value.execute_scan.assert_called_once()
-                        call_args = mock_orchestrator.return_value.execute_scan.call_args
+                        call_args = (
+                            mock_orchestrator.return_value.execute_scan.call_args
+                        )
                         targets = call_args[1]["targets"]
                         self.assertEqual(targets, override_targets)
 

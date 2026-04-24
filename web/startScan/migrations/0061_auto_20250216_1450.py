@@ -61,7 +61,9 @@ class Migration(migrations.Migration):
             ),
         ),
         # Step 2: Migration of data with duplication if necessary
-        migrations.RunPython(code=migrate_ports_to_ip, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            code=migrate_ports_to_ip, reverse_code=migrations.RunPython.noop
+        ),
         # Step 3: Delete the old M2M field
         migrations.RemoveField(
             model_name="ipaddress",

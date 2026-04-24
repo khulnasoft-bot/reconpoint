@@ -28,9 +28,15 @@ def _classify_plan(plan_text: str) -> Tuple[str, str]:
     Classify plan as OK (index used) or WARNING (seq scan on main table).
     Returns (status, detail).
     """
-    seq_scan_matches = list(re.finditer(r"Seq Scan on ([\w\"]+)", plan_text, re.IGNORECASE))
+    seq_scan_matches = list(
+        re.finditer(r"Seq Scan on ([\w\"]+)", plan_text, re.IGNORECASE)
+    )
     index_scan_matches = list(
-        re.finditer(r"Index (?:Only )?Scan (?:Backward )?using (\S+) on ([\w\"]+)", plan_text, re.IGNORECASE)
+        re.finditer(
+            r"Index (?:Only )?Scan (?:Backward )?using (\S+) on ([\w\"]+)",
+            plan_text,
+            re.IGNORECASE,
+        )
     )
     bitmap_heap = "Bitmap Heap Scan" in plan_text
 
@@ -105,7 +111,11 @@ class Command(BaseCommand):
         self.stdout.write("=" * 80)
         if seq_count or err_count:
             self.stdout.write(
-                self.style.WARNING("Review SEQ_SCAN and ERROR lines; consider adding indexes or fixing queries.")
+                self.style.WARNING(
+                    "Review SEQ_SCAN and ERROR lines; consider adding indexes or fixing queries."
+                )
             )
         else:
-            self.stdout.write(self.style.SUCCESS("Done. No Seq Scan on audited queries."))
+            self.stdout.write(
+                self.style.SUCCESS("Done. No Seq Scan on audited queries.")
+            )

@@ -95,26 +95,47 @@ def strip_secator_reports_prefix(path: str, max_length: int = 1000) -> str:
         path = relative
     elif path.startswith("/"):
         prefix = getattr(settings, "SECATOR_REPORTS_PREFIX", "") or ""
-        results_root = (getattr(settings, "SECATOR_RESULTS", "") or "").strip().rstrip("/")
-        path_under_results = bool(results_root and (path == results_root or path.startswith(f"{results_root}/")))
-        if path_under_results and _unmatched_prefix_log_count < _MAX_UNMATCHED_PREFIX_LOGS:
+        results_root = (
+            (getattr(settings, "SECATOR_RESULTS", "") or "").strip().rstrip("/")
+        )
+        path_under_results = bool(
+            results_root
+            and (path == results_root or path.startswith(f"{results_root}/"))
+        )
+        if (
+            path_under_results
+            and _unmatched_prefix_log_count < _MAX_UNMATCHED_PREFIX_LOGS
+        ):
             _unmatched_prefix_log_count += 1
             logger.log_line(
                 PREFIX_PATH_UTILS,
                 "STRIP_PREFIX",
                 "Secator path does not start with SECATOR_REPORTS_PREFIX (%s); worker and web prefix may be out of sync. path=%s (occurrence %s/%s)"
-                % (prefix, path[:200], _unmatched_prefix_log_count, _MAX_UNMATCHED_PREFIX_LOGS),
+                % (
+                    prefix,
+                    path[:200],
+                    _unmatched_prefix_log_count,
+                    _MAX_UNMATCHED_PREFIX_LOGS,
+                ),
                 level="info",
             )
     if len(path) > max_length:
         if _truncation_warning_log_count < _MAX_TRUNCATION_WARNING_LOGS:
             _truncation_warning_log_count += 1
-            snippet = path[max_length - 80 : max_length + 20] if len(path) > 100 else path
+            snippet = (
+                path[max_length - 80 : max_length + 20] if len(path) > 100 else path
+            )
             logger.log_line(
                 PREFIX_PATH_UTILS,
                 "STRIP_PREFIX",
                 "Secator path truncated (len=%s, max_length=%s); stored value may not match a real file. snippet=%s (occurrence %s/%s)"
-                % (len(path), max_length, snippet, _truncation_warning_log_count, _MAX_TRUNCATION_WARNING_LOGS),
+                % (
+                    len(path),
+                    max_length,
+                    snippet,
+                    _truncation_warning_log_count,
+                    _MAX_TRUNCATION_WARNING_LOGS,
+                ),
                 level="warning",
             )
         return path[:max_length]

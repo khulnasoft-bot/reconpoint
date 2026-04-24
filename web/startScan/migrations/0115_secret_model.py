@@ -19,10 +19,15 @@ class Migration(migrations.Migration):
                 ("source", models.CharField(blank=True, max_length=100, null=True)),
                 ("value", models.TextField()),
                 ("extra_data", models.JSONField(blank=True, null=True)),
-                ("discovered_date", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "discovered_date",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
                 (
                     "scan_history",
-                    models.ForeignKey(on_delete=models.CASCADE, to="startScan.scanhistory"),
+                    models.ForeignKey(
+                        on_delete=models.CASCADE, to="startScan.scanhistory"
+                    ),
                 ),
             ],
             options={},

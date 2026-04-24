@@ -18,7 +18,9 @@ class TestTargetBuilderService(BaseTestCase):
         self.scan_history = self.data_generator.create_scan_history()
         self.domain = self.data_generator.create_domain(scan_history=self.scan_history)
         self.target = self.data_generator.target
-        self.subdomain = self.data_generator.create_subdomain(domain=self.domain, scan_history=self.scan_history)
+        self.subdomain = self.data_generator.create_subdomain(
+            domain=self.domain, scan_history=self.scan_history
+        )
         self.data_generator.create_endpoint(
             http_url=f"https://{self.subdomain.name}/",
             is_default=True,
@@ -75,12 +77,16 @@ class TestTargetBuilderService(BaseTestCase):
         self.assertIn("10.0.0.1:8080", result)
         self.assertIn("10.0.0.1:8443", result)
 
-    def test_build_targets_for_type_host_port_with_subdomain_ids_returns_only_selected_ports(self):
+    def test_build_targets_for_type_host_port_with_subdomain_ids_returns_only_selected_ports(
+        self,
+    ):
         """build_targets_for_type('host:port') with subdomain_ids returns IP:port only for selected subdomains."""
         ip1 = self.data_generator.create_ip_address(address="10.0.0.1")
         self.subdomain.ip_addresses.add(ip1)
         Port.objects.create(number=8080, ip_address=ip1)
-        subdomain2 = self.data_generator.create_subdomain(name="other." + self.domain.name, domain=self.domain)
+        subdomain2 = self.data_generator.create_subdomain(
+            name="other." + self.domain.name, domain=self.domain
+        )
         ip2 = self.data_generator.create_ip_address(address="10.0.0.2")
         subdomain2.ip_addresses.add(ip2)
         Port.objects.create(number=9090, ip_address=ip2)
@@ -94,26 +100,36 @@ class TestTargetBuilderService(BaseTestCase):
 
     def test_build_targets_for_type_ip_returns_ip_addresses(self):
         """build_targets_for_type('ip') returns IPs linked to domain subdomains."""
-        ip_obj = self.data_generator.create_ip_address(address="10.0.0.1", scan_history=self.scan_history)
+        ip_obj = self.data_generator.create_ip_address(
+            address="10.0.0.1", scan_history=self.scan_history
+        )
         self.subdomain.ip_addresses.add(ip_obj)
         service = TargetBuilderService(target_id=self.target.id)
         result = service.build_targets_for_type("ip")
         self.assertIn("10.0.0.1", result)
 
-    def test_build_targets_for_type_ip_with_subdomain_ids_returns_only_selected_ips(self):
+    def test_build_targets_for_type_ip_with_subdomain_ids_returns_only_selected_ips(
+        self,
+    ):
         """build_targets_for_type('ip') with subdomain_ids returns IPs only for selected subdomains."""
-        ip1 = self.data_generator.create_ip_address(address="10.0.0.1", scan_history=self.scan_history)
+        ip1 = self.data_generator.create_ip_address(
+            address="10.0.0.1", scan_history=self.scan_history
+        )
         self.subdomain.ip_addresses.add(ip1)
         scan2 = self.data_generator.create_scan_history()
         domain2 = Domain.objects.create(
-            name=f"other-{self.domain.name}", scan_history=scan2, insert_date=timezone.now()
+            name=f"other-{self.domain.name}",
+            scan_history=scan2,
+            insert_date=timezone.now(),
         )
         subdomain2 = self.data_generator.create_subdomain(
             name=f"other.{domain2.name}",
             domain=domain2,
             scan_history=scan2,
         )
-        ip2 = self.data_generator.create_ip_address(address="10.0.0.2", scan_history=scan2)
+        ip2 = self.data_generator.create_ip_address(
+            address="10.0.0.2", scan_history=scan2
+        )
         subdomain2.ip_addresses.add(ip2)
         service = TargetBuilderService(
             target_id=self.target.id,
@@ -123,9 +139,13 @@ class TestTargetBuilderService(BaseTestCase):
         self.assertIn("10.0.0.1", result)
         self.assertNotIn("10.0.0.2", result)
 
-    def test_build_targets_for_type_ip_with_subdomain_ids_ignores_other_target_histories(self):
+    def test_build_targets_for_type_ip_with_subdomain_ids_ignores_other_target_histories(
+        self,
+    ):
         """Subdomain filtering for IP targets stays scoped to the current target scan histories."""
-        ip1 = self.data_generator.create_ip_address(address="10.0.0.1", scan_history=self.scan_history)
+        ip1 = self.data_generator.create_ip_address(
+            address="10.0.0.1", scan_history=self.scan_history
+        )
         self.subdomain.ip_addresses.add(ip1)
 
         other_target = self.data_generator.create_target()
@@ -137,14 +157,18 @@ class TestTargetBuilderService(BaseTestCase):
             tasks=["subdomain_discovery"],
         )
         other_domain = Domain.objects.create(
-            name=f"other-{self.domain.name}", scan_history=other_scan, insert_date=timezone.now()
+            name=f"other-{self.domain.name}",
+            scan_history=other_scan,
+            insert_date=timezone.now(),
         )
         other_subdomain = self.data_generator.create_subdomain(
             name=f"outside.{other_domain.name}",
             domain=other_domain,
             scan_history=other_scan,
         )
-        ip2 = self.data_generator.create_ip_address(address="10.0.0.2", scan_history=other_scan)
+        ip2 = self.data_generator.create_ip_address(
+            address="10.0.0.2", scan_history=other_scan
+        )
         other_subdomain.ip_addresses.add(ip2)
 
         service = TargetBuilderService(
@@ -158,7 +182,9 @@ class TestTargetBuilderService(BaseTestCase):
 
     def test_build_targets_for_type_ip_uses_scan_history_scope(self):
         """build_targets_for_type('ip') returns rows linked to target scan histories without subdomain M2M."""
-        ip_for_target = self.data_generator.create_ip_address(address="10.0.0.42", scan_history=self.scan_history)
+        ip_for_target = self.data_generator.create_ip_address(
+            address="10.0.0.42", scan_history=self.scan_history
+        )
         other_target = self.data_generator.create_target()
         other_scan = ScanHistory.objects.create(
             target=other_target,
@@ -167,8 +193,14 @@ class TestTargetBuilderService(BaseTestCase):
             is_legacy_scan=False,
             tasks=["subdomain_discovery"],
         )
-        Domain.objects.create(name="other-target.example", scan_history=other_scan, insert_date=timezone.now())
-        ip_other = self.data_generator.create_ip_address(address="10.0.0.43", scan_history=other_scan)
+        Domain.objects.create(
+            name="other-target.example",
+            scan_history=other_scan,
+            insert_date=timezone.now(),
+        )
+        ip_other = self.data_generator.create_ip_address(
+            address="10.0.0.43", scan_history=other_scan
+        )
         service = TargetBuilderService(target_id=self.target.id)
         result = service.build_targets_for_type("ip")
         self.assertIn(ip_for_target.address, result)
@@ -179,8 +211,12 @@ class TestTargetBuilderService(BaseTestCase):
         self.target.target_type = "ip"
         self.target.value = "10.0.0.1"
         self.target.save(update_fields=["target_type", "value"])
-        self.data_generator.create_ip_address(address="10.0.0.1", scan_history=self.scan_history)
-        self.data_generator.create_ip_address(address="10.0.0.2", scan_history=self.scan_history)
+        self.data_generator.create_ip_address(
+            address="10.0.0.1", scan_history=self.scan_history
+        )
+        self.data_generator.create_ip_address(
+            address="10.0.0.2", scan_history=self.scan_history
+        )
 
         service = TargetBuilderService(target_id=self.target.id)
         result = service.build_targets_for_type("ip")

@@ -12,8 +12,14 @@ from api.helpers.advanced_search import (
     validate_expression_for_context,
 )
 from api.helpers.advanced_search_eval import boolean_field_value_from_token
-from api.helpers.advanced_search_values import _base_queryset_for_context, _subdomain_distinct_technology_values
-from api.helpers.query import build_vulnerability_datatable_base_queryset, parse_subdomain_datatable_request
+from api.helpers.advanced_search_values import (
+    _base_queryset_for_context,
+    _subdomain_distinct_technology_values,
+)
+from api.helpers.query import (
+    build_vulnerability_datatable_base_queryset,
+    parse_subdomain_datatable_request,
+)
 from api.views import ListSubdomains
 from startScan.models import Subdomain, Technology
 from utils.test_base import BaseTestCase
@@ -76,7 +82,9 @@ class TestAdvancedSearchParser(BaseTestCase):
         self.assertEqual(err, "unclosed_quote")
 
     def test_escaped_structural_chars_are_literal_in_atoms(self):
-        ast, err = parse_advanced_search_ast(r"http_url=https://x.test/?a=1\&b=2&name=a\|b")
+        ast, err = parse_advanced_search_ast(
+            r"http_url=https://x.test/?a=1\&b=2&name=a\|b"
+        )
         self.assertIsNone(err)
         self.assertEqual(ast[0], "and")
         self.assertEqual(ast[1][0], ("atom", "http_url=https://x.test/?a=1&b=2"))
@@ -156,7 +164,9 @@ class TestAdvancedSearchParser(BaseTestCase):
 
         for ctx, fields in ADVANCED_SEARCH_FIELD_CATALOG.items():
             for f in fields:
-                self.assertEqual(f["name"], f["name"].lower(), msg="%s/%s" % (ctx, f["name"]))
+                self.assertEqual(
+                    f["name"], f["name"].lower(), msg="%s/%s" % (ctx, f["name"])
+                )
 
     def test_datatable_request_parsers_align_with_values_api(self):
         from types import SimpleNamespace
@@ -168,7 +178,9 @@ class TestAdvancedSearchParser(BaseTestCase):
         k = parse_subdomain_datatable_request(req)
         self.assertEqual(k["project_slug"], slug)
         self.assertEqual(k["scan_id"], scan_id)
-        req2 = SimpleNamespace(query_params={"project": slug, "scan_history": str(scan_id)})
+        req2 = SimpleNamespace(
+            query_params={"project": slug, "scan_history": str(scan_id)}
+        )
         qs = build_vulnerability_datatable_base_queryset(req2)
         self.assertIsNotNone(qs)
 
@@ -255,19 +267,34 @@ class TestAdvancedSearchParser(BaseTestCase):
         url = reverse("api:advancedSearchValues")
         r1 = self.client.get(
             url,
-            {"context": "subdomains", "field": "page_title", "project": slug, "scan_id": scan_id},
+            {
+                "context": "subdomains",
+                "field": "page_title",
+                "project": slug,
+                "scan_id": scan_id,
+            },
         )
         self.assertEqual(r1.status_code, status.HTTP_200_OK)
         self.assertIn("UniqueDisplayTitle", r1.data.get("values") or [])
         r2 = self.client.get(
             url,
-            {"context": "subdomains", "field": "http_status", "project": slug, "scan_id": scan_id},
+            {
+                "context": "subdomains",
+                "field": "http_status",
+                "project": slug,
+                "scan_id": scan_id,
+            },
         )
         self.assertEqual(r2.status_code, status.HTTP_200_OK)
         self.assertIn("418", r2.data.get("values") or [])
         r3 = self.client.get(
             url,
-            {"context": "subdomains", "field": "content_length", "project": slug, "scan_id": scan_id},
+            {
+                "context": "subdomains",
+                "field": "content_length",
+                "project": slug,
+                "scan_id": scan_id,
+            },
         )
         self.assertEqual(r3.status_code, status.HTTP_200_OK)
         self.assertIn("9999", r3.data.get("values") or [])
@@ -276,13 +303,19 @@ class TestAdvancedSearchParser(BaseTestCase):
         """Avoid DatatablesRenderer when scope copies format=datatables from DataTable ajax URL."""
         from api.views_advanced_search import AdvancedSearchValuesView
 
-        self.assertEqual(list(AdvancedSearchValuesView.renderer_classes), [JSONRenderer])
+        self.assertEqual(
+            list(AdvancedSearchValuesView.renderer_classes), [JSONRenderer]
+        )
 
     def test_api_advanced_search_values_invalid_context(self):
         url = reverse("api:advancedSearchValues")
         response = self.client.get(
             url,
-            {"context": "nope", "field": "http_status", "project": self.data_generator.project.slug},
+            {
+                "context": "nope",
+                "field": "http_status",
+                "project": self.data_generator.project.slug,
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data.get("context"), "nope")
@@ -291,7 +324,11 @@ class TestAdvancedSearchParser(BaseTestCase):
         url = reverse("api:advancedSearchValues")
         response = self.client.get(
             url,
-            {"context": "endpoints", "field": "not_a_field", "project": self.data_generator.project.slug},
+            {
+                "context": "endpoints",
+                "field": "not_a_field",
+                "project": self.data_generator.project.slug,
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data.get("context"), "endpoints")

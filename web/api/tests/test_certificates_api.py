@@ -74,7 +74,10 @@ class ListCertificatesTest(BaseTestCase):
         )
         response = self.client.get(
             self.url,
-            {"subdomain_id": self.subdomain.id, "scan_id": self.subdomain.scan_history_id},
+            {
+                "subdomain_id": self.subdomain.id,
+                "scan_id": self.subdomain.scan_history_id,
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["certificates"]), 1)

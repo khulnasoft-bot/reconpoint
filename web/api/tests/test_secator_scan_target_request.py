@@ -10,7 +10,9 @@ from utils.test_base import BaseTestCase
 
 class SecatorScanTargetRequestParsingTest(BaseTestCase):
     def test_parse_comma_separated_int_ids_success(self) -> None:
-        self.assertEqual(parse_comma_separated_int_ids("1, 2, 3", field_label="x"), [1, 2, 3])
+        self.assertEqual(
+            parse_comma_separated_int_ids("1, 2, 3", field_label="x"), [1, 2, 3]
+        )
 
     def test_parse_comma_separated_int_ids_rejects_non_int(self) -> None:
         with self.assertRaises(ValueError) as ctx:

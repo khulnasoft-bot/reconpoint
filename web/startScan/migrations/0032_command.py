@@ -21,13 +21,19 @@ class Migration(migrations.Migration):
                 (
                     "activity",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanactivity"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.scanactivity",
                     ),
                 ),
                 (
                     "scan_history",
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="startScan.scanhistory",
                     ),
                 ),
             ],

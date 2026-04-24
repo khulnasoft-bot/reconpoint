@@ -46,7 +46,9 @@ def get_subdomains(write_filepath=None, exclude_subdomains=False, ctx=None):
     elif domain and exclude_subdomains:
         query = query.filter(name=domain.name)
     subdomain_query = query.distinct("name").order_by("name")
-    subdomains = [subdomain.name for subdomain in subdomain_query.all() if subdomain.name]
+    subdomains = [
+        subdomain.name for subdomain in subdomain_query.all() if subdomain.name
+    ]
     if not subdomains:
         logger.error("No subdomains were found in query !")
 
@@ -71,7 +73,9 @@ def get_new_added_subdomain(scan_id, domain_id):
         django.models.querysets.QuerySet: query of newly added subdomains.
     """
     domain = get_domain_by_id(domain_id)
-    target_ids = [domain.scan_history.target_id] if (domain and domain.scan_history_id) else []
+    target_ids = (
+        [domain.scan_history.target_id] if (domain and domain.scan_history_id) else []
+    )
     scan = (
         ScanHistory.objects.filter(target_id__in=target_ids)
         .filter(tasks__overlap=["subdomain_discovery"])
@@ -81,9 +85,13 @@ def get_new_added_subdomain(scan_id, domain_id):
         return
     last_scan = scan.order_by("-start_scan_date")[1]
     scanned_host_q1 = Subdomain.objects.filter(scan_history__id=scan_id).values("name")
-    scanned_host_q2 = Subdomain.objects.filter(scan_history__id=last_scan.id).values("name")
+    scanned_host_q2 = Subdomain.objects.filter(scan_history__id=last_scan.id).values(
+        "name"
+    )
     added_subdomain = scanned_host_q1.difference(scanned_host_q2)
-    return Subdomain.objects.filter(scan_history=scan_id).filter(name__in=added_subdomain)
+    return Subdomain.objects.filter(scan_history=scan_id).filter(
+        name__in=added_subdomain
+    )
 
 
 def get_removed_subdomain(scan_id, domain_id):
@@ -97,7 +105,9 @@ def get_removed_subdomain(scan_id, domain_id):
         django.models.querysets.QuerySet: query of newly added subdomains.
     """
     domain = get_domain_by_id(domain_id)
-    target_ids = [domain.scan_history.target_id] if (domain and domain.scan_history_id) else []
+    target_ids = (
+        [domain.scan_history.target_id] if (domain and domain.scan_history_id) else []
+    )
     scan_history = (
         ScanHistory.objects.filter(target_id__in=target_ids)
         .filter(tasks__overlap=["subdomain_discovery"])
@@ -107,9 +117,13 @@ def get_removed_subdomain(scan_id, domain_id):
         return
     last_scan = scan_history.order_by("-start_scan_date")[1]
     scanned_host_q1 = Subdomain.objects.filter(scan_history__id=scan_id).values("name")
-    scanned_host_q2 = Subdomain.objects.filter(scan_history__id=last_scan.id).values("name")
+    scanned_host_q2 = Subdomain.objects.filter(scan_history__id=last_scan.id).values(
+        "name"
+    )
     removed_subdomains = scanned_host_q2.difference(scanned_host_q1)
-    return Subdomain.objects.filter(scan_history=last_scan).filter(name__in=removed_subdomains)
+    return Subdomain.objects.filter(scan_history=last_scan).filter(
+        name__in=removed_subdomains
+    )
 
 
 def get_interesting_subdomains(scan_history=None, domain_id=None, target_id=None):
@@ -126,7 +140,9 @@ def get_interesting_subdomains(scan_history=None, domain_id=None, target_id=None
     from scanEngine.models import InterestingLookupModel
 
     lookup_keywords = get_lookup_keywords()
-    lookup_obj = InterestingLookupModel.objects.filter(custom_type=True).order_by("-id").first()
+    lookup_obj = (
+        InterestingLookupModel.objects.filter(custom_type=True).order_by("-id").first()
+    )
     if not lookup_obj:
         return Subdomain.objects.none()
 

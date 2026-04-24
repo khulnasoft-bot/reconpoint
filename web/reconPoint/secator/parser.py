@@ -223,7 +223,8 @@ class SecatorParser:
                         logger.log_line(
                             PREFIX_SECATOR_PARSER,
                             "PARSE_PORT",
-                            "Port number '%s' is not a whole number: %s" % (port_number, result),
+                            "Port number '%s' is not a whole number: %s"
+                            % (port_number, result),
                             level="warning",
                         )
                         return None
@@ -242,7 +243,8 @@ class SecatorParser:
                 logger.log_line(
                     PREFIX_SECATOR_PARSER,
                     "PARSE_PORT",
-                    "Port number %s out of valid range (1-65535): %s" % (port_number, result),
+                    "Port number %s out of valid range (1-65535): %s"
+                    % (port_number, result),
                     level="warning",
                 )
                 return None
@@ -482,7 +484,8 @@ class SecatorParser:
                 logger.log_line(
                     PREFIX_SECATOR_PARSER,
                     "ASSOCIATE",
-                    "Model %s doesn't have scan_history field, skipping association" % (model_class,),
+                    "Model %s doesn't have scan_history field, skipping association"
+                    % (model_class,),
                     level="debug",
                 )
 
@@ -490,7 +493,8 @@ class SecatorParser:
             logger.log_line(
                 PREFIX_SECATOR_PARSER,
                 "ASSOCIATE",
-                "Error setting model association for %s: %s" % (model_instance.__class__.__name__, e),
+                "Error setting model association for %s: %s"
+                % (model_instance.__class__.__name__, e),
                 level="error",
             )
             # Don't raise the exception, just log it and continue

@@ -1,6 +1,9 @@
 """Tests for scope normalizer (parse_scope_raw_input, strip_trailing_port)."""
 
-from targetApp.services.scope_normalizer import parse_scope_raw_input, strip_trailing_port
+from targetApp.services.scope_normalizer import (
+    parse_scope_raw_input,
+    strip_trailing_port,
+)
 from utils.test_base import BaseTestCase
 
 
@@ -80,7 +83,9 @@ class ScopeNormalizerParseTest(BaseTestCase):
     def test_mixed_comma_newline_deduplicates(self) -> None:
         result = parse_scope_raw_input("x.example.com, y.example.com\nx.example.com")
         self.assertEqual(result.domain_targets, ("example.com",))
-        self.assertEqual(result.allowed_finding_hosts, ("x.example.com", "y.example.com"))
+        self.assertEqual(
+            result.allowed_finding_hosts, ("x.example.com", "y.example.com")
+        )
 
     def test_valid_ip_in_ip_targets_and_allowed_hosts(self) -> None:
         result = parse_scope_raw_input("192.168.1.1")
@@ -100,7 +105,9 @@ class ScopeNormalizerParseTest(BaseTestCase):
     def test_user_example_two_root_domains(self) -> None:
         raw = "ennov8dev.domain-example.com, carlprodamericas.novocol.com, itsupport.domain-example.com, ennov.novocol.com, ennov.domain-example.com"
         result = parse_scope_raw_input(raw)
-        self.assertCountEqual(result.domain_targets, ("domain-example.com", "novocol.com"))
+        self.assertCountEqual(
+            result.domain_targets, ("domain-example.com", "novocol.com")
+        )
         self.assertIn("ennov8dev.domain-example.com", result.allowed_finding_hosts)
         self.assertIn("carlprodamericas.novocol.com", result.allowed_finding_hosts)
         self.assertIn("itsupport.domain-example.com", result.allowed_finding_hosts)
@@ -159,7 +166,9 @@ class ScopeNormalizerParseTest(BaseTestCase):
 
     def test_https_url_target_and_hostname_in_allowed_hosts(self) -> None:
         result = parse_scope_raw_input("https://app.scope-test.example.com/path")
-        self.assertEqual(result.url_targets, ("https://app.scope-test.example.com/path",))
+        self.assertEqual(
+            result.url_targets, ("https://app.scope-test.example.com/path",)
+        )
         self.assertEqual(result.domain_targets, ())
         self.assertEqual(result.ip_targets, ())
         self.assertEqual(result.cidr_targets, ())

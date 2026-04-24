@@ -13,7 +13,10 @@ class Migration(migrations.Migration):
             model_name="secatorrunner",
             name="workspace_name",
             field=models.CharField(
-                blank=True, help_text="Secator workspace (e.g. project_slug/domain_name)", max_length=500, null=True
+                blank=True,
+                help_text="Secator workspace (e.g. project_slug/domain_name)",
+                max_length=500,
+                null=True,
             ),
         ),
     ]

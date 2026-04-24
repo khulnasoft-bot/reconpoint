@@ -91,7 +91,9 @@ class TestRunnerLogger(BaseTestCase):
 
     def test_log_runner_execution_end_success(self):
         """Test logging runner execution end with success."""
-        self.logger.log_runner_execution_end("Workflow", "test_workflow", "success", {"result": "ok"})
+        self.logger.log_runner_execution_end(
+            "Workflow", "test_workflow", "success", {"result": "ok"}
+        )
         self.assertGreaterEqual(len(self.log_capture), 1)
         all_msgs = str(self.log_capture)
         self.assertIn("EXECUTE", all_msgs)

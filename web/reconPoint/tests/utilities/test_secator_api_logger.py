@@ -64,19 +64,31 @@ class TestSecatorAPILogger(BaseTestCase):
         """Test logging successful finding save."""
         mock_object = MagicMock()
         mock_object.id = 456
-        self.logger.log_finding_save("CREATE", "subdomain", mock_object, 123, 1, success=True)
+        self.logger.log_finding_save(
+            "CREATE", "subdomain", mock_object, 123, 1, success=True
+        )
         self.assertGreaterEqual(len(self.log_capture), 1)
         self.assertIn("SAVED", str(self.log_capture))
 
     def test_log_finding_save_failure(self):
         """Test logging failed finding save."""
-        self.logger.log_finding_save("CREATE", "subdomain", None, 123, 1, success=False, error_message="Test error")
+        self.logger.log_finding_save(
+            "CREATE",
+            "subdomain",
+            None,
+            123,
+            1,
+            success=False,
+            error_message="Test error",
+        )
         self.assertGreaterEqual(len(self.log_capture), 1)
         self.assertIn("FAILED", str(self.log_capture))
 
     def test_log_runner_field_extraction(self):
         """Test logging runner field extraction."""
-        self.logger.log_runner_field_extraction("celery_id", "test-id-123", "runner-456")
+        self.logger.log_runner_field_extraction(
+            "celery_id", "test-id-123", "runner-456"
+        )
         self.assertEqual(len(self.log_capture), 1)
         self.assertIn("celery_id", str(self.log_capture[0][0]))
 
@@ -102,7 +114,9 @@ class TestSecatorAPILogger(BaseTestCase):
 
     def test_log_warning(self):
         """Test logging warning (formatted line may not include literal WARNING)."""
-        self.logger.log_warning("Test warning", {"prefix": self.logger.PREFIX_RUNNER, "action": "CREATE"})
+        self.logger.log_warning(
+            "Test warning", {"prefix": self.logger.PREFIX_RUNNER, "action": "CREATE"}
+        )
         self.assertGreaterEqual(len(self.log_capture), 1)
         self.assertIn("Test warning", str(self.log_capture))
 
@@ -123,7 +137,11 @@ class TestSecatorAPILogger(BaseTestCase):
         """Test formatting info line."""
         details = {"type": "workflow", "name": "test", "scan_id": 123}
         result = self.logger._format_info_line(
-            self.logger.PREFIX_RUNNER, "CREATE", details, "SUCCESS", self.logger.COLOR_GREEN
+            self.logger.PREFIX_RUNNER,
+            "CREATE",
+            details,
+            "SUCCESS",
+            self.logger.COLOR_GREEN,
         )
         self.assertIn("CREATE", result)
         self.assertIn("workflow", result)

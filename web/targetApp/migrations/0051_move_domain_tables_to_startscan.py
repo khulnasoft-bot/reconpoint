@@ -63,13 +63,32 @@ class Migration(migrations.Migration):
         _op_rename_and_delete("NameServer", "startScan_nameserver"),
         _op_rename_and_delete("DNSRecord", "startScan_dnsrecord"),
         # Through tables use Django default names (model name lowercased, no extra underscores)
-        _op_rename_table_only("targetapp_domaininfostatusthrough", "startScan_domaininfo_status"),
-        _op_rename_table_only("targetapp_domaininfonameserversthrough", "startScan_domaininfo_name_servers"),
-        _op_rename_table_only("targetapp_domaininfodnsrecordsthrough", "startScan_domaininfo_dns_records"),
-        _op_rename_table_only("targetapp_domaininforelateddomainsthrough", "startScan_domaininfo_related_domains"),
-        _op_rename_table_only("targetapp_domaininforelatedtldsthrough", "startScan_domaininfo_related_tlds"),
-        _op_rename_table_only("targetapp_domaininfosimilardomainsthrough", "startScan_domaininfo_similar_domains"),
-        _op_rename_table_only("targetapp_domaininfohistoricalipsthrough", "startScan_domaininfo_historical_ips"),
+        _op_rename_table_only(
+            "targetapp_domaininfostatusthrough", "startScan_domaininfo_status"
+        ),
+        _op_rename_table_only(
+            "targetapp_domaininfonameserversthrough",
+            "startScan_domaininfo_name_servers",
+        ),
+        _op_rename_table_only(
+            "targetapp_domaininfodnsrecordsthrough", "startScan_domaininfo_dns_records"
+        ),
+        _op_rename_table_only(
+            "targetapp_domaininforelateddomainsthrough",
+            "startScan_domaininfo_related_domains",
+        ),
+        _op_rename_table_only(
+            "targetapp_domaininforelatedtldsthrough",
+            "startScan_domaininfo_related_tlds",
+        ),
+        _op_rename_table_only(
+            "targetapp_domaininfosimilardomainsthrough",
+            "startScan_domaininfo_similar_domains",
+        ),
+        _op_rename_table_only(
+            "targetapp_domaininfohistoricalipsthrough",
+            "startScan_domaininfo_historical_ips",
+        ),
         _op_rename_and_delete("DomainInfo", "startScan_domaininfo"),
         _op_rename_and_delete("Domain", "startScan_domain"),
     ]

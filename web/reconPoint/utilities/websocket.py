@@ -26,7 +26,11 @@ try:
         TimeoutError as RedisTimeoutError,
     )
 
-    _REDIS_RETRY_EXCEPTIONS = (BusyLoadingError, RedisConnectionError, RedisTimeoutError)
+    _REDIS_RETRY_EXCEPTIONS = (
+        BusyLoadingError,
+        RedisConnectionError,
+        RedisTimeoutError,
+    )
 except ImportError:
     BusyLoadingError = None
     RedisConnectionError = None
@@ -34,7 +38,11 @@ except ImportError:
     _REDIS_RETRY_EXCEPTIONS = ()
 from django.db.models.functions import Coalesce
 
-from api.serializers import CommandSerializer, ScanActivitySerializer, SecatorRunnerSerializer
+from api.serializers import (
+    CommandSerializer,
+    ScanActivitySerializer,
+    SecatorRunnerSerializer,
+)
 from reconPoint.definitions import (
     ABORTED_TASK,
     FAILED_TASK,
@@ -44,7 +52,10 @@ from reconPoint.definitions import (
     SUCCESS_TASK,
 )
 from reconPoint.utilities.logger import get_module_logger
-from reconPoint.utilities.worker_ws_groups import worker_deploy_group, worker_refresh_group
+from reconPoint.utilities.worker_ws_groups import (
+    worker_deploy_group,
+    worker_refresh_group,
+)
 from startScan.models import (
     Command,
     ScanActivity,
@@ -76,8 +87,12 @@ _MAX_SUBSCANS = 30
 try:
     _MAX_COMMANDS_LOGS = getattr(settings, "WEBSOCKET_MAX_COMMANDS_LOGS", 100)
     _THROTTLE_SECONDS = getattr(settings, "WEBSOCKET_SCAN_STATUS_THROTTLE_SECONDS", 2)
-    _FULL_INTERVAL_SECONDS = getattr(settings, "WEBSOCKET_SCAN_STATUS_FULL_INTERVAL_SECONDS", 15)
-except ImproperlyConfigured:  # pragma: no cover - Django settings not ready in some contexts
+    _FULL_INTERVAL_SECONDS = getattr(
+        settings, "WEBSOCKET_SCAN_STATUS_FULL_INTERVAL_SECONDS", 15
+    )
+except (
+    ImproperlyConfigured
+):  # pragma: no cover - Django settings not ready in some contexts
     _MAX_COMMANDS_LOGS = 100
     _THROTTLE_SECONDS = 2
     _FULL_INTERVAL_SECONDS = 15
@@ -208,7 +223,9 @@ def build_light_scan_status_message(
     """
     if scan is None:
         try:
-            scan = ScanHistory.objects.select_related("scan_type").get(id=scan_history_id)
+            scan = ScanHistory.objects.select_related("scan_type").get(
+                id=scan_history_id
+            )
         except ScanHistory.DoesNotExist:
             logger.log_line(
                 PREFIX_WS,
@@ -247,7 +264,9 @@ def _build_scan_status_payload(scan_history_id: int) -> dict:
     message["timeline"] = timeline
     runner_id_to_status = {item["id"]: item["status"] for item in timeline}
     runner_id_to_progress = {item["id"]: item.get("progress") for item in timeline}
-    message["subscans"] = _build_subscans_payload(scan_history_id, runner_id_to_status, runner_id_to_progress)
+    message["subscans"] = _build_subscans_payload(
+        scan_history_id, runner_id_to_status, runner_id_to_progress
+    )
 
     return message
 
@@ -348,7 +367,9 @@ def _get_scan_counts(scan_history_id: int) -> dict:
 def _get_severity_counts(scan_history_id: int) -> dict:
     """Return vulnerability counts by severity (critical, high, medium, low, info, unknown)."""
     vuln_severity_counts = (
-        Vulnerability.objects.filter(scan_history__id=scan_history_id).values("severity").annotate(count=Count("id"))
+        Vulnerability.objects.filter(scan_history__id=scan_history_id)
+        .values("severity")
+        .annotate(count=Count("id"))
     )
     severity_map = {item["severity"]: item["count"] for item in vuln_severity_counts}
     return {
@@ -430,7 +451,9 @@ def _build_subscan_item(
     if subscan.secator_runner:
         if subscan.secator_runner.runner_name:
             task_name = subscan.secator_runner.runner_name
-        status = runner_id_to_status.get(subscan.secator_runner_id, get_runner_status_code(subscan.secator_runner))
+        status = runner_id_to_status.get(
+            subscan.secator_runner_id, get_runner_status_code(subscan.secator_runner)
+        )
         progress = runner_id_to_progress.get(subscan.secator_runner_id)
         if progress is None and subscan.secator_runner.runner_data:
             progress = subscan.secator_runner.runner_data.get("progress")
@@ -457,7 +480,10 @@ def _build_subscans_payload(
         .select_related("secator_runner", "engine")
         .order_by("-start_scan_date")[:_MAX_SUBSCANS]
     )
-    return [_build_subscan_item(subscan, runner_id_to_status, runner_id_to_progress) for subscan in subscans_qs]
+    return [
+        _build_subscan_item(subscan, runner_id_to_status, runner_id_to_progress)
+        for subscan in subscans_qs
+    ]
 
 
 def send_scan_status_update(
@@ -494,18 +520,22 @@ def send_scan_status_update(
                 logger.log_line(
                     PREFIX_WS,
                     "SEND_STATUS",
-                    "Throttled WebSocket update for scan %s (last sent %.1fs ago)" % (scan_history_id, now - last_ts),
+                    "Throttled WebSocket update for scan %s (last sent %.1fs ago)"
+                    % (scan_history_id, now - last_ts),
                     level="debug",
                 )
                 return
 
-        scan = ScanHistory.objects.select_related("target__project", "scan_type").get(id=scan_history_id)
+        scan = ScanHistory.objects.select_related("target__project", "scan_type").get(
+            id=scan_history_id
+        )
         channel_layer = get_channel_layer()
         if not channel_layer:
             logger.log_line(
                 PREFIX_WS,
                 "SEND_STATUS",
-                "No channel layer available, skipping WebSocket update for scan %s" % (scan_history_id,),
+                "No channel layer available, skipping WebSocket update for scan %s"
+                % (scan_history_id,),
                 level="debug",
             )
             return
@@ -525,7 +555,8 @@ def send_scan_status_update(
             logger.log_line(
                 PREFIX_WS,
                 "SEND_STATUS",
-                "Empty message for scan %s, skipping WebSocket update" % (scan_history_id,),
+                "Empty message for scan %s, skipping WebSocket update"
+                % (scan_history_id,),
                 level="warning",
             )
             return
@@ -541,13 +572,20 @@ def send_scan_status_update(
             PREFIX_WS,
             "SEND_STATUS",
             "Sending WebSocket update for scan %s - status: %s, progress: %s, current_task: %s (full=%s)"
-            % (scan_history_id, message.get("status"), message.get("progress"), message.get("current_task"), use_full),
+            % (
+                scan_history_id,
+                message.get("status"),
+                message.get("progress"),
+                message.get("current_task"),
+                use_full,
+            ),
             level="debug",
         )
         logger.log_line(
             PREFIX_WS,
             "SEND_STATUS",
-            "WebSocket group_send for scan %s (scan-status and project group)" % (scan_history_id,),
+            "WebSocket group_send for scan %s (scan-status and project group)"
+            % (scan_history_id,),
             level="info",
         )
 
@@ -565,7 +603,9 @@ def send_scan_status_update(
         )
 
         if scan.target_id and scan.target and scan.target.project_id:
-            project_group = "scan-status-project-%s" % (_clean_channel_name(scan.target.project.slug),)
+            project_group = "scan-status-project-%s" % (
+                _clean_channel_name(scan.target.project.slug),
+            )
             _channel_group_send_with_retry(
                 channel_layer,
                 project_group,
@@ -621,7 +661,8 @@ def send_worker_status_update(worker_id: int) -> None:
         logger.log_line(
             PREFIX_WS,
             "WORKER_STATUS",
-            "No channel layer available, skipping worker status update for worker_id=%s" % (worker_id,),
+            "No channel layer available, skipping worker status update for worker_id=%s"
+            % (worker_id,),
             level="debug",
         )
         return
@@ -658,7 +699,8 @@ def send_worker_deploy_log(
         logger.log_line(
             PREFIX_WS,
             "WORKER_DEPLOY",
-            "No channel layer available, skipping worker deploy log for worker_id=%s" % (worker_id,),
+            "No channel layer available, skipping worker deploy log for worker_id=%s"
+            % (worker_id,),
             level="debug",
         )
         return
@@ -705,7 +747,8 @@ def send_worker_refresh_log(
         logger.log_line(
             PREFIX_WS,
             "WORKER_REFRESH",
-            "No channel layer available, skipping worker refresh log for worker_id=%s" % (worker_id,),
+            "No channel layer available, skipping worker refresh log for worker_id=%s"
+            % (worker_id,),
             level="debug",
         )
         return

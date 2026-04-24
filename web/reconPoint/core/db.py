@@ -68,7 +68,9 @@ def resolve_db_host_port(
     cmd: str | None = None
     if len(argv) > 2:
         first = argv[1]
-        if first == "manage.py" or (isinstance(first, str) and first.endswith("manage.py")):
+        if first == "manage.py" or (
+            isinstance(first, str) and first.endswith("manage.py")
+        ):
             cmd = argv[2] if isinstance(argv[2], str) else None
     if cmd is None and len(argv) > 1 and isinstance(argv[1], str):
         cmd = argv[1]

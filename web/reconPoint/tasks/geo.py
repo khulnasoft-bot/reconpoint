@@ -29,7 +29,9 @@ def geo_localize(host, ip_id=None):
         return None
 
     if country_iso and country_name:
-        geo_object, _ = CountryISO.objects.get_or_create(iso=country_iso, name=country_name)
+        geo_object, _ = CountryISO.objects.get_or_create(
+            iso=country_iso, name=country_name
+        )
         geo_json = {"iso": country_iso, "name": country_name}
         if ip_id:
             ip = IpAddress.objects.get(pk=ip_id)
@@ -97,13 +99,17 @@ def geo_localize_batch(ip_addresses):
                 continue
 
             if country_iso and country_name:
-                geo_object, _ = CountryISO.objects.get_or_create(iso=country_iso, name=country_name)
+                geo_object, _ = CountryISO.objects.get_or_create(
+                    iso=country_iso, name=country_name
+                )
 
                 # Update IP object
                 ip_obj.geo_iso = geo_object
                 ip_obj.save()
 
-                logger.debug(f"Successfully geolocalized {ip_address} -> {country_name}")
+                logger.debug(
+                    f"Successfully geolocalized {ip_address} -> {country_name}"
+                )
                 success_count += 1
             else:
                 logger.debug(f'Geo IP lookup failed for "{ip_address}"')
@@ -113,7 +119,12 @@ def geo_localize_batch(ip_addresses):
             logger.error(f"Error geolocalizing {ip_address}: {str(e)}")
             failed_count += 1
 
-    result = {"success": success_count, "failed": failed_count, "skipped": skipped_count, "total": len(ip_addresses)}
+    result = {
+        "success": success_count,
+        "failed": failed_count,
+        "skipped": skipped_count,
+        "total": len(ip_addresses),
+    }
 
     logger.info(f"Batch geolocalization completed: {result}")
     return result

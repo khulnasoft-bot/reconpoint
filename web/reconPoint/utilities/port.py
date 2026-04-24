@@ -16,7 +16,11 @@ def get_or_create_port(ip_address, port_number, service_info=None):
     port, created = Port.objects.get_or_create(
         ip_address=ip_address,
         number=port_number,
-        defaults={"is_uncommon": port_number in UNCOMMON_WEB_PORTS, "service_name": "unknown", "description": ""},
+        defaults={
+            "is_uncommon": port_number in UNCOMMON_WEB_PORTS,
+            "service_name": "unknown",
+            "description": "",
+        },
     )
 
     if not created and service_info:
@@ -34,11 +38,15 @@ def update_port_service_info(port, service_info):
             if value and value not in description_parts:
                 description_parts.append(value)
 
-        port.service_name = service_info.get("service_name", "unknown").strip() or "unknown"
+        port.service_name = (
+            service_info.get("service_name", "unknown").strip() or "unknown"
+        )
         port.description = " - ".join(filter(None, description_parts))[:1000]
 
         if port.ip_address:
-            logger.debug(f"Updating service info for {port.ip_address.address}:{port.number}")
+            logger.debug(
+                f"Updating service info for {port.ip_address.address}:{port.number}"
+            )
 
         port.save(update_fields=["service_name", "description"])
 

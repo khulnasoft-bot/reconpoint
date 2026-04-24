@@ -15,7 +15,10 @@ class Migration(migrations.Migration):
             model_name="subscan",
             name="engine",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="scanEngine.enginetype"
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="scanEngine.enginetype",
             ),
         ),
     ]

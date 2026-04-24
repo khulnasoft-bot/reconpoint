@@ -43,13 +43,35 @@ class Migration(migrations.Migration):
                 ("end_date", models.DateField(blank=True, null=True)),
                 ("description", models.TextField(blank=True, null=True)),
                 ("threads", models.PositiveIntegerField(blank=True, null=True)),
-                ("rate_limit", models.PositiveIntegerField(blank=True, help_text="Requests per second", null=True)),
-                ("timeout", models.PositiveIntegerField(blank=True, help_text="HTTP timeout in seconds", null=True)),
+                (
+                    "rate_limit",
+                    models.PositiveIntegerField(
+                        blank=True, help_text="Requests per second", null=True
+                    ),
+                ),
+                (
+                    "timeout",
+                    models.PositiveIntegerField(
+                        blank=True, help_text="HTTP timeout in seconds", null=True
+                    ),
+                ),
                 ("retries", models.PositiveIntegerField(blank=True, null=True)),
-                ("delay", models.FloatField(blank=True, help_text="Delay between requests in seconds", null=True)),
+                (
+                    "delay",
+                    models.FloatField(
+                        blank=True,
+                        help_text="Delay between requests in seconds",
+                        null=True,
+                    ),
+                ),
                 ("proxy", models.CharField(blank=True, max_length=500, null=True)),
                 ("user_agent", models.CharField(blank=True, max_length=500, null=True)),
-                ("request_headers", models.JSONField(blank=True, help_text="Key-value HTTP headers", null=True)),
+                (
+                    "request_headers",
+                    models.JSONField(
+                        blank=True, help_text="Key-value HTTP headers", null=True
+                    ),
+                ),
                 ("follow_redirect", models.BooleanField(blank=True, null=True)),
                 ("depth", models.PositiveIntegerField(blank=True, null=True)),
                 (
@@ -72,16 +94,31 @@ class Migration(migrations.Migration):
                 (
                     "organization",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, related_name="scopes", to="targetApp.organization"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="scopes",
+                        to="targetApp.organization",
                     ),
                 ),
-                ("targets", models.ManyToManyField(blank=True, related_name="scopes", to="targetApp.target")),
-                ("workers", models.ManyToManyField(blank=True, related_name="scopes", to="scanEngine.secatorworker")),
+                (
+                    "targets",
+                    models.ManyToManyField(
+                        blank=True, related_name="scopes", to="targetApp.target"
+                    ),
+                ),
+                (
+                    "workers",
+                    models.ManyToManyField(
+                        blank=True, related_name="scopes", to="scanEngine.secatorworker"
+                    ),
+                ),
             ],
             options={
                 "ordering": ["-insert_date"],
                 "constraints": [
-                    models.UniqueConstraint(fields=("organization", "name"), name="targetapp_scope_org_name_uniq")
+                    models.UniqueConstraint(
+                        fields=("organization", "name"),
+                        name="targetapp_scope_org_name_uniq",
+                    )
                 ],
             },
         ),

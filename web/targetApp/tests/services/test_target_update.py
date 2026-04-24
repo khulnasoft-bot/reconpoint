@@ -19,7 +19,9 @@ class ProcessTargetScanOverrideFromPostTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post["override_threads"] = "10"
         post["override_header"] = "{}"
-        scan_override, errors, fallback, headers_initial = process_target_scan_override_from_post(post)
+        scan_override, errors, fallback, headers_initial = (
+            process_target_scan_override_from_post(post)
+        )
         self.assertIn("threads", scan_override)
         self.assertEqual(errors, [])
         self.assertIsNone(fallback)
@@ -29,7 +31,9 @@ class ProcessTargetScanOverrideFromPostTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post["override_header"] = "not json"
         post["override_threads"] = "5"
-        scan_override, errors, fallback, headers_initial = process_target_scan_override_from_post(post)
+        scan_override, errors, fallback, headers_initial = (
+            process_target_scan_override_from_post(post)
+        )
         self.assertEqual(len(errors), 1)
         self.assertTrue(
             "Invalid JSON" in errors[0] or "Invalid header" in errors[0],
@@ -77,5 +81,7 @@ class BuildUpdateTargetContextTest(BaseTestCase):
         self.data_generator.create_organization()
         target = self.data_generator.target
         form = UpdateTargetModelForm(instance=target)
-        context = build_update_target_context(target, form, override_header_initial='{"X-Passed": "ok"}')
+        context = build_update_target_context(
+            target, form, override_header_initial='{"X-Passed": "ok"}'
+        )
         self.assertEqual(context["override_header_initial"], '{"X-Passed": "ok"}')

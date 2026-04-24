@@ -33,10 +33,16 @@ class Migration(migrations.Migration):
                         max_length=20,
                     ),
                 ),
-                ("ssh_key_path", models.CharField(blank=True, max_length=1024, null=True)),
+                (
+                    "ssh_key_path",
+                    models.CharField(blank=True, max_length=1024, null=True),
+                ),
                 ("ssh_password_encrypted", models.TextField(blank=True, null=True)),
                 ("deploy_path", models.CharField(max_length=1024)),
-                ("container_name", models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "container_name",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
                 ("api_reachable", models.BooleanField(default=False)),
                 ("last_status_at", models.DateTimeField(blank=True, null=True)),
                 ("last_error", models.TextField(blank=True, null=True)),

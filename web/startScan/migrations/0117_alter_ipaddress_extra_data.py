@@ -12,6 +12,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="ipaddress",
             name="extra_data",
-            field=models.JSONField(blank=True, help_text="Optional data e.g. ASN from getasn", null=True),
+            field=models.JSONField(
+                blank=True, help_text="Optional data e.g. ASN from getasn", null=True
+            ),
         ),
     ]

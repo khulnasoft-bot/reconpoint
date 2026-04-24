@@ -180,7 +180,9 @@ def _pull_env_lines(worker: SecatorWorker) -> list[str]:
     """Lines appended to worker .env for pull-agent mode."""
     if worker.uses_https_pull_agent():
         api_base = _build_pull_api_base_url(worker.get_api_base_url())
-        ssl_verify = "true" if getattr(worker, "https_pull_verify_ssl", True) else "false"
+        ssl_verify = (
+            "true" if getattr(worker, "https_pull_verify_ssl", True) else "false"
+        )
         return [
             "",
             "# reconPoint pull agent (run scans without inbound SSH to the worker)",
@@ -207,7 +209,9 @@ def _build_secator_api_url(api_base_url: str) -> str:
     """Build Secator addons API URL from worker base URL."""
     parsed, root_path = _normalize_api_root_path(api_base_url)
     secator_path = f"{root_path}/api/secator" if root_path else "/api/secator"
-    return urlunparse(parsed._replace(path=secator_path, params="", query="", fragment=""))
+    return urlunparse(
+        parsed._replace(path=secator_path, params="", query="", fragment="")
+    )
 
 
 def _normalize_api_root_path(api_base_url: str) -> tuple:
@@ -251,10 +255,14 @@ def get_worker_api_env_dict(worker: SecatorWorker) -> dict[str, str]:
     """Return Secator API env vars for this worker (for .env file or job injection)."""
     api_url = _build_secator_api_url(worker.get_api_base_url())
     api_key = getattr(settings, "SECATOR_ADDONS_API_KEY", "") or _API_KEY_PLACEHOLDER
-    api_header_name = getattr(settings, "SECATOR_ADDONS_API_HEADER_NAME", "") or "Api-Key"
+    api_header_name = (
+        getattr(settings, "SECATOR_ADDONS_API_HEADER_NAME", "") or "Api-Key"
+    )
     force_ssl = getattr(settings, "SECATOR_ADDONS_API_FORCE_SSL", False)
     api_host = getattr(settings, "DOMAIN_NAME", "") or ""
-    api_workspace_get_endpoint = getattr(settings, "SECATOR_ADDONS_API_WORKSPACE_GET_ENDPOINT", "") or ""
+    api_workspace_get_endpoint = (
+        getattr(settings, "SECATOR_ADDONS_API_WORKSPACE_GET_ENDPOINT", "") or ""
+    )
     return {
         "SECATOR_ADDONS_API_ENABLED": "true",
         "SECATOR_ADDONS_API_URL": api_url,
@@ -309,21 +317,30 @@ def build_worker_bundle_tar_gz(worker: SecatorWorker) -> bytes:
             "Compose file not found at %s" % (compose_path,),
             level="error",
         )
-        raise UserSafeError("Worker compose file not found. Check server configuration.")
+        raise UserSafeError(
+            "Worker compose file not found. Check server configuration."
+        )
 
     buffer = io.BytesIO()
     with tarfile.open(mode="w:gz", fileobj=buffer) as tf:
         _tar_add_regular_file(tf, _COMPOSE_FILENAME, compose_path.read_bytes())
-        _tar_add_regular_file(tf, _ENV_FILENAME, _build_worker_env_content_for_bundle(worker).encode("utf-8"))
+        _tar_add_regular_file(
+            tf,
+            _ENV_FILENAME,
+            _build_worker_env_content_for_bundle(worker).encode("utf-8"),
+        )
         if worker.uses_https_pull_agent():
             constants_path = _get_pull_agent_constants_path()
             if constants_path.is_file():
-                _tar_add_regular_file(tf, "pull_agent_constants.py", constants_path.read_bytes())
+                _tar_add_regular_file(
+                    tf, "pull_agent_constants.py", constants_path.read_bytes()
+                )
             else:
                 logger.log_line(
                     PREFIX_WORKER_DEPLOY,
                     "BUNDLE",
-                    "Optional pull_agent_constants.py missing at %s (bundle will omit it)" % (constants_path,),
+                    "Optional pull_agent_constants.py missing at %s (bundle will omit it)"
+                    % (constants_path,),
                     level="warning",
                 )
 
@@ -358,7 +375,9 @@ def build_worker_bundle_tar_gz(worker: SecatorWorker) -> bytes:
             executable=False,
         )
         _add_custom_templates(tf)
-        _tar_add_regular_file(tf, "README.txt", _build_bundle_readme(worker).encode("utf-8"))
+        _tar_add_regular_file(
+            tf, "README.txt", _build_bundle_readme(worker).encode("utf-8")
+        )
 
     return buffer.getvalue()
 
@@ -388,8 +407,12 @@ def deploy_worker(
             "Compose file not found at %s" % (compose_path,),
             level="error",
         )
-        progress_callback("error", "Worker compose file not found. Check server configuration.")
-        raise UserSafeError("Worker compose file not found. Check server configuration.")
+        progress_callback(
+            "error", "Worker compose file not found. Check server configuration."
+        )
+        raise UserSafeError(
+            "Worker compose file not found. Check server configuration."
+        )
     progress_callback("compose_check", "Compose file found.")
 
     client = None
@@ -402,8 +425,12 @@ def deploy_worker(
             "SSH connection failed for worker %s: %s" % (worker.name, e),
             level="warning",
         )
-        progress_callback("error", "SSH connection failed. Check host, port, user and credentials.")
-        raise UserSafeError("SSH connection failed. Check host, port, user and credentials.") from e
+        progress_callback(
+            "error", "SSH connection failed. Check host, port, user and credentials."
+        )
+        raise UserSafeError(
+            "SSH connection failed. Check host, port, user and credentials."
+        ) from e
     progress_callback("ssh_connect", "SSH connection established.")
 
     try:
@@ -415,8 +442,13 @@ def deploy_worker(
 
         compose_cmd = detect_compose_cmd(client)
         if not compose_cmd:
-            progress_callback("error", "Neither 'docker compose' nor 'docker-compose' found on the remote host.")
-            raise UserSafeError("Neither 'docker compose' nor 'docker-compose' found on the remote host.")
+            progress_callback(
+                "error",
+                "Neither 'docker compose' nor 'docker-compose' found on the remote host.",
+            )
+            raise UserSafeError(
+                "Neither 'docker compose' nor 'docker-compose' found on the remote host."
+            )
         progress_callback("compose_cmd", f"Using {compose_cmd}.")
 
         deploy_path = worker.deploy_path.rstrip("/")
@@ -432,10 +464,17 @@ def deploy_worker(
                     client,
                     f"mkdir -p {quote_for_shell(f'{deploy_path}/templates/{sub}')}",
                 )
-            run_remote_command(client, f"mkdir -p {quote_for_shell(f'{deploy_path}/scripts')}")
+            run_remote_command(
+                client, f"mkdir -p {quote_for_shell(f'{deploy_path}/scripts')}"
+            )
             # Ensure the container user can write transient job files in bind-mounted scripts/.
-            run_remote_command(client, f"chmod 0777 {quote_for_shell(f'{deploy_path}/scripts')}")
-            run_remote_command(client, f"mkdir -p {quote_for_shell(f'{deploy_path}/python_ssl_suppress')}")
+            run_remote_command(
+                client, f"chmod 0777 {quote_for_shell(f'{deploy_path}/scripts')}"
+            )
+            run_remote_command(
+                client,
+                f"mkdir -p {quote_for_shell(f'{deploy_path}/python_ssl_suppress')}",
+            )
             progress_callback("mkdir", "Deploy path and templates/scripts created.")
 
             with open(compose_path, "rb") as f:
@@ -452,7 +491,9 @@ def deploy_worker(
                     entrypoint_content = f.read()
                 with sftp.file(remote_entrypoint, "wb") as rf:
                     rf.write(entrypoint_content)
-                run_remote_command(client, f"chmod +x {quote_for_shell(remote_entrypoint)}")
+                run_remote_command(
+                    client, f"chmod +x {quote_for_shell(remote_entrypoint)}"
+                )
                 progress_callback("copy_entrypoint", "entrypoint.sh copied.")
             else:
                 logger.log_line(
@@ -465,7 +506,9 @@ def deploy_worker(
             ssl_suppress_dir = _get_python_ssl_suppress_dir()
             sitecustomize_src = ssl_suppress_dir / "sitecustomize.py"
             if sitecustomize_src.is_file():
-                remote_sitecustomize = f"{deploy_path}/python_ssl_suppress/sitecustomize.py"
+                remote_sitecustomize = (
+                    f"{deploy_path}/python_ssl_suppress/sitecustomize.py"
+                )
                 with open(sitecustomize_src, "rb") as f:
                     with sftp.file(remote_sitecustomize, "wb") as rf:
                         rf.write(f.read())
@@ -482,10 +525,15 @@ def deploy_worker(
 
         progress_callback("docker_up", "Starting container...")
         up_cmd = f"cd {quoted_dp} && {compose_cmd} -f {_COMPOSE_FILENAME} up -d"
-        exit_code, out, err = run_remote_command(client, up_cmd, timeout=REMOTE_COMPOSE_UP_TIMEOUT)
+        exit_code, out, err = run_remote_command(
+            client, up_cmd, timeout=REMOTE_COMPOSE_UP_TIMEOUT
+        )
         if exit_code != 0:
             err_msg = normalize_remote_error(
-                exit_code, out, err, "Failed to start worker container on the remote host."
+                exit_code,
+                out,
+                err,
+                "Failed to start worker container on the remote host.",
             )
             logger.log_line(
                 PREFIX_WORKER_DEPLOY,
@@ -556,12 +604,19 @@ def restart_worker_container(worker: SecatorWorker) -> Tuple[bool, str]:
                     entrypoint_content = f.read()
                 with sftp.file(remote_entrypoint, "wb") as rf:
                     rf.write(entrypoint_content)
-                run_remote_command(client, f"chmod +x {quote_for_shell(remote_entrypoint)}")
+                run_remote_command(
+                    client, f"chmod +x {quote_for_shell(remote_entrypoint)}"
+                )
                 log_parts.append(f"Copied {_ENTRYPOINT_FILENAME} to remote.")
             sitecustomize_src = _get_python_ssl_suppress_dir() / "sitecustomize.py"
             if sitecustomize_src.is_file():
-                run_remote_command(client, f"mkdir -p {quote_for_shell(f'{deploy_path}/python_ssl_suppress')}")
-                remote_sitecustomize = f"{deploy_path}/python_ssl_suppress/sitecustomize.py"
+                run_remote_command(
+                    client,
+                    f"mkdir -p {quote_for_shell(f'{deploy_path}/python_ssl_suppress')}",
+                )
+                remote_sitecustomize = (
+                    f"{deploy_path}/python_ssl_suppress/sitecustomize.py"
+                )
                 with open(sitecustomize_src, "rb") as f:
                     with sftp.file(remote_sitecustomize, "wb") as rf:
                         rf.write(f.read())
@@ -571,17 +626,23 @@ def restart_worker_container(worker: SecatorWorker) -> Tuple[bool, str]:
 
         compose_cmd = detect_compose_cmd(client)
         if not compose_cmd:
-            return False, "\n".join(log_parts) + "\n\nDocker Compose not found on the remote host."
+            return False, "\n".join(
+                log_parts
+            ) + "\n\nDocker Compose not found on the remote host."
         down_cmd = f"cd {quoted_dp} && {compose_cmd} -f {_COMPOSE_FILENAME} down"
         log_parts.extend(("", f"$ {down_cmd}", ""))
-        exit_down, out_down, err_down = run_remote_command(client, down_cmd, timeout=REMOTE_COMPOSE_DOWN_TIMEOUT)
+        exit_down, out_down, err_down = run_remote_command(
+            client, down_cmd, timeout=REMOTE_COMPOSE_DOWN_TIMEOUT
+        )
         if out_down:
             log_parts.append(out_down)
         if err_down:
             log_parts.append(err_down)
         up_cmd = f"cd {quoted_dp} && {compose_cmd} -f {_COMPOSE_FILENAME} up -d"
         log_parts.extend(("", f"$ {up_cmd}", ""))
-        exit_code, out, err = run_remote_command(client, up_cmd, timeout=REMOTE_COMPOSE_UP_TIMEOUT)
+        exit_code, out, err = run_remote_command(
+            client, up_cmd, timeout=REMOTE_COMPOSE_UP_TIMEOUT
+        )
         if out:
             log_parts.append(out)
         if err:
@@ -632,7 +693,9 @@ def push_env_and_restart_worker(worker: SecatorWorker) -> tuple[bool, Optional[s
     quoted_dp = quote_for_shell(deploy_path)
     remote_env = f"{deploy_path}/{_ENV_FILENAME}"
     try:
-        return _write_env_and_restart_container(worker, client, remote_env, deploy_path, quoted_dp)
+        return _write_env_and_restart_container(
+            worker, client, remote_env, deploy_path, quoted_dp
+        )
     except paramiko.SSHException as e:
         logger.log_line(
             PREFIX_WORKER_DEPLOY,
@@ -645,7 +708,9 @@ def push_env_and_restart_worker(worker: SecatorWorker) -> tuple[bool, Optional[s
         client.close()
 
 
-def _write_env_and_restart_container(worker, client, remote_env, deploy_path, quoted_dp):
+def _write_env_and_restart_container(
+    worker, client, remote_env, deploy_path, quoted_dp
+):
     """Write worker .env to remote path, then run compose down/up; returns (success, error_message)."""
     env_content = _build_worker_env_content(worker)
     sftp = client.open_sftp()
@@ -669,7 +734,9 @@ def _write_env_and_restart_container(worker, client, remote_env, deploy_path, qu
         timeout=REMOTE_COMPOSE_UP_TIMEOUT,
     )
     if exit_code != 0:
-        err_msg = normalize_remote_error(exit_code, out, err, "Failed to start worker container on the remote host.")
+        err_msg = normalize_remote_error(
+            exit_code, out, err, "Failed to start worker container on the remote host."
+        )
         logger.log_line(
             PREFIX_WORKER_DEPLOY,
             "ENV_PUSH",
@@ -733,7 +800,9 @@ def refresh_worker_status(
         health_url = f"{api_base.rstrip('/')}/health/" if api_base else ""
         if health_url:
             progress_callback("api_check", "Checking API reachability...")
-            reachable, err = check_api_reachable_from_container(client, worker, health_url, timeout=15)
+            reachable, err = check_api_reachable_from_container(
+                client, worker, health_url, timeout=15
+            )
             result["api_reachable"] = reachable
             if not reachable and err:
                 result["last_error"] = result["last_error"] or err
@@ -750,7 +819,9 @@ def refresh_worker_status(
             "Status check failed for worker %s: %s" % (worker.name, e),
             level="debug",
         )
-        result["last_error"] = result["last_error"] or "Could not check container status"
+        result["last_error"] = (
+            result["last_error"] or "Could not check container status"
+        )
         progress_callback("error", "Could not check container status.")
     finally:
         client.close()

@@ -41,7 +41,9 @@ def extract_secator_tool_source(
     return out
 
 
-def merge_subdomain_sources_from_item(sources: Optional[List[str]], item: Dict[str, Any]) -> List[str]:
+def merge_subdomain_sources_from_item(
+    sources: Optional[List[str]], item: Dict[str, Any]
+) -> List[str]:
     """
     Build an ordered unique list for Subdomain.sources from Secator ``sources`` and ``_source``.
 

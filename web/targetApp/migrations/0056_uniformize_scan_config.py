@@ -49,7 +49,9 @@ def consolidate_scope_fields(apps, schema_editor):
 def merge_target_request_headers(apps, schema_editor):
     """Merge Target.request_headers into Target.scan_config_override['request_headers']."""
     Target = apps.get_model("targetApp", "Target")
-    queryset = Target.objects.exclude(request_headers__isnull=True).exclude(request_headers={})
+    queryset = Target.objects.exclude(request_headers__isnull=True).exclude(
+        request_headers={}
+    )
     for target in queryset.iterator(chunk_size=1000):
         config = target.scan_config_override or {}
         if "request_headers" not in config:
