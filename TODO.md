@@ -96,22 +96,22 @@ Correlate findings with threat feeds for contextual risk scoring.
 
 ---
 
-## Comparison Scans & Change Tracking with Advanced Diff
+## Comparison Scans & Change Tracking with Advanced Diff ✅
 
 ### Objective
 Enable enhanced diff views and time-series security posture tracking.
 
 ### Tasks
-- [ ] Create ScanComparison model and API endpoints
-- [ ] Implement subdomain diff algorithm (added, removed, changed)
-- [ ] Build endpoint diff visualization
-- [ ] Add vulnerability diff with severity changes
-- [ ] Implement time-series data storage for historical comparisons
-- [ ] Create security posture trend charts
-- [ ] Add suspicious change alerts (new technologies, unusual ports)
-- [ ] Build comparative scan report generator
-- [ ] Implement diff filtering by category
-- [ ] Add historical data retention policies
+- [x] Create ScanComparison model and API endpoints
+- [x] Implement subdomain diff algorithm (added, removed, changed)
+- [x] Build endpoint diff visualization
+- [x] Add vulnerability diff with severity changes
+- [x] Implement time-series data storage for historical comparisons
+- [x] Create security posture trend charts
+- [x] Add suspicious change alerts (new technologies, unusual ports)
+- [x] Build comparative scan report generator
+- [x] Implement diff filtering by category
+- [x] Add historical data retention policies
 
 ---
 
