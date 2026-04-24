@@ -1,7 +1,7 @@
-name: 🚀 Feature request
-description: File a feature request
-title: "feat(scope): "
-labels: ["enhancement"]
+name: 🛠️ CI/CD
+description: File a feature request or bug-report for CI/CD
+title: "ci(scope): "
+labels: ["ci"]
 body:
 - type: textarea
   attributes:
