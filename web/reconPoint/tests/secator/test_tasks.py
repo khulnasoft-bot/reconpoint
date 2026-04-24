@@ -260,7 +260,8 @@ class TestSecatorTasks(BaseTestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @patch("reconPoint.secator.orchestrator.ScanOrchestrator")
     @patch(
-        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types_for_task", return_value=["host"]
+        "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types_for_task",
+        return_value=["host"],
     )
     def test_initiate_secator_scan_uses_targets_override(self, mock_get_input_types_for_task, mock_orchestrator):
         """Test that when targets_override is provided, build_enriched_targets is not used."""
