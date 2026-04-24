@@ -66,9 +66,7 @@ class Target(models.Model):
         blank=True,
         help_text="Per-target scan parameter overrides and profiles",
     )
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, null=True, blank=False
-    )
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=False)
 
     objects = TargetManager()
 
@@ -104,10 +102,7 @@ class Target(models.Model):
         from startScan.models import ScanHistory
 
         last_scan = (
-            ScanHistory.objects.filter(target_id=self.id)
-            .order_by("-start_scan_date")
-            .only("start_scan_date")
-            .first()
+            ScanHistory.objects.filter(target_id=self.id).order_by("-start_scan_date").only("start_scan_date").first()
         )
         if last_scan is None:
             return None
@@ -145,9 +140,7 @@ class Organization(models.Model):
         help_text="Organization-level scan parameter defaults and profiles",
     )
     targets = models.ManyToManyField("Target", related_name="organizations", blank=True)
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, null=True, blank=False
-    )
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=False)
 
     objects = OrganizationManager()
 
@@ -178,8 +171,7 @@ class Organization(models.Model):
         if not via_scopes.exists():
             return direct
         return Target.objects.filter(
-            Q(pk__in=direct.values_list("pk", flat=True))
-            | Q(pk__in=via_scopes.values_list("pk", flat=True))
+            Q(pk__in=direct.values_list("pk", flat=True)) | Q(pk__in=via_scopes.values_list("pk", flat=True))
         ).distinct()
 
 
@@ -194,9 +186,7 @@ class Scope(models.Model):
     """
 
     id = models.AutoField(primary_key=True)
-    organization = models.ForeignKey(
-        Organization, on_delete=models.CASCADE, related_name="scopes"
-    )
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="scopes")
     name = models.CharField(max_length=300)
     scope_type = models.CharField(max_length=30, choices=SCOPE_TYPE_CHOICES)
     start_date = models.DateField(null=True, blank=True)
@@ -258,22 +248,15 @@ class Scope(models.Model):
         from reconPoint.utilities.domain import normalize_allowed_hosts_from_list
 
         if isinstance(self.allowed_finding_hosts, list):
-            self.allowed_finding_hosts = normalize_allowed_hosts_from_list(
-                self.allowed_finding_hosts
-            )
-        elif (
-            isinstance(self.allowed_finding_hosts, str)
-            and self.allowed_finding_hosts.strip()
-        ):
+            self.allowed_finding_hosts = normalize_allowed_hosts_from_list(self.allowed_finding_hosts)
+        elif isinstance(self.allowed_finding_hosts, str) and self.allowed_finding_hosts.strip():
             parts = []
             for line in self.allowed_finding_hosts.splitlines():
                 parts.extend(line.split(","))
             items = [p.strip() for p in parts if p.strip()]
             self.allowed_finding_hosts = normalize_allowed_hosts_from_list(items)
         else:
-            if self.allowed_finding_hosts is not None and not isinstance(
-                self.allowed_finding_hosts, list
-            ):
+            if self.allowed_finding_hosts is not None and not isinstance(self.allowed_finding_hosts, list):
                 _scope_logger.log_line(
                     "[SCOPE]",
                     "SAVE",

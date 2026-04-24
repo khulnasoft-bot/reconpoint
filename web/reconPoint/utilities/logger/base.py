@@ -153,9 +153,7 @@ class BaseLogger(ABC):
         """
         return self._format_line(prefix, action, message, self.COLOR_BRIGHT_BLUE)
 
-    def _format_line(
-        self, prefix: str, action: str, message: str, action_color: str
-    ) -> str:
+    def _format_line(self, prefix: str, action: str, message: str, action_color: str) -> str:
         """
         Format a single line with prefix, action and message (for use by ModuleLogger.log_line).
 
@@ -193,9 +191,7 @@ class BaseLogger(ABC):
         Returns:
             str: Formatted log message with colors
         """
-        detail_parts = [
-            f"{key}={value}" for key, value in details.items() if value is not None
-        ]
+        detail_parts = [f"{key}={value}" for key, value in details.items() if value is not None]
 
         detail_str = " ".join(detail_parts) if detail_parts else ""
         result_str = self._colorize(result, result_color)
@@ -209,9 +205,7 @@ class BaseLogger(ABC):
             else f"{prefix_colored} {action_colored} | → {result_str}"
         )
 
-    def log_error(
-        self, error: Exception, context: Dict[str, Any], exc_info: bool = True
-    ) -> None:
+    def log_error(self, error: Exception, context: Dict[str, Any], exc_info: bool = True) -> None:
         """
         Log an error with context.
 
@@ -224,17 +218,11 @@ class BaseLogger(ABC):
         action = context.get("action", "ERROR")
         error_msg = str(error)
 
-        details = {
-            k: v for k, v in context.items() if k not in ["prefix", "action", "error"]
-        }
-        error_line = self._format_info_line(
-            prefix, action, details, f"ERROR: {error_msg}", self.COLOR_RED
-        )
+        details = {k: v for k, v in context.items() if k not in ["prefix", "action", "error"]}
+        error_line = self._format_info_line(prefix, action, details, f"ERROR: {error_msg}", self.COLOR_RED)
         self._logger.error(error_line, exc_info=exc_info)
 
-    def log_warning(
-        self, message: str, context: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def log_warning(self, message: str, context: Optional[Dict[str, Any]] = None) -> None:
         """
         Log a warning message.
 
@@ -245,12 +233,8 @@ class BaseLogger(ABC):
         prefix = context.get("prefix", "[WARNING]") if context else "[WARNING]"
         action = context.get("action", "WARNING") if context else "WARNING"
 
-        details = {
-            k: v for k, v in (context or {}).items() if k not in ["prefix", "action"]
-        }
-        warning_line = self._format_info_line(
-            prefix, action, details, message, self.COLOR_YELLOW
-        )
+        details = {k: v for k, v in (context or {}).items() if k not in ["prefix", "action"]}
+        warning_line = self._format_info_line(prefix, action, details, message, self.COLOR_YELLOW)
         self._logger.warning(warning_line)
 
     def log_debug(self, prefix: str, action: str, message: str) -> None:
@@ -275,9 +259,7 @@ class BaseLogger(ABC):
             data_type: Type of data (runner, finding, etc.)
         """
         prefix_colored = self._colorize(prefix, self._get_prefix_color(prefix))
-        action_colored = self._colorize(
-            "STRUCTURE", self.COLOR_VIOLET
-        )  # DEBUG level color
+        action_colored = self._colorize("STRUCTURE", self.COLOR_VIOLET)  # DEBUG level color
         self._logger.debug(
             f"{prefix_colored} {action_colored} | Full {data_type} structure:\n{json.dumps(data, indent=2, default=str)}"
         )

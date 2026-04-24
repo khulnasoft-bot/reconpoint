@@ -22,9 +22,7 @@ class ToRelativeScanPathTestCase(BaseTestCase):
     def test_returns_path_unchanged_when_already_relative(self):
         path = "example/domain/tasks/44/screenshot.png"
         self.assertEqual(to_relative_scan_path(path), path)
-        self.assertEqual(
-            to_relative_scan_path("workspace/file.txt"), "workspace/file.txt"
-        )
+        self.assertEqual(to_relative_scan_path("workspace/file.txt"), "workspace/file.txt")
 
     def test_strips_secator_reports_prefix_when_matching(self):
         with patch("reconPoint.secator.path_utils.settings") as mock_settings:
@@ -50,9 +48,7 @@ class ToRelativeScanPathTestCase(BaseTestCase):
         with patch("reconPoint.secator.path_utils.settings") as mock_settings:
             mock_settings.SECATOR_REPORTS_PREFIX = "/home/webuser/.secator/reports"
             mock_settings.RECONPOINT_RESULTS = "/data/results"
-            path = (
-                "/home/secator/.secator/reports/example/example.com/tasks/44/file.png"
-            )
+            path = "/home/secator/.secator/reports/example/example.com/tasks/44/file.png"
             self.assertEqual(
                 to_relative_scan_path(path),
                 "example/example.com/tasks/44/file.png",

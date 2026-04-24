@@ -118,9 +118,7 @@ def pull_command_poll_jitter_ratio() -> float:
 
 def pull_token_max_length() -> int:
     """Upper bound for the pull token length accepted from HTTP headers."""
-    return _read_int_env(
-        ENV_PULL_TOKEN_MAX_LENGTH, default=DEFAULT_PULL_TOKEN_MAX_LENGTH, minimum=32
-    )
+    return _read_int_env(ENV_PULL_TOKEN_MAX_LENGTH, default=DEFAULT_PULL_TOKEN_MAX_LENGTH, minimum=32)
 
 
 @dataclass(frozen=True)

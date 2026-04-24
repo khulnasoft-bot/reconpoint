@@ -51,9 +51,7 @@ class EmployeeRepository:
             Employee: Saved employee object or None
         """
         try:
-            return self._process_secator_employee_item(
-                item, scan_history_id, target_id, reconpoint_context or {}
-            )
+            return self._process_secator_employee_item(item, scan_history_id, target_id, reconpoint_context or {})
         except ObjectDoesNotExist as e:
             logger.log_line(
                 PREFIX_EMPLOYEE_REPO,
@@ -87,15 +85,8 @@ class EmployeeRepository:
         reconpoint_context: Optional[Dict[str, Any]] = None,
     ) -> Optional[Employee]:
         ctx = reconpoint_context or {}
-        target_value = (
-            Target.objects.filter(id=target_id).values_list("value", flat=True).first()
-            or ""
-        )
-        domain = (
-            get_or_create_domain_for_target(scan_history_id, target_value)
-            if target_value
-            else None
-        )
+        target_value = Target.objects.filter(id=target_id).values_list("value", flat=True).first() or ""
+        domain = get_or_create_domain_for_target(scan_history_id, target_value) if target_value else None
         if not domain:
             logger.log_line(
                 PREFIX_EMPLOYEE_REPO,
@@ -121,9 +112,7 @@ class EmployeeRepository:
 
         scan_history = ScanHistory.objects.get(id=scan_history_id)
 
-        task_source = extract_secator_tool_source(
-            item, include_provider=False, max_length=200
-        )
+        task_source = extract_secator_tool_source(item, include_provider=False, max_length=200)
         emp_defaults: Dict[str, Any] = {
             "name": username or email or "Unknown",
             "site_name": site_name or "",
@@ -222,9 +211,7 @@ class EmployeeRepository:
             )
             return None, False
 
-    def bulk_create(
-        self, employees: List[Dict[str, Any]], scan_history_id: int, target_id: int
-    ) -> List[Employee]:
+    def bulk_create(self, employees: List[Dict[str, Any]], scan_history_id: int, target_id: int) -> List[Employee]:
         """
         Bulk create employees.
 
@@ -261,15 +248,8 @@ class EmployeeRepository:
         from startScan.models import Email
 
         scan_history = ScanHistory.objects.get(id=scan_history_id)
-        target_value = (
-            Target.objects.filter(id=target_id).values_list("value", flat=True).first()
-            or ""
-        )
-        domain = (
-            get_or_create_domain_for_target(scan_history_id, target_value)
-            if target_value
-            else None
-        )
+        target_value = Target.objects.filter(id=target_id).values_list("value", flat=True).first() or ""
+        domain = get_or_create_domain_for_target(scan_history_id, target_value) if target_value else None
         if not domain:
             return []
 
@@ -281,20 +261,15 @@ class EmployeeRepository:
             email_addresses = []
             if "emails" in employee_data:
                 email_addresses = (
-                    employee_data["emails"]
-                    if isinstance(employee_data["emails"], list)
-                    else [employee_data["emails"]]
+                    employee_data["emails"] if isinstance(employee_data["emails"], list) else [employee_data["emails"]]
                 )
             elif "email" in employee_data:
                 email_addresses = [employee_data["email"]]
 
             if username or email_addresses:
-                bulk_task_source = extract_secator_tool_source(
-                    employee_data, include_provider=False, max_length=200
-                )
+                bulk_task_source = extract_secator_tool_source(employee_data, include_provider=False, max_length=200)
                 bulk_defaults: Dict[str, Any] = {
-                    "name": username
-                    or (email_addresses[0] if email_addresses else "Unknown"),
+                    "name": username or (email_addresses[0] if email_addresses else "Unknown"),
                     "site_name": employee_data.get("site_name", ""),
                     "url": employee_data.get("url", ""),
                     "scan_history": scan_history,
@@ -308,11 +283,7 @@ class EmployeeRepository:
                     domain=domain,
                     defaults=bulk_defaults,
                 )
-                if (
-                    not created
-                    and bulk_task_source
-                    and employee.source != bulk_task_source
-                ):
+                if not created and bulk_task_source and employee.source != bulk_task_source:
                     employee.source = bulk_task_source
                     employee.save(update_fields=["source"])
 
@@ -320,9 +291,7 @@ class EmployeeRepository:
                 if email_addresses:
                     for email_address in email_addresses:
                         if email_address and email_address.strip():
-                            email_obj, _ = Email.objects.get_or_create(
-                                address=email_address.strip()
-                            )
+                            email_obj, _ = Email.objects.get_or_create(address=email_address.strip())
                             employee.emails.add(email_obj)
 
                 if created:
@@ -375,9 +344,7 @@ class EmployeeRepository:
             )
             return []
 
-    def get_employees_for_subdomain(
-        self, subdomain_name: str, scan_history_id: int
-    ) -> List[Employee]:
+    def get_employees_for_subdomain(self, subdomain_name: str, scan_history_id: int) -> List[Employee]:
         """
         Get all employees associated with a subdomain.
 
@@ -389,9 +356,7 @@ class EmployeeRepository:
             list: List of Employee objects
         """
         try:
-            if subdomain := Subdomain.objects.filter(
-                name=subdomain_name, scan_history_id=scan_history_id
-            ).first():
+            if subdomain := Subdomain.objects.filter(name=subdomain_name, scan_history_id=scan_history_id).first():
                 return list(Employee.objects.filter(subdomain=subdomain))
             logger.log_line(
                 PREFIX_EMPLOYEE_REPO,
@@ -483,27 +448,21 @@ class EmployeeRepository:
         if subdomain_id := reconpoint_context.get("subdomain_id"):
             if (
                 employee.subdomain_id != subdomain_id
-                and Subdomain.objects.filter(
-                    id=subdomain_id, scan_history_id=scan_history_id
-                ).exists()
+                and Subdomain.objects.filter(id=subdomain_id, scan_history_id=scan_history_id).exists()
             ):
                 employee.subdomain_id = subdomain_id
                 update_fields.append("subdomain_id")
         if endpoint_id := reconpoint_context.get("endpoint_id"):
             if (
                 employee.endpoint_id != endpoint_id
-                and EndPoint.objects.filter(
-                    id=endpoint_id, scan_history_id=scan_history_id
-                ).exists()
+                and EndPoint.objects.filter(id=endpoint_id, scan_history_id=scan_history_id).exists()
             ):
                 employee.endpoint_id = endpoint_id
                 update_fields.append("endpoint_id")
         if update_fields:
             employee.save(update_fields=update_fields)
 
-    def _associate_with_target(
-        self, employee: Employee, url: str, scan_history_id: int
-    ) -> None:
+    def _associate_with_target(self, employee: Employee, url: str, scan_history_id: int) -> None:
         """
         Associate employee with subdomain or endpoint based on URL.
 
@@ -542,9 +501,7 @@ class EmployeeRepository:
                     scan_history = ScanHistory.objects.get(id=scan_history_id)
                     target_id = getattr(scan_history, "target_id", None)
                     if target_id:
-                        subdomain = SubdomainRepository().get_or_create_from_host(
-                            scan_history_id, target_id, hostname
-                        )
+                        subdomain = SubdomainRepository().get_or_create_from_host(scan_history_id, target_id, hostname)
                 except ObjectDoesNotExist:
                     pass
                 if not subdomain:
@@ -568,8 +525,7 @@ class EmployeeRepository:
                     logger.log_line(
                         PREFIX_EMPLOYEE_REPO,
                         "ASSOCIATE",
-                        "Subdomain %s not found in scan %s"
-                        % (hostname, scan_history_id),
+                        "Subdomain %s not found in scan %s" % (hostname, scan_history_id),
                         level="debug",
                     )
 

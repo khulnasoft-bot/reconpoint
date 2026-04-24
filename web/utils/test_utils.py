@@ -284,14 +284,10 @@ class TestDataGenerator:
 
     def create_directory_scan(self):
         """Create and return a test directory scan."""
-        self.directory_scan = DirectoryScan.objects.create(
-            command_line="Test Command", scanned_date=timezone.now()
-        )
+        self.directory_scan = DirectoryScan.objects.create(command_line="Test Command", scanned_date=timezone.now())
         return self.directory_scan
 
-    def create_directory_file(
-        self, name="admin", url="https://example.com/admin", http_status=200, **kwargs
-    ):
+    def create_directory_file(self, name="admin", url="https://example.com/admin", http_status=200, **kwargs):
         """Create and return a test directory file with comprehensive fuzzing data.
 
         Args:
@@ -309,9 +305,7 @@ class TestDataGenerator:
         }
         defaults.update(kwargs)
 
-        self.directory_file = DirectoryFile.objects.create(
-            name=name, url=url, http_status=http_status, **defaults
-        )
+        self.directory_file = DirectoryFile.objects.create(name=name, url=url, http_status=http_status, **defaults)
         return self.directory_file
 
     def create_subscan(self):
@@ -375,11 +369,7 @@ class TestDataGenerator:
                 "project": self.project,
             },
         )
-        if (
-            created
-            and getattr(self.domain, "scan_history_id", None)
-            and self.domain.scan_history.target_id
-        ):
+        if created and getattr(self.domain, "scan_history_id", None) and self.domain.scan_history.target_id:
             self.organization.targets.add(self.domain.scan_history.target)
         return self.organization
 
@@ -553,9 +543,7 @@ class TestDataGenerator:
 
     def create_domain_registration(self):
         """Create and return a test domain registration."""
-        self.domain_registration = DomainRegistration.objects.create(
-            name="Test Domain Registration"
-        )
+        self.domain_registration = DomainRegistration.objects.create(name="Test Domain Registration")
         return self.domain_registration
 
     def create_registrar(self):
@@ -740,9 +728,7 @@ http_crawl: {}
                 default_engine=True,
             )
         else:
-            self.default_engine = EngineType.objects.filter(
-                engine_name="Test Engine"
-            ).first()
+            self.default_engine = EngineType.objects.filter(engine_name="Test Engine").first()
 
         return self.default_engine
 
@@ -760,9 +746,7 @@ http_crawl: {}
             # Get fresh subscans from database to avoid stale references
             from startScan.models import SubScan
 
-            fresh_subscans = SubScan.objects.filter(
-                pk__in=[s.pk for s in self.subscans if s.pk]
-            )
+            fresh_subscans = SubScan.objects.filter(pk__in=[s.pk for s in self.subscans if s.pk])
 
             for subscan in fresh_subscans:
                 # Only link if not already linked
@@ -972,11 +956,7 @@ class MockTemplate:
                     original_get_template = get_template
 
                     def mock_get_template(name):
-                        return (
-                            Template("")
-                            if name == template_name
-                            else original_get_template(name)
-                        )
+                        return Template("") if name == template_name else original_get_template(name)
 
                     get_template.patched = mock_get_template
                     try:

@@ -100,9 +100,7 @@ class Migration(migrations.Migration):
                 ("extra_data", models.JSONField(blank=True, null=True)),
                 (
                     "cve_ids",
-                    models.ManyToManyField(
-                        blank=True, related_name="exploit_cves", to="startScan.cveid"
-                    ),
+                    models.ManyToManyField(blank=True, related_name="exploit_cves", to="startScan.cveid"),
                 ),
                 (
                     "endpoint",

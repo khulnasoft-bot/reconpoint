@@ -66,11 +66,7 @@ class Command(SecatorLoaderBase):
                     scan_path = getattr(scan_loader, "_path", None)
 
                     if not scan_path:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"Scan {scan_name} has no path, skipping"
-                            )
-                        )
+                        self.stdout.write(self.style.WARNING(f"Scan {scan_name} has no path, skipping"))
                         failed_count += 1
                         continue
 
@@ -81,18 +77,12 @@ class Command(SecatorLoaderBase):
                     except (OSError, IOError) as e:
                         # I/O-related issues (missing file, permission error, etc.) are expected
                         self.stdout.write(
-                            self.style.ERROR(
-                                f"Failed to read YAML file for scan {scan_name} at {scan_path}: {e}"
-                            )
+                            self.style.ERROR(f"Failed to read YAML file for scan {scan_name} at {scan_path}: {e}")
                         )
                         failed_count += 1
                         continue
                     except Exception as e:
-                        self.stdout.write(
-                            self.style.ERROR(
-                                f"Failed to read YAML file for scan {scan_name}: {e}"
-                            )
-                        )
+                        self.stdout.write(self.style.ERROR(f"Failed to read YAML file for scan {scan_name}: {e}"))
                         failed_count += 1
                         continue
 
@@ -100,24 +90,17 @@ class Command(SecatorLoaderBase):
                     try:
                         scan_data = yaml.safe_load(yaml_config)
                     except yaml.YAMLError as e:
-                        self.stdout.write(
-                            self.style.ERROR(f"Invalid YAML for scan {scan_name}: {e}")
-                        )
+                        self.stdout.write(self.style.ERROR(f"Invalid YAML for scan {scan_name}: {e}"))
                         failed_count += 1
                         continue
 
                     if not scan_data:
-                        self.stdout.write(
-                            self.style.WARNING(f"Empty YAML for scan: {scan_name}")
-                        )
+                        self.stdout.write(self.style.WARNING(f"Empty YAML for scan: {scan_name}"))
                         failed_count += 1
                         continue
 
                     # Use description from YAML if available, otherwise use loader description
-                    description = (
-                        scan_data.get("description", scan_description)
-                        or f"Built-in {scan_name}"
-                    )
+                    description = scan_data.get("description", scan_description) or f"Built-in {scan_name}"
                     # Get long_description from YAML or TemplateLoader
                     long_description = scan_data.get("long_description") or getattr(
                         scan_loader, "long_description", None
@@ -135,8 +118,7 @@ class Command(SecatorLoaderBase):
                             "yaml_configuration": yaml_config,
                             "scan_type": scan_type,
                             "scan_config_type": "builtin",
-                            "is_default": scan_name
-                            == "domain",  # Domain scan is default
+                            "is_default": scan_name == "domain",  # Domain scan is default
                             "is_active": True,
                         },
                     )
@@ -160,24 +142,16 @@ class Command(SecatorLoaderBase):
 
                 except Exception as e:
                     self.stdout.write(
-                        self.style.ERROR(
-                            f"Error processing scan {getattr(scan_loader, 'name', 'unknown')}: {e}"
-                        )
+                        self.style.ERROR(f"Error processing scan {getattr(scan_loader, 'name', 'unknown')}: {e}")
                     )
                     failed_count += 1
 
-            self.stdout.write(
-                f"Loaded {created_count} new built-in scans, updated {updated_count} existing scans"
-            )
+            self.stdout.write(f"Loaded {created_count} new built-in scans, updated {updated_count} existing scans")
             if failed_count > 0:
-                self.stdout.write(
-                    self.style.WARNING(f"Failed to load {failed_count} scans")
-                )
+                self.stdout.write(self.style.WARNING(f"Failed to load {failed_count} scans"))
 
         except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f"Failed to get scans from secator: {e}")
-            )
+            self.stdout.write(self.style.ERROR(f"Failed to get scans from secator: {e}"))
 
         self._load_scans_from_config_dir(scan_config_type="builtin")
 
@@ -187,9 +161,7 @@ class Command(SecatorLoaderBase):
 
         if not os.path.exists(scans_dir):
             if scan_config_type == "builtin":
-                self.stdout.write(
-                    self.style.WARNING("Config scans directory not found, skipping")
-                )
+                self.stdout.write(self.style.WARNING("Config scans directory not found, skipping"))
             return
 
         label = "built-in (config)" if scan_config_type == "builtin" else "custom"
@@ -209,9 +181,7 @@ class Command(SecatorLoaderBase):
                     scan_data = yaml.safe_load(f)
 
                 if not scan_data or "name" not in scan_data:
-                    self.stdout.write(
-                        self.style.WARNING("Invalid scan file: %s" % (filename,))
-                    )
+                    self.stdout.write(self.style.WARNING("Invalid scan file: %s" % (filename,)))
                     continue
 
                 scan_name = scan_data["name"]
@@ -255,23 +225,14 @@ class Command(SecatorLoaderBase):
             except (FileNotFoundError, PermissionError) as e:
                 self.stdout.write(self.style.ERROR("Scan file %s: %s" % (filename, e)))
             except yaml.YAMLError as e:
-                self.stdout.write(
-                    self.style.ERROR("Invalid YAML in scan file %s: %s" % (filename, e))
-                )
+                self.stdout.write(self.style.ERROR("Invalid YAML in scan file %s: %s" % (filename, e)))
             except UnicodeDecodeError as e:
-                self.stdout.write(
-                    self.style.ERROR(
-                        "Encoding error in scan file %s: %s" % (filename, e)
-                    )
-                )
+                self.stdout.write(self.style.ERROR("Encoding error in scan file %s: %s" % (filename, e)))
             except Exception as e:
-                self.stdout.write(
-                    self.style.ERROR("Error loading scan %s: %s" % (filename, e))
-                )
+                self.stdout.write(self.style.ERROR("Error loading scan %s: %s" % (filename, e)))
 
         self.stdout.write(
-            "Loaded %s new %s scans from config, updated %s existing"
-            % (created_count, label, updated_count)
+            "Loaded %s new %s scans from config, updated %s existing" % (created_count, label, updated_count)
         )
 
     def load_custom_scans(self) -> None:

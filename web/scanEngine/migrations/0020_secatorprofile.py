@@ -40,9 +40,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "opts",
-                    models.TextField(
-                        help_text="YAML configuration options for the profile"
-                    ),
+                    models.TextField(help_text="YAML configuration options for the profile"),
                 ),
                 (
                     "profile_type",

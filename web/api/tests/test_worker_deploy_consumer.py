@@ -11,9 +11,7 @@ from reconPoint.utilities.worker_ws_groups import worker_deploy_group
 from utils.test_base import BaseTestCase
 
 
-@override_settings(
-    CHANNEL_LAYERS={"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
-)
+@override_settings(CHANNEL_LAYERS={"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}})
 class TestWorkerDeployConsumer(BaseTestCase):
     """WorkerDeployConsumer joins group and sends worker_deploy_log payload to client."""
 

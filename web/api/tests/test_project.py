@@ -81,12 +81,8 @@ class TestListTodoNotes(BaseTestCase):
         self.assertIn("total_count", response.data)
         self.assertGreaterEqual(response.data["total_count"], 1)
         self.assertGreaterEqual(len(response.data["notes"]), 1)
-        self.assertEqual(
-            response.data["notes"][0]["id"], self.data_generator.todo_note.id
-        )
-        self.assertEqual(
-            response.data["notes"][0]["title"], self.data_generator.todo_note.title
-        )
+        self.assertEqual(response.data["notes"][0]["id"], self.data_generator.todo_note.id)
+        self.assertEqual(response.data["notes"][0]["title"], self.data_generator.todo_note.title)
         self.assertEqual(
             response.data["notes"][0]["description"],
             self.data_generator.todo_note.description,
@@ -114,6 +110,4 @@ class TestListTodoNotes(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("total_count", response.data)
         self.assertLessEqual(len(response.data["notes"]), 1)
-        self.assertGreaterEqual(
-            response.data["total_count"], len(response.data["notes"])
-        )
+        self.assertGreaterEqual(response.data["total_count"], len(response.data["notes"]))

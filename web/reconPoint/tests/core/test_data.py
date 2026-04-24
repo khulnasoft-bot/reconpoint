@@ -268,9 +268,7 @@ class TestDataUtils(TestCase):
 
     def test_get_request_worker_id_from_data(self):
         """Test get_request_worker_id from request.data."""
-        request = type(
-            "R", (), {"data": {"worker_id": 42}, "query_params": {}, "headers": {}}
-        )()
+        request = type("R", (), {"data": {"worker_id": 42}, "query_params": {}, "headers": {}})()
         self.assertEqual(get_request_worker_id(request), 42)
 
     def test_get_request_worker_id_from_query_params(self):
@@ -298,18 +296,14 @@ class TestDataUtils(TestCase):
 
     def test_get_request_worker_id_positive_only(self):
         """Test get_request_worker_id returns None for zero or negative."""
-        request = type(
-            "R", (), {"data": {"worker_id": 0}, "query_params": {}, "headers": {}}
-        )()
+        request = type("R", (), {"data": {"worker_id": 0}, "query_params": {}, "headers": {}})()
         self.assertIsNone(get_request_worker_id(request))
         request.data["worker_id"] = -1
         self.assertIsNone(get_request_worker_id(request))
 
     def test_get_request_worker_id_invalid_returns_none(self):
         """Test get_request_worker_id returns None for invalid values."""
-        request = type(
-            "R", (), {"data": {"worker_id": "x"}, "query_params": {}, "headers": {}}
-        )()
+        request = type("R", (), {"data": {"worker_id": "x"}, "query_params": {}, "headers": {}})()
         self.assertIsNone(get_request_worker_id(request))
 
     def test_get_request_worker_id_no_source_returns_none(self):

@@ -119,9 +119,7 @@ class DistributedLock:
         self._redis_client = get_redis_connection()
 
         if not self._redis_client:
-            logger.debug(
-                f"Redis not available for lock {self.lock_key}, falling back to no locking"
-            )
+            logger.debug(f"Redis not available for lock {self.lock_key}, falling back to no locking")
             self.acquired = False
             return False
 
@@ -140,18 +138,12 @@ class DistributedLock:
                 return True
             else:
                 # Could not acquire lock immediately, try waiting
-                for attempt in range(
-                    int(self.blocking_timeout * 10)
-                ):  # Check every 100ms
+                for attempt in range(int(self.blocking_timeout * 10)):  # Check every 100ms
                     time.sleep(0.1)
-                    lock_acquired = self._redis_client.set(
-                        self.lock_key, "locked", nx=True, ex=self.timeout
-                    )
+                    lock_acquired = self._redis_client.set(self.lock_key, "locked", nx=True, ex=self.timeout)
                     if lock_acquired:
                         self.acquired = True
-                        logger.debug(
-                            f"Acquired distributed lock after waiting: {self.lock_key}"
-                        )
+                        logger.debug(f"Acquired distributed lock after waiting: {self.lock_key}")
                         return True
 
                 logger.debug(f"Could not acquire distributed lock: {self.lock_key}")
@@ -205,9 +197,7 @@ class DistributedLock:
                 try:
                     return protected_operation()
                 except Exception as e:
-                    logger.error(
-                        f"Protected operation failed under lock {self.lock_key}: {e}"
-                    )
+                    logger.error(f"Protected operation failed under lock {self.lock_key}: {e}")
                     raise
             else:
                 # Could not acquire lock
@@ -223,9 +213,7 @@ class DistributedLock:
                                 time.sleep(retry_delay * (attempt + 1))
                                 continue
                             else:
-                                logger.error(
-                                    f"Fallback operation failed for {self.lock_key}: {e}"
-                                )
+                                logger.error(f"Fallback operation failed for {self.lock_key}: {e}")
                                 raise
 
                 # If we get here, neither protected nor fallback operation succeeded
@@ -272,9 +260,7 @@ class DistributedLock:
                 # Create new object
                 obj = model_class.objects.create(**create_kwargs)
                 obj._was_created = True
-                logger.debug(
-                    f"Created new {model_class.__name__} with distributed lock"
-                )
+                logger.debug(f"Created new {model_class.__name__} with distributed lock")
                 return obj
 
             except IntegrityError:
@@ -284,30 +270,22 @@ class DistributedLock:
                     if update_existing_callback:
                         obj = update_existing_callback(obj)
                     obj._was_created = False
-                    logger.debug(
-                        f"Found existing {model_class.__name__} after integrity error"
-                    )
+                    logger.debug(f"Found existing {model_class.__name__} after integrity error")
                     return obj
                 else:
-                    logger.error(
-                        f"IntegrityError but no existing {model_class.__name__} found"
-                    )
+                    logger.error(f"IntegrityError but no existing {model_class.__name__} found")
                     return None
 
         def fallback_operation():
             try:
                 obj, created = model_class.objects.get_or_create(
-                    defaults={
-                        k: v for k, v in create_kwargs.items() if k not in get_kwargs
-                    },
+                    defaults={k: v for k, v in create_kwargs.items() if k not in get_kwargs},
                     **get_kwargs,
                 )
                 if not created and update_existing_callback:
                     obj = update_existing_callback(obj)
                 obj._was_created = created
-                logger.debug(
-                    f"Fallback get_or_create for {model_class.__name__}: created={created}"
-                )
+                logger.debug(f"Fallback get_or_create for {model_class.__name__}: created={created}")
                 return obj
             except IntegrityError:
                 # Final fallback - just try to get the object
@@ -322,14 +300,10 @@ class DistributedLock:
 
         # Use distributed lock
         lock = DistributedLock(lock_key, timeout, blocking_timeout)
-        return lock.execute_with_lock(
-            protected_operation=locked_operation, fallback_operation=fallback_operation
-        )
+        return lock.execute_with_lock(protected_operation=locked_operation, fallback_operation=fallback_operation)
 
 
-def with_distributed_lock(
-    lock_key_generator: Callable, timeout: int = 30, blocking_timeout: int = 5
-):
+def with_distributed_lock(lock_key_generator: Callable, timeout: int = 30, blocking_timeout: int = 5):
     """
     Decorator for automatically applying distributed locking to functions.
 
@@ -358,9 +332,7 @@ def with_distributed_lock(
                 else:
                     # Could not acquire lock - you might want to implement
                     # specific fallback logic here depending on the use case
-                    logger.warning(
-                        f"Could not acquire lock for {func.__name__}: {lock_key}"
-                    )
+                    logger.warning(f"Could not acquire lock for {func.__name__}: {lock_key}")
                     return func(*args, **kwargs)  # Execute anyway as fallback
 
         return wrapper

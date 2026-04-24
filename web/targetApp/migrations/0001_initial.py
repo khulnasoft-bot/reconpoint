@@ -128,9 +128,7 @@ class Migration(migrations.Migration):
                 ("insert_date", models.DateTimeField()),
                 (
                     "domains",
-                    models.ManyToManyField(
-                        related_name="domains", to="targetApp.Domain"
-                    ),
+                    models.ManyToManyField(related_name="domains", to="targetApp.Domain"),
                 ),
             ],
         ),

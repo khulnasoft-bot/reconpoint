@@ -129,9 +129,7 @@ def tokenize_advanced_search(raw: str) -> tuple[Optional[list[Any]], Optional[st
     return tokens, None
 
 
-def _parse_primary(
-    tokens: list[Any], pos: int
-) -> tuple[Optional[AstNode], int, Optional[str]]:
+def _parse_primary(tokens: list[Any], pos: int) -> tuple[Optional[AstNode], int, Optional[str]]:
     if pos >= len(tokens):
         return None, pos, "unexpected_end"
     t = tokens[pos]
@@ -147,9 +145,7 @@ def _parse_primary(
     return None, pos, "expected_atom_or_lparen"
 
 
-def _parse_and(
-    tokens: list[Any], pos: int
-) -> tuple[Optional[AstNode], int, Optional[str]]:
+def _parse_and(tokens: list[Any], pos: int) -> tuple[Optional[AstNode], int, Optional[str]]:
     left, pos, err = _parse_primary(tokens, pos)
     if err:
         return None, pos, err
@@ -165,9 +161,7 @@ def _parse_and(
     return ("and", children), pos, None
 
 
-def _parse_or(
-    tokens: list[Any], pos: int
-) -> tuple[Optional[AstNode], int, Optional[str]]:
+def _parse_or(tokens: list[Any], pos: int) -> tuple[Optional[AstNode], int, Optional[str]]:
     left, pos, err = _parse_and(tokens, pos)
     if err:
         return None, pos, err
@@ -318,9 +312,7 @@ def validate_advanced_search_expression(expression: str) -> dict[str, Any]:
         }
     ast, err = parse_advanced_search_ast(raw)
     if err:
-        detail = ADVANCED_SEARCH_PARSE_ERROR_DESCRIPTIONS.get(
-            err, err.replace("_", " ")
-        )
+        detail = ADVANCED_SEARCH_PARSE_ERROR_DESCRIPTIONS.get(err, err.replace("_", " "))
         return {
             "valid": False,
             "error": err,
@@ -422,8 +414,7 @@ ADVANCED_SEARCH_FIELD_CATALOG: dict[str, list[dict[str, str]]] = {
 }
 
 ADVANCED_SEARCH_FIELD_VALUE_SPECS: dict[str, dict[str, tuple[str, Optional[str]]]] = {
-    ctx: {name: (agg, db) for name, _, agg, db in rows}
-    for ctx, rows in _ADVANCED_SEARCH_FIELD_DEFS.items()
+    ctx: {name: (agg, db) for name, _, agg, db in rows} for ctx, rows in _ADVANCED_SEARCH_FIELD_DEFS.items()
 }
 
 ALLOWED_CONTEXTS = frozenset(_ADVANCED_SEARCH_FIELD_DEFS.keys())

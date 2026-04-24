@@ -33,9 +33,7 @@ from reconPoint.definitions import NUCLEI_REVERSE_SEVERITY_MAP
 from startScan.models import EndPoint, Technology
 
 
-SUBDOMAIN_DISPLAY_VALUE_FIELDS = frozenset(
-    {"page_title", "http_status", "content_length"}
-)
+SUBDOMAIN_DISPLAY_VALUE_FIELDS = frozenset({"page_title", "http_status", "content_length"})
 
 # Cap subdomains considered for technology autocomplete to limit join size on huge scans.
 _SUBDOMAIN_DISTINCT_TECH_SUBDOMAIN_CAP_DEFAULT = 500
@@ -58,9 +56,7 @@ def _normalize_out(v: Any) -> Optional[str]:
     return s if s else None
 
 
-def _sort_values(
-    values: list[str], kind: str, *, numeric_sort: bool = False
-) -> list[str]:
+def _sort_values(values: list[str], kind: str, *, numeric_sort: bool = False) -> list[str]:
     if numeric_sort and values:
         try:
             return sorted(values, key=lambda x: int(x))
@@ -69,9 +65,7 @@ def _sort_values(
     return sorted(values, key=lambda x: (x.lower(), x))
 
 
-def _base_queryset_for_context(
-    request: Any, ctx: str
-) -> tuple[Optional[QuerySet], Optional[str]]:
+def _base_queryset_for_context(request: Any, ctx: str) -> tuple[Optional[QuerySet], Optional[str]]:
     if ctx == "endpoints":
         return build_endpoint_datatable_queryset(request), None
     if ctx == "subdomains":
@@ -85,9 +79,7 @@ def _base_queryset_for_context(
 
 
 def _distinct_severity_labels(qs: QuerySet, lim: int) -> list[str]:
-    codes = {
-        c for c in qs.values_list("severity", flat=True).distinct() if c is not None
-    }
+    codes = {c for c in qs.values_list("severity", flat=True).distinct() if c is not None}
     raw = []
     for c in sorted(codes, key=lambda x: int(x)):
         lab = NUCLEI_REVERSE_SEVERITY_MAP.get(int(c))
@@ -121,9 +113,7 @@ def _dedupe_normalized_list(raw: list[Any], lim: int) -> list[str]:
     return out
 
 
-def _subdomain_distinct_display_values(
-    qs: QuerySet, field: str, q_prefix: str, lim: int
-) -> list[str]:
+def _subdomain_distinct_display_values(qs: QuerySet, field: str, q_prefix: str, lim: int) -> list[str]:
     """
     Distinct values aligned with SubdomainSerializer display_* (default EndPoint, else Subdomain).
     """
@@ -154,16 +144,14 @@ def _subdomain_distinct_display_values(
         if field == "page_title":
             fqs = fqs.filter(**{f"{alias}__icontains": q_prefix})
         else:
-            fqs = fqs.annotate(
-                _adv_disp_txt=Cast(F(alias), output_field=TextField())
-            ).filter(_adv_disp_txt__istartswith=q_prefix)
+            fqs = fqs.annotate(_adv_disp_txt=Cast(F(alias), output_field=TextField())).filter(
+                _adv_disp_txt__istartswith=q_prefix
+            )
     raw = list(fqs.values_list(alias, flat=True).distinct())
     return _finalize_scalar_like_values(raw, lim, field)
 
 
-def _scalar_m2m_raw_values(
-    qs: QuerySet, db_path: str, q_prefix: str, *, limit: Optional[int] = None
-) -> list[Any]:
+def _scalar_m2m_raw_values(qs: QuerySet, db_path: str, q_prefix: str, *, limit: Optional[int] = None) -> list[Any]:
     fqs = qs
     if q_prefix:
         fqs = fqs.filter(**{f"{db_path}__istartswith": q_prefix})
@@ -194,9 +182,7 @@ def _subdomain_distinct_technology_values(
     if lim <= 0:
         return []
     if subdomain_cap > 0:
-        capped_pks = Subquery(
-            qs.order_by("-scan_history_id", "-pk").values("pk")[:subdomain_cap]
-        )
+        capped_pks = Subquery(qs.order_by("-scan_history_id", "-pk").values("pk")[:subdomain_cap])
         qs = qs.model.objects.filter(pk__in=capped_pks)
     fetch_limit = lim * 2
     tech_qs = Technology.objects.filter(technology_scope_q_for_subdomains(qs))

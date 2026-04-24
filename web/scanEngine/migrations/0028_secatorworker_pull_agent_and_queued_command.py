@@ -30,9 +30,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="secatorworker",
             name="pull_token",
-            field=models.CharField(
-                blank=True, default="", editable=False, max_length=64
-            ),
+            field=models.CharField(blank=True, default="", editable=False, max_length=64),
             preserve_default=False,
         ),
         migrations.RunPython(populate_pull_tokens, migrations.RunPython.noop),

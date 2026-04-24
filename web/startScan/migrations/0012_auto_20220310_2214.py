@@ -34,15 +34,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "dir_subscan_ids",
-                    models.ManyToManyField(
-                        related_name="dir_subscan_ids", to="startScan.SubScan"
-                    ),
+                    models.ManyToManyField(related_name="dir_subscan_ids", to="startScan.SubScan"),
                 ),
                 (
                     "directory_files",
-                    models.ManyToManyField(
-                        related_name="directory_files", to="startScan.DirectoryFile"
-                    ),
+                    models.ManyToManyField(related_name="directory_files", to="startScan.DirectoryFile"),
                 ),
             ],
         ),
@@ -52,8 +48,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="subdomain",
             name="directories",
-            field=models.ManyToManyField(
-                blank=True, related_name="directories", to="startScan.DirectoryFile"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="directories", to="startScan.DirectoryFile"),
         ),
     ]

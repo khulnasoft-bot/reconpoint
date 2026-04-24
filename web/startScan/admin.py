@@ -572,11 +572,7 @@ class EndPointAdmin(admin.ModelAdmin):
             return ""
         # URL served with project check via api.scan_file.ServeScanFile
         url = build_scan_file_url(obj.screenshot_path)
-        return (
-            format_html('<a href="{}" target="_blank" rel="noopener">Open</a>', url)
-            if url
-            else ""
-        )
+        return format_html('<a href="{}" target="_blank" rel="noopener">Open</a>', url) if url else ""
 
     @admin.display(description="Stored response")
     def stored_response_open_link(self, obj):
@@ -584,11 +580,7 @@ class EndPointAdmin(admin.ModelAdmin):
             return ""
         # URL served with project check via api.scan_file.ServeScanFile
         url = build_scan_file_url(obj.stored_response_path)
-        return (
-            format_html('<a href="{}" target="_blank" rel="noopener">Open</a>', url)
-            if url
-            else ""
-        )
+        return format_html('<a href="{}" target="_blank" rel="noopener">Open</a>', url) if url else ""
 
 
 @admin.register(Vulnerability)

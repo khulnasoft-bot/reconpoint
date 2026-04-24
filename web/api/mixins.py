@@ -95,39 +95,27 @@ class DatatableListMixin:
         ):
             records_total = base_queryset.count()
             records_filtered = filtered_queryset.count()
-            paginated_queryset = filtered_queryset[
-                pagination["start"] : pagination["start"] + pagination["length"]
-            ]
-            if hasattr(self, "get_list_serializer_context") and callable(
-                self.get_list_serializer_context
-            ):
+            paginated_queryset = filtered_queryset[pagination["start"] : pagination["start"] + pagination["length"]]
+            if hasattr(self, "get_list_serializer_context") and callable(self.get_list_serializer_context):
                 context = {
                     **context,
                     **self.get_list_serializer_context(paginated_queryset),
                 }
-            serializer = self.get_serializer(
-                paginated_queryset, many=True, context=context
-            )
+            serializer = self.get_serializer(paginated_queryset, many=True, context=context)
             return Response(
-                build_datatables_serverside_response(
-                    request, records_total, records_filtered, serializer.data
-                )
+                build_datatables_serverside_response(request, records_total, records_filtered, serializer.data)
             )
 
         queryset = filtered_queryset
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            if hasattr(self, "get_list_serializer_context") and callable(
-                self.get_list_serializer_context
-            ):
+            if hasattr(self, "get_list_serializer_context") and callable(self.get_list_serializer_context):
                 context = {**context, **self.get_list_serializer_context(page)}
             serializer = self.get_serializer(page, many=True, context=context)
             return self.get_paginated_response(serializer.data)
 
-        if hasattr(self, "get_list_serializer_context") and callable(
-            self.get_list_serializer_context
-        ):
+        if hasattr(self, "get_list_serializer_context") and callable(self.get_list_serializer_context):
             context = {**context, **self.get_list_serializer_context(queryset)}
         serializer = self.get_serializer(queryset, many=True, context=context)
         return Response(serializer.data)
@@ -162,9 +150,7 @@ class AdvancedSearchMixin:
                 len(raw),
             )
             return queryset
-        if ast_requires_legacy_eval(
-            ast, self._advanced_search_atom_requires_legacy_eval
-        ):
+        if ast_requires_legacy_eval(ast, self._advanced_search_atom_requires_legacy_eval):
             return self._eval_advanced_search_ast_legacy(queryset, ast)
         q = ast_to_q(ast, self._advanced_search_atom_to_q)
         return queryset.filter(q)
@@ -175,9 +161,7 @@ class AdvancedSearchMixin:
             return False
         return atom_requires_port_bang_legacy(term_raw, cfg.get("custom_handlers"))
 
-    def _custom_handler_to_q(
-        self, lookup_title: str, operator: str, lookup_content: str
-    ) -> Optional[Q]:
+    def _custom_handler_to_q(self, lookup_title: str, operator: str, lookup_content: str) -> Optional[Q]:
         return None
 
     def general_lookup_q(self, search_value: str) -> Q:
@@ -278,9 +262,7 @@ class AdvancedSearchMixin:
         if kind == "or":
             union_qs = queryset.none()
             for ch in children:
-                union_qs = union_qs | self._eval_advanced_search_ast_legacy(
-                    queryset, ch
-                )
+                union_qs = union_qs | self._eval_advanced_search_ast_legacy(queryset, ch)
             return union_qs
         return queryset
 

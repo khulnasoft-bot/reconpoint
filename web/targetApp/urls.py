@@ -15,9 +15,7 @@ urlpatterns = [
     path("<slug:slug>/list", views.list_target, name="list_target"),
     path("<slug:slug>/summary/<int:id>", views.target_summary, name="target_summary"),
     path("<slug:slug>/update/<int:id>", views.update_target, name="update_target"),
-    path(
-        "<slug:slug>/organization/add", views.add_organization, name="add_organization"
-    ),
+    path("<slug:slug>/organization/add", views.add_organization, name="add_organization"),
     path(
         "<slug:slug>/organization/delete/<int:id>",
         views.delete_organization,

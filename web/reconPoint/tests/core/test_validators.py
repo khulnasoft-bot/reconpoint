@@ -38,9 +38,7 @@ class TestValidators(TestCase):
         # Edge-case URLs
         self.assertTrue(is_valid_url("ftp://example.com/resource"))  # uncommon scheme
         self.assertTrue(is_valid_url("http://example.com:8080"))  # uncommon port
-        self.assertTrue(
-            is_valid_url("https://example.com/path?query=param")
-        )  # query parameters
+        self.assertTrue(is_valid_url("https://example.com/path?query=param"))  # query parameters
         self.assertTrue(is_valid_url("https://example.com/path#fragment"))  # fragment
         self.assertTrue(is_valid_url("custom-scheme://host/resource"))  # custom scheme
         self.assertFalse(is_valid_url("not a url"))
@@ -144,14 +142,10 @@ class TestValidators(TestCase):
         # Only special characters should result in 'unnamed' or sanitized output
         self.assertEqual(sanitize_filename("////"), "____")  # Replaced with underscores
         self.assertEqual(sanitize_filename("<>"), "__")  # Replaced with underscores
-        self.assertEqual(
-            sanitize_filename("   "), "unnamed"
-        )  # Whitespace becomes unnamed
+        self.assertEqual(sanitize_filename("   "), "unnamed")  # Whitespace becomes unnamed
         # Mixed unicode and special characters
         self.assertEqual(sanitize_filename("файл<>.txt"), "файл__.txt")
-        self.assertEqual(
-            sanitize_filename("  文件/<>.txt  "), "文件___.txt"
-        )  # / becomes _ too
+        self.assertEqual(sanitize_filename("  文件/<>.txt  "), "文件___.txt")  # / becomes _ too
 
     def test_sanitize_path_component(self):
         """Test path component sanitization."""
@@ -203,13 +197,9 @@ class TestValidators(TestCase):
         self.assertEqual(sanitize_path_component("project_v2.0"), "project_v2.0")
 
         # Test edge cases with special characters
-        self.assertEqual(
-            sanitize_path_component("///"), "_"
-        )  # Becomes _ after replacement and consolidation
+        self.assertEqual(sanitize_path_component("///"), "_")  # Becomes _ after replacement and consolidation
         self.assertEqual(sanitize_path_component("..."), "unnamed")  # Dots are stripped
-        self.assertEqual(
-            sanitize_path_component("   ...   "), "unnamed"
-        )  # Whitespace and dots stripped
+        self.assertEqual(sanitize_path_component("   ...   "), "unnamed")  # Whitespace and dots stripped
 
     def test_validate_severity(self):
         """Test severity validation."""
@@ -270,9 +260,5 @@ class TestValidators(TestCase):
         self.assertIsNone(validate_severity("\t"))
         self.assertIsNone(validate_severity("\n"))
         self.assertIsNone(validate_severity("criticality"))  # Partial match
-        self.assertIsNone(
-            validate_severity("high-level")
-        )  # Contains valid but not exact
-        self.assertIsNone(
-            validate_severity("medium_risk")
-        )  # Contains valid but not exact
+        self.assertIsNone(validate_severity("high-level"))  # Contains valid but not exact
+        self.assertIsNone(validate_severity("medium_risk"))  # Contains valid but not exact

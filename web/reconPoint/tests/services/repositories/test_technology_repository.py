@@ -29,9 +29,7 @@ class TestTechnologyRepository(BaseTestCase):
             "match": "test.example.com",
         }
 
-        result = self.tech_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
 
         self.assertIsNotNone(result)
         self.assertEqual(result.name, "nginx")
@@ -50,9 +48,7 @@ class TestTechnologyRepository(BaseTestCase):
             subdomain=subdomain,
         )
         item = {"_type": "tag", "name": "only-ep-link", "match": "s1.example.com"}
-        result = self.tech_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
         self.assertIsNotNone(result)
         ep.refresh_from_db()
         self.assertIn(result, ep.techs.all())
@@ -87,9 +83,7 @@ class TestTechnologyRepository(BaseTestCase):
             "match": "many.example.com",
         }
 
-        result = self.tech_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
 
         self.assertIsNotNone(result)
         for endpoint in endpoints:
@@ -115,9 +109,7 @@ class TestTechnologyRepository(BaseTestCase):
             subdomain=subdomain,
         )
         item = {"_type": "tag", "name": "legacy-m2m-tech", "match": "leg.example.com"}
-        result = self.tech_repo.save_from_secator(
-            item, legacy_scan.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, legacy_scan.id, self.data_generator.target.id)
         self.assertIsNotNone(result)
         subdomain.refresh_from_db()
         self.assertIn(result, subdomain.technologies.all())
@@ -134,13 +126,9 @@ class TestTechnologyRepository(BaseTestCase):
             "match": "tech-src.example.com",
             "_source": "wappalyzer",
         }
-        result = self.tech_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
         self.assertIsNotNone(result)
-        link = SubdomainTechnology.objects.filter(
-            subdomain=subdomain, technology=result
-        ).first()
+        link = SubdomainTechnology.objects.filter(subdomain=subdomain, technology=result).first()
         self.assertIsNotNone(link)
         self.assertEqual(link.source, "wappalyzer")
 
@@ -165,15 +153,9 @@ class TestTechnologyRepository(BaseTestCase):
             "match": "tech-overwrite.example.com",
             "_source": "httpx",
         }
-        self.tech_repo.save_from_secator(
-            first, self.scan_history.id, self.data_generator.target.id
-        )
-        self.tech_repo.save_from_secator(
-            second, self.scan_history.id, self.data_generator.target.id
-        )
-        link = SubdomainTechnology.objects.get(
-            subdomain=subdomain, technology__name="rails"
-        )
+        self.tech_repo.save_from_secator(first, self.scan_history.id, self.data_generator.target.id)
+        self.tech_repo.save_from_secator(second, self.scan_history.id, self.data_generator.target.id)
+        link = SubdomainTechnology.objects.get(subdomain=subdomain, technology__name="rails")
         self.assertEqual(link.source, "httpx")
 
     def test_save_from_secator_with_url_match(self):
@@ -194,9 +176,7 @@ class TestTechnologyRepository(BaseTestCase):
             "match": "https://test.example.com/admin",
         }
 
-        result = self.tech_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
 
         self.assertIsNotNone(result)
         self.assertEqual(result.name, "apache")
@@ -223,25 +203,17 @@ class TestTechnologyRepository(BaseTestCase):
             "_source": "nuclei",
         }
 
-        result = self.tech_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
 
         self.assertIsNotNone(result)
-        endpoint = EndPoint.objects.filter(
-            http_url=match_url, scan_history_id=self.scan_history.id
-        ).first()
+        endpoint = EndPoint.objects.filter(http_url=match_url, scan_history_id=self.scan_history.id).first()
         self.assertIsNotNone(endpoint)
         self.assertIsNotNone(endpoint.subdomain_id)
         self.assertIsNone(endpoint.ip_address_id)
         self.assertEqual(endpoint.subdomain.name, host)
         self.assertEqual(endpoint.subdomain_id, subdomain.id)
         self.assertIn(result, endpoint.techs.all())
-        self.assertTrue(
-            Subdomain.objects.filter(
-                name=host, scan_history_id=self.scan_history.id
-            ).exists()
-        )
+        self.assertTrue(Subdomain.objects.filter(name=host, scan_history_id=self.scan_history.id).exists())
 
     def test_save_from_secator_missing_name(self):
         """Test handling missing technology name."""
@@ -250,9 +222,7 @@ class TestTechnologyRepository(BaseTestCase):
             "match": "test.example.com",
         }
 
-        result = self.tech_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
 
         self.assertIsNone(result)
 
@@ -263,9 +233,7 @@ class TestTechnologyRepository(BaseTestCase):
             "name": "nginx",
         }
 
-        result = self.tech_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
 
         self.assertIsNone(result)
 
@@ -277,9 +245,7 @@ class TestTechnologyRepository(BaseTestCase):
             "match": "nonexistent.example.com",
         }
 
-        result = self.tech_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
 
         # Should still create technology but without association
         self.assertIsNotNone(result)
@@ -288,23 +254,17 @@ class TestTechnologyRepository(BaseTestCase):
     def test_get_or_create_existing_technology(self):
         """Test get_or_create with existing technology."""
         # Create technology first
-        tech1, created1 = self.tech_repo.get_or_create(
-            "nginx", scan_history_id=self.scan_history.id
-        )
+        tech1, created1 = self.tech_repo.get_or_create("nginx", scan_history_id=self.scan_history.id)
         self.assertTrue(created1)
 
         # Try to create same technology again
-        tech2, created2 = self.tech_repo.get_or_create(
-            "nginx", scan_history_id=self.scan_history.id
-        )
+        tech2, created2 = self.tech_repo.get_or_create("nginx", scan_history_id=self.scan_history.id)
         self.assertFalse(created2)
         self.assertEqual(tech1.id, tech2.id)
 
     def test_get_or_create_new_technology(self):
         """Test get_or_create with new technology."""
-        tech, created = self.tech_repo.get_or_create(
-            "apache", scan_history_id=self.scan_history.id
-        )
+        tech, created = self.tech_repo.get_or_create("apache", scan_history_id=self.scan_history.id)
 
         self.assertIsNotNone(tech)
         self.assertTrue(created)
@@ -314,9 +274,7 @@ class TestTechnologyRepository(BaseTestCase):
         """Test bulk creation of technologies."""
         tech_names = ["nginx", "apache", "mysql", "php"]
 
-        result = self.tech_repo.bulk_create(
-            tech_names, scan_history_id=self.scan_history.id
-        )
+        result = self.tech_repo.bulk_create(tech_names, scan_history_id=self.scan_history.id)
 
         self.assertEqual(len(result), 4)
         created_names = [tech.name for tech in result]
@@ -327,9 +285,7 @@ class TestTechnologyRepository(BaseTestCase):
         """Test bulk creation with duplicate technology names."""
         tech_names = ["nginx", "apache", "nginx", "mysql"]  # nginx appears twice
 
-        result = self.tech_repo.bulk_create(
-            tech_names, scan_history_id=self.scan_history.id
-        )
+        result = self.tech_repo.bulk_create(tech_names, scan_history_id=self.scan_history.id)
 
         # Should only create unique technologies
         self.assertEqual(len(result), 3)
@@ -342,12 +298,8 @@ class TestTechnologyRepository(BaseTestCase):
         """Same technology name must create one row per scan."""
         other_scan = self.data_generator.create_scan_history()
 
-        first, created_first = self.tech_repo.get_or_create(
-            "nginx", scan_history_id=self.scan_history.id
-        )
-        second, created_second = self.tech_repo.get_or_create(
-            "nginx", scan_history_id=other_scan.id
-        )
+        first, created_first = self.tech_repo.get_or_create("nginx", scan_history_id=self.scan_history.id)
+        second, created_second = self.tech_repo.get_or_create("nginx", scan_history_id=other_scan.id)
 
         self.assertTrue(created_first)
         self.assertTrue(created_second)
@@ -371,9 +323,7 @@ class TestTechnologyRepository(BaseTestCase):
             },
         }
 
-        result = self.tech_repo.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.tech_repo.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
 
         self.assertIsNotNone(result)
         self.assertEqual(result.name, "nginx")

@@ -31,9 +31,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.SeparateDatabaseAndState(
             database_operations=[
-                migrations.RunPython(
-                    _safe_rename_llm_content_index, migrations.RunPython.noop
-                ),
+                migrations.RunPython(_safe_rename_llm_content_index, migrations.RunPython.noop),
             ],
             state_operations=[
                 migrations.RenameIndex(
@@ -46,8 +44,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="llmattacksurfaceanalysis",
             name="id",
-            field=models.BigAutoField(
-                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
-            ),
+            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID"),
         ),
     ]

@@ -45,15 +45,11 @@ class Migration(migrations.Migration):
                 ("threads", models.PositiveIntegerField(blank=True, null=True)),
                 (
                     "rate_limit",
-                    models.PositiveIntegerField(
-                        blank=True, help_text="Requests per second", null=True
-                    ),
+                    models.PositiveIntegerField(blank=True, help_text="Requests per second", null=True),
                 ),
                 (
                     "timeout",
-                    models.PositiveIntegerField(
-                        blank=True, help_text="HTTP timeout in seconds", null=True
-                    ),
+                    models.PositiveIntegerField(blank=True, help_text="HTTP timeout in seconds", null=True),
                 ),
                 ("retries", models.PositiveIntegerField(blank=True, null=True)),
                 (
@@ -68,9 +64,7 @@ class Migration(migrations.Migration):
                 ("user_agent", models.CharField(blank=True, max_length=500, null=True)),
                 (
                     "request_headers",
-                    models.JSONField(
-                        blank=True, help_text="Key-value HTTP headers", null=True
-                    ),
+                    models.JSONField(blank=True, help_text="Key-value HTTP headers", null=True),
                 ),
                 ("follow_redirect", models.BooleanField(blank=True, null=True)),
                 ("depth", models.PositiveIntegerField(blank=True, null=True)),
@@ -101,15 +95,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "targets",
-                    models.ManyToManyField(
-                        blank=True, related_name="scopes", to="targetApp.target"
-                    ),
+                    models.ManyToManyField(blank=True, related_name="scopes", to="targetApp.target"),
                 ),
                 (
                     "workers",
-                    models.ManyToManyField(
-                        blank=True, related_name="scopes", to="scanEngine.secatorworker"
-                    ),
+                    models.ManyToManyField(blank=True, related_name="scopes", to="scanEngine.secatorworker"),
                 ),
             ],
             options={

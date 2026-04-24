@@ -27,9 +27,7 @@ class TestGeolocalizationPerformance(TestCase):
         self.data_generator.create_project_base()
 
         # Create user for initiated_by field
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
         self.data_generator.scan_history.initiated_by = self.user
         self.data_generator.scan_history.save()
 
@@ -168,9 +166,7 @@ class TestGeolocalizationPerformance(TestCase):
         results = []
 
         for i, ips in enumerate(thread_data):
-            thread = threading.Thread(
-                target=lambda i=i, ips=ips: results.append(worker_thread(i, ips))
-            )
+            thread = threading.Thread(target=lambda i=i, ips=ips: results.append(worker_thread(i, ips)))
             threads.append(thread)
             thread.start()
 

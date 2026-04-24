@@ -102,9 +102,7 @@ class LLMVulnerabilityReportGenerator(BaseLLMGenerator):
 
         return input_data
 
-    def get_vulnerability_report(
-        self, description: str, model_name: str = None
-    ) -> dict:
+    def get_vulnerability_report(self, description: str, model_name: str = None) -> dict:
         """
         Generate vulnerability report using LLM by asking specific questions for each section
 
@@ -121,18 +119,10 @@ class LLMVulnerabilityReportGenerator(BaseLLMGenerator):
             context = vulnerability_prompt["context"]
 
             # Generate each section separately
-            technical = self._get_section_response(
-                validated_input, context + vulnerability_prompt["technical"]
-            )
-            impact = self._get_section_response(
-                validated_input, context + vulnerability_prompt["impact"]
-            )
-            remediation = self._get_section_response(
-                validated_input, context + vulnerability_prompt["remediation"]
-            )
-            references = self._get_section_response(
-                validated_input, context + vulnerability_prompt["references"]
-            )
+            technical = self._get_section_response(validated_input, context + vulnerability_prompt["technical"])
+            impact = self._get_section_response(validated_input, context + vulnerability_prompt["impact"])
+            remediation = self._get_section_response(validated_input, context + vulnerability_prompt["remediation"])
+            references = self._get_section_response(validated_input, context + vulnerability_prompt["references"])
 
             # Combine sections into a single response
             response = {
@@ -175,9 +165,7 @@ class LLMVulnerabilityReportGenerator(BaseLLMGenerator):
             if self.provider == LLMProvider.OLLAMA:
                 response_content = self._get_ollama_response(prompt, input_data)
             else:
-                response_content = self._get_openai_response(
-                    prompt, input_data, model_name=None
-                )
+                response_content = self._get_openai_response(prompt, input_data, model_name=None)
 
             # Clean and return the response
             return response_content.strip()
@@ -194,18 +182,12 @@ class LLMVulnerabilityReportGenerator(BaseLLMGenerator):
     def _get_ollama_response(self, prompt: str, description: str) -> str:
         """Get response from Ollama"""
         prompt = "%s\nUser: %s" % (prompt, description)
-        logger.log_line(
-            PREFIX_LLM, "OLLAMA", "Ollama Prompt: %s" % (prompt,), level="debug"
-        )
+        logger.log_line(PREFIX_LLM, "OLLAMA", "Ollama Prompt: %s" % (prompt,), level="debug")
         response = self.ollama(prompt)
-        logger.log_line(
-            PREFIX_LLM, "OLLAMA", "Ollama Response: %s" % (response,), level="debug"
-        )
+        logger.log_line(PREFIX_LLM, "OLLAMA", "Ollama Response: %s" % (response,), level="debug")
         return str(response) if response is not None else ""
 
-    def _get_openai_response(
-        self, prompt: str, description: str, model_name: str = None
-    ) -> str:
+    def _get_openai_response(self, prompt: str, description: str, model_name: str = None) -> str:
         """Get response from OpenAI"""
         if not self.api_key:
             raise ValueError("OpenAI API Key not set")
@@ -322,13 +304,9 @@ class LLMAttackSuggestionGenerator(BaseLLMGenerator):
 
             if self.provider == LLMProvider.OLLAMA:
                 system_prompt = self._resolve_attack_system_prompt(prompt_key)
-                response_content = self._get_ollama_response(
-                    validated_input, system_prompt
-                )
+                response_content = self._get_ollama_response(validated_input, system_prompt)
             else:
-                openai_system_prompt, openai_chat_kwargs = (
-                    self._attack_openai_prompt_and_chat_kwargs(prompt_key)
-                )
+                openai_system_prompt, openai_chat_kwargs = self._attack_openai_prompt_and_chat_kwargs(prompt_key)
                 response_content = self._get_openai_response(
                     validated_input,
                     model_name,
@@ -363,9 +341,7 @@ class LLMAttackSuggestionGenerator(BaseLLMGenerator):
         prompt = "%s\nUser: %s" % (system_prompt, description)
         return self.ollama(prompt)
 
-    def _attack_openai_prompt_and_chat_kwargs(
-        self, prompt_key: str
-    ) -> tuple[str, Dict[str, Any]]:
+    def _attack_openai_prompt_and_chat_kwargs(self, prompt_key: str) -> tuple[str, Dict[str, Any]]:
         """Resolve system prompt and OpenAI ``ChatCompletion`` kwargs for ``prompt_key`` together."""
         return (
             self._resolve_attack_system_prompt(prompt_key),
@@ -381,14 +357,10 @@ class LLMAttackSuggestionGenerator(BaseLLMGenerator):
                 allowed[key] = raw[key]
         if prompt_key in ATTACK_PROMPT_KEYS_OPENAI_AGGREGATE:
             openai_cfg = self.config.get("providers", {}).get("openai", {})
-            allowed["max_tokens"] = openai_cfg.get(
-                "max_tokens_aggregate", DEFAULT_OPENAI_MAX_TOKENS_AGGREGATE
-            )
+            allowed["max_tokens"] = openai_cfg.get("max_tokens_aggregate", DEFAULT_OPENAI_MAX_TOKENS_AGGREGATE)
         elif prompt_key in ATTACK_PROMPT_KEYS_OPENAI_SCAN_HISTORY:
             openai_cfg = self.config.get("providers", {}).get("openai", {})
-            allowed["max_tokens"] = openai_cfg.get(
-                "max_tokens_scan_history", DEFAULT_OPENAI_MAX_TOKENS_SCAN_HISTORY
-            )
+            allowed["max_tokens"] = openai_cfg.get("max_tokens_scan_history", DEFAULT_OPENAI_MAX_TOKENS_SCAN_HISTORY)
         return allowed
 
     def _get_openai_response(

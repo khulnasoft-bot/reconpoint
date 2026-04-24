@@ -66,9 +66,7 @@ class ScanFileURLs(NamedTuple):
     absolute: str | None
 
 
-def get_scan_file_urls(
-    relative_path: str | None, request: HttpRequest | None = None
-) -> ScanFileURLs:
+def get_scan_file_urls(relative_path: str | None, request: HttpRequest | None = None) -> ScanFileURLs:
     """
     Build relative and (when request is provided) absolute URLs for a scan file.
     Single entry point for all scan file URL building; keeps route name and logic in one place.
@@ -109,9 +107,7 @@ def get_project_for_scan_file_path(relative_path: str):
     """
     # 1. Exact match: EndPoint path
     endpoint = (
-        EndPoint.objects.filter(
-            Q(screenshot_path=relative_path) | Q(stored_response_path=relative_path)
-        )
+        EndPoint.objects.filter(Q(screenshot_path=relative_path) | Q(stored_response_path=relative_path))
         .select_related("scan_history__target__project")
         .first()
     )
@@ -122,21 +118,13 @@ def get_project_for_scan_file_path(relative_path: str):
         from reconPoint.secator.path_utils import to_relative_scan_path
 
         candidates = EndPoint.objects.filter(
-            Q(screenshot_path__endswith=relative_path)
-            | Q(stored_response_path__endswith=relative_path)
+            Q(screenshot_path__endswith=relative_path) | Q(stored_response_path__endswith=relative_path)
         ).select_related("scan_history__target__project")
         for ep in candidates:
             if (
                 (
-                    (
-                        ep.screenshot_path
-                        and to_relative_scan_path(ep.screenshot_path) == relative_path
-                    )
-                    or (
-                        ep.stored_response_path
-                        and to_relative_scan_path(ep.stored_response_path)
-                        == relative_path
-                    )
+                    (ep.screenshot_path and to_relative_scan_path(ep.screenshot_path) == relative_path)
+                    or (ep.stored_response_path and to_relative_scan_path(ep.stored_response_path) == relative_path)
                 )
                 and ep.scan_history
                 and ep.scan_history.target_id
@@ -161,9 +149,7 @@ def get_project_for_scan_file_path(relative_path: str):
     if relative_path and not relative_path.startswith("/"):
         from reconPoint.secator.path_utils import to_relative_scan_path
 
-        for tech in Technology.objects.filter(
-            stored_response_path__endswith=relative_path
-        ):
+        for tech in Technology.objects.filter(stored_response_path__endswith=relative_path):
             if to_relative_scan_path(tech.stored_response_path) == relative_path:
                 if (
                     sub := Subdomain.objects.filter(technologies=tech)
@@ -195,9 +181,7 @@ def build_scan_file_url(relative_path: str | None) -> str | None:
     return get_scan_file_urls(relative_path).relative
 
 
-def build_absolute_scan_file_url(
-    request: HttpRequest | None, relative_path: str | None
-) -> str | None:
+def build_absolute_scan_file_url(request: HttpRequest | None, relative_path: str | None) -> str | None:
     """Build a fully-qualified URL for a scan file (screenshot or stored response)."""
     return get_scan_file_urls(relative_path, request).absolute
 
@@ -240,10 +224,7 @@ class ServeScanFile(APIView):
             relative_path.startswith(SECATOR_REPORTS_PREFIX)
             or relative_path.startswith(SECATOR_REPORTS_PREFIX.lstrip("/"))
         )
-        if (
-            path_has_prefix
-            and _secator_prefix_warning_count < _SECATOR_PREFIX_WARNING_LIMIT
-        ):
+        if path_has_prefix and _secator_prefix_warning_count < _SECATOR_PREFIX_WARNING_LIMIT:
             _secator_prefix_warning_count += 1
             logger.log_line(
                 PREFIX_SCAN_FILE,
@@ -263,8 +244,7 @@ class ServeScanFile(APIView):
                     PREFIX_SCAN_FILE,
                     "SERVE",
                     "ServeScanFile: reached SECATOR_REPORTS_PREFIX warning limit (%s); "
-                    "suppressing further identical warnings in this process."
-                    % (_SECATOR_PREFIX_WARNING_LIMIT,),
+                    "suppressing further identical warnings in this process." % (_SECATOR_PREFIX_WARNING_LIMIT,),
                     level="warning",
                 )
         base = Path(RECONPOINT_RESULTS).resolve()

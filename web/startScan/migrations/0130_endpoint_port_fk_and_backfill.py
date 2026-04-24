@@ -73,14 +73,10 @@ def _ip_addresses_m2m_through_meta(subdomain_model: type) -> tuple[type, str, st
             "update this migration if the relation was renamed."
         ) from exc
     if not getattr(m2m, "many_to_many", False):
-        raise RuntimeError(
-            "0130_endpoint_port_fk_and_backfill: 'ip_addresses' must be a ManyToManyField."
-        )
+        raise RuntimeError("0130_endpoint_port_fk_and_backfill: 'ip_addresses' must be a ManyToManyField.")
     through_model = m2m.remote_field.through
     if through_model is None:
-        raise RuntimeError(
-            "0130_endpoint_port_fk_and_backfill: ip_addresses has no through model."
-        )
+        raise RuntimeError("0130_endpoint_port_fk_and_backfill: ip_addresses has no through model.")
     lhs_model = m2m.model
     rhs_model = m2m.remote_field.model
     lhs_key = (lhs_model._meta.app_label, lhs_model._meta.model_name)
@@ -172,9 +168,7 @@ def backfill_endpoint_port(apps, schema_editor):
     if pending_count == 0:
         return
 
-    effective_progress_every = (
-        progress_every if pending_count >= progress_every else max(pending_count, 1)
-    )
+    effective_progress_every = progress_every if pending_count >= progress_every else max(pending_count, 1)
     env_overrides = _migration_env_overrides_present()
     if env_overrides:
         logger.info(
@@ -189,9 +183,7 @@ def backfill_endpoint_port(apps, schema_editor):
             _LARGE_PORT_MAP_WARNING_THRESHOLD,
         )
 
-    through_model, sub_fk_attname, ip_fk_attname = _ip_addresses_m2m_through_meta(
-        subdomain_model
-    )
+    through_model, sub_fk_attname, ip_fk_attname = _ip_addresses_m2m_through_meta(subdomain_model)
     large_map_warned = False
     processed = 0
 
@@ -213,9 +205,7 @@ def backfill_endpoint_port(apps, schema_editor):
         subdomain_to_ip_ids: dict[int, set[int]] = defaultdict(set)
         if subdomain_ids_needed:
             sub_in = {f"{sub_fk_attname}__in": subdomain_ids_needed}
-            for sid, iid in through_model.objects.filter(**sub_in).values_list(
-                sub_fk_attname, ip_fk_attname
-            ):
+            for sid, iid in through_model.objects.filter(**sub_in).values_list(sub_fk_attname, ip_fk_attname):
                 subdomain_to_ip_ids[sid].add(iid)
                 relevant_ip_ids.add(iid)
 
@@ -255,10 +245,7 @@ def backfill_endpoint_port(apps, schema_editor):
 
         for endpoint in batch:
             processed += 1
-            if (
-                effective_progress_every > 0
-                and processed % effective_progress_every == 0
-            ):
+            if effective_progress_every > 0 and processed % effective_progress_every == 0:
                 logger.info(
                     "0130_endpoint_port_fk_and_backfill: scanned %s / %s EndPoint rows (port_id still null)",
                     processed,
@@ -285,9 +272,7 @@ def backfill_endpoint_port(apps, schema_editor):
             to_update.append(endpoint)
 
         if to_update:
-            endpoint_model.objects.bulk_update(
-                to_update, ["port_id"], batch_size=backfill_chunk
-            )
+            endpoint_model.objects.bulk_update(to_update, ["port_id"], batch_size=backfill_chunk)
 
     batch: list[Any] = []
     for row in pending.order_by("id").iterator(chunk_size=pending_chunk):
@@ -334,8 +319,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="endpoint",
-            index=models.Index(
-                fields=["scan_history_id", "port_id"], name="ss_ep_scan_port_idx"
-            ),
+            index=models.Index(fields=["scan_history_id", "port_id"], name="ss_ep_scan_port_idx"),
         ),
     ]

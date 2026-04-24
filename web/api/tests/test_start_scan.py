@@ -148,9 +148,7 @@ class TestStartScanAPI(BaseTestCase):
         self.assertTrue(response.data["status"])
 
     @patch("api.views.start_secator_scan")
-    def test_start_scan_backward_compatibility_error_no_http_status(
-        self, mock_start_scan
-    ):
+    def test_start_scan_backward_compatibility_error_no_http_status(self, mock_start_scan):
         """Test backward compatibility for errors when http_status is missing."""
         # Simulate old code that doesn't return http_status
         mock_start_scan.return_value = {
@@ -171,9 +169,7 @@ class TestStartScanAPI(BaseTestCase):
         self.assertFalse(response.data["status"])
 
     @patch("api.views.start_secator_scan")
-    def test_start_scan_with_worker_id_passes_worker_id_to_service(
-        self, mock_start_scan
-    ):
+    def test_start_scan_with_worker_id_passes_worker_id_to_service(self, mock_start_scan):
         """When worker_id is provided in body, start_secator_scan is called with that worker_id."""
         mock_start_scan.return_value = {
             "status": True,
@@ -194,9 +190,7 @@ class TestStartScanAPI(BaseTestCase):
         self.assertEqual(call_kwargs["worker_id"], worker_id)
 
     @patch("api.views.start_secator_scan")
-    def test_start_scan_with_selected_targets_passes_targets_override(
-        self, mock_start_scan
-    ):
+    def test_start_scan_with_selected_targets_passes_targets_override(self, mock_start_scan):
         """When selected_targets is provided for workflow, start_secator_scan receives targets_override."""
         mock_start_scan.return_value = {
             "status": True,
@@ -219,9 +213,7 @@ class TestStartScanAPI(BaseTestCase):
         )
 
     @patch("reconPoint.secator.service.start_secator_scan")
-    def test_start_scan_with_selected_targets_per_task_starts_one_scan_per_task(
-        self, mock_start_scan
-    ):
+    def test_start_scan_with_selected_targets_per_task_starts_one_scan_per_task(self, mock_start_scan):
         """When selected_targets_per_task is provided, one shared ScanHistory for all tasks."""
         self.data_generator.create_secator_task()
         task_type = self.data_generator.secator_task.task_type
@@ -250,9 +242,7 @@ class TestStartScanAPI(BaseTestCase):
         )
 
     @patch("reconPoint.secator.service.start_secator_scan")
-    def test_start_scan_per_task_with_worker_id_passes_worker_id_to_service(
-        self, mock_start_scan
-    ):
+    def test_start_scan_per_task_with_worker_id_passes_worker_id_to_service(self, mock_start_scan):
         """When worker_id is provided with selected_targets_per_task, start_secator_scan receives worker_id."""
         self.data_generator.create_secator_task()
         task_type = self.data_generator.secator_task.task_type

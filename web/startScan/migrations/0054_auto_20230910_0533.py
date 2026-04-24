@@ -16,8 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="endpoint",
             name="techs",
-            field=models.ManyToManyField(
-                blank=True, null=True, related_name="techs", to="startScan.Technology"
-            ),
+            field=models.ManyToManyField(blank=True, null=True, related_name="techs", to="startScan.Technology"),
         ),
     ]

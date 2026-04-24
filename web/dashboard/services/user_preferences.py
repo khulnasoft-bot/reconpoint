@@ -29,11 +29,7 @@ def get_user_preference(user: Any, key: str, default: Any = None) -> Any:
     Returns:
         The stored value or default.
     """
-    if (
-        user is None
-        or not getattr(user, "is_authenticated", True)
-        or not user.is_authenticated
-    ):
+    if user is None or not getattr(user, "is_authenticated", True) or not user.is_authenticated:
         return default
     try:
         prefs = UserPreference.objects.get(user=user)
@@ -51,15 +47,9 @@ def set_user_preference(user: Any, key: str, value: Any) -> None:
         key: Preference key.
         value: Value to store (must be JSON-serializable).
     """
-    if (
-        user is None
-        or not getattr(user, "is_authenticated", True)
-        or not user.is_authenticated
-    ):
+    if user is None or not getattr(user, "is_authenticated", True) or not user.is_authenticated:
         return
-    prefs, _ = UserPreference.objects.get_or_create(
-        user=user, defaults={"preferences": {}}
-    )
+    prefs, _ = UserPreference.objects.get_or_create(user=user, defaults={"preferences": {}})
     prefs.preferences[key] = value
     prefs.save(update_fields=["preferences"])
 
@@ -70,9 +60,7 @@ def get_datatables_display(user: Any) -> str:
 
     Default is 'classic' when not set or when user is not authenticated.
     """
-    value = get_user_preference(
-        user, PREF_DATATABLES_DISPLAY, default=DATATABLES_DISPLAY_CLASSIC
-    )
+    value = get_user_preference(user, PREF_DATATABLES_DISPLAY, default=DATATABLES_DISPLAY_CLASSIC)
     if value in (DATATABLES_DISPLAY_CLASSIC, DATATABLES_DISPLAY_SCROLLER):
         return value
     return DATATABLES_DISPLAY_CLASSIC
@@ -84,9 +72,7 @@ def get_datatables_page_length(user: Any) -> int:
 
     Default is DATATABLES_PAGE_LENGTH_DEFAULT when not set or invalid.
     """
-    value = get_user_preference(
-        user, PREF_DATATABLES_PAGE_LENGTH, default=DATATABLES_PAGE_LENGTH_DEFAULT
-    )
+    value = get_user_preference(user, PREF_DATATABLES_PAGE_LENGTH, default=DATATABLES_PAGE_LENGTH_DEFAULT)
     try:
         n = int(value)
     except (TypeError, ValueError):

@@ -32,9 +32,7 @@ print(f"Current working directory: {os.getcwd()}")
 RECONPOINT_PATH = "/home/reconpoint/reconpoint"
 
 # Read version from version.txt
-with open(
-    f"{RECONPOINT_PATH}/web/reconPoint/version.txt", "r", encoding="utf-8"
-) as version_file:
+with open(f"{RECONPOINT_PATH}/web/reconPoint/version.txt", "r", encoding="utf-8") as version_file:
     RECONPOINT_VERSION = version_file.read().strip()
 
 
@@ -72,9 +70,7 @@ class TestMakefile(unittest.TestCase):
         # Search for the Makefile by traversing up the parent directories
         cls.makefile_dir = cls.find_makefile_directory()
         if not cls.makefile_dir:
-            raise FileNotFoundError(
-                "Makefile not found in the current directory or its parents"
-            )
+            raise FileNotFoundError("Makefile not found in the current directory or its parents")
 
         # Change the working directory to the one containing the Makefile
         os.chdir(cls.makefile_dir)
@@ -111,9 +107,7 @@ class TestMakefile(unittest.TestCase):
 
         print(f"{YELLOW}Executing command: {cmd}{ENDC}")
         if capture_output:
-            make_result = subprocess.run(
-                cmd, shell=True, capture_output=True, text=True, check=False
-            )
+            make_result = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=False)
             if make_result.returncode != 0:
                 print(f"Command failed. Stderr: {make_result.stderr}")
             return make_result.stdout, make_result.stderr, make_result.returncode
@@ -215,23 +209,13 @@ class TestMakefile(unittest.TestCase):
         self.run_make_command("certs")
 
         if "build" in command:
-            _, stderr, returncode = self.run_make_command(
-                command, capture_output=True, env_vars=env_vars
-            )
-            self.assertEqual(
-                returncode, 0, f"Build command failed with error: {stderr}"
-            )
-            _, stderr, returncode = self.run_make_command(
-                "up", capture_output=True, env_vars=env_vars
-            )
+            _, stderr, returncode = self.run_make_command(command, capture_output=True, env_vars=env_vars)
+            self.assertEqual(returncode, 0, f"Build command failed with error: {stderr}")
+            _, stderr, returncode = self.run_make_command("up", capture_output=True, env_vars=env_vars)
         else:
-            _, stderr, returncode = self.run_make_command(
-                command, capture_output=True, env_vars=env_vars
-            )
+            _, stderr, returncode = self.run_make_command(command, capture_output=True, env_vars=env_vars)
 
-        self.assertEqual(
-            returncode, 0, f"{command} command failed with error: {stderr}"
-        )
+        self.assertEqual(returncode, 0, f"{command} command failed with error: {stderr}")
         self.assert_containers_running()
 
     @with_cleanup
@@ -240,12 +224,8 @@ class TestMakefile(unittest.TestCase):
         Test the `make restart` command with various configurations.
         This test verifies that services can be restarted successfully in different scenarios.
         """
-        print(
-            f"{BLUE}test_restart_services (__main__.TestMakefile.test_restart_services){ENDC}"
-        )
-        print(
-            f"{CYAN}Test the 'restart' make command with various configurations. ... {ENDC}"
-        )
+        print(f"{BLUE}test_restart_services (__main__.TestMakefile.test_restart_services){ENDC}")
+        print(f"{CYAN}Test the 'restart' make command with various configurations. ... {ENDC}")
         scenarios = [
             ("restart", {}, []),
             ("restart", {"DEV": "1"}, []),
@@ -267,9 +247,7 @@ class TestMakefile(unittest.TestCase):
         self.run_make_command("up")
 
         restart_command = f"{command} {' '.join(services)}"
-        _, stderr, returncode = self.run_make_command(
-            restart_command.strip(), capture_output=True, env_vars=env_vars
-        )
+        _, stderr, returncode = self.run_make_command(restart_command.strip(), capture_output=True, env_vars=env_vars)
 
         self.assertEqual(returncode, 0, f"Restart command failed with error: {stderr}")
         self.assert_containers_running()
@@ -381,17 +359,9 @@ class TestMakefile(unittest.TestCase):
         """
         returncode = self.run_make_command("certs")
         self.assertEqual(returncode, 0)
-        self.assertTrue(
-            os.path.exists(
-                f"{RECONPOINT_PATH}/docker/secrets/certs/reconpoint_chain.pem"
-            )
-        )
-        self.assertTrue(
-            os.path.exists(f"{RECONPOINT_PATH}/docker/secrets/certs/reconpoint_rsa.key")
-        )
-        self.assertTrue(
-            os.path.exists(f"{RECONPOINT_PATH}/docker/secrets/certs/reconpoint.pem")
-        )
+        self.assertTrue(os.path.exists(f"{RECONPOINT_PATH}/docker/secrets/certs/reconpoint_chain.pem"))
+        self.assertTrue(os.path.exists(f"{RECONPOINT_PATH}/docker/secrets/certs/reconpoint_rsa.key"))
+        self.assertTrue(os.path.exists(f"{RECONPOINT_PATH}/docker/secrets/certs/reconpoint.pem"))
 
     @with_cleanup
     def test_down(self):
@@ -498,14 +468,10 @@ def suite(tests_to_run=None, exclude_build=False):
                 executed_tests.append(test)
             else:
                 skipped_tests.append(test)
-                print(
-                    f"Warning: Test method '{test}' not found in TestMakefile. Skipping."
-                )
+                print(f"Warning: Test method '{test}' not found in TestMakefile. Skipping.")
         else:
             skipped_tests.append(test)
-            print(
-                f"Warning: Test '{test}' not in the list of available tests. Skipping."
-            )
+            print(f"Warning: Test '{test}' not in the list of available tests. Skipping.")
 
     # Store test information for later display
     test_info = {"executed": executed_tests, "skipped": skipped_tests}
@@ -517,9 +483,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Run reconPoint Makefile tests")
-    parser.add_argument(
-        "--exclude-build", action="store_true", help="Exclude build test"
-    )
+    parser.add_argument("--exclude-build", action="store_true", help="Exclude build test")
     parser.add_argument("--tests", nargs="*", help="Specific tests to run")
     args = parser.parse_args()
 

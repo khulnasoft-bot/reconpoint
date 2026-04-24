@@ -36,27 +36,19 @@ class CustomErrorMiddleware:
             try:
                 # Safely extract error information
                 error_type = type(exception).__name__ if exception else "UnknownError"
-                error_message = (
-                    str(exception) if exception else "Unknown error occurred"
-                )
+                error_message = str(exception) if exception else "Unknown error occurred"
 
                 # Safely get traceback
                 try:
                     error_traceback = "".join(
-                        traceback.format_exception(
-                            type(exception), exception, exception.__traceback__
-                        )
+                        traceback.format_exception(type(exception), exception, exception.__traceback__)
                     )
                 except (AttributeError, TypeError):
                     error_traceback = "Traceback not available"
 
                 # Safely get request information
                 try:
-                    user_info = (
-                        str(request.user)
-                        if hasattr(request, "user") and request.user
-                        else "Anonymous"
-                    )
+                    user_info = str(request.user) if hasattr(request, "user") and request.user else "Anonymous"
                 except (AttributeError, TypeError):
                     user_info = "Anonymous"
 
@@ -66,12 +58,8 @@ class CustomErrorMiddleware:
                     ip_address = "Unknown"
 
                 try:
-                    request_path = (
-                        request.path if hasattr(request, "path") else "Unknown"
-                    )
-                    request_method = (
-                        request.method if hasattr(request, "method") else "Unknown"
-                    )
+                    request_path = request.path if hasattr(request, "path") else "Unknown"
+                    request_method = request.method if hasattr(request, "method") else "Unknown"
                 except (AttributeError, TypeError):
                     request_path = "Unknown"
                     request_method = "Unknown"
@@ -129,9 +117,7 @@ class CustomErrorMiddleware:
                 "request": request,
                 "exception": exception,
                 "error_type": type(exception).__name__ if exception else "UnknownError",
-                "error_message": str(exception)
-                if exception
-                else "Unknown error occurred",
+                "error_message": str(exception) if exception else "Unknown error occurred",
             }
 
             # Try to render the custom error template

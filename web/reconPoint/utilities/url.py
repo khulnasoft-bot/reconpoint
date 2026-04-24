@@ -48,8 +48,7 @@ def add_port_urls_to_crawl(
         logger.log_line(
             PREFIX_URL,
             "ADD_PORT_URLS",
-            "Found single default endpoint for %s %s, testing ALL ports (COMMON + UNCOMMON)"
-            % (entity_type, name),
+            "Found single default endpoint for %s %s, testing ALL ports (COMMON + UNCOMMON)" % (entity_type, name),
             level="info",
         )
     elif precrawl_uncommon_ports:
@@ -57,8 +56,7 @@ def add_port_urls_to_crawl(
         logger.log_line(
             PREFIX_URL,
             "ADD_PORT_URLS",
-            "Found single default endpoint for %s %s, testing COMMON and UNCOMMON ports"
-            % (entity_type, name),
+            "Found single default endpoint for %s %s, testing COMMON and UNCOMMON ports" % (entity_type, name),
             level="info",
         )
     else:
@@ -165,9 +163,7 @@ def is_acceptable_subdomain_name(name: str) -> bool:
     name = name.strip()
     if not name:
         return False
-    return bool(
-        is_valid_domain(name) or is_valid_domain_or_subdomain(name) or is_valid_ip(name)
-    )
+    return bool(is_valid_domain(name) or is_valid_domain_or_subdomain(name) or is_valid_ip(name))
 
 
 def get_domain_from_subdomain(subdomain):
@@ -216,21 +212,16 @@ def get_domain_from_subdomain(subdomain):
                     logger.log_line(
                         PREFIX_URL,
                         "GET_DOMAIN",
-                        "Extracted private TLD domain: %s from %s"
-                        % (potential_domain, subdomain),
+                        "Extracted private TLD domain: %s from %s" % (potential_domain, subdomain),
                         level="debug",
                     )
                     return potential_domain
 
         # Fallback method for edge cases where tldextract might not recognize the TLD
         # Use tldextract's fallback with PSL private domains enabled
-        fallback_extracted = tldextract.extract(
-            subdomain, include_psl_private_domains=True
-        )
+        fallback_extracted = tldextract.extract(subdomain, include_psl_private_domains=True)
         if fallback_extracted.domain and fallback_extracted.suffix:
-            potential_domain = (
-                f"{fallback_extracted.domain}.{fallback_extracted.suffix}"
-            )
+            potential_domain = f"{fallback_extracted.domain}.{fallback_extracted.suffix}"
             if is_valid_domain_or_subdomain(potential_domain):
                 return potential_domain
 
@@ -347,11 +338,7 @@ def is_valid_url(url):
         else:
             domain = url
 
-        if (
-            validators.domain(domain)
-            or validators.ipv4(domain)
-            or validators.ipv6(domain)
-        ):
+        if validators.domain(domain) or validators.ipv4(domain) or validators.ipv6(domain):
             logger.log_line(
                 PREFIX_URL,
                 "VALIDATE",
@@ -378,9 +365,7 @@ def is_valid_url(url):
         return False
 
 
-def is_target_allowed_for_domain(
-    target, domain_name, ctx=None, target_type="subdomain"
-):
+def is_target_allowed_for_domain(target, domain_name, ctx=None, target_type="subdomain"):
     """
     Check if a target (subdomain or URL) is allowed for a given domain based on scan context and target type.
 
@@ -486,12 +471,8 @@ def extract_httpx_url(line, follow_redirect):
     has_redirect = (
         status_code in redirect_status_codes  # Direct redirect status
         or location is not None  # Location header present
-        or (
-            final_url is not None and final_url != original_url
-        )  # Final URL different from original
-        or any(
-            x in redirect_status_codes for x in chain_status_codes
-        )  # Redirect in chain
+        or (final_url is not None and final_url != original_url)  # Final URL different from original
+        or any(x in redirect_status_codes for x in chain_status_codes)  # Redirect in chain
     )
 
     if follow_redirect:
@@ -505,9 +486,7 @@ def extract_httpx_url(line, follow_redirect):
                 return sanitize_url(location), has_redirect
             else:
                 # Relative redirect
-                return sanitize_url(
-                    f"{original_url.rstrip('/')}/{location.lstrip('/')}"
-                ), has_redirect
+                return sanitize_url(f"{original_url.rstrip('/')}/{location.lstrip('/')}"), has_redirect
 
     # When not following redirects, always return the original URL
     # This ensures we record the actual endpoint that was tested

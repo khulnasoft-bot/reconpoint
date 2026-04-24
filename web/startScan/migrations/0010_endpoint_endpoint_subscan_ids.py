@@ -12,8 +12,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="endpoint",
             name="endpoint_subscan_ids",
-            field=models.ManyToManyField(
-                related_name="endpoint_subscan_ids", to="startScan.SubScan"
-            ),
+            field=models.ManyToManyField(related_name="endpoint_subscan_ids", to="startScan.SubScan"),
         ),
     ]

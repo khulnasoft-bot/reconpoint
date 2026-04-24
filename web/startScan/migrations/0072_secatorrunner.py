@@ -28,9 +28,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "runner_data",
-                    models.JSONField(
-                        default=dict, help_text="Full runner data from Secator"
-                    ),
+                    models.JSONField(default=dict, help_text="Full runner data from Secator"),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),

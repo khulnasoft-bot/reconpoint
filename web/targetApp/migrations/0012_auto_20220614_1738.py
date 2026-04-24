@@ -188,9 +188,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="domaininfo",
             name="registrant_organization",
-            field=models.ManyToManyField(
-                blank=True, to="targetApp.DomainRegisterOrganization"
-            ),
+            field=models.ManyToManyField(blank=True, to="targetApp.DomainRegisterOrganization"),
         ),
         migrations.AddField(
             model_name="domaininfo",

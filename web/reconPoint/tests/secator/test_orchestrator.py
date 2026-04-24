@@ -208,9 +208,7 @@ class TestScanOrchestrator(BaseTestCase):
             )
 
         self.assertIn("Workflow execution failed", str(context.exception))
-        mock_mark_failed.assert_called_once_with(
-            self.scan_history.id, "Workflow execution failed"
-        )
+        mock_mark_failed.assert_called_once_with(self.scan_history.id, "Workflow execution failed")
 
     @patch("reconPoint.secator.orchestrator.SecatorRunner.run_tasks")
     @patch("reconPoint.secator.orchestrator.ScanRepository.mark_scan_failed")
@@ -231,9 +229,7 @@ class TestScanOrchestrator(BaseTestCase):
             )
 
         self.assertIn("Tasks execution failed", str(context.exception))
-        mock_mark_failed.assert_called_once_with(
-            self.scan_history.id, "Tasks execution failed"
-        )
+        mock_mark_failed.assert_called_once_with(self.scan_history.id, "Tasks execution failed")
 
     @patch("reconPoint.secator.orchestrator.ScanRepository.mark_scan_failed")
     def test_execute_scan_value_error_handling(self, mock_mark_failed):

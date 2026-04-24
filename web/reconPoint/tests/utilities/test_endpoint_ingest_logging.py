@@ -20,8 +20,6 @@ class FormatEndpointHostUnresolvedSuffixTest(BaseTestCase):
         self.assertIn("url=", s)
 
     def test_omits_hostname_override_key_when_not_passed(self) -> None:
-        s = format_endpoint_host_unresolved_suffix(
-            1, "http://x/", reason="ip_row_not_created"
-        )
+        s = format_endpoint_host_unresolved_suffix(1, "http://x/", reason="ip_row_not_created")
         self.assertNotIn("hostname_override", s)
         self.assertIn("reason=ip_row_not_created", s)

@@ -30,12 +30,7 @@ def send_telegram_message(message):
         message (str): Message.
     """
     notif = Notification.objects.first()
-    do_send = (
-        notif
-        and notif.send_to_telegram
-        and notif.telegram_bot_token
-        and notif.telegram_bot_chat_id
-    )
+    do_send = notif and notif.send_to_telegram and notif.telegram_bot_token and notif.telegram_bot_chat_id
     if not do_send:
         return
     base_url = f"https://api.telegram.org/bot{notif.telegram_bot_token}/sendMessage"
@@ -103,9 +98,7 @@ def send_lark_message(message):
     headers = {"content-type": "application/json"}
     payload = {
         "msg_type": "interactive",
-        "card": {
-            "elements": [{"tag": "div", "text": {"content": message, "tag": "lark_md"}}]
-        },
+        "card": {"elements": [{"tag": "div", "text": {"content": message, "tag": "lark_md"}}]},
     }
     try:
         response = requests.post(
@@ -176,9 +169,7 @@ def send_discord_message(
         webhook = pickle.loads(cached_webhook)
         webhook.remove_embeds()
     else:
-        webhook = DiscordWebhook(
-            url=notif.discord_hook_url, rate_limit_retry=False, content=message
-        )
+        webhook = DiscordWebhook(url=notif.discord_hook_url, rate_limit_retry=False, content=message)
 
     # Get existing embed if found in cache
     embed = None
@@ -251,9 +242,7 @@ def send_discord_message(
         errors = json.loads(response.content.decode("utf-8"))
         wh_sleep = (int(errors["retry_after"]) / 1000) + 0.15
         sleep(wh_sleep)
-        send_discord_message(
-            message, title, severity, url, files, fields, fields_append
-        )
+        send_discord_message(message, title, severity, url, files, fields, fields_append)
     elif response.status_code != 200:
         logger.error(
             f"Error while sending webhook data to Discord."
@@ -282,9 +271,7 @@ def enrich_notification(message, scan_history_id, subscan_id):
 
 
 def get_scan_title(scan_id, subscan_id=None, task_name=None):
-    return (
-        f"Subscan #{subscan_id} summary" if subscan_id else f"Scan #{scan_id} summary"
-    )
+    return f"Subscan #{subscan_id} summary" if subscan_id else f"Scan #{scan_id} summary"
 
 
 def get_scan_url(scan_id=None, subscan_id=None):
@@ -304,9 +291,7 @@ def get_scan_fields(engine, scan, subscan=None, status="RUNNING", tasks=None):
             host = ""
         scan_obj = subscan
     else:
-        tasks_h = (
-            "• " + "\n• ".join(f"`{task.name}`" for task in tasks) if tasks else ""
-        )
+        tasks_h = "• " + "\n• ".join(f"`{task.name}`" for task in tasks) if tasks else ""
         host = scan.target.value if scan.target_id else ""
         scan_obj = scan
 

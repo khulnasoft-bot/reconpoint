@@ -147,9 +147,7 @@ class TestSecatorTasks(BaseTestCase):
         "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types",
         return_value=["host"],
     )
-    def test_initiate_secator_scan_passes_parameters(
-        self, mock_get_input_types, mock_build_targets, mock_orchestrator
-    ):
+    def test_initiate_secator_scan_passes_parameters(self, mock_get_input_types, mock_build_targets, mock_orchestrator):
         """Test that initiate_secator_scan passes all reconPoint parameters correctly."""
         from scanEngine.models import SecatorWorkflow
 
@@ -164,9 +162,7 @@ class TestSecatorTasks(BaseTestCase):
         url_filter = "/admin"
         initiated_by_id = self.user.id
 
-        with patch(
-            "scanEngine.models.SecatorWorkflow.objects.get", return_value=mock_workflow
-        ):
+        with patch("scanEngine.models.SecatorWorkflow.objects.get", return_value=mock_workflow):
             with patch(
                 "startScan.models.ScanHistory.objects.get",
                 return_value=self.scan_history,
@@ -219,9 +215,7 @@ class TestSecatorTasks(BaseTestCase):
             "extra_config": {"custom_key": "custom_value"},
         }
 
-        with patch(
-            "scanEngine.models.SecatorWorkflow.objects.get", return_value=mock_workflow
-        ):
+        with patch("scanEngine.models.SecatorWorkflow.objects.get", return_value=mock_workflow):
             with patch(
                 "startScan.models.ScanHistory.objects.get",
                 return_value=self.scan_history,
@@ -240,9 +234,7 @@ class TestSecatorTasks(BaseTestCase):
                 self.assertEqual(config.get("threads"), 5)
                 self.assertEqual(config.get("rate_limit"), 10)
                 self.assertEqual(config.get("delay"), 0.5)
-                self.assertEqual(
-                    config.get("extra_config"), {"custom_key": "custom_value"}
-                )
+                self.assertEqual(config.get("extra_config"), {"custom_key": "custom_value"})
                 profiles = call_args[1]["profiles"]
                 self.assertEqual(profiles, ["insane"])
 
@@ -275,9 +267,7 @@ class TestSecatorTasks(BaseTestCase):
                     "startScan.models.ScanHistory.objects.get",
                     return_value=self.scan_history,
                 ):
-                    mock_orchestrator.return_value.execute_scan.return_value = {
-                        "status": "success"
-                    }
+                    mock_orchestrator.return_value.execute_scan.return_value = {"status": "success"}
 
                     initiate_secator_scan(
                         scan_history_id=self.scan_history.id,
@@ -304,9 +294,7 @@ class TestSecatorTasks(BaseTestCase):
         "reconPoint.secator.services.input_type_service.InputTypeService.get_input_types_for_task",
         return_value=["host"],
     )
-    def test_initiate_secator_scan_uses_targets_override(
-        self, mock_get_input_types_for_task, mock_orchestrator
-    ):
+    def test_initiate_secator_scan_uses_targets_override(self, mock_get_input_types_for_task, mock_orchestrator):
         """Test that when targets_override is provided, build_enriched_targets is not used."""
         mock_orchestrator.return_value.execute_scan.return_value = {"status": "success"}
 
@@ -330,9 +318,7 @@ class TestSecatorTasks(BaseTestCase):
                     "startScan.models.ScanHistory.objects.get",
                     return_value=self.scan_history,
                 ):
-                    with patch(
-                        "reconPoint.secator.tasks.build_enriched_targets"
-                    ) as mock_build:
+                    with patch("reconPoint.secator.tasks.build_enriched_targets") as mock_build:
                         initiate_secator_scan(
                             scan_history_id=self.scan_history.id,
                             target_id=self.target.id,
@@ -343,9 +329,7 @@ class TestSecatorTasks(BaseTestCase):
                         )
                         mock_build.assert_not_called()
                         mock_orchestrator.return_value.execute_scan.assert_called_once()
-                        call_args = (
-                            mock_orchestrator.return_value.execute_scan.call_args
-                        )
+                        call_args = mock_orchestrator.return_value.execute_scan.call_args
                         targets = call_args[1]["targets"]
                         self.assertEqual(targets, override_targets)
 

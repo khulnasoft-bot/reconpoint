@@ -283,9 +283,7 @@ class SecatorWorkflowAdmin(TimestampedModelAdminMixin, admin.ModelAdmin):
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         """Override form field for alias to use TextInput instead of Select."""
         if db_field.name == "alias":
-            kwargs["widget"] = forms.TextInput(
-                attrs={"placeholder": "e.g., subdomain_recon, cidr_recon"}
-            )
+            kwargs["widget"] = forms.TextInput(attrs={"placeholder": "e.g., subdomain_recon, cidr_recon"})
             kwargs["help_text"] = "Enter the workflow alias from Secator (optional)"
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 

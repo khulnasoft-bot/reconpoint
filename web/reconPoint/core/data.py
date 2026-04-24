@@ -55,9 +55,7 @@ def replace_nulls(obj):
         return [replace_nulls(item) for item in obj]
     elif isinstance(obj, dict):
         # Process keys and values
-        cleaned_items = [
-            (replace_nulls(key), replace_nulls(value)) for key, value in obj.items()
-        ]
+        cleaned_items = [(replace_nulls(key), replace_nulls(value)) for key, value in obj.items()]
 
         # Check for key collisions
         cleaned_keys = [key for key, _ in cleaned_items]
@@ -329,19 +327,13 @@ def geoiplookup(ip_address):
             logger.debug(f"IP address not found in geoiplookup database: {ip_address}")
             return False, None, None, "IP address not found"
 
-        if match := re.search(
-            r"GeoIP\s+Country\s+Edition:\s*([A-Z]{2}),\s*(.+)", output
-        ):
+        if match := re.search(r"GeoIP\s+Country\s+Edition:\s*([A-Z]{2}),\s*(.+)", output):
             country_iso = match[1].strip()
             country_name = match[2].strip()
-            logger.debug(
-                f"Successfully parsed geolocalization for {ip_address}: {country_iso}, {country_name}"
-            )
+            logger.debug(f"Successfully parsed geolocalization for {ip_address}: {country_iso}, {country_name}")
             return True, country_iso, country_name, None
         else:
-            logger.warning(
-                f"Unexpected geoiplookup output format for {ip_address}: {output}"
-            )
+            logger.warning(f"Unexpected geoiplookup output format for {ip_address}: {output}")
             return False, None, None, f"Unexpected output format: {output}"
 
     except subprocess.TimeoutExpired:

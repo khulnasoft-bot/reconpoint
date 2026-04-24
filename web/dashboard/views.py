@@ -82,9 +82,7 @@ def index(request, slug):
         "scans": {
             "pending": ScanHistory.get_project_timeline(project, date_range, status=0),
             "running": ScanHistory.get_project_timeline(project, date_range, status=1),
-            "completed": ScanHistory.get_project_timeline(
-                project, date_range, status=2
-            ),
+            "completed": ScanHistory.get_project_timeline(project, date_range, status=2),
             "failed": ScanHistory.get_project_timeline(project, date_range, status=3),
         },
         "subscans": {
@@ -198,14 +196,10 @@ def interface_settings(request):
     return render(request, "dashboard/interface_settings.html", {"form": form})
 
 
-@has_permission_decorator(
-    PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL
-)
+@has_permission_decorator(PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL)
 def admin_interface(request):
     User = get_user_model()  # noqa: N806
-    users = (
-        User.objects.prefetch_related("socialaccount_set").all().order_by("date_joined")
-    )
+    users = User.objects.prefetch_related("socialaccount_set").all().order_by("date_joined")
     return render(request, "dashboard/admin.html", {"users": users})
 
 
@@ -231,14 +225,10 @@ def check_user_modification_permissions(current_user, target_user, mode):
         and mode in ["delete", "change_status"]
         and (current_user.is_superuser or get_user_groups(current_user) == "sys_admin")
     ):
-        raise UserModificationError(
-            "Administrators cannot delete or deactivate themselves"
-        )
+        raise UserModificationError("Administrators cannot delete or deactivate themselves")
 
 
-@has_permission_decorator(
-    PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL
-)
+@has_permission_decorator(PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL)
 def admin_interface_update(request):
     mode = request.GET.get("mode")
     method = request.method
@@ -264,9 +254,7 @@ def admin_interface_update(request):
 def get_user_from_request(request):
     if user_id := request.GET.get("user"):
         User = get_user_model()  # noqa: N806
-        return User.objects.filter(
-            id=user_id
-        ).first()  # Use first() to avoid exceptions
+        return User.objects.filter(id=user_id).first()  # Use first() to avoid exceptions
     return None
 
 
@@ -280,13 +268,9 @@ def handle_get_request(request, mode, user):
     user.is_active = not user.is_active
     user.save()
     if user.is_active:
-        messages.add_message(
-            request, messages.INFO, f"User {user.username} successfully activated."
-        )
+        messages.add_message(request, messages.INFO, f"User {user.username} successfully activated.")
     else:
-        messages.add_message(
-            request, messages.INFO, f"User {user.username} successfully deactivated."
-        )
+        messages.add_message(request, messages.INFO, f"User {user.username} successfully deactivated.")
     return HttpResponseRedirect(reverse("admin_interface"))
 
 
@@ -303,9 +287,7 @@ def handle_post_request(request, mode, user):
 def handle_delete_user(request, user):
     try:
         user.delete()
-        messages.add_message(
-            request, messages.INFO, f"User {user.username} successfully deleted."
-        )
+        messages.add_message(request, messages.INFO, f"User {user.username} successfully deleted.")
         return JsonResponse({"status": True})
     except (ValueError, KeyError) as e:
         logger.log_line(
@@ -314,9 +296,7 @@ def handle_delete_user(request, user):
             "Error deleting user: %s" % (e,),
             level="error",
         )
-        return JsonResponse(
-            {"status": False, "error": "An error occurred while deleting the user"}
-        )
+        return JsonResponse({"status": False, "error": "An error occurred while deleting the user"})
 
 
 def handle_update_user(request, user):
@@ -338,9 +318,7 @@ def handle_update_user(request, user):
             valid_projects = Project.objects.filter(id__in=projects)
             # Verify all requested project IDs exist
             if valid_projects.count() != len(projects):
-                return JsonResponse(
-                    {"status": False, "error": "One or more project IDs are invalid"}
-                )
+                return JsonResponse({"status": False, "error": "One or more project IDs are invalid"})
             user.projects.set(valid_projects)
 
         user.save()
@@ -352,23 +330,17 @@ def handle_update_user(request, user):
             "Error updating user: %s" % (e,),
             level="error",
         )
-        return JsonResponse(
-            {"status": False, "error": "An error occurred while updating the user"}
-        )
+        return JsonResponse({"status": False, "error": "An error occurred while updating the user"})
 
 
 def handle_create_user(request):
     try:
         response = json.loads(request.body)
         if not response.get("password"):
-            return JsonResponse(
-                {"status": False, "error": "Empty passwords are not allowed"}
-            )
+            return JsonResponse({"status": False, "error": "Empty passwords are not allowed"})
 
         User = get_user_model()  # noqa: N806
-        user = User.objects.create_user(
-            username=response.get("username"), password=response.get("password")
-        )
+        user = User.objects.create_user(username=response.get("username"), password=response.get("password"))
         assign_role(user, response.get("role"))
 
         # Add projects
@@ -385,9 +357,7 @@ def handle_create_user(request):
             "Error creating user: %s" % (e,),
             level="error",
         )
-        return JsonResponse(
-            {"status": False, "error": "An error occurred while creating the user"}
-        )
+        return JsonResponse({"status": False, "error": "An error occurred while creating the user"})
 
 
 @receiver(user_logged_out)
@@ -422,9 +392,7 @@ def projects(request):
     return render(request, "dashboard/projects.html", context)
 
 
-@has_permission_decorator(
-    PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL
-)
+@has_permission_decorator(PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL)
 def delete_project(request, id):
     obj = get_object_or_404(Project, id=id)
     if request.method == "POST":
@@ -433,9 +401,7 @@ def delete_project(request, id):
         messages.add_message(request, messages.INFO, "Project successfully deleted!")
     else:
         response_data = {"status": "false"}
-        messages.add_message(
-            request, messages.ERROR, "Oops! Project could not be deleted!"
-        )
+        messages.add_message(request, messages.ERROR, "Oops! Project could not be deleted!")
     return JsonResponse(response_data)
 
 
@@ -457,9 +423,7 @@ def onboarding(request):
         insert_date = timezone.now()
 
         try:
-            project = Project.objects.create(
-                name=project_name, slug=slug, insert_date=insert_date
-            )
+            project = Project.objects.create(name=project_name, slug=slug, insert_date=insert_date)
             # Add the creator to the project's users so they can access it
             if request.user.is_authenticated:
                 project.users.add(request.user)
@@ -475,9 +439,7 @@ def onboarding(request):
         try:
             if create_username and create_password and create_user_role:
                 User = get_user_model()  # noqa: N806
-                user = User.objects.create_user(
-                    username=create_username, password=create_password
-                )
+                user = User.objects.create_user(username=create_username, password=create_password)
                 assign_role(user, create_user_role)
         except Exception as e:
             logger.log_line(
@@ -552,9 +514,7 @@ def oauth_welcome(request):
     return render(request, "dashboard/oauth_welcome.html", context)
 
 
-@has_permission_decorator(
-    PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL
-)
+@has_permission_decorator(PERM_MODIFY_SYSTEM_CONFIGURATIONS, redirect_url=FOUR_OH_FOUR_URL)
 def edit_project(request, slug):
     project = get_object_or_404(Project, slug=slug)
     if not project.is_user_authorized(request.user):
@@ -614,9 +574,7 @@ def set_current_project(request, slug):
                 "dashboard_url_escaped": dashboard_url,
             },
         )
-    return HttpResponseBadRequest(
-        "Invalid request method. Only GET is allowed.", status=400
-    )
+    return HttpResponseBadRequest("Invalid request method. Only GET is allowed.", status=400)
 
 
 def api_key_management(request):
@@ -652,9 +610,7 @@ def create_api_key(request):
                     f'API Key with name "{name}" already exists. Please choose a different name.',
                 )
             else:
-                api_key, key = UserAPIKey.objects.create_key(
-                    name=name, user=request.user
-                )
+                api_key, key = UserAPIKey.objects.create_key(name=name, user=request.user)
                 # Store the new key info in session to display in modal
                 request.session["new_api_key"] = {"name": name, "key": key}
                 messages.success(request, f'API Key "{name}" created successfully!')
@@ -694,12 +650,8 @@ def toggle_api_key(request, key_id):
             api_key.save(update_fields=["is_active"])
 
             status_text = "activated" if api_key.is_active else "deactivated"
-            messages.success(
-                request, f'API Key "{api_key.name}" {status_text} successfully.'
-            )
+            messages.success(request, f'API Key "{api_key.name}" {status_text} successfully.')
         except Http404:
-            messages.error(
-                request, "API Key not found or you do not have permission to modify it."
-            )
+            messages.error(request, "API Key not found or you do not have permission to modify it.")
 
     return redirect("api_keys")

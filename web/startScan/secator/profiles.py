@@ -16,9 +16,7 @@ logger = get_module_logger(__name__)
 SECATOR_PROFILE_CATEGORIES: list[str] = ["speed", "evasion", "general", "network"]
 
 # Secator library built-in speed profile names (excluded from reconpoint builtin list).
-SECATOR_SPEED_BUILTIN_NAMES: frozenset[str] = frozenset(
-    {"aggressive", "insane", "polite", "paranoid"}
-)
+SECATOR_SPEED_BUILTIN_NAMES: frozenset[str] = frozenset({"aggressive", "insane", "polite", "paranoid"})
 
 # Display icons for reconpoint built-in speed profiles (hardware-tier).
 SPEED_RECONPOINT_BUILTIN_ICONS: dict[str, str] = {
@@ -60,9 +58,7 @@ def build_secator_profiles_context() -> SecatorProfilesContext:
 
     unknown_categories: set[str] = set()
 
-    custom_profiles = SecatorProfile.objects.filter(
-        profile_type="custom", is_active=True
-    ).order_by("category", "name")
+    custom_profiles = SecatorProfile.objects.filter(profile_type="custom", is_active=True).order_by("category", "name")
     for profile in custom_profiles:
         if profile.category in custom_profiles_by_category:
             custom_profiles_by_category[profile.category].append(profile)
@@ -74,8 +70,7 @@ def build_secator_profiles_context() -> SecatorProfilesContext:
             PREFIX_SECATOR_PROFILES,
             "PROFILES",
             "SecatorProfile(s) with unknown categories encountered; they will not be shown in the UI. "
-            "Unknown categories: %s"
-            % (", ".join(sorted(str(c) for c in unknown_categories)),),
+            "Unknown categories: %s" % (", ".join(sorted(str(c) for c in unknown_categories)),),
             level="warning",
         )
         if getattr(settings, "DEBUG", False):
@@ -84,9 +79,7 @@ def build_secator_profiles_context() -> SecatorProfilesContext:
                 f"Known categories: {SECATOR_PROFILE_CATEGORIES}"
             )
 
-    default_profiles = SecatorProfile.get_default_profiles(
-        categories=SECATOR_PROFILE_CATEGORIES
-    )
+    default_profiles = SecatorProfile.get_default_profiles(categories=SECATOR_PROFILE_CATEGORIES)
 
     speed_reconpoint_builtin_profiles: list[SpeedReconpointBuiltinProfile] = []
     reconpoint_speed = (

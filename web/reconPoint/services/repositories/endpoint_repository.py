@@ -117,9 +117,7 @@ class EndpointRepository:
             EndPoint: Saved endpoint object or None
         """
         try:
-            return self._process_secator_endpoint_item(
-                item, scan_history_id, target_id, reconpoint_context or {}
-            )
+            return self._process_secator_endpoint_item(item, scan_history_id, target_id, reconpoint_context or {})
         except FindingOutOfScopeError as e:
             reason = format_exception_for_log(e)
             url = (item.get("url") or item.get("host") or "?").strip()
@@ -128,8 +126,7 @@ class EndpointRepository:
             logger.log_line(
                 PREFIX_ENDPOINT_REPO,
                 "SAVE",
-                "Skipped (out of scope): url=%s | %s scan_id=%s"
-                % (url, reason, scan_history_id),
+                "Skipped (out of scope): url=%s | %s scan_id=%s" % (url, reason, scan_history_id),
                 level="info",
             )
             raise
@@ -166,8 +163,7 @@ class EndpointRepository:
             logger.log_line(
                 PREFIX_ENDPOINT_REPO,
                 "SAVE",
-                "Endpoint item missing URL field. Available fields: %s"
-                % (list(item.keys()),),
+                "Endpoint item missing URL field. Available fields: %s" % (list(item.keys()),),
                 level="warning",
             )
             return None
@@ -186,11 +182,7 @@ class EndpointRepository:
             http_url = parsed.url_normalized
 
         parsed_url = urlparse(http_url)
-        hostname_raw = (
-            (parsed_url.hostname or "").strip()
-            or (item.get("host") or "").strip()
-            or ""
-        )
+        hostname_raw = (parsed_url.hostname or "").strip() or (item.get("host") or "").strip() or ""
         normalized_hostname = hostname_raw.lower() if hostname_raw else ""
         if normalized_hostname and is_acceptable_subdomain_name(normalized_hostname):
             scope_filter = None
@@ -200,15 +192,10 @@ class EndpointRepository:
             if scope_filter is None or not callable(scope_filter):
                 scope_filter = get_finding_scope_filter_host_for_target(target_id)
             if scope_filter is not None and not scope_filter(normalized_hostname):
-                raise FindingOutOfScopeError(
-                    "Host out of scope (restrict_findings_to_target)"
-                )
+                raise FindingOutOfScopeError("Host out of scope (restrict_findings_to_target)")
 
         host = parsed_url.hostname or ""
-        target_value = (
-            Target.objects.filter(id=target_id).values_list("value", flat=True).first()
-            or ""
-        )
+        target_value = Target.objects.filter(id=target_id).values_list("value", flat=True).first() or ""
         domain = resolve_domain_for_scan(
             scan_history_id,
             host,
@@ -240,9 +227,7 @@ class EndpointRepository:
         elif host_res.ip_address is not None:
             defaults["ip_address"] = host_res.ip_address
             defaults["subdomain"] = None
-        elif not EndPoint.objects.filter(
-            http_url=http_url, scan_history=scan_history
-        ).exists():
+        elif not EndPoint.objects.filter(http_url=http_url, scan_history=scan_history).exists():
             suffix = format_endpoint_host_unresolved_suffix(
                 scan_history_id,
                 http_url,
@@ -252,8 +237,7 @@ class EndpointRepository:
             logger.log_line(
                 PREFIX_ENDPOINT_REPO,
                 "SAVE",
-                "Skipped new endpoint (host unresolved; check ingestion if recurrent): "
-                + suffix,
+                "Skipped new endpoint (host unresolved; check ingestion if recurrent): " + suffix,
                 level=_endpoint_host_unresolved_severity(host_res.reason or ""),
             )
             return None
@@ -367,15 +351,10 @@ class EndpointRepository:
         if normalized_hostname and is_acceptable_subdomain_name(normalized_hostname):
             scope_filter = get_finding_scope_filter_host_for_target(target_id)
             if scope_filter is not None and not scope_filter(normalized_hostname):
-                raise FindingOutOfScopeError(
-                    "Host out of scope (restrict_findings_to_target)"
-                )
+                raise FindingOutOfScopeError("Host out of scope (restrict_findings_to_target)")
 
         host = parsed_url.hostname or ""
-        target_value = (
-            Target.objects.filter(id=target_id).values_list("value", flat=True).first()
-            or ""
-        )
+        target_value = Target.objects.filter(id=target_id).values_list("value", flat=True).first() or ""
         domain = resolve_domain_for_scan(
             scan_history_id,
             host,
@@ -408,9 +387,7 @@ class EndpointRepository:
         elif host_res.ip_address is not None:
             defaults["ip_address"] = host_res.ip_address
             defaults["subdomain"] = None
-        elif not EndPoint.objects.filter(
-            http_url=http_url, scan_history=scan_history
-        ).exists():
+        elif not EndPoint.objects.filter(http_url=http_url, scan_history=scan_history).exists():
             suffix = format_endpoint_host_unresolved_suffix(
                 scan_history_id,
                 http_url,
@@ -419,8 +396,7 @@ class EndpointRepository:
             logger.log_line(
                 PREFIX_ENDPOINT_REPO,
                 "SAVE",
-                "add_gf_pattern: skipped new endpoint (host unresolved; check ingestion if recurrent): "
-                + suffix,
+                "add_gf_pattern: skipped new endpoint (host unresolved; check ingestion if recurrent): " + suffix,
                 level=_endpoint_host_unresolved_severity(host_res.reason or ""),
             )
             return None
@@ -452,11 +428,7 @@ class EndpointRepository:
         new_value = ",".join(parts)
         max_len = EndPoint._meta.get_field("matched_gf_patterns").max_length
         if len(new_value) > max_len:
-            new_value = (
-                new_value[:max_len].rsplit(",", 1)[0]
-                if "," in new_value[:max_len]
-                else new_value[:max_len]
-            )
+            new_value = new_value[:max_len].rsplit(",", 1)[0] if "," in new_value[:max_len] else new_value[:max_len]
         endpoint.matched_gf_patterns = new_value
         endpoint.save()
         return endpoint
@@ -474,9 +446,7 @@ class EndpointRepository:
                 return None
         return float(raw) if isinstance(raw, (int, float)) else None
 
-    def _build_secator_endpoint_defaults(
-        self, item: Dict[str, Any], domain
-    ) -> Dict[str, Any]:
+    def _build_secator_endpoint_defaults(self, item: Dict[str, Any], domain) -> Dict[str, Any]:
         """Build defaults dict for EndPoint from Secator item."""
         source = extract_secator_tool_source(item, max_length=200)
         defaults = {
@@ -632,9 +602,7 @@ class EndpointRepository:
                 elif host_res.ip_address is not None:
                     defaults["ip_address"] = host_res.ip_address
                     defaults["subdomain"] = None
-                elif not EndPoint.objects.filter(
-                    http_url=http_url, scan_history=scan_history
-                ).exists():
+                elif not EndPoint.objects.filter(http_url=http_url, scan_history=scan_history).exists():
                     suffix = format_endpoint_host_unresolved_suffix(
                         scan_history_id,
                         http_url,
@@ -643,8 +611,7 @@ class EndpointRepository:
                     logger.log_line(
                         PREFIX_ENDPOINT_REPO,
                         "GET_OR_CREATE",
-                        "Skipped new endpoint (host unresolved; check ingestion if recurrent): "
-                        + suffix,
+                        "Skipped new endpoint (host unresolved; check ingestion if recurrent): " + suffix,
                         level=_endpoint_host_unresolved_severity(host_res.reason or ""),
                     )
                     return None, False
@@ -750,8 +717,7 @@ class EndpointRepository:
                     logger.log_line(
                         PREFIX_ENDPOINT_REPO,
                         "BULK_CREATE",
-                        "Skipped row (host unresolved; possible ingest issue): "
-                        + bulk_suffix,
+                        "Skipped row (host unresolved; possible ingest issue): " + bulk_suffix,
                         level="error",
                     )
                 continue
@@ -783,9 +749,7 @@ class EndpointRepository:
                 )
 
         if endpoint_objects:
-            created = EndPoint.objects.bulk_create(
-                endpoint_objects, ignore_conflicts=True
-            )
+            created = EndPoint.objects.bulk_create(endpoint_objects, ignore_conflicts=True)
             logger.log_line(
                 PREFIX_ENDPOINT_REPO,
                 "BULK_CREATE",
@@ -847,9 +811,7 @@ class EndpointRepository:
         hostname_raw = ""
         try:
             parsed_url = urlparse(http_url)
-            hostname_raw = (parsed_url.hostname or "").strip() or (
-                hostname_override or ""
-            ).strip()
+            hostname_raw = (parsed_url.hostname or "").strip() or (hostname_override or "").strip()
             if not hostname_raw:
                 return EndpointHostResolution(None, None, _RESOLVE_MISSING_HOSTNAME)
             hn_lower = hostname_raw.strip().lower()
@@ -866,9 +828,7 @@ class EndpointRepository:
                     return EndpointHostResolution(None, None, _RESOLVE_MISSING_TARGET)
                 normalized_ip = normalize_ip_address_string(hn_lower)
                 if not normalized_ip:
-                    return EndpointHostResolution(
-                        None, None, _RESOLVE_IP_NORMALIZE_FAILED
-                    )
+                    return EndpointHostResolution(None, None, _RESOLVE_IP_NORMALIZE_FAILED)
                 ip_obj, _ = IpRepository().get_or_create_for_scan(
                     scan_history_id,
                     target_id,
@@ -880,9 +840,7 @@ class EndpointRepository:
                 return EndpointHostResolution(None, ip_obj, _RESOLVE_HOST_OK)
 
             if not is_acceptable_subdomain_name(hostname_raw):
-                return EndpointHostResolution(
-                    None, None, _RESOLVE_UNACCEPTABLE_HOSTNAME
-                )
+                return EndpointHostResolution(None, None, _RESOLVE_UNACCEPTABLE_HOSTNAME)
 
             if not auto_create_subdomain:
                 subdomain = Subdomain.objects.filter(
@@ -896,9 +854,7 @@ class EndpointRepository:
                         % (hostname_raw, scan_history_id),
                         level="debug",
                     )
-                    return EndpointHostResolution(
-                        None, None, _RESOLVE_SUBDOMAIN_NOT_IN_SCAN
-                    )
+                    return EndpointHostResolution(None, None, _RESOLVE_SUBDOMAIN_NOT_IN_SCAN)
             else:
                 try:
                     scan_history = ScanHistory.objects.get(id=scan_history_id)
@@ -911,9 +867,7 @@ class EndpointRepository:
                     scan_history_id, target_id, hostname_raw, reconpoint_context=ctx
                 )
                 if not subdomain:
-                    return EndpointHostResolution(
-                        None, None, _RESOLVE_SUBDOMAIN_CREATE_FAILED
-                    )
+                    return EndpointHostResolution(None, None, _RESOLVE_SUBDOMAIN_CREATE_FAILED)
                 return EndpointHostResolution(subdomain, None, _RESOLVE_HOST_OK)
 
             return EndpointHostResolution(subdomain, None, _RESOLVE_HOST_OK)
@@ -974,8 +928,7 @@ class EndpointRepository:
             logger.log_line(
                 PREFIX_ENDPOINT_REPO,
                 "ASSOCIATE_ENDPOINT_TO_SUBDOMAIN",
-                "Endpoint %s linked to subdomain %s"
-                % (http_url[:80] if http_url else "", host_res.subdomain.name),
+                "Endpoint %s linked to subdomain %s" % (http_url[:80] if http_url else "", host_res.subdomain.name),
                 level="debug",
             )
         elif host_res.ip_address:
@@ -986,8 +939,7 @@ class EndpointRepository:
             logger.log_line(
                 PREFIX_ENDPOINT_REPO,
                 "ASSOCIATE_ENDPOINT_TO_HOST",
-                "Endpoint %s linked to IP %s"
-                % (http_url[:80] if http_url else "", addr),
+                "Endpoint %s linked to IP %s" % (http_url[:80] if http_url else "", addr),
                 level="debug",
             )
         elif not host_res.has_host() and host_res.reason not in (
@@ -1020,8 +972,7 @@ class EndpointRepository:
         logger.log_line(
             PREFIX_ENDPOINT_REPO,
             "PORT_FROM_URL",
-            "_get_port_from_url: no http(s) port from URL (prefix=%r); using legacy default 80"
-            % (http_url[:160],),
+            "_get_port_from_url: no http(s) port from URL (prefix=%r); using legacy default 80" % (http_url[:160],),
             level="debug",
         )
         return 80
@@ -1036,8 +987,7 @@ class EndpointRepository:
                 logger.log_line(
                     PREFIX_ENDPOINT_REPO,
                     "DEFAULT",
-                    "Endpoint %s has no host, skipping default marking"
-                    % (endpoint.http_url,),
+                    "Endpoint %s has no host, skipping default marking" % (endpoint.http_url,),
                     level="debug",
                 )
                 return
@@ -1050,19 +1000,11 @@ class EndpointRepository:
             )
 
             def _has_other_default_for_port() -> bool:
-                qs = (
-                    EndPoint.objects.filter(is_default=True)
-                    .exclude(id=endpoint.id)
-                    .select_for_update()
-                )
+                qs = EndPoint.objects.filter(is_default=True).exclude(id=endpoint.id).select_for_update()
                 if endpoint.subdomain_id:
-                    qs = qs.filter(
-                        subdomain_id=endpoint.subdomain_id, ip_address__isnull=True
-                    )
+                    qs = qs.filter(subdomain_id=endpoint.subdomain_id, ip_address__isnull=True)
                 else:
-                    qs = qs.filter(
-                        ip_address_id=endpoint.ip_address_id, subdomain__isnull=True
-                    )
+                    qs = qs.filter(ip_address_id=endpoint.ip_address_id, subdomain__isnull=True)
                 other_urls = list(qs.values_list("http_url", flat=True))
                 return any(self._get_port_from_url(url) == port for url in other_urls)
 
@@ -1092,8 +1034,7 @@ class EndpointRepository:
                 logger.log_line(
                     PREFIX_ENDPOINT_REPO,
                     "DEFAULT",
-                    "Marked endpoint %s as default for host %s (port %s)"
-                    % (endpoint.http_url, host_label, port),
+                    "Marked endpoint %s as default for host %s (port %s)" % (endpoint.http_url, host_label, port),
                     level="info",
                 )
         except Exception as e:
@@ -1118,16 +1059,10 @@ class EndpointRepository:
         if not isinstance(port_number, int) or port_number <= 0:
             return None
         if ip_address is not None:
-            return (
-                Port.objects.filter(ip_address_id=ip_address.id, number=port_number)
-                .order_by("id")
-                .first()
-            )
+            return Port.objects.filter(ip_address_id=ip_address.id, number=port_number).order_by("id").first()
         if subdomain is not None:
             candidates = list(
-                Port.objects.filter(
-                    ip_address__in=subdomain.ip_addresses.all(), number=port_number
-                ).order_by("id")[:2]
+                Port.objects.filter(ip_address__in=subdomain.ip_addresses.all(), number=port_number).order_by("id")[:2]
             )
             if len(candidates) == 1:
                 return candidates[0]
@@ -1159,9 +1094,7 @@ class EndpointRepository:
             endpoint.port = port
             endpoint.save(update_fields=["port"])
 
-    def create_endpoint_for_ip(
-        self, ip_address: str, scan_history_id: int, domain_id: int
-    ) -> Optional[EndPoint]:
+    def create_endpoint_for_ip(self, ip_address: str, scan_history_id: int, domain_id: int) -> Optional[EndPoint]:
         """
         Create an endpoint with the IP as URL so the IP can be used as a Secator target (e.g. for subscans).
 
@@ -1176,9 +1109,7 @@ class EndpointRepository:
             EndPoint or None if invalid or error
         """
         try:
-            return self._get_or_create_endpoint_for_ip(
-                ip_address, scan_history_id, domain_id
-            )
+            return self._get_or_create_endpoint_for_ip(ip_address, scan_history_id, domain_id)
         except FindingOutOfScopeError:
             logger.log_line(
                 PREFIX_ENDPOINT_REPO,
@@ -1220,24 +1151,14 @@ class EndpointRepository:
         if domain is None:
             return None
 
-        http_url = (
-            f"http://[{ip_address}]"
-            if validators.ipv6(ip_address)
-            else f"http://{ip_address}"
-        )
+        http_url = f"http://[{ip_address}]" if validators.ipv6(ip_address) else f"http://{ip_address}"
 
         ip_obj = None
         if target_id := getattr(scan_history, "target_id", None):
             if normalized := normalize_ip_address_string(ip_address):
-                ip_obj, _ = IpRepository().get_or_create_for_scan(
-                    scan_history_id, target_id, normalized
-                )
+                ip_obj, _ = IpRepository().get_or_create_for_scan(scan_history_id, target_id, normalized)
 
-        endpoint = (
-            EndPoint.objects.filter(http_url=http_url, scan_history=scan_history)
-            .order_by("id")
-            .first()
-        )
+        endpoint = EndPoint.objects.filter(http_url=http_url, scan_history=scan_history).order_by("id").first()
         created = False
         if endpoint is None:
             if not ip_obj:
@@ -1294,9 +1215,7 @@ class EndpointRepository:
                         "Technology %s linked to endpoint %s"
                         % (
                             tech_name,
-                            endpoint.http_url[:80]
-                            if endpoint and endpoint.http_url
-                            else "",
+                            endpoint.http_url[:80] if endpoint and endpoint.http_url else "",
                         ),
                         level="debug",
                     )
@@ -1314,9 +1233,7 @@ class EndpointRepository:
                 level="error",
             )
 
-    def extract_technologies_from_list(
-        self, tech_list: List[str], scan_history_id: int
-    ) -> List[Technology]:
+    def extract_technologies_from_list(self, tech_list: List[str], scan_history_id: int) -> List[Technology]:
         """
         Extract and create technologies from a list of technology names.
 
@@ -1390,18 +1307,14 @@ class EndpointRepository:
             lock_key=lock_key,
             get_kwargs=base_data,
             create_kwargs=full_data,
-            update_existing_callback=lambda obj: self._update_directory_file_fields(
-                obj, full_data
-            ),
+            update_existing_callback=lambda obj: self._update_directory_file_fields(obj, full_data),
         ):
             was_created = getattr(directory_file, "_was_created", False)
             return directory_file, was_created
         return None, False
 
     @staticmethod
-    def _update_directory_file_fields(
-        directory_file: DirectoryFile, full_data: Dict[str, Any]
-    ) -> DirectoryFile:
+    def _update_directory_file_fields(directory_file: DirectoryFile, full_data: Dict[str, Any]) -> DirectoryFile:
         """Update DirectoryFile fields when record already exists."""
         fields_to_update: List[str] = []
         if directory_file.length != full_data["length"]:
@@ -1420,9 +1333,7 @@ class EndpointRepository:
             directory_file.save(update_fields=fields_to_update)
         return directory_file
 
-    def get_http_status_breakdown(
-        self, scope: Union[ScanHistory, Domain]
-    ) -> List[Dict[str, int]]:
+    def get_http_status_breakdown(self, scope: Union[ScanHistory, Domain]) -> List[Dict[str, int]]:
         """
         Return HTTP status breakdown for charts (detail_scan or target summary).
 
@@ -1457,17 +1368,13 @@ class EndpointRepository:
             return self._get_http_status_breakdown_for_domain(scope)
         return []
 
-    def _get_http_status_breakdown_for_domain(
-        self, scope: Domain
-    ) -> List[Dict[str, int]]:
+    def _get_http_status_breakdown_for_domain(self, scope: Domain) -> List[Dict[str, int]]:
         """
         HTTP status breakdown for domain: web server endpoints (per port) without double-counting.
         Legacy subdomains that have at least one default EndPoint (Secator) are excluded from
         Subdomain counts; only default EndPoints and legacy-only subdomains contribute.
         """
-        target_id = scope.scan_history_id and getattr(
-            scope.scan_history, "target_id", None
-        )
+        target_id = scope.scan_history_id and getattr(scope.scan_history, "target_id", None)
         if not target_id:
             return []
         subdomain_names_with_default = set(
@@ -1495,7 +1402,4 @@ class EndpointRepository:
             merged[row["http_status"]] += row["http_status__count"]
         for row in ep_qs:
             merged[row["http_status"]] += row["http_status__count"]
-        return [
-            {"http_status": int(k), "http_status__count": int(v)}
-            for k, v in sorted(merged.items())
-        ]
+        return [{"http_status": int(k), "http_status__count": int(v)} for k, v in sorted(merged.items())]

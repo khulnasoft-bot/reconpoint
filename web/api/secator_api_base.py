@@ -36,9 +36,7 @@ from targetApp.models import Target
 def _is_validation_like_error(error: Exception) -> bool:
     """Return True if the error message suggests a validation/client error (400)."""
     error_str = str(error).lower()
-    return (
-        "validation" in error_str or "invalid" in error_str or "required" in error_str
-    )
+    return "validation" in error_str or "invalid" in error_str or "required" in error_str
 
 
 class SecatorAPIBase(APIView, ABC):
@@ -100,9 +98,7 @@ class SecatorAPIBase(APIView, ABC):
                 {"prefix": log_prefix, "action": "VALIDATE", "id": entity_id},
                 exc_info=False,
             )
-            return False, Response(
-                {"status": False, "error": "Invalid request data format"}, status=400
-            )
+            return False, Response({"status": False, "error": "Invalid request data format"}, status=400)
         return True, None
 
     def extract_runner_context(self, runner_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -118,8 +114,7 @@ class SecatorAPIBase(APIView, ABC):
         context = runner_data.get("context", {})
         return {
             "runner_type": runner_data.get("config", {}).get("type"),
-            "runner_name": runner_data.get("config", {}).get("name")
-            or runner_data.get("name"),
+            "runner_name": runner_data.get("config", {}).get("name") or runner_data.get("name"),
             "scan_history_id": context.get("scan_history_id"),
             "target_id": context.get("target_id"),
             "domain_id": context.get("domain_id"),
@@ -145,11 +140,7 @@ class SecatorAPIBase(APIView, ABC):
             dict: Extracted context information (includes runner_id when present)
         """
         context = finding_data.get("_context", {})
-        runner_id = (
-            context.get("task_id")
-            or context.get("workflow_id")
-            or context.get("scan_id")
-        )
+        runner_id = context.get("task_id") or context.get("workflow_id") or context.get("scan_id")
         return {
             "finding_type": finding_data.get("_type"),
             "scan_history_id": context.get("scan_history_id"),
@@ -244,10 +235,7 @@ class SecatorAPIBase(APIView, ABC):
                 scan_history,
                 None,
             )
-        if (
-            getattr(scan_history, "target_id", None) is not None
-            and scan_history.target_id != target_id
-        ):
+        if getattr(scan_history, "target_id", None) is not None and scan_history.target_id != target_id:
             self.logger.log_warning(
                 "ScanHistory %s target_id (%s) does not match context target_id (%s)"
                 % (scan_history_id, scan_history.target_id, target_id),

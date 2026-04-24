@@ -22,9 +22,7 @@ class TestWorkerRunJobRevokeMode(unittest.TestCase):
 
     @patch("reconPoint.secator.worker_run_job.sys.exit")
     @patch("secator.celery.revoke_task")
-    def test_run_revoke_mode_exits_non_zero_on_failure(
-        self, mock_revoke_task, mock_sys_exit
-    ):
+    def test_run_revoke_mode_exits_non_zero_on_failure(self, mock_revoke_task, mock_sys_exit):
         """_run_revoke_mode exits with 1 when revoke_task raises."""
         from reconPoint.secator.worker_run_job import _run_revoke_mode
 

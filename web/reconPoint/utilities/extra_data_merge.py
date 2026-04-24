@@ -118,6 +118,4 @@ def merge_secator_item_extra_data_into_model(
     raw = item.get("extra_data")
     if not isinstance(raw, dict):
         return False
-    return merge_extra_data_payload_into_model(
-        obj, raw, field_name=field_name, persist=persist
-    )
+    return merge_extra_data_payload_into_model(obj, raw, field_name=field_name, persist=persist)

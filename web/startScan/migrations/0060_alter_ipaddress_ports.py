@@ -12,8 +12,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="ipaddress",
             name="ports",
-            field=models.ManyToManyField(
-                db_index=True, related_name="ports", to="startScan.Port"
-            ),
+            field=models.ManyToManyField(db_index=True, related_name="ports", to="startScan.Port"),
         ),
     ]

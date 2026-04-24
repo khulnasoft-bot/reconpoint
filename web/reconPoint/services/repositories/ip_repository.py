@@ -65,35 +65,22 @@ class IpRepository:
                 sub.ip_addresses.remove(duplicate)
             EndPoint.objects.filter(ip_address=duplicate).update(ip_address=canonical)
             Port.objects.filter(ip_address=duplicate).update(ip_address=canonical)
-            Vulnerability.objects.filter(ip_address=duplicate).update(
-                ip_address=canonical
-            )
-            Certificate.objects.filter(ip_address=duplicate).update(
-                ip_address=canonical
-            )
+            Vulnerability.objects.filter(ip_address=duplicate).update(ip_address=canonical)
+            Certificate.objects.filter(ip_address=duplicate).update(ip_address=canonical)
             Exploit.objects.filter(ip_address=duplicate).update(ip_address=canonical)
             duplicate.delete()
 
-    def first_ip_in_scan(
-        self, normalized_address: str, scan_history_id: int
-    ) -> Optional[IpAddress]:
+    def first_ip_in_scan(self, normalized_address: str, scan_history_id: int) -> Optional[IpAddress]:
         """Return the canonical IpAddress row for this address in the scan, merging duplicates if needed."""
         rows = list(
-            IpAddress.objects.filter(
-                address=normalized_address, scan_history_id=scan_history_id
-            ).order_by("id")
+            IpAddress.objects.filter(address=normalized_address, scan_history_id=scan_history_id).order_by("id")
         )
         # Transitional fallback while old rows may still be linked only through subdomain/endpoint relations.
         if not rows:
             legacy_q = Q(ip_addresses__scan_history_id=scan_history_id) | Q(
                 ip_endpoints__scan_history_id=scan_history_id
             )
-            rows = list(
-                IpAddress.objects.filter(address=normalized_address)
-                .filter(legacy_q)
-                .distinct()
-                .order_by("id")
-            )
+            rows = list(IpAddress.objects.filter(address=normalized_address).filter(legacy_q).distinct().order_by("id"))
         if not rows:
             return None
         canon = rows[0]
@@ -141,8 +128,7 @@ class IpRepository:
         logger.log_line(
             PREFIX_IP_REPO,
             "GET_OR_CREATE_SCAN",
-            "Created IP address for scan: %s scan_id=%s"
-            % (normalized, scan_history_id),
+            "Created IP address for scan: %s scan_id=%s" % (normalized, scan_history_id),
             level="info",
         )
         self._collect_ip_for_geolocalization(normalized)
@@ -174,8 +160,7 @@ class IpRepository:
         logger.log_line(
             PREFIX_IP_REPO,
             "SYNC_ALIVE_HTTP",
-            "Set alive=True from HTTP evidence ip_id=%s scan_id=%s"
-            % (ip_id, scan_history_id),
+            "Set alive=True from HTTP evidence ip_id=%s scan_id=%s" % (ip_id, scan_history_id),
             level="debug",
         )
         return True
@@ -200,9 +185,7 @@ class IpRepository:
             IpAddress: Saved IP address object or None
         """
         try:
-            return self._process_secator_ip_item(
-                item, scan_history_id, target_id, reconpoint_context or {}
-            )
+            return self._process_secator_ip_item(item, scan_history_id, target_id, reconpoint_context or {})
         except ObjectDoesNotExist as e:
             logger.log_line(
                 PREFIX_IP_REPO,
@@ -232,10 +215,7 @@ class IpRepository:
         if not ip_address:
             return None
 
-        target_value = (
-            Target.objects.filter(id=target_id).values_list("value", flat=True).first()
-            or ""
-        )
+        target_value = Target.objects.filter(id=target_id).values_list("value", flat=True).first() or ""
         domain = resolve_domain_for_scan(
             scan_history_id,
             target_value,
@@ -287,20 +267,14 @@ class IpRepository:
 
         self._apply_reverse_pointer_from_secator_item(ip_obj, item, ip_address)
         self._merge_ip_extra_data_from_secator(ip_obj, item)
-        if src := extract_secator_tool_source(
-            item, include_provider=False, max_length=200
-        ):
+        if src := extract_secator_tool_source(item, include_provider=False, max_length=200):
             if ip_obj.source != src:
                 ip_obj.source = src
                 ip_obj.save(update_fields=["source"])
 
         # Link this IpAddress to a DNS hostname on a Subdomain only (not IP literals; those use IpAddress + EndPoint).
         hostname = self._resolve_hostname_for_association(item, ip_address)
-        if (
-            hostname
-            and is_acceptable_subdomain_name(hostname)
-            and not is_valid_ip(hostname)
-        ):
+        if hostname and is_acceptable_subdomain_name(hostname) and not is_valid_ip(hostname):
             subdomain = SubdomainRepository().get_or_create_from_host(
                 scan_history_id,
                 target_id,
@@ -321,9 +295,7 @@ class IpRepository:
             EndpointRepository,
         )
 
-        EndpointRepository().create_endpoint_for_ip(
-            ip_obj.address, scan_history_id, domain_id
-        )
+        EndpointRepository().create_endpoint_for_ip(ip_obj.address, scan_history_id, domain_id)
 
         if subscan_id := reconpoint_context.get("subscan_id"):
             from startScan.models import SubScan
@@ -366,9 +338,7 @@ class IpRepository:
                 "version": version,
                 "protocol": protocol,
             } | kwargs
-            ip_obj, created = IpAddress.objects.get_or_create(
-                address=address, defaults=defaults
-            )
+            ip_obj, created = IpAddress.objects.get_or_create(address=address, defaults=defaults)
 
             if created:
                 logger.log_line(
@@ -390,9 +360,7 @@ class IpRepository:
             )
             return None, False
 
-    def bulk_create(
-        self, ip_addresses: list, scan_history_id: int, domain_id: int
-    ) -> list:
+    def bulk_create(self, ip_addresses: list, scan_history_id: int, domain_id: int) -> list:
         """
         Bulk create IP addresses.
 
@@ -427,9 +395,7 @@ class IpRepository:
                     )
 
             if ip_objects:
-                created = IpAddress.objects.bulk_create(
-                    ip_objects, ignore_conflicts=True
-                )
+                created = IpAddress.objects.bulk_create(ip_objects, ignore_conflicts=True)
                 logger.log_line(
                     PREFIX_IP_REPO,
                     "BULK_CREATE",
@@ -531,9 +497,7 @@ class IpRepository:
             )
         return None
 
-    def _resolve_hostname_for_association(
-        self, item: Dict[str, Any], ip_address_used: str
-    ) -> Optional[str]:
+    def _resolve_hostname_for_association(self, item: Dict[str, Any], ip_address_used: str) -> Optional[str]:
         """Return hostname for subdomain association (value that is not an IP, or host if it is not the IP used)."""
         host = item.get("host")
         ip_val = item.get("ip")
@@ -598,9 +562,7 @@ class IpRepository:
             resolved = "IPv6" if version == 6 else "IPv4"
         return resolved
 
-    def _associate_with_subdomain(
-        self, ip_obj: IpAddress, hostname: str, scan_history_id: int
-    ) -> None:
+    def _associate_with_subdomain(self, ip_obj: IpAddress, hostname: str, scan_history_id: int) -> None:
         """
         Associate IP address with subdomain if found.
 
@@ -610,9 +572,7 @@ class IpRepository:
             scan_history_id: Scan history ID
         """
         try:
-            if subdomain := Subdomain.objects.filter(
-                name=hostname, scan_history_id=scan_history_id
-            ).first():
+            if subdomain := Subdomain.objects.filter(name=hostname, scan_history_id=scan_history_id).first():
                 subdomain.ip_addresses.add(ip_obj)
                 logger.log_line(
                     PREFIX_IP_REPO,
@@ -624,8 +584,7 @@ class IpRepository:
                 logger.log_line(
                     PREFIX_IP_REPO,
                     "ASSOCIATE_IP_TO_SUBDOMAIN",
-                    "Subdomain not found in scan: hostname=%s scan_id=%s"
-                    % (hostname, scan_history_id),
+                    "Subdomain not found in scan: hostname=%s scan_id=%s" % (hostname, scan_history_id),
                     level="debug",
                 )
 
@@ -634,23 +593,18 @@ class IpRepository:
             logger.log_line(
                 PREFIX_IP_REPO,
                 "ASSOCIATE_IP_TO_SUBDOMAIN",
-                "Error linking IP to subdomain: %s | hostname=%s scan_id=%s"
-                % (reason, hostname, scan_history_id),
+                "Error linking IP to subdomain: %s | hostname=%s scan_id=%s" % (reason, hostname, scan_history_id),
                 level="error",
             )
 
-    def _merge_ip_extra_data_from_secator(
-        self, ip_obj: IpAddress, item: Dict[str, Any]
-    ) -> None:
+    def _merge_ip_extra_data_from_secator(self, ip_obj: IpAddress, item: Dict[str, Any]) -> None:
         merge_secator_item_extra_data_into_model(ip_obj, item)
 
     def _apply_reverse_pointer_from_secator_item(
         self, ip_obj: IpAddress, item: Dict[str, Any], normalized_ip: str
     ) -> None:
         """Fill or refresh IpAddress.reverse_pointer from Secator Ip payload (PTR-aware)."""
-        candidate, from_ptr = self._reverse_pointer_candidate_from_secator_item(
-            item, normalized_ip
-        )
+        candidate, from_ptr = self._reverse_pointer_candidate_from_secator_item(item, normalized_ip)
         if not candidate:
             return
         current = (ip_obj.reverse_pointer or "").strip()
@@ -672,9 +626,7 @@ class IpRepository:
             return {str(t).lower() for t in raw if t is not None}
         return set()
 
-    def _normalize_reverse_pointer_candidate(
-        self, value: str, normalized_ip: str
-    ) -> Optional[str]:
+    def _normalize_reverse_pointer_candidate(self, value: str, normalized_ip: str) -> Optional[str]:
         """Normalize a candidate reverse pointer hostname.
 
         The returned hostname is always lowercased so callers can use case-sensitive

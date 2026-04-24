@@ -108,9 +108,7 @@ class Migration(migrations.Migration):
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 (
                     "host",
-                    models.CharField(
-                        help_text="Hostname for the certificate", max_length=1000
-                    ),
+                    models.CharField(help_text="Hostname for the certificate", max_length=1000),
                 ),
                 (
                     "fingerprint_sha256",
@@ -132,9 +130,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "raw_value",
-                    models.TextField(
-                        blank=True, help_text="Raw certificate value", null=True
-                    ),
+                    models.TextField(blank=True, help_text="Raw certificate value", null=True),
                 ),
                 (
                     "subject_cn",
@@ -165,9 +161,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "not_after",
-                    models.DateTimeField(
-                        blank=True, help_text="Certificate validity end date", null=True
-                    ),
+                    models.DateTimeField(blank=True, help_text="Certificate validity end date", null=True),
                 ),
                 (
                     "issuer_dn",
@@ -189,9 +183,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "issuer",
-                    models.CharField(
-                        blank=True, help_text="Issuer name", max_length=500, null=True
-                    ),
+                    models.CharField(blank=True, help_text="Issuer name", max_length=500, null=True),
                 ),
                 (
                     "self_signed",
@@ -222,9 +214,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "keysize",
-                    models.IntegerField(
-                        blank=True, help_text="Certificate key size in bits", null=True
-                    ),
+                    models.IntegerField(blank=True, help_text="Certificate key size in bits", null=True),
                 ),
                 (
                     "serial_number",

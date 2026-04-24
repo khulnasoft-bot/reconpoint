@@ -5,9 +5,7 @@ from . import views
 
 urlpatterns = [
     path("<slug:slug>/list_note", views.list_note, name="list_note"),
-    path(
-        "<slug:slug>/flip_todo_status", views.flip_todo_status, name="flip_todo_status"
-    ),
+    path("<slug:slug>/flip_todo_status", views.flip_todo_status, name="flip_todo_status"),
     path(
         "<slug:slug>/flip_important_status",
         views.flip_important_status,

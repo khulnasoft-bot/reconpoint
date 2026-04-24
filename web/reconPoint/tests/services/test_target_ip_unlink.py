@@ -23,7 +23,5 @@ class TargetIpUnlinkServiceTestCase(BaseTestCase):
         dg.subdomain.refresh_from_db()
         self.assertFalse(dg.subdomain.ip_addresses.filter(pk=dg.ip_address.id).exists())
         self.assertFalse(
-            EndPoint.objects.filter(
-                scan_history=dg.scan_history, http_url="http://203.0.113.121/"
-            ).exists()
+            EndPoint.objects.filter(scan_history=dg.scan_history, http_url="http://203.0.113.121/").exists()
         )

@@ -34,8 +34,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="scanhistory",
             name="buckets",
-            field=models.ManyToManyField(
-                blank=True, related_name="buckets", to="startScan.S3Bucket"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="buckets", to="startScan.S3Bucket"),
         ),
     ]

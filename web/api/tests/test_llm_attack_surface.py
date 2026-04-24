@@ -72,9 +72,7 @@ class LLMAttackSurfaceApiTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         mock_llm.assert_called_once()
-        self.assertIn(
-            "Synthetic aggregate analysis", response.data.get("description", "")
-        )
+        self.assertIn("Synthetic aggregate analysis", response.data.get("description", ""))
 
     @patch("reconPoint.llm.llm.LLMAttackSuggestionGenerator.get_attack_suggestion")
     def test_get_target_persists_llm_row_when_llm_model_omitted(self, mock_llm) -> None:
@@ -120,9 +118,7 @@ class LLMAttackSurfaceApiTests(BaseTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         saved = response.data.get("saved_analyses") or []
-        self.assertEqual(
-            [s["llm_model"] for s in saved], ["alpha-model", "zebra-model"]
-        )
+        self.assertEqual([s["llm_model"] for s in saved], ["alpha-model", "zebra-model"])
         self.assertEqual(response.data.get("selected_analysis_id"), newer.pk)
 
     def test_get_target_check_only_with_saved_analyses_returns_list_without_description(
@@ -209,9 +205,7 @@ class LLMAttackSurfaceApiTests(BaseTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(response.data.get("status", True))
-        self.assertIn(
-            "attack_surface_analysis_id", (response.data.get("error") or "").lower()
-        )
+        self.assertIn("attack_surface_analysis_id", (response.data.get("error") or "").lower())
 
     def test_delete_one_analysis_sets_remaining_true_when_others_exist(self) -> None:
         tid = self.data_generator.target.id
@@ -229,16 +223,12 @@ class LLMAttackSurfaceApiTests(BaseTestCase):
             body_markdown="B",
         )
         url = reverse("api:llm_get_possible_attacks")
-        response = self.client.delete(
-            "%s?target_id=%s&attack_surface_analysis_id=%s" % (url, tid, first.pk)
-        )
+        response = self.client.delete("%s?target_id=%s&attack_surface_analysis_id=%s" % (url, tid, first.pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         self.assertTrue(response.data.get("remaining_analyses"))
         self.assertEqual(
-            LlmAttackSurfaceAnalysis.objects.filter(
-                content_type=ct, object_id=tid
-            ).count(),
+            LlmAttackSurfaceAnalysis.objects.filter(content_type=ct, object_id=tid).count(),
             1,
         )
 
@@ -257,13 +247,9 @@ class LLMAttackSurfaceApiTests(BaseTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(response.data.get("status", True))
-        self.assertIn(
-            "attack_surface_analysis_id", (response.data.get("error") or "").lower()
-        )
+        self.assertIn("attack_surface_analysis_id", (response.data.get("error") or "").lower())
         self.assertEqual(
-            LlmAttackSurfaceAnalysis.objects.filter(
-                content_type=ct, object_id=tid
-            ).count(),
+            LlmAttackSurfaceAnalysis.objects.filter(content_type=ct, object_id=tid).count(),
             1,
         )
 
@@ -288,9 +274,7 @@ class LLMAttackSurfaceApiTests(BaseTestCase):
         self.assertTrue(response.data["status"])
         self.assertFalse(response.data.get("remaining_analyses"))
         self.assertEqual(
-            LlmAttackSurfaceAnalysis.objects.filter(
-                content_type=ct, object_id=tid
-            ).count(),
+            LlmAttackSurfaceAnalysis.objects.filter(content_type=ct, object_id=tid).count(),
             0,
         )
 
@@ -405,9 +389,7 @@ class LLMAttackSurfaceScanHistoryApiTests(BaseTestCase):
         self.assertEqual(response.data.get("subdomain_name"), expected)
 
     @patch("reconPoint.llm.llm.LLMAttackSuggestionGenerator.get_attack_suggestion")
-    def test_get_scan_history_persists_llm_row_when_llm_model_omitted(
-        self, mock_llm
-    ) -> None:
+    def test_get_scan_history_persists_llm_row_when_llm_model_omitted(self, mock_llm) -> None:
         mock_llm.return_value = {
             "status": True,
             "description": "Analysis body",
@@ -416,9 +398,7 @@ class LLMAttackSurfaceScanHistoryApiTests(BaseTestCase):
         }
         sid = self.data_generator.scan_history.id
         url = reverse("api:llm_get_possible_attacks")
-        response = self.client.get(
-            url, {"scan_history_id": sid, "force_regenerate": "true"}
-        )
+        response = self.client.get(url, {"scan_history_id": sid, "force_regenerate": "true"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         ct = ContentType.objects.get_for_model(ScanHistory)

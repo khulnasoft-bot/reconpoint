@@ -56,9 +56,7 @@ urlpatterns = [
         name="delete_workflow",
     ),
     path("tasks/", views.secator_tasks, name="tasks"),
-    path(
-        "tasks/partial/", views.secator_tasks_table_partial, name="tasks_table_partial"
-    ),
+    path("tasks/partial/", views.secator_tasks_table_partial, name="tasks_table_partial"),
     path("tasks/<int:task_id>/", views.secator_task_detail, name="task_detail"),
     path("tasks/<int:task_id>/duplicate/", views.duplicate_task, name="duplicate_task"),
     # Profile Integration URLs
@@ -74,17 +72,13 @@ urlpatterns = [
         views.duplicate_profile,
         name="duplicate_profile",
     ),
-    path(
-        "profiles/<int:profile_id>/update/", views.update_profile, name="update_profile"
-    ),
+    path("profiles/<int:profile_id>/update/", views.update_profile, name="update_profile"),
     path(
         "profiles/<int:profile_id>/set-default/",
         views.set_default_profile,
         name="set_default_profile",
     ),
-    path(
-        "profiles/<int:profile_id>/delete/", views.delete_profile, name="delete_profile"
-    ),
+    path("profiles/<int:profile_id>/delete/", views.delete_profile, name="delete_profile"),
     path("scans/", views.secator_scans, name="scans"),
     path("scans/add/", views.add_scan, name="add_scan"),
     path("scans/<int:scan_id>/", views.secator_scan_detail, name="scan_detail"),

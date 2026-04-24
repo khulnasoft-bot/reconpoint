@@ -79,9 +79,7 @@ class TestSecatorWorkerModel(BaseTestCase):
     @patch("scanEngine.models.settings")
     def test_get_api_base_url_tunnel(self, mock_settings):
         """Tunnel mode derives URL from SECATOR_ADDONS_API_URL, replacing only host and port."""
-        mock_settings.SECATOR_ADDONS_API_URL = (
-            "https://reconpoint.example.com/api/secator"
-        )
+        mock_settings.SECATOR_ADDONS_API_URL = "https://reconpoint.example.com/api/secator"
         worker = SecatorWorker.objects.create(
             name="w-tunnel",
             ssh_host="192.0.2.1",
@@ -394,9 +392,7 @@ class TestBuildWorkerEnvContent(BaseTestCase):
     @patch("scanEngine.models.settings")
     def test_build_worker_env_tunnel_url(self, mock_models_settings, mock_settings):
         """Tunnel worker gets API URL derived from SECATOR_ADDONS_API_URL (host/port replaced)."""
-        mock_models_settings.SECATOR_ADDONS_API_URL = (
-            "https://reconpoint.example.com/api/secator"
-        )
+        mock_models_settings.SECATOR_ADDONS_API_URL = "https://reconpoint.example.com/api/secator"
         mock_settings.SECATOR_ADDONS_API_KEY = "test-key"
         mock_settings.SECATOR_ADDONS_API_HEADER_NAME = "Api-Key"
         mock_settings.SECATOR_ADDONS_API_FORCE_SSL = False
@@ -434,14 +430,10 @@ class TestBuildWorkerEnvContent(BaseTestCase):
             api_url="https://api.example.com",
         )
         content = _build_worker_env_content(worker)
-        self.assertIn(
-            "SECATOR_ADDONS_API_URL=https://api.example.com/api/secator", content
-        )
+        self.assertIn("SECATOR_ADDONS_API_URL=https://api.example.com/api/secator", content)
 
     @patch("scanEngine.services.worker_deploy.settings")
-    def test_build_worker_env_pull_agent_with_secator_path_uses_api_for_pull_base(
-        self, mock_settings
-    ):
+    def test_build_worker_env_pull_agent_with_secator_path_uses_api_for_pull_base(self, mock_settings):
         """When api_url is a base URL, env values are normalized for secator and pull APIs."""
         mock_settings.SECATOR_ADDONS_API_KEY = "key"
         mock_settings.SECATOR_ADDONS_API_HEADER_NAME = "Api-Key"
@@ -459,17 +451,11 @@ class TestBuildWorkerEnvContent(BaseTestCase):
             https_pull_verify_ssl=False,
         )
         content = _build_worker_env_content(worker)
-        self.assertIn(
-            "SECATOR_ADDONS_API_URL=https://reco.2sec.fr:1337/api/secator", content
-        )
-        self.assertIn(
-            "RECONPOINT_PULL_API_BASE_URL=https://reco.2sec.fr:1337/api", content
-        )
+        self.assertIn("SECATOR_ADDONS_API_URL=https://reco.2sec.fr:1337/api/secator", content)
+        self.assertIn("RECONPOINT_PULL_API_BASE_URL=https://reco.2sec.fr:1337/api", content)
 
     @patch("scanEngine.services.worker_deploy.settings")
-    def test_build_worker_env_pull_agent_accepts_secator_url_and_keeps_same_final_urls(
-        self, mock_settings
-    ):
+    def test_build_worker_env_pull_agent_accepts_secator_url_and_keeps_same_final_urls(self, mock_settings):
         """When api_url already includes /api/secator, final env URLs remain normalized."""
         mock_settings.SECATOR_ADDONS_API_KEY = "key"
         mock_settings.SECATOR_ADDONS_API_HEADER_NAME = "Api-Key"
@@ -487,12 +473,8 @@ class TestBuildWorkerEnvContent(BaseTestCase):
             https_pull_verify_ssl=False,
         )
         content = _build_worker_env_content(worker)
-        self.assertIn(
-            "SECATOR_ADDONS_API_URL=https://reco.2sec.fr:1337/api/secator", content
-        )
-        self.assertIn(
-            "RECONPOINT_PULL_API_BASE_URL=https://reco.2sec.fr:1337/api", content
-        )
+        self.assertIn("SECATOR_ADDONS_API_URL=https://reco.2sec.fr:1337/api/secator", content)
+        self.assertIn("RECONPOINT_PULL_API_BASE_URL=https://reco.2sec.fr:1337/api", content)
 
     @patch("scanEngine.services.worker_deploy.settings")
     def test_build_worker_env_includes_api_host_from_domain_name(self, mock_settings):
@@ -683,17 +665,13 @@ class TestDeployWorkerProgressCallback(BaseTestCase):
         self.assertGreaterEqual(len(calls), 2)
         self.assertEqual(calls[0][0], "validating")
         error_calls = [c for c in calls if c[0] == "error"]
-        self.assertTrue(
-            error_calls, "callback should receive error step when compose is missing"
-        )
+        self.assertTrue(error_calls, "callback should receive error step when compose is missing")
 
     @patch("scanEngine.services.worker_deploy.settings")
     @patch("scanEngine.services.worker_deploy.get_ssh_client")
     @patch("scanEngine.services.worker_deploy.run_remote_command")
     @patch("scanEngine.services.worker_deploy.detect_compose_cmd")
-    def test_deploy_worker_raises_when_api_key_missing(
-        self, mock_detect, mock_run, mock_get_ssh, mock_settings
-    ):
+    def test_deploy_worker_raises_when_api_key_missing(self, mock_detect, mock_run, mock_get_ssh, mock_settings):
         """Deploy raises UserSafeError when SECATOR_ADDONS_API_KEY is missing or placeholder."""
         from pathlib import Path
         import tempfile
@@ -725,9 +703,7 @@ class TestDeployWorkerProgressCallback(BaseTestCase):
                 "scanEngine.services.worker_deploy._get_compose_path",
                 return_value=compose_path,
             ):
-                with patch(
-                    "scanEngine.services.worker_deploy._get_entrypoint_path"
-                ) as mock_ep:
+                with patch("scanEngine.services.worker_deploy._get_entrypoint_path") as mock_ep:
                     mock_ep.return_value = Path("/nonexistent/entrypoint.sh")
                     with self.assertRaises(UserSafeError) as ctx:
                         deploy_worker(worker, progress_callback=lambda s, m: None)
@@ -777,9 +753,7 @@ class TestDeployWorkerProgressCallback(BaseTestCase):
                 "scanEngine.services.worker_deploy._get_compose_path",
                 return_value=compose_path,
             ):
-                with patch(
-                    "scanEngine.services.worker_deploy._get_entrypoint_path"
-                ) as mock_ep:
+                with patch("scanEngine.services.worker_deploy._get_entrypoint_path") as mock_ep:
                     mock_ep.return_value = Path("/nonexistent/entrypoint.sh")
                     deploy_worker(worker, progress_callback=lambda s, m: None)
 
@@ -788,9 +762,7 @@ class TestDeployWorkerProgressCallback(BaseTestCase):
                 for call in mock_run.call_args_list
                 if len(call.args) >= 2 and "chmod 0777 /opt/w/scripts" in call.args[1]
             ]
-            self.assertTrue(
-                chmod_calls, "deploy should chmod scripts/ for writable bind mount jobs"
-            )
+            self.assertTrue(chmod_calls, "deploy should chmod scripts/ for writable bind mount jobs")
         finally:
             compose_path.unlink(missing_ok=True)
 
@@ -841,9 +813,7 @@ class TestSyncConfigsForRun(BaseTestCase):
     """Tests for sync_configs_for_run (worker_config_sync)."""
 
     @patch("scanEngine.services.worker_config_sync.get_ssh_client")
-    def test_sync_configs_for_run_raises_user_safe_error_on_sftp_failure(
-        self, mock_get_ssh
-    ):
+    def test_sync_configs_for_run_raises_user_safe_error_on_sftp_failure(self, mock_get_ssh):
         """sync_configs_for_run raises UserSafeError when SFTP fails inside the try block."""
         mock_client = MagicMock()
         mock_client.open_sftp.side_effect = OSError("SFTP failed")
@@ -948,9 +918,7 @@ class TestWorkerViews(BaseTestCase):
             api_access_type=SecatorWorker.API_ACCESS_CLASSIC,
             api_url="https://reconpoint.example.com",
         )
-        response = self.client.get(
-            reverse("worker_update", kwargs={"worker_id": worker.id})
-        )
+        response = self.client.get(reverse("worker_update", kwargs={"worker_id": worker.id}))
         self.assertEqual(response.status_code, 200)
 
     def test_duplicate_worker_creates_copy_without_sensitive_fields(self):
@@ -967,9 +935,7 @@ class TestWorkerViews(BaseTestCase):
             api_url="https://reconpoint.example.com",
             is_active=True,
         )
-        response = self.client.get(
-            reverse("duplicate_worker", kwargs={"worker_id": worker.id})
-        )
+        response = self.client.get(reverse("duplicate_worker", kwargs={"worker_id": worker.id}))
         self.assertEqual(response.status_code, 302)
         duplicated = SecatorWorker.objects.get(name="worker-original copy")
         self.assertEqual(duplicated.ssh_host, worker.ssh_host)
@@ -1169,9 +1135,7 @@ class TestRemoteRunnerContainerPython(BaseTestCase):
     @patch("reconPoint.secator.remote_runner.run_in_container")
     @patch("reconPoint.secator.remote_runner.sync_configs_for_run")
     @patch("reconPoint.secator.remote_runner.get_ssh_client")
-    def test_run_scan_on_worker_uses_default_python(
-        self, mock_get_ssh, mock_sync, mock_run_in_container
-    ):
+    def test_run_scan_on_worker_uses_default_python(self, mock_get_ssh, mock_sync, mock_run_in_container):
         """Without SECATOR_WORKER_CONTAINER_PYTHON set (or set to 'python'), command starts with 'python '."""
         mock_run_in_container.return_value = (0, "", "")
         mock_client = MagicMock()
@@ -1218,9 +1182,7 @@ class TestRemoteRunnerContainerPython(BaseTestCase):
     @patch("reconPoint.secator.remote_runner.run_in_container")
     @patch("reconPoint.secator.remote_runner.sync_configs_for_run")
     @patch("reconPoint.secator.remote_runner.get_ssh_client")
-    def test_run_scan_on_worker_uses_custom_python_when_set(
-        self, mock_get_ssh, mock_sync, mock_run_in_container
-    ):
+    def test_run_scan_on_worker_uses_custom_python_when_set(self, mock_get_ssh, mock_sync, mock_run_in_container):
         """With SECATOR_WORKER_CONTAINER_PYTHON set, command uses that executable."""
         mock_run_in_container.return_value = (0, "", "")
         mock_client = MagicMock()
@@ -1322,9 +1284,7 @@ class TestRemoteRunnerPullMode(BaseTestCase):
     @patch("reconPoint.secator.remote_runner.enqueue_run_job")
     @patch("reconPoint.secator.remote_runner.sync_configs_for_run")
     @patch("reconPoint.secator.remote_runner.get_ssh_client")
-    def test_run_scan_pull_skips_ssh_and_sync(
-        self, mock_ssh, mock_sync, mock_enqueue, mock_wait
-    ) -> None:
+    def test_run_scan_pull_skips_ssh_and_sync(self, mock_ssh, mock_sync, mock_enqueue, mock_wait) -> None:
         import uuid
 
         from django.test import override_settings
@@ -1361,9 +1321,7 @@ class TestRemoteRunnerPullMode(BaseTestCase):
     @patch("reconPoint.secator.remote_runner.wait_for_command")
     @patch("reconPoint.secator.remote_runner.enqueue_revoke")
     @patch("reconPoint.secator.remote_runner.get_ssh_client")
-    def test_revoke_pull_uses_queue(
-        self, mock_ssh, mock_enqueue_revoke, mock_wait
-    ) -> None:
+    def test_revoke_pull_uses_queue(self, mock_ssh, mock_enqueue_revoke, mock_wait) -> None:
         import uuid
 
         from reconPoint.secator.remote_runner import revoke_task_on_remote_worker
@@ -1404,9 +1362,7 @@ class TestBuildWorkerBundleTarGz(BaseTestCase):
         """ZIP contains docker-compose.worker.yml, .env, pull agent, runner script, README.txt."""
         mock_compose = MagicMock()
         mock_compose.is_file.return_value = True
-        mock_compose.read_bytes.return_value = (
-            b'version: "3"\nservices:\n  worker:\n    image: secator\n'
-        )
+        mock_compose.read_bytes.return_value = b'version: "3"\nservices:\n  worker:\n    image: secator\n'
         mock_compose_path.return_value = mock_compose
         mock_ep = MagicMock()
         mock_ep.is_file.return_value = False
@@ -1445,9 +1401,7 @@ class TestBuildWorkerBundleTarGz(BaseTestCase):
         self.assertIn("reconpoint_pull_agent.py", names)
         self.assertIn("scripts/run_secator_job.py", names)
         self.assertIn("RECONPOINT_PULL_AGENT_ENABLED=true", env)
-        self.assertIn(
-            "RECONPOINT_PULL_API_BASE_URL=https://reconpoint.example.com/api", env
-        )
+        self.assertIn("RECONPOINT_PULL_API_BASE_URL=https://reconpoint.example.com/api", env)
         self.assertIn("RECONPOINT_PULL_SSL_VERIFY=true", env)
 
     @patch("scanEngine.services.worker_deploy._get_worker_run_job_path")
@@ -1622,9 +1576,7 @@ class TestWorkerPullQueueGuards(BaseTestCase):
             is_active=True,
         )
         with self.assertRaises(ValueError):
-            enqueue_run_job(
-                worker, job={"execution_mode": "workflow"}, scan_history_id=1
-            )
+            enqueue_run_job(worker, job={"execution_mode": "workflow"}, scan_history_id=1)
 
     def test_enqueue_revoke_raises_for_non_pull_agent_worker(self) -> None:
         worker = SecatorWorker.objects.create(
@@ -1681,9 +1633,7 @@ class TestWorkerPullCommandRetention(BaseTestCase):
         claimed = claim_next_command(worker)
         self.assertIsNotNone(claimed)
         self.assertEqual(claimed.id, pending.id)
-        self.assertFalse(
-            SecatorWorkerQueuedCommand.objects.filter(pk=old_terminal.id).exists()
-        )
+        self.assertFalse(SecatorWorkerQueuedCommand.objects.filter(pk=old_terminal.id).exists())
 
 
 class TestWorkerDownloadBundleView(BaseTestCase):
@@ -1691,9 +1641,7 @@ class TestWorkerDownloadBundleView(BaseTestCase):
 
     @patch("scanEngine.services.worker_deploy._get_entrypoint_path")
     @patch("scanEngine.services.worker_deploy._get_compose_path")
-    def test_worker_download_bundle_returns_zip(
-        self, mock_compose_path, mock_entrypoint_path
-    ):
+    def test_worker_download_bundle_returns_zip(self, mock_compose_path, mock_entrypoint_path):
         """GET download-bundle returns 200 and application/gzip."""
         mock_compose = MagicMock()
         mock_compose.is_file.return_value = True

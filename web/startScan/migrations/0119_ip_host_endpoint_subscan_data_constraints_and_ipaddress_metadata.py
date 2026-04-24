@@ -58,9 +58,7 @@ class Migration(migrations.Migration):
                 to="startScan.ipaddress",
             ),
         ),
-        migrations.RunPython(
-            forwards_migrate_ip_host_data, backwards_migrate_ip_host_data
-        ),
+        migrations.RunPython(forwards_migrate_ip_host_data, backwards_migrate_ip_host_data),
         migrations.AddConstraint(
             model_name="endpoint",
             constraint=models.CheckConstraint(

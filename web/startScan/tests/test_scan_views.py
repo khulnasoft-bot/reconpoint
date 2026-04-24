@@ -57,18 +57,14 @@ class TestScanLogsView(BaseTestCase):
     def test_scan_logs_view_with_scan_id(self):
         """Test scan logs view with scan_id parameter."""
         url = reverse("scan_logs", kwargs={"slug": self.data_generator.project.slug})
-        response = self.client.get(
-            url, {"scan_id": self.data_generator.scan_history.id}
-        )
+        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
         self.assertEqual(response.status_code, 200)
         self.assertIn("hierarchical_structure", response.context)
 
     def test_scan_logs_view_with_activity_id(self):
         """Test scan logs view with activity_id parameter."""
         url = reverse("scan_logs", kwargs={"slug": self.data_generator.project.slug})
-        response = self.client.get(
-            url, {"activity_id": self.data_generator.scan_activity.id}
-        )
+        response = self.client.get(url, {"activity_id": self.data_generator.scan_activity.id})
         self.assertEqual(response.status_code, 200)
         self.assertIn("hierarchical_structure", response.context)
 
@@ -96,17 +92,13 @@ class TestDomainsForScanDetail(BaseTestCase):
         """Domains from other scans are not included."""
         self.data_generator.create_project_base()
         scan_a = self.data_generator.scan_history
-        Domain.objects.create(
-            name="apex-a.com", insert_date=timezone.now(), scan_history=scan_a
-        )
+        Domain.objects.create(name="apex-a.com", insert_date=timezone.now(), scan_history=scan_a)
         scan_b = ScanHistory.objects.create(
             start_scan_date=timezone.now(),
             scan_status=2,
             target=self.data_generator.target,
         )
-        Domain.objects.create(
-            name="apex-b.com", insert_date=timezone.now(), scan_history=scan_b
-        )
+        Domain.objects.create(name="apex-b.com", insert_date=timezone.now(), scan_history=scan_b)
         result = _domains_for_scan_detail(scan_a.id)
         names = [d.name for d in result]
         for d in result:
@@ -122,15 +114,9 @@ class TestDomainsForScanDetail(BaseTestCase):
         """Hostname-style names (e.g. www.example.com) are excluded so only apex/root domains appear."""
         self.data_generator.create_project_base()
         scan = self.data_generator.scan_history
-        Domain.objects.create(
-            name="example.com", insert_date=timezone.now(), scan_history=scan
-        )
-        Domain.objects.create(
-            name="www.example.com", insert_date=timezone.now(), scan_history=scan
-        )
-        Domain.objects.create(
-            name="sub.example.com", insert_date=timezone.now(), scan_history=scan
-        )
+        Domain.objects.create(name="example.com", insert_date=timezone.now(), scan_history=scan)
+        Domain.objects.create(name="www.example.com", insert_date=timezone.now(), scan_history=scan)
+        Domain.objects.create(name="sub.example.com", insert_date=timezone.now(), scan_history=scan)
         result = _domains_for_scan_detail(scan.id)
         names = [d.name for d in result]
         self.assertIn("example.com", names)
@@ -165,9 +151,7 @@ class TestExportUrls(BaseTestCase):
     def test_export_empty_urls_view(self):
         """Test the export URLs view when there are no URLs."""
         # Delete all subdomains with http_url
-        Subdomain.objects.filter(scan_history=self.data_generator.scan_history).update(
-            http_url=None
-        )
+        Subdomain.objects.filter(scan_history=self.data_generator.scan_history).update(http_url=None)
 
         response = self.client.get(
             reverse(
@@ -232,9 +216,7 @@ class TestStartMultipleScan(BaseTestCase):
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @patch("startScan.views.start_secator_scan")
-    def test_start_multiple_scan_filters_targets_override_per_target(
-        self, mock_start_scan
-    ):
+    def test_start_multiple_scan_filters_targets_override_per_target(self, mock_start_scan):
         """Multiple scan must pass targets_override filtered to each target (deduplication)."""
         mock_start_scan.return_value = {
             "status": True,
@@ -268,9 +250,7 @@ class TestStartMultipleScan(BaseTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(mock_start_scan.call_count, 2)
 
-        call_target_ids = [
-            call.kwargs["target_id"] for call in mock_start_scan.call_args_list
-        ]
+        call_target_ids = [call.kwargs["target_id"] for call in mock_start_scan.call_args_list]
         self.assertIn(target_a.id, call_target_ids)
         self.assertIn(target_b.id, call_target_ids)
         self.assertNotEqual(call_target_ids[0], call_target_ids[1])
@@ -279,17 +259,13 @@ class TestStartMultipleScan(BaseTestCase):
             tid = call.kwargs["target_id"]
             override = call.kwargs.get("targets_override")
             if tid == target_a.id:
-                self.assertIsNotNone(
-                    override, "target A should get filtered targets_override"
-                )
+                self.assertIsNotNone(override, "target A should get filtered targets_override")
                 self.assertIn(target_a.value, override)
                 self.assertIn(subdomain_a, override)
                 self.assertNotIn(target_b.value, override)
             else:
                 self.assertEqual(tid, target_b.id)
-                self.assertIsNotNone(
-                    override, "target B should get filtered targets_override"
-                )
+                self.assertIsNotNone(override, "target B should get filtered targets_override")
                 self.assertIn(target_b.value, override)
                 self.assertNotIn(target_a.value, override)
                 self.assertNotIn(subdomain_a, override)
@@ -403,11 +379,7 @@ class TestSecatorProfilesContext(BaseTestCase):
             fetch_redirect_response=False,
         )
         response_follow = self.client.get(response.url)
-        messages_list = (
-            list(response_follow.context["messages"])
-            if response_follow.context.get("messages")
-            else []
-        )
+        messages_list = list(response_follow.context["messages"]) if response_follow.context.get("messages") else []
         self.assertTrue(
             any("Add targets to one or more scopes" in str(m) for m in messages_list),
             "Expected warning about adding targets to scopes or legacy",
@@ -456,9 +428,7 @@ class TestSecatorProfilesContext(BaseTestCase):
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @patch("startScan.views._run_secator_scan_or_per_task")
-    def test_start_scope_scan_post_with_targets_redirects_to_scan_history(
-        self, mock_run
-    ):
+    def test_start_scope_scan_post_with_targets_redirects_to_scan_history(self, mock_run):
         """start_scope_scan POST with targets should run scans and redirect to scan_history."""
         mock_run.return_value = (1, 0)
         scope = self.data_generator.create_scope()
@@ -595,11 +565,7 @@ class TestDeleteScans(BaseTestCase):
     def test_delete_scans_view(self, mock_safe_rmtree):
         """Test the delete scans view."""
         # The view expects scan IDs as POST keys (not in a list)
-        data = {
-            str(
-                self.data_generator.scan_history.id
-            ): self.data_generator.scan_history.id
-        }
+        data = {str(self.data_generator.scan_history.id): self.data_generator.scan_history.id}
         response = self.client.post(
             reverse(
                 "delete_multiple_scans",
@@ -706,9 +672,7 @@ class TestBuildCommandHierarchy(BaseTestCase):
             time=timezone.now(),
         )
 
-        hierarchy = build_command_hierarchy(
-            [scan_command, workflow_command, task_command]
-        )
+        hierarchy = build_command_hierarchy([scan_command, workflow_command, task_command])
         self.assertEqual(len(hierarchy), 1)
         self.assertEqual(hierarchy[0]["command"], scan_command)
         self.assertEqual(len(hierarchy[0]["workflows"]), 1)

@@ -7,16 +7,12 @@ import validators
 
 def validate_domain(value):
     if not validators.domain(value):
-        raise ValidationError(
-            _("%(value)s is not a valid domain Name"), params={"value": value}
-        )
+        raise ValidationError(_("%(value)s is not a valid domain Name"), params={"value": value})
 
 
 def validate_url(value):
     if not validators.url(value):
-        raise ValidationError(
-            _("%(value)s is not a valid URL Name"), params={"value": value}
-        )
+        raise ValidationError(_("%(value)s is not a valid URL Name"), params={"value": value})
 
 
 def validate_short_name(value):

@@ -24,24 +24,18 @@ class UserPreferenceModelTest(BaseTestCase):
 
     def test_create_user_preference(self):
         """UserPreference is created with empty preferences by default."""
-        pref, created = UserPreference.objects.get_or_create(
-            user=self.user, defaults={"preferences": {}}
-        )
+        pref, created = UserPreference.objects.get_or_create(user=self.user, defaults={"preferences": {}})
         self.assertTrue(created)
         self.assertEqual(pref.preferences, {})
         self.assertEqual(str(pref), f"Preferences for {self.user.username}")
 
     def test_preferences_json_storage(self):
         """Preferences store and retrieve JSON values."""
-        pref, _ = UserPreference.objects.get_or_create(
-            user=self.user, defaults={"preferences": {}}
-        )
+        pref, _ = UserPreference.objects.get_or_create(user=self.user, defaults={"preferences": {}})
         pref.preferences[PREF_DATATABLES_DISPLAY] = DATATABLES_DISPLAY_SCROLLER
         pref.save()
         pref.refresh_from_db()
-        self.assertEqual(
-            pref.preferences.get(PREF_DATATABLES_DISPLAY), DATATABLES_DISPLAY_SCROLLER
-        )
+        self.assertEqual(pref.preferences.get(PREF_DATATABLES_DISPLAY), DATATABLES_DISPLAY_SCROLLER)
 
 
 class UserPreferencesServiceTest(BaseTestCase):
@@ -67,16 +61,12 @@ class UserPreferencesServiceTest(BaseTestCase):
 
     def test_get_datatables_display_returns_scroller_when_set(self):
         """get_datatables_display returns scroller when user chose scroller."""
-        set_user_preference(
-            self.user, PREF_DATATABLES_DISPLAY, DATATABLES_DISPLAY_SCROLLER
-        )
+        set_user_preference(self.user, PREF_DATATABLES_DISPLAY, DATATABLES_DISPLAY_SCROLLER)
         self.assertEqual(get_datatables_display(self.user), DATATABLES_DISPLAY_SCROLLER)
 
     def test_get_datatables_display_returns_classic_when_set(self):
         """get_datatables_display returns classic when explicitly set."""
-        set_user_preference(
-            self.user, PREF_DATATABLES_DISPLAY, DATATABLES_DISPLAY_CLASSIC
-        )
+        set_user_preference(self.user, PREF_DATATABLES_DISPLAY, DATATABLES_DISPLAY_CLASSIC)
         self.assertEqual(get_datatables_display(self.user), DATATABLES_DISPLAY_CLASSIC)
 
     def test_get_datatables_display_invalid_value_falls_back_to_classic(self):
@@ -104,9 +94,7 @@ class UserPreferencesServiceTest(BaseTestCase):
 
     def test_get_datatables_page_length_default(self):
         """get_datatables_page_length returns default when not set."""
-        self.assertEqual(
-            get_datatables_page_length(self.user), DATATABLES_PAGE_LENGTH_DEFAULT
-        )
+        self.assertEqual(get_datatables_page_length(self.user), DATATABLES_PAGE_LENGTH_DEFAULT)
 
     def test_get_datatables_page_length_returns_set_value(self):
         """get_datatables_page_length returns user choice when set."""
@@ -116,15 +104,11 @@ class UserPreferencesServiceTest(BaseTestCase):
     def test_get_datatables_page_length_invalid_falls_back_to_default(self):
         """Invalid stored value falls back to default."""
         set_user_preference(self.user, PREF_DATATABLES_PAGE_LENGTH, 999)
-        self.assertEqual(
-            get_datatables_page_length(self.user), DATATABLES_PAGE_LENGTH_DEFAULT
-        )
+        self.assertEqual(get_datatables_page_length(self.user), DATATABLES_PAGE_LENGTH_DEFAULT)
 
     def test_get_datatables_page_length_anonymous_returns_default(self):
         """Anonymous user gets default page length."""
         from django.contrib.auth.models import AnonymousUser
 
         anon = AnonymousUser()
-        self.assertEqual(
-            get_datatables_page_length(anon), DATATABLES_PAGE_LENGTH_DEFAULT
-        )
+        self.assertEqual(get_datatables_page_length(anon), DATATABLES_PAGE_LENGTH_DEFAULT)

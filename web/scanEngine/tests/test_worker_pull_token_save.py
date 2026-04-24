@@ -34,9 +34,7 @@ class TestSecatorWorkerPullTokenSaveLogic(BaseTestCase):
         worker.pull_token = ""
         kwargs = {"update_fields": ["name", "pull_token"]}
 
-        with patch(
-            "scanEngine.models.secrets.token_urlsafe", return_value="generated-token"
-        ):
+        with patch("scanEngine.models.secrets.token_urlsafe", return_value="generated-token"):
             worker._prepare_pull_token_for_save(kwargs)
 
         self.assertEqual(worker.pull_token, "generated-token")
@@ -62,9 +60,7 @@ class TestSecatorWorkerPullTokenSaveLogic(BaseTestCase):
 
         with (
             patch.object(worker, "_restore_pull_token_from_db", return_value=False),
-            patch(
-                "scanEngine.models.secrets.token_urlsafe", return_value="fallback-token"
-            ),
+            patch("scanEngine.models.secrets.token_urlsafe", return_value="fallback-token"),
         ):
             worker._prepare_pull_token_for_save(kwargs)
 

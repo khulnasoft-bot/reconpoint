@@ -78,9 +78,7 @@ def load_custom_scan_engines(results_dir):
         results_dir (str): Results directory containing engines configs.
     """
     config_paths = [
-        f
-        for f in os.listdir(results_dir)
-        if os.path.isfile(os.path.join(results_dir, f)) and f.endswith(".yaml")
+        f for f in os.listdir(results_dir) if os.path.isfile(os.path.join(results_dir, f)) and f.endswith(".yaml")
     ]
     for path in config_paths:
         engine_name = os.path.splitext(os.path.basename(path))[0]
@@ -129,9 +127,7 @@ def get_http_crawl_config_with_defaults(user_yaml_config):
     merged_config |= default_config
     merged_config.update(user_http_crawl)
 
-    logger.debug(
-        f"HTTP crawl config merged: {len(merged_config)} parameters configured"
-    )
+    logger.debug(f"HTTP crawl config merged: {len(merged_config)} parameters configured")
     return merged_config
 
 
@@ -156,9 +152,7 @@ def get_crawl_config_safe(task_instance, config_key=HTTP_CRAWL):
                 yaml_config = {}
 
         if not isinstance(yaml_config, dict):
-            logger.warning(
-                f"Invalid yaml_configuration type: {type(yaml_config)}, using empty dict"
-            )
+            logger.warning(f"Invalid yaml_configuration type: {type(yaml_config)}, using empty dict")
             yaml_config = {}
 
         # Get crawl-specific configuration

@@ -33,9 +33,7 @@ class IpAddressProjectTimelineTestCase(BaseTestCase):
         self.data_gen.subdomain.ip_addresses.add(self.data_gen.ip_address)
 
         # Include the calendar day of `now` so TruncDay(discovered_date) matches an entry in date_range.
-        week_start = (now - timedelta(days=6)).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        week_start = (now - timedelta(days=6)).replace(hour=0, minute=0, second=0, microsecond=0)
         date_range = [week_start + timedelta(days=i) for i in range(7)]
         out = IpAddress.get_project_timeline(self.data_gen.project, date_range)
         self.assertEqual(len(out), 7)

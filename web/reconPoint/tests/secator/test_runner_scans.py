@@ -66,9 +66,7 @@ workflows:
     @patch("reconPoint.secator.runner.os.makedirs")
     @patch("reconPoint.secator.runner.Scan")
     @patch("reconPoint.secator.runner.TemplateLoader")
-    def test_run_scan_builtin_success(
-        self, mock_template_loader, mock_scan_class, mock_makedirs
-    ):
+    def test_run_scan_builtin_success(self, mock_template_loader, mock_scan_class, mock_makedirs):
         """Test successful execution of builtin scan."""
         mock_template = MagicMock()
         mock_template_loader.return_value = mock_template
@@ -97,9 +95,7 @@ workflows:
     @patch("reconPoint.secator.runner.os.makedirs")
     @patch("reconPoint.secator.runner.Scan")
     @patch("reconPoint.secator.runner.TemplateLoader")
-    def test_run_scan_custom_success(
-        self, mock_template_loader, mock_scan_class, mock_makedirs
-    ):
+    def test_run_scan_custom_success(self, mock_template_loader, mock_scan_class, mock_makedirs):
         """Test successful execution of custom scan."""
         mock_template = MagicMock()
         mock_template_loader.return_value = mock_template

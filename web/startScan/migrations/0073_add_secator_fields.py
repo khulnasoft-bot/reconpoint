@@ -83,9 +83,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="port",
             name="protocol",
-            field=models.CharField(
-                blank=True, help_text="Protocol: TCP, UDP", max_length=10, null=True
-            ),
+            field=models.CharField(blank=True, help_text="Protocol: TCP, UDP", max_length=10, null=True),
         ),
         migrations.AddField(
             model_name="port",
@@ -151,16 +149,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="vulnerability",
             name="confidence_nb",
-            field=models.IntegerField(
-                blank=True, default=0, help_text="Confidence as integer", null=True
-            ),
+            field=models.IntegerField(blank=True, default=0, help_text="Confidence as integer", null=True),
         ),
         migrations.AddField(
             model_name="vulnerability",
             name="cvss_vec",
-            field=models.CharField(
-                blank=True, help_text="CVSS vector string", max_length=500, null=True
-            ),
+            field=models.CharField(blank=True, help_text="CVSS vector string", max_length=500, null=True),
         ),
         migrations.AddField(
             model_name="vulnerability",
@@ -194,8 +188,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="vulnerability",
             name="severity_nb",
-            field=models.IntegerField(
-                blank=True, default=0, help_text="Severity as integer", null=True
-            ),
+            field=models.IntegerField(blank=True, default=0, help_text="Severity as integer", null=True),
         ),
     ]

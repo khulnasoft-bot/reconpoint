@@ -51,22 +51,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="vulnerability",
             name="tags",
-            field=models.ManyToManyField(
-                blank=True, related_name="vuln_tags", to="startScan.VulnerabilityTags"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="vuln_tags", to="startScan.VulnerabilityTags"),
         ),
         migrations.AddField(
             model_name="vulnerability",
             name="cve_ids",
-            field=models.ManyToManyField(
-                blank=True, related_name="cve_ids", to="startScan.CveId"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="cve_ids", to="startScan.CveId"),
         ),
         migrations.AddField(
             model_name="vulnerability",
             name="cwe_ids",
-            field=models.ManyToManyField(
-                blank=True, related_name="cwe_ids", to="startScan.CweId"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="cwe_ids", to="startScan.CweId"),
         ),
     ]

@@ -115,9 +115,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="scanhistory",
             name="scan_status",
-            field=models.IntegerField(
-                choices=[(-1, -1), (0, 0), (1, 1), (2, 2), (3, 3)], default=-1
-            ),
+            field=models.IntegerField(choices=[(-1, -1), (0, 0), (1, 1), (2, 2), (3, 3)], default=-1),
         ),
         # SubScan
         migrations.RemoveField(

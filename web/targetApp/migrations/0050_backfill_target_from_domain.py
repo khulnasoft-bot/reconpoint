@@ -49,9 +49,7 @@ def backfill_organization_targets(apps, schema_editor):
 
     for org in Organization.objects.prefetch_related("domains").all():
         target_ids = set(
-            Domain.objects.filter(domains=org)
-            .exclude(target_id__isnull=True)
-            .values_list("target_id", flat=True)
+            Domain.objects.filter(domains=org).exclude(target_id__isnull=True).values_list("target_id", flat=True)
         )
         if target_ids:
             org.targets.add(*target_ids)

@@ -18,8 +18,7 @@ def bad_request(request, exception=None):
         logger.log_line(
             PREFIX_COMMON_VIEWS,
             "BAD_REQUEST",
-            "Bad request from %s: %s"
-            % (request.META.get("REMOTE_ADDR", "Unknown"), exception),
+            "Bad request from %s: %s" % (request.META.get("REMOTE_ADDR", "Unknown"), exception),
             level="warning",
         )
     else:
@@ -65,9 +64,7 @@ def permission_denied(request, exception=None):
             processor = import_string(processor)
         context.update(processor(request))
 
-    return render(
-        request, "common/permission_denied.html", context.flatten(), status=403
-    )
+    return render(request, "common/permission_denied.html", context.flatten(), status=403)
 
 
 def page_not_found(request, exception=None):

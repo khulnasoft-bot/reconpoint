@@ -260,9 +260,7 @@ def apply_datatables_order(
     field = order_str.lstrip("-")
     if field in fields:
         desc = order_str.startswith("-")
-        return queryset.order_by(
-            F(field).desc(nulls_last=True) if desc else F(field).asc(nulls_last=True)
-        )
+        return queryset.order_by(F(field).desc(nulls_last=True) if desc else F(field).asc(nulls_last=True))
     return queryset.order_by(order_str)
 
 

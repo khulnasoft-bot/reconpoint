@@ -35,9 +35,7 @@ class Command(BaseCommand):
             call_command("ensure_scheduled_scans_cron")
         except CommandError:
             self.stdout.write(
-                self.style.WARNING(
-                    "ensure_scheduled_scans_cron failed or skipped (e.g. no cron in container)."
-                )
+                self.style.WARNING("ensure_scheduled_scans_cron failed or skipped (e.g. no cron in container).")
             )
 
         self._print_section("Loading Secator components (from Secator library)")

@@ -57,23 +57,17 @@ def llm_vulnerability_report(
                 if parsed.scheme in ("http", "https") and parsed.netloc:
                     full_url = provided
                     path = parsed.path or "/"
-                    logger.debug(
-                        "vuln_tuple second element treated as full URL: %s", full_url
-                    )
+                    logger.debug("vuln_tuple second element treated as full URL: %s", full_url)
                 else:
                     # Treat as path-only; normalize to start with '/'
-                    normalized_path = (
-                        provided if str(provided).startswith("/") else f"/{provided}"
-                    )
+                    normalized_path = provided if str(provided).startswith("/") else f"/{provided}"
                     path = normalized_path
                     # No domain context available; use the provided value for LLM context as-is
                     full_url = provided
                     logger.debug("vuln_tuple second element treated as path: %s", path)
             except Exception:
                 # Fallback to treating the provided value as path-like
-                normalized_path = (
-                    provided if str(provided).startswith("/") else f"/{provided}"
-                )
+                normalized_path = provided if str(provided).startswith("/") else f"/{provided}"
                 path = normalized_path
                 full_url = provided
                 logger.debug("vuln_tuple parsing failed; treated as path: %s", path)
@@ -82,13 +76,9 @@ def llm_vulnerability_report(
 
         logger.info(f"Processing vulnerability: {title}, PATH: {path}")
 
-        stored = LLMVulnerabilityReport.objects.filter(
-            url_path=path, title=title
-        ).first()
+        stored = LLMVulnerabilityReport.objects.filter(url_path=path, title=title).first()
 
-        should_use_cached = (
-            stored and not is_empty_llm_report(stored) and not force_regenerate
-        )
+        should_use_cached = stored and not is_empty_llm_report(stored) and not force_regenerate
         if should_use_cached:
             # Try to extract model name from raw stored description tag [LLM:model]
             model_from_tag = None
@@ -131,8 +121,7 @@ def llm_vulnerability_report(
                 raw_references = ""
 
             has_content = any(
-                not is_empty_text(v)
-                for v in [raw_description, raw_impact, raw_remediation, raw_references]
+                not is_empty_text(v) for v in [raw_description, raw_impact, raw_remediation, raw_references]
             )
 
             if response.get("status") and has_content:
@@ -162,15 +151,11 @@ def llm_vulnerability_report(
                     llm_report.save()
                     logger.info("Added new report to database")
                 response["llm_model"] = (
-                    llm_generator.model_name
-                    if llm_generator and hasattr(llm_generator, "model_name")
-                    else None
+                    llm_generator.model_name if llm_generator and hasattr(llm_generator, "model_name") else None
                 )
                 response["id"] = vulnerability_id
             else:
-                logger.warning(
-                    "LLM report generation returned empty content; skipping DB save"
-                )
+                logger.warning("LLM report generation returned empty content; skipping DB save")
                 # Ensure response reports failure to trigger UI fallback instead of showing empty fields
                 response = {
                     "status": False,
@@ -178,27 +163,17 @@ def llm_vulnerability_report(
                 }
 
         # Update all matching vulnerabilities
-        vulnerabilities = Vulnerability.objects.filter(
-            name=title, http_url__icontains=path
-        )
+        vulnerabilities = Vulnerability.objects.filter(name=title, http_url__icontains=path)
 
         for vuln in vulnerabilities:
             # Update vulnerability fields only when present
-            if isinstance(response.get("description"), str) and not is_empty_text(
-                response.get("description")
-            ):
+            if isinstance(response.get("description"), str) and not is_empty_text(response.get("description")):
                 vuln.description = response.get("description")
-            if isinstance(response.get("impact"), str) and not is_empty_text(
-                response.get("impact")
-            ):
+            if isinstance(response.get("impact"), str) and not is_empty_text(response.get("impact")):
                 vuln.impact = response.get("impact")
-            if isinstance(response.get("remediation"), str) and not is_empty_text(
-                response.get("remediation")
-            ):
+            if isinstance(response.get("remediation"), str) and not is_empty_text(response.get("remediation")):
                 vuln.remediation = response.get("remediation")
-            if isinstance(response.get("references"), str) and not is_empty_text(
-                response.get("references")
-            ):
+            if isinstance(response.get("references"), str) and not is_empty_text(response.get("references")):
                 vuln.references = response.get("references")
             vuln.is_llm_used = True
 
@@ -215,19 +190,11 @@ def llm_vulnerability_report(
                 and response["description"].startswith("[LLM:")
                 and "]" in response["description"]
             ):
-                response["description"] = response["description"][
-                    response["description"].index("]") + 1 :
-                ].strip()
-            response["description"] = convert_markdown_to_html(
-                response.get("description", "")
-            )
+                response["description"] = response["description"][response["description"].index("]") + 1 :].strip()
+            response["description"] = convert_markdown_to_html(response.get("description", ""))
             response["impact"] = convert_markdown_to_html(response.get("impact", ""))
-            response["remediation"] = convert_markdown_to_html(
-                response.get("remediation", "")
-            )
-            response["references"] = convert_markdown_to_html(
-                response.get("references", "")
-            )
+            response["remediation"] = convert_markdown_to_html(response.get("remediation", ""))
+            response["references"] = convert_markdown_to_html(response.get("references", ""))
 
         return response
 

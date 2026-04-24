@@ -36,27 +36,21 @@ tasks:
 
     def test_create_builtin_workflow(self):
         """Test creating a built-in workflow."""
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="builtin", **self.workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="builtin", **self.workflow_data)
         self.assertEqual(workflow.workflow_type, "builtin")
         self.assertFalse(workflow.can_modify())
         self.assertFalse(workflow.can_delete())
 
     def test_create_custom_workflow(self):
         """Test creating a custom workflow."""
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="custom", **self.workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="custom", **self.workflow_data)
         self.assertEqual(workflow.workflow_type, "custom")
         self.assertTrue(workflow.can_modify())
         self.assertTrue(workflow.can_delete())
 
     def test_parse_yaml_config(self):
         """Test YAML configuration parsing."""
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="custom", **self.workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="custom", **self.workflow_data)
         config = workflow._parse_yaml_config()
         self.assertIsInstance(config, dict)
         self.assertEqual(config.get("type"), "workflow")
@@ -64,9 +58,7 @@ tasks:
 
     def test_get_tasks(self):
         """Test getting tasks from YAML configuration."""
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="custom", **self.workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="custom", **self.workflow_data)
         tasks = workflow.get_tasks()
         self.assertIsInstance(tasks, dict)
         self.assertIn("subfinder", tasks)
@@ -74,9 +66,7 @@ tasks:
 
     def test_get_structured_tasks_without_groups(self):
         """Test getting structured tasks from workflow without groups."""
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="custom", **self.workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="custom", **self.workflow_data)
         structured = workflow.get_structured_tasks()
 
         self.assertIsInstance(structured, list)
@@ -117,9 +107,7 @@ tasks:
 """,
             "is_active": True,
         }
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="custom", **workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="custom", **workflow_data)
         structured = workflow.get_structured_tasks()
 
         self.assertIsInstance(structured, list)
@@ -182,9 +170,7 @@ tasks:
 """,
             "is_active": True,
         }
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="custom", **workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="custom", **workflow_data)
 
         # Should count: 2 (from _group/discover) + 1 (prompt) + 3 (from _group/probe) + 1 (search_vulns) = 7
         count = workflow.get_tasks_count()
@@ -205,9 +191,7 @@ tasks: {}
 """,
             "is_active": True,
         }
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="custom", **workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="custom", **workflow_data)
         structured = workflow.get_structured_tasks()
 
         self.assertIsInstance(structured, list)
@@ -240,9 +224,7 @@ tasks:
 """,
             "is_active": True,
         }
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="custom", **workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="custom", **workflow_data)
         structured = workflow.get_structured_tasks()
 
         self.assertIsInstance(structured, list)
@@ -268,9 +250,7 @@ tasks:
 
     def test_builtin_workflow_modification_blocked(self):
         """Test that built-in workflows cannot be modified."""
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="builtin", **self.workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="builtin", **self.workflow_data)
 
         # Try to modify
         workflow.name = "Modified Name"
@@ -279,18 +259,14 @@ tasks:
 
     def test_builtin_workflow_deletion_blocked(self):
         """Test that built-in workflows cannot be deleted."""
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="builtin", **self.workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="builtin", **self.workflow_data)
 
         with self.assertRaises(PermissionDenied):
             workflow.delete()
 
     def test_builtin_workflow_bypass_constraints(self):
         """Test that management commands can bypass constraints."""
-        workflow = SecatorWorkflow.objects.create(
-            workflow_type="builtin", **self.workflow_data
-        )
+        workflow = SecatorWorkflow.objects.create(workflow_type="builtin", **self.workflow_data)
 
         # Should work with bypass
         workflow.name = "Modified Name"

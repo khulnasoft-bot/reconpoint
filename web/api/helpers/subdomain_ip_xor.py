@@ -82,7 +82,9 @@ def subdomain_ids_conflict_when_ip_address_ids_requested_error(
     return None
 
 
-ATTACK_SURFACE_ENTITY_XOR_MESSAGE = "Provide exactly one of subdomain_id, ip_address_id, target_id, scope_id, organization_id, or scan_history_id"
+ATTACK_SURFACE_ENTITY_XOR_MESSAGE = (
+    "Provide exactly one of subdomain_id, ip_address_id, target_id, scope_id, organization_id, or scan_history_id"
+)
 
 # Protocol kinds for LLM attack-surface API dispatch. Keep aligned with
 # ``static/custom/target_entity_kind.js`` (RECONPOINT_ATTACK_SURFACE_ENTITY_*) and
@@ -114,9 +116,7 @@ ATTACK_SURFACE_QUERY_ID_KIND_BY_KEY: Tuple[Tuple[str, str], ...] = (
     ("scan_history_id", ATTACK_SURFACE_KIND_SCAN_HISTORY),
 )
 
-ATTACK_SURFACE_ENTITY_QUERY_ID_KEYS = tuple(
-    key for key, _ in ATTACK_SURFACE_QUERY_ID_KIND_BY_KEY
-)
+ATTACK_SURFACE_ENTITY_QUERY_ID_KEYS = tuple(key for key, _ in ATTACK_SURFACE_QUERY_ID_KIND_BY_KEY)
 
 
 def iter_attack_surface_entity_kinds_and_ids(

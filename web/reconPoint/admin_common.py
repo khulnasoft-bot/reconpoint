@@ -63,9 +63,7 @@ def get_concrete_field_names(model, exclude=None, include_m2m=False):
     for f in model._meta.get_fields():
         if f.name in exclude:
             continue
-        if getattr(f, "remote_field", None) and getattr(
-            f.remote_field, "parent_link", False
-        ):
+        if getattr(f, "remote_field", None) and getattr(f.remote_field, "parent_link", False):
             continue
         if f.many_to_many and not include_m2m:
             continue
@@ -134,15 +132,11 @@ class SimpleLookupModelAdmin(admin.ModelAdmin):
             names.insert(0, "id")
         self.list_display = names
         self.fieldsets = (
-            build_single_fieldset_from_model(
-                self.model, title=self.fieldset_title, exclude=self.fieldset_exclude
-            ),
+            build_single_fieldset_from_model(self.model, title=self.fieldset_title, exclude=self.fieldset_exclude),
         )
         if self.search_fields_override is None:
             search_exclude = set(self.search_fields_exclude or [])
-            self.search_fields = get_searchable_field_names(
-                self.model, exclude=search_exclude
-            ) or ["id"]
+            self.search_fields = get_searchable_field_names(self.model, exclude=search_exclude) or ["id"]
 
 
 class TimestampedModelAdminMixin(admin.ModelAdmin):

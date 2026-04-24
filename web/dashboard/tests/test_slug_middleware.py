@@ -60,9 +60,7 @@ class SlugMiddlewareHeaderTestCase(BaseTestCase):
     def test_x_project_slug_ignored_for_foreign_project(self):
         uid = uuid.uuid4().hex[:8]
         user_model = get_user_model()
-        pt_user = user_model.objects.create_user(
-            username=f"pt_hdr_{uid}", password="testpass12345"
-        )
+        pt_user = user_model.objects.create_user(username=f"pt_hdr_{uid}", password="testpass12345")
         assign_role(pt_user, "penetration_tester")
         own = self.data_generator.project
         own.users.add(pt_user)
@@ -122,9 +120,7 @@ class SlugMiddlewareHeaderTestCase(BaseTestCase):
         )
         header_project.users.add(self.user)
 
-        request = self.factory.get(
-            "/profile/", {PROJECT_CONTEXT_QUERY_PARAM: query_project.slug}
-        )
+        request = self.factory.get("/profile/", {PROJECT_CONTEXT_QUERY_PARAM: query_project.slug})
         request.META[X_PROJECT_SLUG_HEADER] = header_project.slug
         request.user = self.user
         _add_session(request)
@@ -144,9 +140,7 @@ class SlugMiddlewareHeaderTestCase(BaseTestCase):
 
         request = self.factory.get("/profile/")
         request.path_info = "/non-existing-path/"
-        request.resolver_match = resolve(
-            reverse("dashboardIndex", kwargs={"slug": p2.slug})
-        )
+        request.resolver_match = resolve(reverse("dashboardIndex", kwargs={"slug": p2.slug}))
         request.user = self.user
         _add_session(request)
 
@@ -184,9 +178,7 @@ class SlugMiddlewareQueryParamTestCase(BaseTestCase):
     def test_query_param_ignored_for_foreign_project(self):
         uid = uuid.uuid4().hex[:8]
         user_model = get_user_model()
-        pt_user = user_model.objects.create_user(
-            username=f"pt_qp_{uid}", password="testpass12345"
-        )
+        pt_user = user_model.objects.create_user(username=f"pt_qp_{uid}", password="testpass12345")
         assign_role(pt_user, "penetration_tester")
         own = self.data_generator.project
         own.users.add(pt_user)
@@ -196,9 +188,7 @@ class SlugMiddlewareQueryParamTestCase(BaseTestCase):
             insert_date=timezone.now(),
         )
 
-        request = self.factory.get(
-            "/profile/", {PROJECT_CONTEXT_QUERY_PARAM: foreign.slug}
-        )
+        request = self.factory.get("/profile/", {PROJECT_CONTEXT_QUERY_PARAM: foreign.slug})
         request.user = pt_user
         _add_session(request)
 
@@ -237,9 +227,7 @@ class SetCurrentProjectTestCase(BaseTestCase):
     def test_set_current_project_forbidden_for_foreign_project(self):
         uid = uuid.uuid4().hex[:8]
         user_model = get_user_model()
-        pt_user = user_model.objects.create_user(
-            username=f"pt_set_{uid}", password="testpass12345"
-        )
+        pt_user = user_model.objects.create_user(username=f"pt_set_{uid}", password="testpass12345")
         assign_role(pt_user, "penetration_tester")
         own = self.data_generator.project
         own.users.add(pt_user)

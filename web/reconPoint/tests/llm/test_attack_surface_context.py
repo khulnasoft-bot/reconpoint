@@ -19,9 +19,7 @@ class AttackSurfaceContextBuilderTests(BaseTestCase):
         from reconPoint.llm.attack_surface_context import build_context_for_target
 
         self.data_generator.create_subdomain(name="extra.anon.example.com")
-        with patch(
-            "reconPoint.llm.attack_surface_context.MAX_SUBDOMAINS_IN_CONTEXT", 1
-        ):
+        with patch("reconPoint.llm.attack_surface_context.MAX_SUBDOMAINS_IN_CONTEXT", 1):
             text = build_context_for_target(self.data_generator.target)
         self.assertIn("more subdomains exist", text)
         self.assertIn("truncated", text.lower())

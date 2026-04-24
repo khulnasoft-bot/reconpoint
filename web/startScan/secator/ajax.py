@@ -9,9 +9,7 @@ from django.template.loader import render_to_string
 from scanEngine.models import SecatorScan, SecatorTask, SecatorWorkflow
 
 
-_INVALID_EXECUTION_MODE_HTML = (
-    '<div class="alert alert-warning">Invalid execution mode</div>'
-)
+_INVALID_EXECUTION_MODE_HTML = '<div class="alert alert-warning">Invalid execution mode</div>'
 _SECATOR_SELECTION_CACHE_TIMEOUT = 300
 
 

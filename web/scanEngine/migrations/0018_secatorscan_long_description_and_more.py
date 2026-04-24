@@ -12,15 +12,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="secatorscan",
             name="long_description",
-            field=models.TextField(
-                blank=True, help_text="Long description for the scan", null=True
-            ),
+            field=models.TextField(blank=True, help_text="Long description for the scan", null=True),
         ),
         migrations.AddField(
             model_name="secatorworkflow",
             name="long_description",
-            field=models.TextField(
-                blank=True, help_text="Long description for the workflow", null=True
-            ),
+            field=models.TextField(blank=True, help_text="Long description for the workflow", null=True),
         ),
     ]

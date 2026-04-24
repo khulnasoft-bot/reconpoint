@@ -43,9 +43,7 @@ class TestNormalizeDomainName(BaseTestCase):
         self.assertEqual(normalize_domain_name("  Ëxample.ORG.  "), "ëxample.org")
 
     def test_normalize_preserves_punycode(self):
-        self.assertEqual(
-            normalize_domain_name("xn--d1acpjx3f.xn--p1ai"), "xn--d1acpjx3f.xn--p1ai"
-        )
+        self.assertEqual(normalize_domain_name("xn--d1acpjx3f.xn--p1ai"), "xn--d1acpjx3f.xn--p1ai")
         self.assertEqual(
             normalize_domain_name("  XN--D1ACPJX3F.XN--P1AI.  "),
             "xn--d1acpjx3f.xn--p1ai",
@@ -56,9 +54,7 @@ class TestNormalizeHostString(BaseTestCase):
     """Tests for normalize_host_string (strip, lower; no trailing-dot rule)."""
 
     def test_returns_stripped_lower(self):
-        self.assertEqual(
-            normalize_host_string("  Host.Example.COM  "), "host.example.com"
-        )
+        self.assertEqual(normalize_host_string("  Host.Example.COM  "), "host.example.com")
         self.assertEqual(normalize_host_string("192.168.1.1"), "192.168.1.1")
 
     def test_empty_returns_none(self):
@@ -91,9 +87,7 @@ class TestGetDomainForScanByName(BaseTestCase):
 
     def test_returns_none_when_no_match(self):
         scan = self.data_generator.scan_history
-        self.assertIsNone(
-            get_domain_for_scan_by_name(scan.id, "nonexistent.example.com")
-        )
+        self.assertIsNone(get_domain_for_scan_by_name(scan.id, "nonexistent.example.com"))
 
     def test_is_scoped_to_scan_history(self):
         scan_a = self.data_generator.scan_history
@@ -131,17 +125,13 @@ class TestGetOrCreateDomainForTarget(BaseTestCase):
         initial_count = Domain.objects.filter(scan_history_id=scan.id).count()
         self.assertIsNone(get_or_create_domain_for_target(scan.id, ""))
         self.assertIsNone(get_or_create_domain_for_target(scan.id, "   "))
-        self.assertEqual(
-            Domain.objects.filter(scan_history_id=scan.id).count(), initial_count
-        )
+        self.assertEqual(Domain.objects.filter(scan_history_id=scan.id).count(), initial_count)
 
     def test_returns_none_for_none_and_does_not_create(self):
         scan = self.data_generator.scan_history
         initial_count = Domain.objects.filter(scan_history_id=scan.id).count()
         self.assertIsNone(get_or_create_domain_for_target(scan.id, None))
-        self.assertEqual(
-            Domain.objects.filter(scan_history_id=scan.id).count(), initial_count
-        )
+        self.assertEqual(Domain.objects.filter(scan_history_id=scan.id).count(), initial_count)
 
 
 class TestResolveDomainForScan(BaseTestCase):
@@ -155,9 +145,7 @@ class TestResolveDomainForScan(BaseTestCase):
 
     def test_extracts_tld_from_deep_subdomain(self):
         scan = self.data_generator.scan_history
-        domain = resolve_domain_for_scan(
-            scan.id, "api.v2.staging.example.co.uk", create=True
-        )
+        domain = resolve_domain_for_scan(scan.id, "api.v2.staging.example.co.uk", create=True)
         self.assertIsNotNone(domain)
         self.assertEqual(domain.name, "example.co.uk")
 
@@ -175,17 +163,13 @@ class TestResolveDomainForScan(BaseTestCase):
 
     def test_skips_empty_candidates(self):
         scan = self.data_generator.scan_history
-        domain = resolve_domain_for_scan(
-            scan.id, "  ", "", "blog.example.org", create=True
-        )
+        domain = resolve_domain_for_scan(scan.id, "  ", "", "blog.example.org", create=True)
         self.assertIsNotNone(domain)
         self.assertEqual(domain.name, "example.org")
 
     def test_tries_candidates_in_order_tld_extracted(self):
         scan = self.data_generator.scan_history
-        domain = resolve_domain_for_scan(
-            scan.id, "www.first-domain.com", "api.second-domain.com", create=True
-        )
+        domain = resolve_domain_for_scan(scan.id, "www.first-domain.com", "api.second-domain.com", create=True)
         self.assertIsNotNone(domain)
         self.assertEqual(domain.name, "first-domain.com")
 
@@ -222,9 +206,7 @@ class TestResolveDomainForScan(BaseTestCase):
 
     def test_create_false_only_looks_up_tld(self):
         scan = self.data_generator.scan_history
-        self.assertIsNone(
-            resolve_domain_for_scan(scan.id, "www.lookup-only.com", create=False)
-        )
+        self.assertIsNone(resolve_domain_for_scan(scan.id, "www.lookup-only.com", create=False))
         resolve_domain_for_scan(scan.id, "lookup-only.com", create=True)
         found = resolve_domain_for_scan(scan.id, "www.lookup-only.com", create=False)
         self.assertIsNotNone(found)
@@ -250,9 +232,7 @@ class TestGetScanDisplayName(BaseTestCase):
     """Tests for get_scan_display_name."""
 
     def test_returns_target_value_stripped(self):
-        self.assertEqual(
-            get_scan_display_name(" target.example.com "), "target.example.com"
-        )
+        self.assertEqual(get_scan_display_name(" target.example.com "), "target.example.com")
 
     def test_returns_empty_string_when_empty(self):
         self.assertEqual(get_scan_display_name(""), "")

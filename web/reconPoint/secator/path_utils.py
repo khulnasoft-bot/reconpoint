@@ -95,17 +95,9 @@ def strip_secator_reports_prefix(path: str, max_length: int = 1000) -> str:
         path = relative
     elif path.startswith("/"):
         prefix = getattr(settings, "SECATOR_REPORTS_PREFIX", "") or ""
-        results_root = (
-            (getattr(settings, "SECATOR_RESULTS", "") or "").strip().rstrip("/")
-        )
-        path_under_results = bool(
-            results_root
-            and (path == results_root or path.startswith(f"{results_root}/"))
-        )
-        if (
-            path_under_results
-            and _unmatched_prefix_log_count < _MAX_UNMATCHED_PREFIX_LOGS
-        ):
+        results_root = (getattr(settings, "SECATOR_RESULTS", "") or "").strip().rstrip("/")
+        path_under_results = bool(results_root and (path == results_root or path.startswith(f"{results_root}/")))
+        if path_under_results and _unmatched_prefix_log_count < _MAX_UNMATCHED_PREFIX_LOGS:
             _unmatched_prefix_log_count += 1
             logger.log_line(
                 PREFIX_PATH_UTILS,
@@ -122,9 +114,7 @@ def strip_secator_reports_prefix(path: str, max_length: int = 1000) -> str:
     if len(path) > max_length:
         if _truncation_warning_log_count < _MAX_TRUNCATION_WARNING_LOGS:
             _truncation_warning_log_count += 1
-            snippet = (
-                path[max_length - 80 : max_length + 20] if len(path) > 100 else path
-            )
+            snippet = path[max_length - 80 : max_length + 20] if len(path) > 100 else path
             logger.log_line(
                 PREFIX_PATH_UTILS,
                 "STRIP_PREFIX",

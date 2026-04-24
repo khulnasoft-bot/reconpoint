@@ -51,9 +51,7 @@ class SecatorAPILogger(BaseLogger):
             return self.PREFIX_SYNC_COLOR
         return self.COLOR_RESET
 
-    def log_request_body_size(
-        self, method: str, path: str, content_length: Optional[str]
-    ) -> None:
+    def log_request_body_size(self, method: str, path: str, content_length: Optional[str]) -> None:
         """
         Log request body size from Content-Length header.
 
@@ -77,11 +75,7 @@ class SecatorAPILogger(BaseLogger):
                 size_human = (
                     f"{size_bytes / (1024 * 1024):.2f} MB"
                     if size_bytes >= 1024 * 1024
-                    else (
-                        f"{size_bytes / 1024:.2f} KB"
-                        if size_bytes >= 1024
-                        else f"{size_bytes} bytes"
-                    )
+                    else (f"{size_bytes / 1024:.2f} KB" if size_bytes >= 1024 else f"{size_bytes} bytes")
                 )
             except (ValueError, TypeError):
                 size_human = str(content_length)
@@ -94,9 +88,7 @@ class SecatorAPILogger(BaseLogger):
                 size_human,
             )
 
-    def log_runner_api_call(
-        self, action: str, runner_data: Dict[str, Any], runner_id: Optional[str] = None
-    ) -> None:
+    def log_runner_api_call(self, action: str, runner_data: Dict[str, Any], runner_id: Optional[str] = None) -> None:
         """
         Log runner API call with full details.
 
@@ -106,9 +98,7 @@ class SecatorAPILogger(BaseLogger):
             runner_id: Optional runner ID
         """
         runner_type = runner_data.get("config", {}).get("type", "unknown")
-        runner_name = runner_data.get("config", {}).get("name") or runner_data.get(
-            "name", "unknown"
-        )
+        runner_name = runner_data.get("config", {}).get("name") or runner_data.get("name", "unknown")
         scan_history_id = runner_data.get("context", {}).get("scan_history_id")
         domain_id = runner_data.get("context", {}).get("domain_id")
 
@@ -138,15 +128,11 @@ class SecatorAPILogger(BaseLogger):
             f"{prefix_colored} {action_colored} | Full runner data received: "
             f"{json.dumps(runner_data, indent=2, default=str)}"
         )
-        self._logger.debug(
-            f"{prefix_colored} {action_colored} | Runner data keys: {list(runner_data.keys())}"
-        )
+        self._logger.debug(f"{prefix_colored} {action_colored} | Runner data keys: {list(runner_data.keys())}")
 
         if "config" in runner_data:
             config_keys = list(runner_data.get("config", {}).keys())
-            self._logger.debug(
-                f"{prefix_colored} {action_colored} | Config keys: {config_keys}"
-            )
+            self._logger.debug(f"{prefix_colored} {action_colored} | Config keys: {config_keys}")
             if runner_data.get("config"):
                 self._logger.debug(
                     f"{prefix_colored} {action_colored} | Config: {json.dumps(runner_data.get('config', {}), indent=2, default=str)}"
@@ -189,12 +175,7 @@ class SecatorAPILogger(BaseLogger):
             details["id"] = finding_id
 
         # Extract name or identifier for display
-        name = (
-            finding_data.get("name")
-            or finding_data.get("host")
-            or finding_data.get("ip")
-            or "unknown"
-        )
+        name = finding_data.get("name") or finding_data.get("host") or finding_data.get("ip") or "unknown"
         if name != "unknown":
             details["name"] = name
 
@@ -214,12 +195,8 @@ class SecatorAPILogger(BaseLogger):
             f"{prefix_colored} {action_colored} | Full finding data received: "
             f"{json.dumps(finding_data, indent=2, default=str)}"
         )
-        self._logger.debug(
-            f"{prefix_colored} {action_colored} | Finding data keys: {list(finding_data.keys())}"
-        )
-        self._logger.debug(
-            f"{prefix_colored} {action_colored} | Finding type: {finding_type}"
-        )
+        self._logger.debug(f"{prefix_colored} {action_colored} | Finding data keys: {list(finding_data.keys())}")
+        self._logger.debug(f"{prefix_colored} {action_colored} | Finding type: {finding_type}")
 
         if "_context" in finding_data:
             self._logger.debug(
@@ -235,9 +212,7 @@ class SecatorAPILogger(BaseLogger):
                         f"{json.dumps(value, indent=2, default=str)}"
                     )
                 else:
-                    self._logger.debug(
-                        f"{prefix_colored} {action_colored} | Finding field '{key}': {value}"
-                    )
+                    self._logger.debug(f"{prefix_colored} {action_colored} | Finding field '{key}': {value}")
 
     def log_runner_sync(
         self,
@@ -341,9 +316,7 @@ class SecatorAPILogger(BaseLogger):
                 f"Error: {error_message or 'Repository returned None'}"
             )
 
-    def log_runner_field_extraction(
-        self, field_name: str, field_value: Any, runner_id: str
-    ) -> None:
+    def log_runner_field_extraction(self, field_name: str, field_value: Any, runner_id: str) -> None:
         """
         Log extraction of a field from runner data (e.g., celery_id, status).
 
@@ -353,16 +326,12 @@ class SecatorAPILogger(BaseLogger):
             runner_id: ID of the runner
         """
         prefix_colored = self._colorize(self.PREFIX_SYNC, self.PREFIX_SYNC_COLOR)
-        action_colored = self._colorize(
-            "EXTRACT", self.COLOR_VIOLET
-        )  # DEBUG level color
+        action_colored = self._colorize("EXTRACT", self.COLOR_VIOLET)  # DEBUG level color
         self._logger.debug(
             f"{prefix_colored} {action_colored} | Extracted {field_name}={field_value} for runner {runner_id}"
         )
 
-    def log_data_structure(
-        self, data: Dict[str, Any], prefix: str, data_type: str
-    ) -> None:
+    def log_data_structure(self, data: Dict[str, Any], prefix: str, data_type: str) -> None:
         """
         Log complete data structure in DEBUG mode.
 
@@ -373,9 +342,7 @@ class SecatorAPILogger(BaseLogger):
         """
         super().log_data_structure(data, prefix, data_type)
 
-    def log_metadata_ignored(
-        self, finding_type: str, finding_id: Optional[str] = None
-    ) -> None:
+    def log_metadata_ignored(self, finding_type: str, finding_id: Optional[str] = None) -> None:
         """
         Log that a metadata type finding was ignored.
 
@@ -396,16 +363,12 @@ class SecatorAPILogger(BaseLogger):
         )
         self._logger.info(info_msg)
         prefix_colored = self._colorize(self.PREFIX_FINDING, self.PREFIX_FINDING_COLOR)
-        action_colored = self._colorize(
-            "IGNORE", self.COLOR_VIOLET
-        )  # DEBUG level color
+        action_colored = self._colorize("IGNORE", self.COLOR_VIOLET)  # DEBUG level color
         self._logger.debug(
             f"{prefix_colored} {action_colored} | Ignoring metadata type: {finding_type} for finding_id={finding_id or 'N/A'}"
         )
 
-    def log_unknown_type(
-        self, entity_type: str, finding_type: str, entity_id: Optional[str] = None
-    ) -> None:
+    def log_unknown_type(self, entity_type: str, finding_type: str, entity_id: Optional[str] = None) -> None:
         """
         Log that an unknown type was encountered.
 

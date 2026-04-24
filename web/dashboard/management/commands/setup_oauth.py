@@ -41,9 +41,7 @@ class Command(BaseCommand):
         else:
             site_count = Site.objects.count()
             if site_count == 0:
-                raise CommandError(
-                    "No Site instances are configured. Please create a Site first."
-                )
+                raise CommandError("No Site instances are configured. Please create a Site first.")
             if site_count > 1:
                 raise CommandError(
                     "Multiple Site instances are configured. Please specify which one to configure using --site-id."
@@ -91,19 +89,11 @@ class Command(BaseCommand):
                 app.sites.add(site)
 
                 action = "Created" if created else "Updated"
-                self.stdout.write(
-                    self.style.SUCCESS(f"{action} {config['name']} OAuth provider")
-                )
+                self.stdout.write(self.style.SUCCESS(f"{action} {config['name']} OAuth provider"))
             elif options["purge_missing"]:
                 # Only remove when --purge-missing is explicitly passed
-                deleted_count, _ = SocialApp.objects.filter(
-                    provider=provider_id, sites=site
-                ).delete()
+                deleted_count, _ = SocialApp.objects.filter(provider=provider_id, sites=site).delete()
                 if deleted_count:
-                    self.stdout.write(
-                        self.style.WARNING(
-                            f"Removed {config['name']} (no credentials, --purge-missing)"
-                        )
-                    )
+                    self.stdout.write(self.style.WARNING(f"Removed {config['name']} (no credentials, --purge-missing)"))
 
         self.stdout.write(self.style.SUCCESS("OAuth setup complete!"))

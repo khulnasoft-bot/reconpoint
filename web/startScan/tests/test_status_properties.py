@@ -268,9 +268,7 @@ class TestSubScanScanEngineUsed(BaseTestCase):
         """Test scan_engine_used for legacy subscan shows Legacy: engine_name."""
         from scanEngine.models import EngineType
 
-        engine = EngineType.objects.filter(
-            engine_name__isnull=False
-        ).first() or EngineType.objects.create(
+        engine = EngineType.objects.filter(engine_name__isnull=False).first() or EngineType.objects.create(
             engine_name="Test Legacy Engine",
             scan_type="internet",
             yaml_configuration="",

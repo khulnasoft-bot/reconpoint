@@ -41,17 +41,12 @@ class TestIpAddressViewSet(BaseTestCase):
     def test_ip_address_viewset(self):
         """Test retrieving IP addresses for a scan."""
         url = reverse("api:ip-addresses-list")
-        response = self.client.get(
-            url, {"scan_id": self.data_generator.scan_history.id}
-        )
+        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check if response has data structure
         if "results" in response.data and len(response.data["results"]) > 0:
             # Check if the first result has ip_addresses
-            if (
-                "ip_addresses" in response.data["results"][0]
-                and len(response.data["results"][0]["ip_addresses"]) > 0
-            ):
+            if "ip_addresses" in response.data["results"][0] and len(response.data["results"][0]["ip_addresses"]) > 0:
                 self.assertEqual(
                     response.data["results"][0]["ip_addresses"][0]["address"],
                     self.data_generator.ip_address.address,
@@ -160,12 +155,8 @@ class TestListIPs(BaseTestCase):
         dg = self.data_generator
         scan = dg.scan_history
         now = timezone.now()
-        ip_important = IpAddress.objects.create(
-            address="203.0.113.81", alive=True, is_important=True
-        )
-        ip_normal = IpAddress.objects.create(
-            address="203.0.113.82", alive=True, is_important=False
-        )
+        ip_important = IpAddress.objects.create(address="203.0.113.81", alive=True, is_important=True)
+        ip_normal = IpAddress.objects.create(address="203.0.113.82", alive=True, is_important=False)
         for ip in (ip_important, ip_normal):
             EndPoint.objects.create(
                 domain=dg.domain,
@@ -194,12 +185,8 @@ class TestListIPs(BaseTestCase):
         """DataTables order[0][column]=1 must sort by address (column 1), not alive."""
         dg = self.data_generator
         scan = dg.scan_history
-        ip_high = IpAddress.objects.create(
-            address="203.0.113.90", alive=True, is_cdn=False
-        )
-        ip_low = IpAddress.objects.create(
-            address="203.0.113.10", alive=True, is_cdn=False
-        )
+        ip_high = IpAddress.objects.create(address="203.0.113.90", alive=True, is_cdn=False)
+        ip_low = IpAddress.objects.create(address="203.0.113.10", alive=True, is_cdn=False)
         now = timezone.now()
         for ip in (ip_high, ip_low):
             EndPoint.objects.create(
@@ -236,9 +223,7 @@ class TestListIPs(BaseTestCase):
         )
         self.assertEqual(desc_resp.status_code, status.HTTP_200_OK)
         desc_rows = [row["address"] for row in desc_resp.data["data"]]
-        self.assertLess(
-            desc_rows.index(ip_high.address), desc_rows.index(ip_low.address)
-        )
+        self.assertLess(desc_rows.index(ip_high.address), desc_rows.index(ip_low.address))
 
     def test_list_ips_datatables_includes_endpoint_technologies_by_port(self):
         """ListIPs DataTables includes endpoint_defaults_by_port and technologies from default endpoints."""
@@ -264,14 +249,10 @@ class TestListIPs(BaseTestCase):
             {"scan_id": scan.id, "start": "0", "length": "100"},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        row = next(
-            (x for x in response.data["data"] if x["address"] == "203.0.113.211"), None
-        )
+        row = next((x for x in response.data["data"] if x["address"] == "203.0.113.211"), None)
         self.assertIsNotNone(row)
         self.assertIn("endpoint_defaults_by_port", row)
-        self.assertTrue(
-            any(item.get("port") == 8080 for item in row["endpoint_defaults_by_port"])
-        )
+        self.assertTrue(any(item.get("port") == 8080 for item in row["endpoint_defaults_by_port"]))
         tech_names = {t.get("name") for t in row.get("technologies", [])}
         self.assertIn("Traefik", tech_names)
 
@@ -389,9 +370,7 @@ class TestGetIpDetails(BaseTestCase):
             ip_address=ip,
         )
         url = reverse("api:getIpDetails")
-        response = self.client.get(
-            url, {"ip_address": "203.0.113.70", "scan_id": scan.id}
-        )
+        response = self.client.get(url, {"ip_address": "203.0.113.70", "scan_id": scan.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["address"], "203.0.113.70")
 
@@ -401,9 +380,7 @@ class TestIpActionApiResponses(BaseTestCase):
 
     @staticmethod
     def _post_json(url, client, payload: dict):
-        return client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        return client.post(url, data=json.dumps(payload), content_type="application/json")
 
     def test_toggle_ip_important_returns_error_code_when_missing_id(self) -> None:
         url = reverse("api:toggle_ip_important")
@@ -452,9 +429,7 @@ class TestIpActionApiResponses(BaseTestCase):
         url = reverse("api:unlink_scan_ip_addresses")
         response = self._post_json(url, self.client, {})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data.get("error_code"), IP_ERR_MISSING_REQUIRED_FIELDS
-        )
+        self.assertEqual(response.data.get("error_code"), IP_ERR_MISSING_REQUIRED_FIELDS)
 
     def test_unlink_scan_ips_rejects_when_none_linked_to_scan(self) -> None:
         url = reverse("api:unlink_scan_ip_addresses")
@@ -580,9 +555,7 @@ class TestIpActionApiResponses(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get("status"))
         self.assertFalse(
-            EndPoint.objects.filter(
-                scan_history=dg.scan_history, http_url="http://203.0.113.120/"
-            ).exists()
+            EndPoint.objects.filter(scan_history=dg.scan_history, http_url="http://203.0.113.120/").exists()
         )
 
 
@@ -618,9 +591,7 @@ class CollectSortedServiceLabelsForIpPortTestCase(BaseTestCase):
     def test_unsaved_ip_returns_empty_without_cache_pollution(self) -> None:
         cache: dict = {}
         unsaved = IpAddress()
-        self.assertEqual(
-            _collect_sorted_service_labels_for_ip_port(unsaved, 443, cache), ()
-        )
+        self.assertEqual(_collect_sorted_service_labels_for_ip_port(unsaved, 443, cache), ())
         self.assertEqual(cache, {})
 
 

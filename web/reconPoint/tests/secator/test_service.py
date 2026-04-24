@@ -126,11 +126,7 @@ class TestSecatorService(BaseTestCase):
         handle_scan_error(self.scan_history, error)
 
         mock_logger.log_line.assert_called()
-        debug_calls = [
-            c
-            for c in mock_logger.log_line.call_args_list
-            if c[1].get("level") == "debug"
-        ]
+        debug_calls = [c for c in mock_logger.log_line.call_args_list if c[1].get("level") == "debug"]
         self.assertEqual(len(debug_calls), 1)
         self.assertIn("terminal state", str(debug_calls[0]).lower())
 
@@ -142,9 +138,7 @@ class TestSecatorService(BaseTestCase):
         # Manually change status in DB to simulate race condition
         from startScan.models import ScanHistory
 
-        ScanHistory.objects.filter(id=self.scan_history.id).update(
-            scan_status=SUCCESS_TASK
-        )
+        ScanHistory.objects.filter(id=self.scan_history.id).update(scan_status=SUCCESS_TASK)
 
         error = Exception("Test error")
         handle_scan_error(self.scan_history, error)
@@ -165,16 +159,12 @@ class TestSecatorService(BaseTestCase):
 
         mock_thread.side_effect = run_target_and_return_mock
 
-        with patch(
-            "reconPoint.secator.service.ScanRepository", return_value=mock_scan_repo
-        ):
+        with patch("reconPoint.secator.service.ScanRepository", return_value=mock_scan_repo):
             with patch(
                 "reconPoint.secator.service.ScanHistory.objects.get",
                 return_value=self.scan_history,
             ):
-                with patch(
-                    "reconPoint.secator.service.initiate_secator_scan"
-                ) as mock_initiate:
+                with patch("reconPoint.secator.service.initiate_secator_scan") as mock_initiate:
                     result = start_secator_scan(
                         target_id=self.scan_history.target_id,
                         user_id=self.user.id,
@@ -183,9 +173,7 @@ class TestSecatorService(BaseTestCase):
                         targets_override=["host1.example.com", "host2.example.com"],
                     )
                     self.assertTrue(result.get("status"))
-                    self.assertEqual(
-                        result.get("target_name"), self.data_generator.target.value
-                    )
+                    self.assertEqual(result.get("target_name"), self.data_generator.target.value)
                     self.assertNotIn("domain_id", result)
                     self.assertNotIn("domain_name", result)
                     mock_initiate.assert_called_once()
@@ -196,9 +184,7 @@ class TestSecatorService(BaseTestCase):
                     )
 
     @patch("reconPoint.secator.service.threading.Thread")
-    def test_start_secator_scan_with_scan_history_id_reuses_existing_scan(
-        self, mock_thread
-    ):
+    def test_start_secator_scan_with_scan_history_id_reuses_existing_scan(self, mock_thread):
         """When scan_history_id is provided, no new scan is created and thread uses that id."""
         self.scan_history.target_id = self.data_generator.target.id
         self.scan_history.save()
@@ -213,9 +199,7 @@ class TestSecatorService(BaseTestCase):
             "reconPoint.secator.service.ScanHistory.objects.get",
             return_value=self.scan_history,
         ):
-            with patch(
-                "reconPoint.secator.service.initiate_secator_scan"
-            ) as mock_initiate:
+            with patch("reconPoint.secator.service.initiate_secator_scan") as mock_initiate:
                 result = start_secator_scan(
                     target_id=self.scan_history.target_id,
                     user_id=self.user.id,
@@ -226,15 +210,11 @@ class TestSecatorService(BaseTestCase):
                 )
                 self.assertTrue(result.get("status"))
                 self.assertEqual(result.get("scan_id"), self.scan_history.id)
-                self.assertEqual(
-                    result.get("target_name"), self.data_generator.target.value
-                )
+                self.assertEqual(result.get("target_name"), self.data_generator.target.value)
                 self.assertNotIn("domain_id", result)
                 self.assertNotIn("domain_name", result)
                 mock_initiate.assert_called_once()
-                self.assertEqual(
-                    mock_initiate.call_args[1]["scan_history_id"], self.scan_history.id
-                )
+                self.assertEqual(mock_initiate.call_args[1]["scan_history_id"], self.scan_history.id)
                 self.assertEqual(mock_initiate.call_args[1]["task_ids"], [1])
 
 
@@ -251,9 +231,7 @@ class TestRunPerTaskSecatorScans(BaseTestCase):
     @patch("reconPoint.secator.service.ScanHistory.objects.get")
     @patch("reconPoint.secator.service.start_secator_scan")
     @patch("reconPoint.secator.service.ScanRepository")
-    def test_valid_tasks_all_succeed(
-        self, mock_scan_repo_cls, mock_start, mock_scan_get
-    ):
+    def test_valid_tasks_all_succeed(self, mock_scan_repo_cls, mock_start, mock_scan_get):
         """When selected_targets_per_task is valid, one ScanHistory is created and shared."""
         shared_scan_id = 123
         mock_scan_repo_cls.return_value.create_scan.return_value = shared_scan_id
@@ -307,9 +285,7 @@ class TestRunPerTaskSecatorScans(BaseTestCase):
                 task_type_to_id=self.task_type_to_id,
             )
         self.assertEqual(len(result["validation_errors"]), 1)
-        self.assertEqual(
-            result["validation_errors"][0]["task_type"], self.task.task_type
-        )
+        self.assertEqual(result["validation_errors"][0]["task_type"], self.task.task_type)
         self.assertEqual(result["validation_errors"][0]["reason"], "no_targets")
         self.assertEqual(result["success_count"], 0)
         self.assertEqual(result["failed_count"], 0)
@@ -354,9 +330,7 @@ class TestRunPerTaskSecatorScans(BaseTestCase):
     @patch("reconPoint.secator.service.ScanHistory.objects.get")
     @patch("reconPoint.secator.service.start_secator_scan")
     @patch("reconPoint.secator.service.ScanRepository")
-    def test_start_returns_error_appends_error_result(
-        self, mock_scan_repo_cls, mock_start, mock_scan_get
-    ):
+    def test_start_returns_error_appends_error_result(self, mock_scan_repo_cls, mock_start, mock_scan_get):
         """When start_secator_scan returns status False, result has status error and failed_count increments."""
         shared_scan_id = 55
         mock_scan_repo_cls.return_value.create_scan.return_value = shared_scan_id
@@ -381,9 +355,7 @@ class TestRunPerTaskSecatorScans(BaseTestCase):
     @patch("reconPoint.secator.service.ScanHistory.objects.get")
     @patch("reconPoint.secator.service.start_secator_scan")
     @patch("reconPoint.secator.service.ScanRepository")
-    def test_start_raises_exception_appends_error_result(
-        self, mock_scan_repo_cls, mock_start, mock_scan_get
-    ):
+    def test_start_raises_exception_appends_error_result(self, mock_scan_repo_cls, mock_start, mock_scan_get):
         """When start_secator_scan raises, result has status error and failed_count increments."""
         shared_scan_id = 66
         mock_scan_repo_cls.return_value.create_scan.return_value = shared_scan_id
@@ -408,9 +380,7 @@ class TestRunPerTaskSecatorScans(BaseTestCase):
     @patch("reconPoint.secator.service.ScanHistory.objects.get")
     @patch("reconPoint.secator.service.start_secator_scan")
     @patch("reconPoint.secator.service.ScanRepository")
-    def test_loads_task_type_to_id_when_none(
-        self, mock_scan_repo_cls, mock_start, mock_scan_get
-    ):
+    def test_loads_task_type_to_id_when_none(self, mock_scan_repo_cls, mock_start, mock_scan_get):
         """When task_type_to_id is None, it is loaded from SecatorTask."""
         shared_scan_id = 1
         mock_scan_repo_cls.return_value.create_scan.return_value = shared_scan_id
@@ -433,9 +403,7 @@ class TestRunPerTaskSecatorScans(BaseTestCase):
 
     @patch("reconPoint.secator.service.start_secator_scan")
     @patch("reconPoint.secator.service.ScanRepository")
-    def test_reuses_scan_history_id_when_provided_and_valid(
-        self, mock_scan_repo_cls, mock_start
-    ):
+    def test_reuses_scan_history_id_when_provided_and_valid(self, mock_scan_repo_cls, mock_start):
         """When scan_history_id is provided and exists for domain, that scan is reused; create_scan is not called."""
         existing_scan = self.data_generator.create_scan_history()
         mock_start.return_value = {"status": True, "scan_id": existing_scan.id}
@@ -455,9 +423,7 @@ class TestRunPerTaskSecatorScans(BaseTestCase):
     @patch("reconPoint.secator.service.ScanHistory.objects.get")
     @patch("reconPoint.secator.service.start_secator_scan")
     @patch("reconPoint.secator.service.ScanRepository")
-    def test_creates_scan_when_scan_history_id_invalid(
-        self, mock_scan_repo_cls, mock_start, mock_scan_get
-    ):
+    def test_creates_scan_when_scan_history_id_invalid(self, mock_scan_repo_cls, mock_start, mock_scan_get):
         """When scan_history_id is provided but does not exist for domain, a new scan is created."""
         new_scan_id = 999
         mock_scan_repo_cls.return_value.create_scan.return_value = new_scan_id
@@ -486,9 +452,7 @@ class TestRunPerTaskPersistsScanConfig(BaseTestCase):
         self.task_type_to_id = {self.task.task_type: self.task.id}
 
     @patch("reconPoint.secator.service.start_secator_scan")
-    def test_scan_config_persisted_with_resolved_params(
-        self, mock_start: MagicMock
-    ) -> None:
+    def test_scan_config_persisted_with_resolved_params(self, mock_start: MagicMock) -> None:
         """Effective params resolved from scope/org are included in the persisted scan_config."""
         mock_start.return_value = {"status": True, "scan_id": 1}
         selected = {self.task.task_type: ["host1.example.com"]}
@@ -515,17 +479,13 @@ class TestRunPerTaskPersistsScanConfig(BaseTestCase):
         self.assertEqual(scan.scan_config.get("timeout"), 8)
 
     @patch("reconPoint.secator.service.start_secator_scan")
-    def test_scan_config_not_persisted_when_scan_history_is_reused(
-        self, mock_start: MagicMock
-    ) -> None:
+    def test_scan_config_not_persisted_when_scan_history_is_reused(self, mock_start: MagicMock) -> None:
         """When an existing ScanHistory is reused, _apply_effective_scan_params is not called."""
         existing_scan = self.data_generator.create_scan_history()
         mock_start.return_value = {"status": True, "scan_id": existing_scan.id}
         selected = {self.task.task_type: ["host1.example.com"]}
 
-        with patch(
-            "reconPoint.secator.service._apply_effective_scan_params"
-        ) as mock_apply:
+        with patch("reconPoint.secator.service._apply_effective_scan_params") as mock_apply:
             run_per_task_secator_scans(
                 target_id=self.scan_history.target_id,
                 user_id=self.user.id,
@@ -573,9 +533,7 @@ class TestApplyEffectiveScanParams(BaseTestCase):
             real_apply(config, res)
 
         return (
-            patch(
-                "reconPoint.secator.service.resolve_scan_params", return_value=resolved
-            ),
+            patch("reconPoint.secator.service.resolve_scan_params", return_value=resolved),
             patch(
                 "reconPoint.secator.service.apply_resolved_to_secator_config",
                 side_effect=side_effect_apply,
@@ -586,12 +544,8 @@ class TestApplyEffectiveScanParams(BaseTestCase):
         """Resolved params are added to an empty secator_config."""
         resolved = self._make_resolved(rate_limit=50, timeout=10)
         mock_scope = MagicMock()
-        with patch(
-            "reconPoint.secator.service.get_scope_for_target", return_value=mock_scope
-        ):
-            with patch(
-                "reconPoint.secator.service.resolve_scan_params", return_value=resolved
-            ):
+        with patch("reconPoint.secator.service.get_scope_for_target", return_value=mock_scope):
+            with patch("reconPoint.secator.service.resolve_scan_params", return_value=resolved):
                 config: dict = {}
                 _apply_effective_scan_params(self.target, config)
         self.assertEqual(config.get("rate_limit"), 50)
@@ -601,12 +555,8 @@ class TestApplyEffectiveScanParams(BaseTestCase):
         """Values already present in secator_config (user overrides) are preserved."""
         resolved = self._make_resolved(rate_limit=50, timeout=10)
         mock_scope = MagicMock()
-        with patch(
-            "reconPoint.secator.service.get_scope_for_target", return_value=mock_scope
-        ):
-            with patch(
-                "reconPoint.secator.service.resolve_scan_params", return_value=resolved
-            ):
+        with patch("reconPoint.secator.service.get_scope_for_target", return_value=mock_scope):
+            with patch("reconPoint.secator.service.resolve_scan_params", return_value=resolved):
                 config = {"rate_limit": 200, "timeout": 30}
                 _apply_effective_scan_params(self.target, config)
         self.assertEqual(config["rate_limit"], 200)
@@ -616,12 +566,8 @@ class TestApplyEffectiveScanParams(BaseTestCase):
         """Explicit user value of 0 is preserved; scope value does not override it."""
         resolved = self._make_resolved(delay=5)
         mock_scope = MagicMock()
-        with patch(
-            "reconPoint.secator.service.get_scope_for_target", return_value=mock_scope
-        ):
-            with patch(
-                "reconPoint.secator.service.resolve_scan_params", return_value=resolved
-            ):
+        with patch("reconPoint.secator.service.get_scope_for_target", return_value=mock_scope):
+            with patch("reconPoint.secator.service.resolve_scan_params", return_value=resolved):
                 config = {"delay": 0}
                 _apply_effective_scan_params(self.target, config)
         self.assertEqual(config["delay"], 0)
@@ -629,12 +575,8 @@ class TestApplyEffectiveScanParams(BaseTestCase):
     def test_no_scope_passes_none_to_resolve(self) -> None:
         """When no scope exists, resolve_scan_params is called with scope=None."""
         resolved = self._make_resolved()
-        with patch(
-            "reconPoint.secator.service.get_scope_for_target", return_value=None
-        ):
-            with patch(
-                "reconPoint.secator.service.resolve_scan_params", return_value=resolved
-            ) as mock_resolve:
+        with patch("reconPoint.secator.service.get_scope_for_target", return_value=None):
+            with patch("reconPoint.secator.service.resolve_scan_params", return_value=resolved) as mock_resolve:
                 config: dict = {}
                 _apply_effective_scan_params(self.target, config)
         mock_resolve.assert_called_once()
@@ -646,12 +588,8 @@ class TestApplyEffectiveScanParams(BaseTestCase):
         target_headers = {"Authorization": "Bearer secret"}
         resolved = self._make_resolved(header=target_headers)
         mock_scope = MagicMock()
-        with patch(
-            "reconPoint.secator.service.get_scope_for_target", return_value=mock_scope
-        ):
-            with patch(
-                "reconPoint.secator.service.resolve_scan_params", return_value=resolved
-            ):
+        with patch("reconPoint.secator.service.get_scope_for_target", return_value=mock_scope):
+            with patch("reconPoint.secator.service.resolve_scan_params", return_value=resolved):
                 config: dict = {}
                 _apply_effective_scan_params(self.target, config)
         self.assertEqual(config.get("header"), target_headers)
@@ -662,12 +600,8 @@ class TestApplyEffectiveScanParams(BaseTestCase):
         mock_scope = MagicMock()
         mock_scope.organization = mock_org
         resolved = self._make_resolved()
-        with patch(
-            "reconPoint.secator.service.get_scope_for_target", return_value=mock_scope
-        ):
-            with patch(
-                "reconPoint.secator.service.resolve_scan_params", return_value=resolved
-            ) as mock_resolve:
+        with patch("reconPoint.secator.service.get_scope_for_target", return_value=mock_scope):
+            with patch("reconPoint.secator.service.resolve_scan_params", return_value=resolved) as mock_resolve:
                 _apply_effective_scan_params(self.target, {})
         call_kwargs = mock_resolve.call_args[1]
         self.assertEqual(call_kwargs.get("organization"), mock_org)
@@ -681,9 +615,7 @@ class TestStartSecatorScanResolvesEffectiveParams(BaseTestCase):
         self.scan_history = self.data_generator.create_scan_history()
 
     @patch("reconPoint.secator.service.threading.Thread")
-    def test_scope_params_forwarded_to_initiate_secator_scan(
-        self, mock_thread: MagicMock
-    ) -> None:
+    def test_scope_params_forwarded_to_initiate_secator_scan(self, mock_thread: MagicMock) -> None:
         """rate_limit and timeout from scope are present in secator_config passed to initiate_secator_scan."""
 
         def run_target_and_return_mock(*args, **kwargs):
@@ -700,9 +632,7 @@ class TestStartSecatorScanResolvesEffectiveParams(BaseTestCase):
             "reconPoint.secator.service._apply_effective_scan_params",
             side_effect=apply_scope_params,
         ):
-            with patch(
-                "reconPoint.secator.service.initiate_secator_scan"
-            ) as mock_initiate:
+            with patch("reconPoint.secator.service.initiate_secator_scan") as mock_initiate:
                 start_secator_scan(
                     target_id=self.scan_history.target_id,
                     user_id=self.user.id,
@@ -716,9 +646,7 @@ class TestStartSecatorScanResolvesEffectiveParams(BaseTestCase):
         self.assertEqual(forwarded_config.get("timeout"), 9)
 
     @patch("reconPoint.secator.service.threading.Thread")
-    def test_user_override_takes_precedence_over_scope(
-        self, mock_thread: MagicMock
-    ) -> None:
+    def test_user_override_takes_precedence_over_scope(self, mock_thread: MagicMock) -> None:
         """User-supplied rate_limit is not overwritten by scope resolution."""
 
         def run_target_and_return_mock(*args, **kwargs):
@@ -735,9 +663,7 @@ class TestStartSecatorScanResolvesEffectiveParams(BaseTestCase):
             "reconPoint.secator.service._apply_effective_scan_params",
             side_effect=apply_scope_params,
         ):
-            with patch(
-                "reconPoint.secator.service.initiate_secator_scan"
-            ) as mock_initiate:
+            with patch("reconPoint.secator.service.initiate_secator_scan") as mock_initiate:
                 start_secator_scan(
                     target_id=self.scan_history.target_id,
                     user_id=self.user.id,
@@ -750,9 +676,7 @@ class TestStartSecatorScanResolvesEffectiveParams(BaseTestCase):
         self.assertEqual(forwarded_config.get("rate_limit"), 999)
 
     @patch("reconPoint.secator.service.threading.Thread")
-    def test_random_proxy_applied_after_scope_resolution(
-        self, mock_thread: MagicMock
-    ) -> None:
+    def test_random_proxy_applied_after_scope_resolution(self, mock_thread: MagicMock) -> None:
         """Random proxy is not applied when scope already set a proxy."""
 
         def run_target_and_return_mock(*args, **kwargs):
@@ -768,9 +692,7 @@ class TestStartSecatorScanResolvesEffectiveParams(BaseTestCase):
             "reconPoint.secator.service._apply_effective_scan_params",
             side_effect=apply_scope_sets_proxy,
         ):
-            with patch(
-                "reconPoint.secator.service.initiate_secator_scan"
-            ) as mock_initiate:
+            with patch("reconPoint.secator.service.initiate_secator_scan") as mock_initiate:
                 with patch(
                     "reconPoint.utilities.proxy.get_random_proxy",
                     return_value="http://random:9999",
@@ -787,9 +709,7 @@ class TestStartSecatorScanResolvesEffectiveParams(BaseTestCase):
         self.assertEqual(forwarded_config.get("proxy"), "http://scope-proxy:8080")
 
     @patch("reconPoint.secator.service.threading.Thread")
-    def test_random_proxy_applied_when_scope_proxy_is_none(
-        self, mock_thread: MagicMock
-    ) -> None:
+    def test_random_proxy_applied_when_scope_proxy_is_none(self, mock_thread: MagicMock) -> None:
         """Random proxy is applied when scope resolution leaves proxy as None."""
 
         def run_target_and_return_mock(*args, **kwargs):
@@ -799,9 +719,7 @@ class TestStartSecatorScanResolvesEffectiveParams(BaseTestCase):
         mock_thread.side_effect = run_target_and_return_mock
 
         with patch("reconPoint.secator.service._apply_effective_scan_params"):
-            with patch(
-                "reconPoint.secator.service.initiate_secator_scan"
-            ) as mock_initiate:
+            with patch("reconPoint.secator.service.initiate_secator_scan") as mock_initiate:
                 with patch(
                     "reconPoint.utilities.proxy.get_random_proxy",
                     return_value="http://random:9999",

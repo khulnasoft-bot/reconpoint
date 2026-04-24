@@ -147,9 +147,7 @@ class TestDNSUtilities(BaseTestCase):
 
         for hostname, expected_root in test_cases:
             # Mock the DNS resolver instead of socket.gethostbyaddr
-            with patch(
-                "reconPoint.utilities.dns._resolve_with_custom_dns"
-            ) as mock_resolve:
+            with patch("reconPoint.utilities.dns._resolve_with_custom_dns") as mock_resolve:
                 mock_resolve.return_value = (hostname, "8.8.8.8")
 
                 result = resolve_ip_with_dns("8.8.8.8", ["8.8.8.8"])
@@ -165,9 +163,7 @@ class TestDNSUtilities(BaseTestCase):
         # Test with valid DNS servers
         valid_dns = ["8.8.8.8", "1.1.1.1"]
 
-        with patch(
-            "reconPoint.utilities.dns.socket.gethostbyaddr"
-        ) as mock_gethostbyaddr:
+        with patch("reconPoint.utilities.dns.socket.gethostbyaddr") as mock_gethostbyaddr:
             mock_gethostbyaddr.return_value = (
                 "dns.google",
                 ["8.8.8.8.in-addr.arpa"],
@@ -185,9 +181,7 @@ class TestDNSUtilities(BaseTestCase):
         from reconPoint.utilities.dns import resolve_ip_with_dns
 
         # Test with empty DNS servers list
-        with patch(
-            "reconPoint.utilities.dns.socket.gethostbyaddr"
-        ) as mock_gethostbyaddr:
+        with patch("reconPoint.utilities.dns.socket.gethostbyaddr") as mock_gethostbyaddr:
             mock_gethostbyaddr.return_value = (
                 "dns.google",
                 ["8.8.8.8.in-addr.arpa"],
@@ -198,6 +192,4 @@ class TestDNSUtilities(BaseTestCase):
 
         # Should still work with system DNS
         self.assertEqual(result["ip"], "8.8.8.8")
-        self.assertEqual(
-            result["domain"], "8.8.8.8"
-        )  # When no DNS servers provided, domain defaults to IP
+        self.assertEqual(result["domain"], "8.8.8.8")  # When no DNS servers provided, domain defaults to IP

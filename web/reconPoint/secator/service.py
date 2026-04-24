@@ -47,9 +47,7 @@ class PerTaskRunResult(TypedDict):
     scan_id: int | None
 
 
-def _persist_scan_config_on_history(
-    scan: ScanHistory, secator_config: dict | None
-) -> None:
+def _persist_scan_config_on_history(scan: ScanHistory, secator_config: dict | None) -> None:
     """Persist the effective scan_config snapshot on a ScanHistory after creation."""
     if secator_config:
         scan.scan_config = secator_config
@@ -72,9 +70,7 @@ def _apply_effective_scan_params(target: Target, secator_config: dict) -> None:
         orgs = getattr(target, "organizations", None)
         if orgs is not None:
             organization = orgs.first()
-    resolved = resolve_scan_params(
-        target, scope=scope, organization=organization, user_override=secator_config
-    )
+    resolved = resolve_scan_params(target, scope=scope, organization=organization, user_override=secator_config)
     apply_resolved_to_secator_config(secator_config, resolved)
 
 
@@ -108,8 +104,7 @@ def handle_scan_error(scan: ScanHistory, error: Exception) -> None:
         logger.log_line(
             PREFIX_SECATOR_SERVICE,
             "SCAN_THREAD",
-            "Scan %s already in terminal state %s, skipping error status update"
-            % (scan.id, scan.scan_status),
+            "Scan %s already in terminal state %s, skipping error status update" % (scan.id, scan.scan_status),
             level="debug",
         )
 
@@ -211,13 +206,9 @@ def start_secator_scan(
 
     # Ensure lists are properly formatted
     if isinstance(imported_subdomains, str):
-        imported_subdomains = [
-            s.strip() for s in imported_subdomains.split("\n") if s.strip()
-        ]
+        imported_subdomains = [s.strip() for s in imported_subdomains.split("\n") if s.strip()]
     if isinstance(out_of_scope_subdomains, str):
-        out_of_scope_subdomains = [
-            s.strip() for s in out_of_scope_subdomains.split("\n") if s.strip()
-        ]
+        out_of_scope_subdomains = [s.strip() for s in out_of_scope_subdomains.split("\n") if s.strip()]
 
     try:
         # Handle existing SecatorScan ID
@@ -295,8 +286,7 @@ def start_secator_scan(
             if scan.target_id != target.id:
                 return {
                     "status": False,
-                    "error": "ScanHistory %s does not belong to target %s"
-                    % (scan_history_id, target_id),
+                    "error": "ScanHistory %s does not belong to target %s" % (scan_history_id, target_id),
                     "http_status": 400,
                 }
             initiated_by_id = user_id
@@ -562,9 +552,7 @@ def run_per_task_secator_scans(
         tasks = SecatorTask.objects.filter(task_type__in=task_types, is_active=True)
         task_type_to_id = dict(tasks.values_list("task_type", "id"))
 
-    validation_errors = validate_per_task_targets(
-        selected_targets_per_task, task_type_to_id
-    )
+    validation_errors = validate_per_task_targets(selected_targets_per_task, task_type_to_id)
     error_task_types = {e["task_type"] for e in validation_errors}
     imported_subdomains = imported_subdomains or []
     out_of_scope_subdomains = out_of_scope_subdomains or []
@@ -605,9 +593,7 @@ def run_per_task_secator_scans(
     valid_entries = [
         (task_type, targets, task_type_to_id[task_type])
         for task_type, targets in selected_targets_per_task.items()
-        if task_type not in error_task_types
-        and task_type in task_type_to_id
-        and targets
+        if task_type not in error_task_types and task_type in task_type_to_id and targets
     ]
     if not valid_entries:
         return {
@@ -620,9 +606,7 @@ def run_per_task_secator_scans(
 
     scan = None
     if scan_history_id is not None:
-        scan = ScanHistory.objects.filter(
-            id=scan_history_id, target_id=target.id
-        ).first()
+        scan = ScanHistory.objects.filter(id=scan_history_id, target_id=target.id).first()
     if scan is None:
         scan_repo = ScanRepository()
         create_kw = {"engine_id": 1, "initiated_by_id": user_id, "target_id": target.id}
@@ -635,11 +619,7 @@ def run_per_task_secator_scans(
         flatten_profile_opts_into_config(effective_snapshot)
         _persist_scan_config_on_history(scan, effective_snapshot)
     shared_scan_id = scan.id
-    subdomains = (
-        list(Subdomain.objects.filter(id__in=subdomain_ids_for_subscan))
-        if subdomain_ids_for_subscan
-        else []
-    )
+    subdomains = list(Subdomain.objects.filter(id__in=subdomain_ids_for_subscan)) if subdomain_ids_for_subscan else []
     scan_for_subscans = scan if subdomains else None
 
     results: list[dict] = []

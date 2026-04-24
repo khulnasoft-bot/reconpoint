@@ -91,9 +91,7 @@ class TestSecatorFormHelpers(BaseTestCase):
 
     def test_parse_secator_profiles_all_disabled(self):
         """When all profile switches are disabled, profiles list should be empty."""
-        post = self._make_post(
-            "false", "use_speed_profile", "false", "use_evasion_profile"
-        )
+        post = self._make_post("false", "use_speed_profile", "false", "use_evasion_profile")
         post["use_general_profile"] = "false"
         post["use_network_profile"] = "false"
         post["speed_profile"] = "polite"
@@ -125,9 +123,7 @@ class TestSecatorFormHelpers(BaseTestCase):
 
     def test_parse_secator_profiles_single_enabled(self):
         """Single profile enabled should work correctly."""
-        post = self._make_post(
-            "true", "use_speed_profile", "aggressive", "speed_profile"
-        )
+        post = self._make_post("true", "use_speed_profile", "aggressive", "speed_profile")
         post["use_evasion_profile"] = "false"
         post["use_general_profile"] = "false"
         post["use_network_profile"] = "false"
@@ -228,14 +224,10 @@ class TestSecatorFormHelpers(BaseTestCase):
         post["execution_mode"] = "tasks"
         post.setlist("task_ids", ["1", "2"])
         post["secator_config"] = "{}"
-        post["selected_targets_per_task"] = json.dumps(
-            {"nmap": ["host1"], "httpx": ["host2"]}
-        )
+        post["selected_targets_per_task"] = json.dumps({"nmap": ["host1"], "httpx": ["host2"]})
         kwargs = build_start_secator_scan_kwargs(post)
         self.assertIn("selected_targets_per_task", kwargs)
-        self.assertEqual(
-            kwargs["selected_targets_per_task"], {"nmap": ["host1"], "httpx": ["host2"]}
-        )
+        self.assertEqual(kwargs["selected_targets_per_task"], {"nmap": ["host1"], "httpx": ["host2"]})
         self.assertNotIn("targets_override", kwargs)
 
     def test_build_start_secator_scan_kwargs_tasks_precedence_per_task_over_selected_targets(

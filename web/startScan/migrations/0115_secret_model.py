@@ -25,9 +25,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "scan_history",
-                    models.ForeignKey(
-                        on_delete=models.CASCADE, to="startScan.scanhistory"
-                    ),
+                    models.ForeignKey(on_delete=models.CASCADE, to="startScan.scanhistory"),
                 ),
             ],
             options={},

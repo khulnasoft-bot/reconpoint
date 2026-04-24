@@ -95,9 +95,7 @@ def get_organization_dashboard_data(organization: Organization) -> dict[str, Any
     endpoint_counts = EndPoint.get_counts(endpoint_queryset)
 
     # ScanHistory counts
-    scan_history_counts = ScanHistory.get_all_counts(
-        ScanHistory.objects.filter(target_id__in=target_ids)
-    )
+    scan_history_counts = ScanHistory.get_all_counts(ScanHistory.objects.filter(target_id__in=target_ids))
 
     # SubScan counts
     subscan_counts = SubScan.get_all_counts(SubScan.objects.filter(scan_target_q))
@@ -120,18 +118,16 @@ def get_organization_dashboard_data(organization: Organization) -> dict[str, Any
         vuln_critical=Count("id", filter=Q(severity=4)),
         vuln_unknown=Count("id", filter=Q(severity=-1)),
     )
-    total_vul_direct = sum(
-        vuln_counts_direct.get(k, 0) or 0 for k in vuln_counts_direct
-    )
+    total_vul_direct = sum(vuln_counts_direct.get(k, 0) or 0 for k in vuln_counts_direct)
     total_vul_ignore_info_direct = (
         (vuln_counts_direct.get("vuln_low") or 0)
         + (vuln_counts_direct.get("vuln_medium") or 0)
         + (vuln_counts_direct.get("vuln_high") or 0)
         + (vuln_counts_direct.get("vuln_critical") or 0)
     )
-    vuln_feed_qs = vuln_queryset.select_related(
-        "subdomain", "endpoint", "domain", "scan_history"
-    ).prefetch_related("cve_ids", "cwe_ids", "tags")[:200]
+    vuln_feed_qs = vuln_queryset.select_related("subdomain", "endpoint", "domain", "scan_history").prefetch_related(
+        "cve_ids", "cwe_ids", "tags"
+    )[:200]
     vuln_list = list(vuln_feed_qs)
     # Critical (4) first, then High (3), Medium (2), Low (1), Info (0), Unknown (-1); same severity = newest first
     vuln_feed = sorted(
@@ -157,28 +153,14 @@ def get_organization_dashboard_data(organization: Organization) -> dict[str, Any
         raw = _counts_by_date(qs, date_field, date_range[0])
         return [_raw_for_date(raw, d) for d in date_range][::-1]
 
-    targets_timeline = timeline_for_queryset(
-        Domain.objects.filter(scan_target_q), "insert_date"
-    )
-    subdomains_timeline = timeline_for_queryset(
-        Subdomain.objects.filter(scan_target_q), "discovered_date"
-    )
-    vulns_timeline = timeline_for_queryset(
-        Vulnerability.objects.filter(scan_target_q), "discovered_date"
-    )
-    endpoints_timeline = timeline_for_queryset(
-        EndPoint.objects.filter(scan_target_q), "discovered_date"
-    )
+    targets_timeline = timeline_for_queryset(Domain.objects.filter(scan_target_q), "insert_date")
+    subdomains_timeline = timeline_for_queryset(Subdomain.objects.filter(scan_target_q), "discovered_date")
+    vulns_timeline = timeline_for_queryset(Vulnerability.objects.filter(scan_target_q), "discovered_date")
+    endpoints_timeline = timeline_for_queryset(EndPoint.objects.filter(scan_target_q), "discovered_date")
 
-    scan_timeline_pending = _scan_timeline(
-        ScanHistory, target_ids, date_range, status=0
-    )
-    scan_timeline_running = _scan_timeline(
-        ScanHistory, target_ids, date_range, status=1
-    )
-    scan_timeline_completed = _scan_timeline(
-        ScanHistory, target_ids, date_range, status=2
-    )
+    scan_timeline_pending = _scan_timeline(ScanHistory, target_ids, date_range, status=0)
+    scan_timeline_running = _scan_timeline(ScanHistory, target_ids, date_range, status=1)
+    scan_timeline_completed = _scan_timeline(ScanHistory, target_ids, date_range, status=2)
     scan_timeline_failed = _scan_timeline(ScanHistory, target_ids, date_range, status=3)
 
     subscan_timeline_pending = _subscan_timeline(target_ids, date_range, status=-1)
@@ -189,9 +171,7 @@ def get_organization_dashboard_data(organization: Organization) -> dict[str, Any
     subscan_timeline_finalizing = _subscan_timeline(target_ids, date_range, status=4)
 
     domain_total = domain_counts.get("total") or 0
-    exploit_total = Exploit.objects.filter(
-        scan_history__target_id__in=target_ids
-    ).count()
+    exploit_total = Exploit.objects.filter(scan_history__target_id__in=target_ids).count()
 
     from reconPoint.services.scan_finding_metrics import get_ip_metrics_for_target_ids
 

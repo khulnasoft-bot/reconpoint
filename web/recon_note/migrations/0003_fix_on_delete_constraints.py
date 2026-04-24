@@ -27,9 +27,7 @@ def resolve_actual_table_name(schema_editor, table_name):
         return result[0] if result else None
 
 
-def get_constraint_name(
-    schema_editor, actual_table_name, column_name, actual_ref_table_name
-):
+def get_constraint_name(schema_editor, actual_table_name, column_name, actual_ref_table_name):
     """Get the foreign key constraint name for a given table and column.
 
     Uses the actual table names from the database to find the constraint,
@@ -76,32 +74,18 @@ def fix_constraint(
         return
 
     # Get the actual constraint name from the database using resolved table names
-    constraint_name = get_constraint_name(
-        schema_editor, actual_table_name, column_name, actual_ref_table_name
-    )
+    constraint_name = get_constraint_name(schema_editor, actual_table_name, column_name, actual_ref_table_name)
 
     if constraint_name:
         # Safely quote all identifiers
-        quoted_table_name = quote_ident(
-            actual_table_name, schema_editor.connection.connection
-        )
-        quoted_column_name = quote_ident(
-            column_name, schema_editor.connection.connection
-        )
-        quoted_ref_table_name = quote_ident(
-            actual_ref_table_name, schema_editor.connection.connection
-        )
-        quoted_ref_column = quote_ident(
-            referenced_column, schema_editor.connection.connection
-        )
-        quoted_constraint_name = quote_ident(
-            constraint_name, schema_editor.connection.connection
-        )
+        quoted_table_name = quote_ident(actual_table_name, schema_editor.connection.connection)
+        quoted_column_name = quote_ident(column_name, schema_editor.connection.connection)
+        quoted_ref_table_name = quote_ident(actual_ref_table_name, schema_editor.connection.connection)
+        quoted_ref_column = quote_ident(referenced_column, schema_editor.connection.connection)
+        quoted_constraint_name = quote_ident(constraint_name, schema_editor.connection.connection)
 
         # Drop existing constraint using actual table name
-        schema_editor.execute(
-            f"ALTER TABLE {quoted_table_name} DROP CONSTRAINT {quoted_constraint_name};"
-        )
+        schema_editor.execute(f"ALTER TABLE {quoted_table_name} DROP CONSTRAINT {quoted_constraint_name};")
         # Add new constraint with specified on_delete using actual table names
         schema_editor.execute(
             f"ALTER TABLE {quoted_table_name} ADD CONSTRAINT {quoted_constraint_name} "

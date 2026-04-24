@@ -39,9 +39,7 @@ class Migration(migrations.Migration):
                 migrations.AddConstraint(
                     model_name="technology",
                     constraint=models.UniqueConstraint(
-                        condition=models.Q(
-                            name__isnull=False, scan_history__isnull=False
-                        ),
+                        condition=models.Q(name__isnull=False, scan_history__isnull=False),
                         fields=("scan_history", "name"),
                         name="ss_technology_scan_name_uniq",
                     ),

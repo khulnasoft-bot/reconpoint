@@ -38,15 +38,11 @@ def update_port_service_info(port, service_info):
             if value and value not in description_parts:
                 description_parts.append(value)
 
-        port.service_name = (
-            service_info.get("service_name", "unknown").strip() or "unknown"
-        )
+        port.service_name = service_info.get("service_name", "unknown").strip() or "unknown"
         port.description = " - ".join(filter(None, description_parts))[:1000]
 
         if port.ip_address:
-            logger.debug(
-                f"Updating service info for {port.ip_address.address}:{port.number}"
-            )
+            logger.debug(f"Updating service info for {port.ip_address.address}:{port.number}")
 
         port.save(update_fields=["service_name", "description"])
 

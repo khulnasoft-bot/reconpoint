@@ -40,9 +40,7 @@ class Command(BaseCommand):
 
         scan_ids = list(ScanHistory.objects.order_by("id").values_list("id", flat=True))
         if not scan_ids:
-            self.stdout.write(
-                self.style.WARNING("No ScanHistory rows in the database.")
-            )
+            self.stdout.write(self.style.WARNING("No ScanHistory rows in the database."))
             return
         self._run_for_scans(scan_ids)
 
@@ -64,9 +62,7 @@ class Command(BaseCommand):
                     updated += 1
 
         if single and total_ip_checks == 0:
-            self.stdout.write(
-                self.style.WARNING("No IP addresses linked to this scan.")
-            )
+            self.stdout.write(self.style.WARNING("No IP addresses linked to this scan."))
             return
 
         if not single and scans_with_ips == 0:
@@ -75,16 +71,12 @@ class Command(BaseCommand):
 
         if single:
             self.stdout.write(
-                self.style.SUCCESS(
-                    "Processed %s IP(s); set alive=True for %s row(s)."
-                    % (total_ip_checks, updated)
-                )
+                self.style.SUCCESS("Processed %s IP(s); set alive=True for %s row(s)." % (total_ip_checks, updated))
             )
         else:
             self.stdout.write(
                 self.style.SUCCESS(
                     "Processed %s scan(s) with linked IPs (%s IP row checks); "
-                    "set alive=True for %s row(s)."
-                    % (scans_with_ips, total_ip_checks, updated)
+                    "set alive=True for %s row(s)." % (scans_with_ips, total_ip_checks, updated)
                 )
             )

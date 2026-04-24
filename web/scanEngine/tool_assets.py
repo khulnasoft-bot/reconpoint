@@ -30,9 +30,7 @@ def list_asset_files(asset_dir: str, extension: str) -> list[str]:
         return []
     suffix = extension if extension.startswith(".") else f".{extension}"
     suffixes = (suffix, ".yml") if suffix == ".yaml" else (suffix,)
-    return sorted(
-        p.name for p in path.iterdir() if p.is_file() and p.suffix.lower() in suffixes
-    )
+    return sorted(p.name for p in path.iterdir() if p.is_file() and p.suffix.lower() in suffixes)
 
 
 def _normalize_asset_filename(raw_name: str, max_length: int = 100) -> str | None:
@@ -70,11 +68,7 @@ def save_uploaded_assets(
     """
     dir_path = Path(directory)
     dir_path.mkdir(parents=True, exist_ok=True)
-    ext = (
-        allowed_extension
-        if allowed_extension.startswith(".")
-        else f".{allowed_extension}"
-    )
+    ext = allowed_extension if allowed_extension.startswith(".") else f".{allowed_extension}"
     allowed_suffixes = (ext, ".yml") if ext == ".yaml" else (ext,)
     allowed_suffixes_lower = tuple(s.lower() for s in allowed_suffixes)
     files = request.FILES.getlist(file_key)

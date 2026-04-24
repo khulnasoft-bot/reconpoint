@@ -31,15 +31,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="domaininfo",
             name="admin_id",
-            field=models.ManyToManyField(
-                blank=True, related_name="admin_id", to="targetApp.DomainRegistrarID"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="admin_id", to="targetApp.DomainRegistrarID"),
         ),
         migrations.AddField(
             model_name="domaininfo",
             name="tech_id",
-            field=models.ManyToManyField(
-                blank=True, related_name="tech_id", to="targetApp.DomainRegistrarID"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="tech_id", to="targetApp.DomainRegistrarID"),
         ),
     ]

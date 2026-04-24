@@ -12,9 +12,7 @@ from reconPoint.utilities.update_check import get_update_info
 
 
 class Command(BaseCommand):
-    help = (
-        "Check if a reconPoint update is available (current vs GitHub latest release)"
-    )
+    help = "Check if a reconPoint update is available (current vs GitHub latest release)"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -31,11 +29,7 @@ class Command(BaseCommand):
             if as_json:
                 self.stdout.write(json.dumps(info, indent=2))
             else:
-                self.stdout.write(
-                    self.style.ERROR(
-                        "Update check failed: %s" % info.get("message", "Unknown error")
-                    )
-                )
+                self.stdout.write(self.style.ERROR("Update check failed: %s" % info.get("message", "Unknown error")))
             sys.exit(1)
 
         if as_json:

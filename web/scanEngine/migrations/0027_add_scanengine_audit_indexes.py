@@ -11,20 +11,14 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddIndex(
             model_name="enginetype",
-            index=models.Index(
-                fields=["default_engine"], name="se_enginetype_default_idx"
-            ),
+            index=models.Index(fields=["default_engine"], name="se_enginetype_default_idx"),
         ),
         migrations.AddIndex(
             model_name="secatorworkflow",
-            index=models.Index(
-                fields=["is_active"], name="se_secatorworkflow_active_idx"
-            ),
+            index=models.Index(fields=["is_active"], name="se_secatorworkflow_active_idx"),
         ),
         migrations.AddIndex(
             model_name="secatorprofile",
-            index=models.Index(
-                fields=["name", "profile_type"], name="se_secatorprofile_nametype_idx"
-            ),
+            index=models.Index(fields=["name", "profile_type"], name="se_secatorprofile_nametype_idx"),
         ),
     ]

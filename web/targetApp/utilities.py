@@ -75,12 +75,7 @@ class StatsTracker:
         Returns:
             int: Total count of domains and subdomains processed (created + existing)
         """
-        return (
-            self.domains_created
-            + self.domains_existing
-            + self.subdomains_created
-            + self.subdomains_existing
-        )
+        return self.domains_created + self.domains_existing + self.subdomains_created + self.subdomains_existing
 
     def as_dict(self) -> dict:
         """

@@ -20,17 +20,13 @@ class Migration(migrations.Migration):
                 ("json", models.JSONField(blank=True, null=True)),
                 (
                     "dir_subscan_ids",
-                    models.ManyToManyField(
-                        related_name="dir_subscan_ids", to="startScan.SubScan"
-                    ),
+                    models.ManyToManyField(related_name="dir_subscan_ids", to="startScan.SubScan"),
                 ),
             ],
         ),
         migrations.AddField(
             model_name="subdomain",
             name="directories",
-            field=models.ManyToManyField(
-                blank=True, related_name="directories", to="startScan.Directory"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="directories", to="startScan.Directory"),
         ),
     ]

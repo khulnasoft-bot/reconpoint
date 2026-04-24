@@ -144,15 +144,11 @@ class Migration(migrations.Migration):
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 (
                     "primary_color",
-                    models.CharField(
-                        blank=True, default="#FFB74D", max_length=10, null=True
-                    ),
+                    models.CharField(blank=True, default="#FFB74D", max_length=10, null=True),
                 ),
                 (
                     "secondary_color",
-                    models.CharField(
-                        blank=True, default="#212121", max_length=10, null=True
-                    ),
+                    models.CharField(blank=True, default="#212121", max_length=10, null=True),
                 ),
                 (
                     "company_name",

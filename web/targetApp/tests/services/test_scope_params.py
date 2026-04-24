@@ -647,9 +647,7 @@ class BuildEffectiveParamsDisplayTest(BaseTestCase):
         self.assertEqual(result["threads"]["value"], 30)
 
     def test_scope_param_shows_scope_source(self):
-        scope = self.data_generator.create_scope(
-            threads=5, proxy="http://10.0.0.2:8080"
-        )
+        scope = self.data_generator.create_scope(threads=5, proxy="http://10.0.0.2:8080")
         result = build_effective_params_display(scope=scope)
         self.assertEqual(result["threads"]["source"], "scope")
         self.assertEqual(result["threads"]["value"], 5)
@@ -756,9 +754,7 @@ class BuildEffectiveParamsDisplayFromConfigsTest(BaseTestCase):
             user_override={"profiles": {"speed": "aggressive", "evasion": "stealth"}},
         )
         self.assertEqual(result["profiles"]["source"], "scan")
-        self.assertEqual(
-            result["profiles"]["value"], {"speed": "aggressive", "evasion": "stealth"}
-        )
+        self.assertEqual(result["profiles"]["value"], {"speed": "aggressive", "evasion": "stealth"})
 
     def test_profile_opts_merged_into_effective_display(self):
         """Effective display overlays profile opts for params that would be default."""
@@ -952,13 +948,9 @@ class ParseTargetScanOverrideFromPostTest(BaseTestCase):
 
     def test_header_multiline_format(self):
         post = QueryDict("", mutable=True)
-        post[f"{TARGET_OVERRIDE_PREFIX}header"] = (
-            '"X-Api-Key": "secret"\n"Cookie": "session=abc"'
-        )
+        post[f"{TARGET_OVERRIDE_PREFIX}header"] = '"X-Api-Key": "secret"\n"Cookie": "session=abc"'
         result, errors = parse_target_scan_override_from_post(post)
-        self.assertEqual(
-            result["header"], {"X-Api-Key": "secret", "Cookie": "session=abc"}
-        )
+        self.assertEqual(result["header"], {"X-Api-Key": "secret", "Cookie": "session=abc"})
         self.assertEqual(errors, [])
 
     def test_header_invalid_json_omitted_and_error_added(self):
@@ -985,9 +977,7 @@ class ParseTargetScanOverrideFromPostTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post[f"{TARGET_OVERRIDE_PREFIX}header"] = "not json"
         pre_existing_override = {"header": {"X-Api-Key": "secret"}}
-        result, errors = parse_target_scan_override_from_post(
-            post, existing_override=pre_existing_override
-        )
+        result, errors = parse_target_scan_override_from_post(post, existing_override=pre_existing_override)
         self.assertEqual(result.get("header"), {"X-Api-Key": "secret"})
         self.assertEqual(len(errors), 1)
         self.assertTrue(
@@ -1000,9 +990,7 @@ class ParseTargetScanOverrideFromPostTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post[f"{TARGET_OVERRIDE_PREFIX}header"] = "[1, 2, 3]"
         pre_existing_override = {"header": {"X-Api-Key": "secret"}}
-        result, errors = parse_target_scan_override_from_post(
-            post, existing_override=pre_existing_override
-        )
+        result, errors = parse_target_scan_override_from_post(post, existing_override=pre_existing_override)
         self.assertEqual(result.get("header"), {"X-Api-Key": "secret"})
         self.assertEqual(len(errors), 1)
         self.assertIn("JSON object", errors[0])
@@ -1014,9 +1002,7 @@ class ParseTargetScanOverrideFromPostTest(BaseTestCase):
         """
         post = QueryDict("", mutable=True)
         post[f"{TARGET_OVERRIDE_PREFIX}header"] = "[1, 2, 3]"
-        result, errors = parse_target_scan_override_from_post(
-            post, existing_override=None
-        )
+        result, errors = parse_target_scan_override_from_post(post, existing_override=None)
         self.assertNotIn("header", result)
         self.assertEqual(len(errors), 1)
         self.assertIn("JSON object", errors[0])
@@ -1024,9 +1010,7 @@ class ParseTargetScanOverrideFromPostTest(BaseTestCase):
     def test_profiles_dict_included_when_passed(self):
         post = QueryDict("", mutable=True)
         profiles = {"speed": "polite", "evasion": "stealth"}
-        result, errors = parse_target_scan_override_from_post(
-            post, profiles_dict=profiles
-        )
+        result, errors = parse_target_scan_override_from_post(post, profiles_dict=profiles)
         self.assertEqual(result["profiles"], profiles)
         self.assertEqual(errors, [])
 
@@ -1037,9 +1021,7 @@ class ParseTargetScanOverrideFromPostTest(BaseTestCase):
         self.assertNotIn("profiles", result)
         self.assertEqual(errors, [])
 
-        result2, errors2 = parse_target_scan_override_from_post(
-            post, profiles_dict={"speed": "", "evasion": "  "}
-        )
+        result2, errors2 = parse_target_scan_override_from_post(post, profiles_dict={"speed": "", "evasion": "  "})
         self.assertNotIn("profiles", result2)
         self.assertEqual(errors2, [])
 
@@ -1058,9 +1040,7 @@ class ParseTargetScanOverrideFromPostTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post[f"{TARGET_OVERRIDE_PREFIX}threads"] = ""
         post[f"{TARGET_OVERRIDE_PREFIX}proxy"] = "   "
-        result, errors = parse_target_scan_override_from_post(
-            post, existing_override=existing_override
-        )
+        result, errors = parse_target_scan_override_from_post(post, existing_override=existing_override)
         self.assertNotIn("threads", result)
         self.assertNotIn("proxy", result)
         self.assertEqual(errors, [])
@@ -1121,15 +1101,11 @@ class NormalizeAllowedHostsTest(BaseTestCase):
         self.assertEqual(normalize_allowed_hosts_from_list({"key": "value"}), [])
 
     def test_normalize_strips_lower_dedupe(self):
-        result = normalize_allowed_hosts_from_list(
-            ["  Host.Example.COM  ", "host.example.com", "other.com"]
-        )
+        result = normalize_allowed_hosts_from_list(["  Host.Example.COM  ", "host.example.com", "other.com"])
         self.assertEqual(result, ["host.example.com", "other.com"])
 
     def test_normalize_skips_non_strings_and_empty(self):
-        result = normalize_allowed_hosts_from_list(
-            ["valid.com", 123, None, "", "  ", "another.com"]
-        )
+        result = normalize_allowed_hosts_from_list(["valid.com", 123, None, "", "  ", "another.com"])
         self.assertEqual(result, ["valid.com", "another.com"])
 
     def test_build_allowed_hosts_set_none_scope_returns_empty(self):
@@ -1279,9 +1255,7 @@ class GetWorkersForScanDropdownTest(BaseTestCase):
             deploy_path="/opt/s",
             is_active=True,
         )
-        result = get_workers_for_scan_dropdown(
-            allowed_worker_ids=[worker1.id, worker2.id]
-        )
+        result = get_workers_for_scan_dropdown(allowed_worker_ids=[worker1.id, worker2.id])
         self.assertEqual([w.name for w in result], ["a-worker", "z-worker"])
         self.assertEqual(set(w.id for w in result), {worker1.id, worker2.id})
 

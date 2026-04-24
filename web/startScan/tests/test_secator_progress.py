@@ -186,9 +186,7 @@ class TestSecatorDataMapping(BaseTestCase):
             "ciphers": ["TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"],
         }
 
-        certificate = repository.save_from_secator(
-            certificate_data, self.scan_history_id, self.domain_id
-        )
+        certificate = repository.save_from_secator(certificate_data, self.scan_history_id, self.domain_id)
 
         self.assertIsNotNone(certificate)
         self.assertEqual(certificate.host, "example.com")

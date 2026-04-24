@@ -19,9 +19,7 @@ class TestOllamaManager(BaseTestCase):
     def setUp(self):
         """Set up test environment."""
         super().setUp()
-        self.ollama_settings = OllamaSettings.objects.create(
-            id=1, selected_model="llama2", use_ollama=True
-        )
+        self.ollama_settings = OllamaSettings.objects.create(id=1, selected_model="llama2", use_ollama=True)
 
     @patch("requests.post")
     def test_get_download_model(self, mock_post):
@@ -40,17 +38,13 @@ class TestOllamaManager(BaseTestCase):
         mock_delete.return_value.status_code = 200
 
         model_name = "llama2"
-        api_url = reverse(
-            "api:ollama_detail_manager", kwargs={"model_name": model_name}
-        )
+        api_url = reverse("api:ollama_detail_manager", kwargs={"model_name": model_name})
 
         response = self.client.delete(api_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
-        mock_delete.assert_called_once_with(
-            f"{config.OLLAMA_INSTANCE}/api/delete", json={"name": model_name}
-        )
+        mock_delete.assert_called_once_with(f"{config.OLLAMA_INSTANCE}/api/delete", json={"name": model_name})
 
     @patch("requests.get")
     def test_put_update_model(self, mock_get):
@@ -58,9 +52,7 @@ class TestOllamaManager(BaseTestCase):
         mock_get.return_value.json.return_value = {"models": [{"name": "gpt-4"}]}
 
         model_name = "gpt-4"
-        api_url = reverse(
-            "api:ollama_detail_manager", kwargs={"model_name": model_name}
-        )
+        api_url = reverse("api:ollama_detail_manager", kwargs={"model_name": model_name})
 
         response = self.client.put(api_url)
 
@@ -86,9 +78,7 @@ class TestReconpointUpdateCheck(BaseTestCase):
     @patch("reconPoint.utilities.update_check.requests.get")
     def test_reconpoint_update_check(self, mock_get):
         """Test checking for reconPoint updates."""
-        mock_get.return_value.json.return_value = [
-            {"name": "v2.0.0", "body": "Changelog"}
-        ]
+        mock_get.return_value.json.return_value = [{"name": "v2.0.0", "body": "Changelog"}]
         api_url = reverse("api:check_reconpoint_update")
         response = self.client.get(api_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -106,9 +96,7 @@ class TestGetFileContents(BaseTestCase):
         """Test retrieving contents of a Nuclei template for preview."""
         mock_read.return_value = (True, "test template content", None)
         url = reverse("api:getFileContents")
-        response = self.client.get(
-            url, {"nuclei_template": True, "name": "my-template"}
-        )
+        response = self.client.get(url, {"nuclei_template": True, "name": "my-template"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         self.assertEqual(response.data["content"], "test template content")

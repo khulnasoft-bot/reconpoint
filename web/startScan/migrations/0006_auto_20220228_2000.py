@@ -16,8 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="ipaddress",
             name="subscan_ids",
-            field=models.ManyToManyField(
-                related_name="subscan_ids", to="startScan.SubScan"
-            ),
+            field=models.ManyToManyField(related_name="subscan_ids", to="startScan.SubScan"),
         ),
     ]

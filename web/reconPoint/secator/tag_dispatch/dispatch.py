@@ -60,11 +60,7 @@ def register_ignored_tag(
     if allowed_sources is None:
         src_set = None
     else:
-        src_set = frozenset(
-            s.strip().lower()
-            for s in allowed_sources
-            if isinstance(s, str) and s.strip()
-        )
+        src_set = frozenset(s.strip().lower() for s in allowed_sources if isinstance(s, str) and s.strip())
     _tag_ignore_rules.append((cat, tag_name, src_set))
     _rebuild_tag_ignored_export()
 
@@ -172,34 +168,24 @@ def dispatch_secator_tag(
 
     handler = get_tag_handler(category, name)
     if handler is not None:
-        is_valid, error_response, _scan_history, target = validate_scan_context(
-            scan_history_id, target_id
-        )
+        is_valid, error_response, _scan_history, target = validate_scan_context(scan_history_id, target_id)
         if not is_valid:
             err_msg = "Validation failed"
-            if getattr(error_response, "data", None) and isinstance(
-                error_response.data, dict
-            ):
+            if getattr(error_response, "data", None) and isinstance(error_response.data, dict):
                 err_msg = error_response.data.get("error", err_msg)
             if not isinstance(err_msg, str):
                 err_msg = str(err_msg)
             return (
                 "error",
                 error_response.status_code,
-                _format_tag_error(
-                    category, name, "invalid scan or target context: %s" % err_msg
-                ),
+                _format_tag_error(category, name, "invalid scan or target context: %s" % err_msg),
             )
 
         effective_target_id = target.id if target else target_id
         try:
-            saved_object, error_status = handler(
-                finding_data, scan_history_id, effective_target_id
-            )
+            saved_object, error_status = handler(finding_data, scan_history_id, effective_target_id)
         except FindingOutOfScopeError:
-            synthetic_id = synthetic_id_skipped_scope(
-                "tag", tag_category=category, tag_name=name
-            )
+            synthetic_id = synthetic_id_skipped_scope("tag", tag_category=category, tag_name=name)
             return ("skipped", synthetic_id)
         if error_status is not None:
             msg = _format_tag_error(
@@ -219,32 +205,24 @@ def dispatch_secator_tag(
         return ("error", fallback_status, msg)
 
     if nuclei_mod.should_route_nuclei_tag_to_dns_record(finding_data):
-        is_valid, error_response, _scan_history, target = validate_scan_context(
-            scan_history_id, target_id
-        )
+        is_valid, error_response, _scan_history, target = validate_scan_context(scan_history_id, target_id)
         if not is_valid:
             err_msg = "Validation failed"
-            if getattr(error_response, "data", None) and isinstance(
-                error_response.data, dict
-            ):
+            if getattr(error_response, "data", None) and isinstance(error_response.data, dict):
                 err_msg = error_response.data.get("error", err_msg)
             if not isinstance(err_msg, str):
                 err_msg = str(err_msg)
             return (
                 "error",
                 error_response.status_code,
-                _format_tag_error(
-                    category, name, "invalid scan or target context: %s" % err_msg
-                ),
+                _format_tag_error(category, name, "invalid scan or target context: %s" % err_msg),
             )
 
         effective_target_id = target.id if target else target_id
         try:
             item = nuclei_mod.build_nuclei_dns_record_item(finding_data)
             if not (item.get("name") or "").strip():
-                msg = _format_tag_error(
-                    category, name, "Nuclei DNS tag missing record name (match)."
-                )
+                msg = _format_tag_error(category, name, "Nuclei DNS tag missing record name (match).")
                 return ("error", 400 if is_update else 422, msg)
             from reconPoint.services.repositories.dns_repository import DnsRepository
 
@@ -255,9 +233,7 @@ def dispatch_secator_tag(
                 reconpoint_context=dict(finding_data.get("_context") or {}),
             )
         except FindingOutOfScopeError:
-            synthetic_id = synthetic_id_skipped_scope(
-                "tag", tag_category=category, tag_name=name
-            )
+            synthetic_id = synthetic_id_skipped_scope("tag", tag_category=category, tag_name=name)
             return ("skipped", synthetic_id)
         if saved_object is None:
             msg = _format_tag_error(
@@ -273,23 +249,17 @@ def dispatch_secator_tag(
             synthetic_id = "tag_ignored_nuclei_non_tech_%d" % int(time.time() * 1000)
             return ("ignored", synthetic_id)
 
-        is_valid, error_response, _scan_history, target = validate_scan_context(
-            scan_history_id, target_id
-        )
+        is_valid, error_response, _scan_history, target = validate_scan_context(scan_history_id, target_id)
         if not is_valid:
             err_msg = "Validation failed"
-            if getattr(error_response, "data", None) and isinstance(
-                error_response.data, dict
-            ):
+            if getattr(error_response, "data", None) and isinstance(error_response.data, dict):
                 err_msg = error_response.data.get("error", err_msg)
             if not isinstance(err_msg, str):
                 err_msg = str(err_msg)
             return (
                 "error",
                 error_response.status_code,
-                _format_tag_error(
-                    category, name, "invalid scan or target context: %s" % err_msg
-                ),
+                _format_tag_error(category, name, "invalid scan or target context: %s" % err_msg),
             )
 
         effective_target_id = target.id if target else target_id
@@ -306,9 +276,7 @@ def dispatch_secator_tag(
                 reconpoint_context=dict(finding_data.get("_context") or {}),
             )
         except FindingOutOfScopeError:
-            synthetic_id = synthetic_id_skipped_scope(
-                "tag", tag_category=category, tag_name=name
-            )
+            synthetic_id = synthetic_id_skipped_scope("tag", tag_category=category, tag_name=name)
             return ("skipped", synthetic_id)
         if saved_object is None:
             msg = _format_tag_error(

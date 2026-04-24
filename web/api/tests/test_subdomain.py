@@ -30,18 +30,14 @@ class TestQueryInterestingSubdomains(BaseTestCase):
     def test_query_interesting_subdomains(self):
         """Test querying interesting subdomains for a given scan."""
         api_url = reverse("api:queryInterestingSubdomains")
-        response = self.client.get(
-            api_url, {"scan_id": self.data_generator.scan_history.id}
-        )
+        response = self.client.get(api_url, {"scan_id": self.data_generator.scan_history.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("admin.example.com", [sub["name"] for sub in response.data])
 
     def test_query_interesting_subdomains_by_target_id_success(self):
         """Test querying interesting subdomains by target_id when target has a domain."""
         api_url = reverse("api:queryInterestingSubdomains")
-        response = self.client.get(
-            api_url, {"target_id": self.data_generator.target.id}
-        )
+        response = self.client.get(api_url, {"target_id": self.data_generator.target.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("admin.example.com", [sub["name"] for sub in response.data])
 
@@ -71,9 +67,7 @@ class TestDeleteSubdomain(BaseTestCase):
         response = self.client.post(api_url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
-        self.assertFalse(
-            Subdomain.objects.filter(id=self.data_generator.subdomain.id).exists()
-        )
+        self.assertFalse(Subdomain.objects.filter(id=self.data_generator.subdomain.id).exists())
 
     def test_delete_nonexistent_subdomain(self):
         """Test deleting a non-existent subdomain."""
@@ -97,9 +91,7 @@ class TestListSubdomains(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("subdomains", response.data)
         self.assertGreaterEqual(len(response.data["subdomains"]), 1)
-        self.assertEqual(
-            response.data["subdomains"][0]["name"], self.data_generator.subdomain.name
-        )
+        self.assertEqual(response.data["subdomains"][0]["name"], self.data_generator.subdomain.name)
 
     def test_query_subdomains_datatables_port_filter_services_for_request_port(self):
         """Port-filtered ListSubdomains exposes merged service names for that port (port modal)."""
@@ -132,9 +124,7 @@ class TestListSubdomains(BaseTestCase):
         self.assertFalse(getattr(scan, "is_legacy_scan", True))
         subdomain = dg.subdomain
         host = subdomain.name
-        tech = Technology.objects.create(
-            name="EpOnlyTechFilter", scan_history=scan, value="", category=""
-        )
+        tech = Technology.objects.create(name="EpOnlyTechFilter", scan_history=scan, value="", category="")
         ep = dg.create_endpoint(
             http_url=f"https://{host}/path-only",
             scan_history=scan,
@@ -206,11 +196,7 @@ class TestListSubdomains(BaseTestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        rows = [
-            row
-            for row in response.data.get("data", [])
-            if row.get("name") == shared_name
-        ]
+        rows = [row for row in response.data.get("data", []) if row.get("name") == shared_name]
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["id"], newer_subdomain.id)
         self.assertNotEqual(rows[0]["id"], older_subdomain.id)
@@ -231,9 +217,7 @@ class TestListSubdomains(BaseTestCase):
             domain=domain,
             subdomain=subdomain,
         )
-        local_tech = Technology.objects.create(
-            scan_history=scan, name="local-tech", value="", category=""
-        )
+        local_tech = Technology.objects.create(scan_history=scan, name="local-tech", value="", category="")
         local_endpoint.techs.add(local_tech)
 
         other_scan = ScanHistory.objects.create(
@@ -255,9 +239,7 @@ class TestListSubdomains(BaseTestCase):
             domain=other_domain,
             subdomain=other_subdomain,
         )
-        foreign_tech = Technology.objects.create(
-            scan_history=other_scan, name="foreign-tech", value="", category=""
-        )
+        foreign_tech = Technology.objects.create(scan_history=other_scan, name="foreign-tech", value="", category="")
         other_endpoint.techs.add(foreign_tech)
 
         url = reverse("api:querySubdomains")
@@ -273,11 +255,7 @@ class TestListSubdomains(BaseTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         row = next(
-            (
-                item
-                for item in response.data.get("data", [])
-                if item.get("id") == subdomain.id
-            ),
+            (item for item in response.data.get("data", []) if item.get("id") == subdomain.id),
             None,
         )
         self.assertIsNotNone(row)
@@ -294,9 +272,7 @@ class TestListSubdomains(BaseTestCase):
             scan_history=scan,
             domain=dg.domain,
         )
-        stale_m2m_tech = Technology.objects.create(
-            scan_history=scan, name="stale-m2m-tech", value="", category=""
-        )
+        stale_m2m_tech = Technology.objects.create(scan_history=scan, name="stale-m2m-tech", value="", category="")
         subdomain.technologies.add(stale_m2m_tech)
 
         url = reverse("api:querySubdomains")
@@ -312,11 +288,7 @@ class TestListSubdomains(BaseTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         row = next(
-            (
-                item
-                for item in response.data.get("data", [])
-                if item.get("id") == subdomain.id
-            ),
+            (item for item in response.data.get("data", []) if item.get("id") == subdomain.id),
             None,
         )
         self.assertIsNotNone(row)
@@ -333,15 +305,11 @@ class TestSubdomainsViewSet(BaseTestCase):
     def test_subdomains_viewset(self):
         """Test retrieving subdomains for a scan."""
         url = reverse("api:subdomains-list")
-        response = self.client.get(
-            url, {"scan_id": self.data_generator.scan_history.id}
-        )
+        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertEqual(
-            response.data["results"][0]["name"], self.data_generator.subdomain.name
-        )
+        self.assertEqual(response.data["results"][0]["name"], self.data_generator.subdomain.name)
 
 
 class TestSubdomainChangesViewSet(BaseTestCase):
@@ -366,15 +334,11 @@ class TestSubdomainChangesViewSet(BaseTestCase):
     def test_subdomain_changes_viewset(self):
         """Test retrieving subdomain changes for a scan."""
         url = reverse("api:subdomain-changes-list")
-        response = self.client.get(
-            url, {"scan_id": self.data_generator.scan_history.id, "changes": "added"}
-        )
+        response = self.client.get(url, {"scan_id": self.data_generator.scan_history.id, "changes": "added"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertEqual(
-            response.data["results"][0]["name"], self.data_generator.subdomain.name
-        )
+        self.assertEqual(response.data["results"][0]["name"], self.data_generator.subdomain.name)
         self.assertEqual(response.data["results"][0]["change"], "added")
 
 
@@ -389,9 +353,7 @@ class TestToggleSubdomainImportantStatus(BaseTestCase):
         """Test toggling the important status of a subdomain."""
         api_url = reverse("api:toggle_subdomain")
         initial_status = self.data_generator.subdomain.is_important
-        response = self.client.post(
-            api_url, {"subdomain_id": self.data_generator.subdomain.id}
-        )
+        response = self.client.post(api_url, {"subdomain_id": self.data_generator.subdomain.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["status"])
         self.data_generator.subdomain.refresh_from_db()
@@ -408,15 +370,11 @@ class TestSubdomainDatatableViewSet(BaseTestCase):
     def test_list_subdomains(self):
         """Test listing subdomains (no start/length: paginated response with results)."""
         api_url = reverse("api:subdomain-datatable-list")
-        response = self.client.get(
-            api_url, {"project": self.data_generator.project.slug}
-        )
+        response = self.client.get(api_url, {"project": self.data_generator.project.slug})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertEqual(
-            response.data["results"][0]["name"], self.data_generator.subdomain.name
-        )
+        self.assertEqual(response.data["results"][0]["name"], self.data_generator.subdomain.name)
 
     def test_list_subdomains_by_domain(self):
         """Test listing subdomains by target (target_id filters by Target, not Domain)."""
@@ -431,9 +389,7 @@ class TestSubdomainDatatableViewSet(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertEqual(
-            response.data["results"][0]["name"], self.data_generator.subdomain.name
-        )
+        self.assertEqual(response.data["results"][0]["name"], self.data_generator.subdomain.name)
 
     def test_list_subdomains_by_scan_id(self):
         """Test listing subdomains by scan_id returns results with expected fields."""
@@ -494,9 +450,7 @@ class TestSubdomainDatatableViewSet(BaseTestCase):
         )
         self.assertEqual(baseline.status_code, status.HTTP_200_OK)
         self.assertEqual(bad.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            baseline.data.get("recordsFiltered"), bad.data.get("recordsFiltered")
-        )
+        self.assertEqual(baseline.data.get("recordsFiltered"), bad.data.get("recordsFiltered"))
 
     def test_datatable_uses_default_endpoints_for_technology_payload(self):
         """Subdomain DataTables row exposes endpoint-derived technologies grouped by port."""
@@ -504,9 +458,7 @@ class TestSubdomainDatatableViewSet(BaseTestCase):
         ip = IpAddress.objects.create(address="203.0.113.140")
         subdomain.ip_addresses.add(ip)
         port = Port.objects.create(number=8443, ip_address=ip, service_name="https-alt")
-        tech = Technology.objects.create(
-            name="Caddy", scan_history=self.data_generator.scan_history
-        )
+        tech = Technology.objects.create(name="Caddy", scan_history=self.data_generator.scan_history)
         endpoint = EndPoint.objects.create(
             scan_history=self.data_generator.scan_history,
             domain=self.data_generator.domain,
@@ -534,9 +486,7 @@ class TestSubdomainDatatableViewSet(BaseTestCase):
         row = next((x for x in response.data["data"] if x["id"] == subdomain.id), None)
         self.assertIsNotNone(row)
         self.assertIn("endpoint_defaults_by_port", row)
-        self.assertTrue(
-            any(item.get("port") == 8443 for item in row["endpoint_defaults_by_port"])
-        )
+        self.assertTrue(any(item.get("port") == 8443 for item in row["endpoint_defaults_by_port"]))
         tech_names = {t.get("name") for t in row.get("technologies", [])}
         self.assertIn("Caddy", tech_names)
 
@@ -548,12 +498,8 @@ class TestSubdomainDatatableViewSet(BaseTestCase):
         domain = dg.domain
         subdomain = dg.subdomain
         host = subdomain.name
-        tech_default = Technology.objects.create(
-            name="FromDefaultEp", scan_history=scan, value="", category=""
-        )
-        tech_other = Technology.objects.create(
-            name="FromOtherEp", scan_history=scan, value="", category=""
-        )
+        tech_default = Technology.objects.create(name="FromDefaultEp", scan_history=scan, value="", category="")
+        tech_other = Technology.objects.create(name="FromOtherEp", scan_history=scan, value="", category="")
         ep_default = dg.create_endpoint(
             http_url=f"https://{host}/",
             scan_history=scan,
@@ -645,9 +591,7 @@ class TestInterestingSubdomainViewSet(BaseTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertEqual(
-            response.data["results"][0]["name"], self.data_generator.subdomain.name
-        )
+        self.assertEqual(response.data["results"][0]["name"], self.data_generator.subdomain.name)
 
     def test_list_interesting_subdomains_by_domain(self):
         """Test listing interesting subdomains by target (target_id) and scan_id."""
@@ -662,9 +606,7 @@ class TestInterestingSubdomainViewSet(BaseTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertEqual(
-            response.data["results"][0]["name"], self.data_generator.subdomain.name
-        )
+        self.assertEqual(response.data["results"][0]["name"], self.data_generator.subdomain.name)
 
     def test_list_interesting_subdomains_by_target_id_only(self):
         """Test listing interesting subdomains filtered by target_id only (target summary context)."""
@@ -679,9 +621,7 @@ class TestInterestingSubdomainViewSet(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("results", response.data)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        self.assertEqual(
-            response.data["results"][0]["name"], self.data_generator.subdomain.name
-        )
+        self.assertEqual(response.data["results"][0]["name"], self.data_generator.subdomain.name)
 
     def test_list_interesting_subdomains_datatables_format(self):
         """Test that list with start/length returns DataTables server-side format."""
@@ -704,6 +644,4 @@ class TestInterestingSubdomainViewSet(BaseTestCase):
         self.assertIsInstance(response.data["data"], list)
         self.assertGreaterEqual(response.data["recordsTotal"], 1)
         self.assertGreaterEqual(len(response.data["data"]), 1)
-        self.assertEqual(
-            response.data["data"][0]["name"], self.data_generator.subdomain.name
-        )
+        self.assertEqual(response.data["data"][0]["name"], self.data_generator.subdomain.name)

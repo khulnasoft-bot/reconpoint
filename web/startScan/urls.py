@@ -5,9 +5,7 @@ from . import views
 
 urlpatterns = [
     path("<slug:slug>/<int:id>", views.detail_scan, name="detail_scan"),
-    path(
-        "<slug:slug>/<int:id>/create_report", views.create_report, name="create_report"
-    ),
+    path("<slug:slug>/<int:id>/create_report", views.create_report, name="create_report"),
     path("<slug:slug>/<int:id>/delete", views.delete_scan, name="delete_scan"),
     path("<slug:slug>/endpoints", views.all_endpoints, name="all_endpoints"),
     path(
@@ -33,9 +31,7 @@ urlpatterns = [
         views.start_multiple_scan,
         name="start_multiple_scan",
     ),
-    path(
-        "<slug:slug>/multiple/delete", views.delete_scans, name="delete_multiple_scans"
-    ),
+    path("<slug:slug>/multiple/delete", views.delete_scans, name="delete_multiple_scans"),
     path(
         "<slug:slug>/organization/schedule/<int:id>",
         views.schedule_organization_scan,
@@ -61,9 +57,7 @@ urlpatterns = [
         views.schedule_scan,
         name="schedule_scan",
     ),
-    path(
-        "<slug:slug>/scheduled", views.scheduled_scan_view, name="scheduled_scan_view"
-    ),
+    path("<slug:slug>/scheduled", views.scheduled_scan_view, name="scheduled_scan_view"),
     path(
         "<slug:slug>/scheduled_task/delete/<int:id>",
         views.delete_scheduled_task,

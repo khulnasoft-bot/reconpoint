@@ -29,9 +29,7 @@ class TestDashboardViews(BaseTestCase):
 
     def test_index_view(self):
         """Test the index view of the dashboard."""
-        response = self.client.get(
-            reverse("dashboardIndex", kwargs={"slug": self.data_generator.project.slug})
-        )
+        response = self.client.get(reverse("dashboardIndex", kwargs={"slug": self.data_generator.project.slug}))
         self.assertEqual(response.status_code, 200)
         self.assertIn("dashboard_data_active", response.context)
         dashboard_data = response.context["dashboard_data_active"]
@@ -91,9 +89,7 @@ class TestDashboardViews(BaseTestCase):
 
     def test_edit_project_view(self):
         """Test the edit project view."""
-        response = self.client.get(
-            reverse("edit_project", kwargs={"slug": self.data_generator.project.slug})
-        )
+        response = self.client.get(reverse("edit_project", kwargs={"slug": self.data_generator.project.slug}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "dashboard/edit_project.html")
 
@@ -110,9 +106,7 @@ class TestDashboardViews(BaseTestCase):
 
     def test_delete_project_view(self):
         """Test the delete project view."""
-        response = self.client.post(
-            reverse("delete_project", args=[self.data_generator.project.id])
-        )
+        response = self.client.post(reverse("delete_project", args=[self.data_generator.project.id]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content), {"status": "true"})
 
@@ -142,25 +136,15 @@ class AdminInterfaceUpdateTests(BaseTestCase):
         super().setUp()
 
         # Create users with different roles
-        self.superuser = User.objects.create_superuser(
-            username="superadmin", password="password123"
-        )
-        self.sys_admin = User.objects.create_user(
-            username="sysadmin", password="password123"
-        )
+        self.superuser = User.objects.create_superuser(username="superadmin", password="password123")
+        self.sys_admin = User.objects.create_user(username="sysadmin", password="password123")
         assign_role(self.sys_admin, "sys_admin")
-        self.normal_user = User.objects.create_user(
-            username="normaluser", password="password123"
-        )
+        self.normal_user = User.objects.create_user(username="normaluser", password="password123")
         assign_role(self.normal_user, "penetration_tester")
 
         # Additional users for testing modifications
-        self.target_superuser = User.objects.create_superuser(
-            username="target_super", password="password123"
-        )
-        self.target_user = User.objects.create_user(
-            username="target_user", password="password123"
-        )
+        self.target_superuser = User.objects.create_superuser(username="target_super", password="password123")
+        self.target_user = User.objects.create_user(username="target_user", password="password123")
         assign_role(self.target_user, "penetration_tester")
 
     def test_user_creation_permissions(self):
@@ -295,16 +279,12 @@ class AdminInterfaceUpdateTests(BaseTestCase):
     def test_self_modification_restrictions(self):
         # Test superuser trying to delete themselves
         self.client.force_login(self.superuser)
-        response = self.client.post(
-            reverse("admin_interface_update") + f"?user={self.superuser.id}&mode=delete"
-        )
+        response = self.client.post(reverse("admin_interface_update") + f"?user={self.superuser.id}&mode=delete")
         self.assertEqual(response.status_code, 403)
 
         # Test sys_admin trying to delete themselves
         self.client.force_login(self.sys_admin)
-        response = self.client.post(
-            reverse("admin_interface_update") + f"?user={self.sys_admin.id}&mode=delete"
-        )
+        response = self.client.post(reverse("admin_interface_update") + f"?user={self.sys_admin.id}&mode=delete")
         self.assertEqual(response.status_code, 403)
 
 
@@ -314,9 +294,7 @@ class OAuthRedirectTests(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.adapter = AccountAdapter()
-        self.user = get_user_model().objects.create_user(
-            username="oauthuser", password="password123"
-        )
+        self.user = get_user_model().objects.create_user(username="oauthuser", password="password123")
         SocialAccount.objects.create(user=self.user, provider="google", uid="oauth-123")
 
     def _build_request(self, user):
@@ -372,9 +350,7 @@ class OAuthRedirectTests(TestCase):
         request = self._build_request(self.user)
         redirect_url = self.adapter.get_login_redirect_url(request)
 
-        self.assertEqual(
-            redirect_url, reverse("dashboardIndex", kwargs={"slug": project.slug})
-        )
+        self.assertEqual(redirect_url, reverse("dashboardIndex", kwargs={"slug": project.slug}))
 
     def test_non_oauth_user_with_projects_redirects_to_dashboard(self):
         """Non-OAuth user assigned to a project redirects to that project's dashboard."""
@@ -472,14 +448,10 @@ class OAuthRedirectTests(TestCase):
     def test_oauth_user_deleted_and_recreated_redirects_to_welcome(self):
         """OAuth user deleted and re-created (fresh account) redirects to welcome page."""
         # Simulate a brand-new OAuth account (last_login is None)
-        new_user = get_user_model().objects.create_user(
-            username="newgoogleuser", password="!"
-        )
+        new_user = get_user_model().objects.create_user(username="newgoogleuser", password="!")
         new_user.set_unusable_password()
         new_user.save()
-        SocialAccount.objects.create(
-            user=new_user, provider="google", uid="new-oauth-456"
-        )
+        SocialAccount.objects.create(user=new_user, provider="google", uid="new-oauth-456")
 
         request = self._build_request(new_user)
         redirect_url = self.adapter.get_login_redirect_url(request)

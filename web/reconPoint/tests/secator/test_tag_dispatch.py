@@ -87,18 +87,10 @@ class TestNucleiTagClassification(BaseTestCase):
     """Unit tests for Nuclei tag classification helpers."""
 
     def test_is_nuclei_tag_true_when_source_nuclei(self):
-        self.assertTrue(
-            nuclei_mod.is_nuclei_tag(
-                {"_source": "nuclei", "category": "info", "name": "x"}
-            )
-        )
+        self.assertTrue(nuclei_mod.is_nuclei_tag({"_source": "nuclei", "category": "info", "name": "x"}))
 
     def test_is_nuclei_tag_false_other_source(self):
-        self.assertFalse(
-            nuclei_mod.is_nuclei_tag(
-                {"_source": "wappalyzer", "category": "info", "name": "x"}
-            )
-        )
+        self.assertFalse(nuclei_mod.is_nuclei_tag({"_source": "wappalyzer", "category": "info", "name": "x"}))
 
     def test_is_nuclei_technology_tag_allowlist_intersection(self):
         payload = {
@@ -309,9 +301,7 @@ class TestDispatchSecatorTag(BaseTestCase):
     def test_dispatch_whois_out_of_scope_returns_skipped(self):
         """Whois tag with domain out of scope (restrict_findings_to_target) returns ('skipped', synthetic_id)."""
         self.data_generator.create_organization()
-        self.data_generator.create_scope(
-            restrict_findings_to_target=True, allowed_finding_domains=[]
-        )
+        self.data_generator.create_scope(restrict_findings_to_target=True, allowed_finding_domains=[])
         target = self.data_generator.target
         scan_history = self.data_generator.create_scan_history()
 
@@ -447,9 +437,7 @@ class TestDispatchSecatorTag(BaseTestCase):
         self.assertIn("xss", result[2])
 
     @patch("reconPoint.services.repositories.endpoint_repository.EndpointRepository")
-    def test_handle_url_pattern_coerces_non_string_match_and_name(
-        self, mock_repo_class
-    ):
+    def test_handle_url_pattern_coerces_non_string_match_and_name(self, mock_repo_class):
         """Non-string match/value/name must not raise when coerced for repository call."""
         mock_repo = MagicMock()
         mock_repo_class.return_value = mock_repo
@@ -463,9 +451,7 @@ class TestDispatchSecatorTag(BaseTestCase):
         )
         self.assertIs(obj, saved)
         self.assertIsNone(err)
-        mock_repo.add_gf_pattern_from_secator_tag.assert_called_once_with(
-            1, 2, "443", "['n1', 'n2']"
-        )
+        mock_repo.add_gf_pattern_from_secator_tag.assert_called_once_with(1, 2, "443", "['n1', 'n2']")
 
     @patch("reconPoint.services.repositories.endpoint_repository.EndpointRepository")
     def test_handle_url_pattern_numeric_zero_skips_to_value(self, mock_repo_class):

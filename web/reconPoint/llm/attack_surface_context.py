@@ -31,9 +31,7 @@ def _scan_config_summary(config: object | None) -> str:
     except TypeError:
         text = str(config)
     if len(text) > SCAN_CONFIG_SUMMARY_MAX_CHARS:
-        return "%s\n... (scan_config truncated)" % (
-            text[:SCAN_CONFIG_SUMMARY_MAX_CHARS],
-        )
+        return "%s\n... (scan_config truncated)" % (text[:SCAN_CONFIG_SUMMARY_MAX_CHARS],)
     return text
 
 
@@ -53,12 +51,8 @@ def _vulnerability_summary_for_targets(target_ids: Sequence[int]) -> str:
     by_sev = base.values("severity").annotate(n=Count("id")).order_by("severity")
     sev_parts = ["%s:%s" % (row["severity"], row["n"]) for row in by_sev]
     lines = ["Total vulnerabilities (linked scans on these targets): %s" % (total,)]
-    lines.append(
-        "By severity code: %s" % (", ".join(sev_parts) if sev_parts else "none",)
-    )
-    sample = base.order_by("-severity", "id").values_list("name", flat=True)[
-        :MAX_VULN_ROWS_IN_CONTEXT
-    ]
+    lines.append("By severity code: %s" % (", ".join(sev_parts) if sev_parts else "none",))
+    sample = base.order_by("-severity", "id").values_list("name", flat=True)[:MAX_VULN_ROWS_IN_CONTEXT]
     names = list(sample)
     for name in names:
         lines.append("- %s" % (name[:300],))
@@ -87,9 +81,7 @@ def _ip_block_for_targets(target_ids: Sequence[int]) -> str:
     rows = rows[:MAX_IPS_IN_CONTEXT]
     lines = []
     for ip_row in rows:
-        ports = ", ".join(
-            "%s/%s" % (p.number, p.service_name or "") for p in ip_row.ports.all()[:40]
-        )
+        ports = ", ".join("%s/%s" % (p.number, p.service_name or "") for p in ip_row.ports.all()[:40])
         lines.append(
             "IP: %s | alive=%s | cdn=%s | proto=%s | ptr=%s | ports=%s"
             % (
@@ -103,9 +95,7 @@ def _ip_block_for_targets(target_ids: Sequence[int]) -> str:
         )
     body = "\n".join(lines) + "\n"
     if truncated:
-        body += "\n... (more IP rows exist; list truncated at %s)\n" % (
-            MAX_IPS_IN_CONTEXT,
-        )
+        body += "\n... (more IP rows exist; list truncated at %s)\n" % (MAX_IPS_IN_CONTEXT,)
     return body
 
 
@@ -138,9 +128,7 @@ def _subdomain_block_for_targets(target_ids: Sequence[int]) -> str:
         )
     body = "\n".join(lines) + "\n"
     if truncated:
-        body += "\n... (more subdomains exist; list truncated at %s)\n" % (
-            MAX_SUBDOMAINS_IN_CONTEXT,
-        )
+        body += "\n... (more subdomains exist; list truncated at %s)\n" % (MAX_SUBDOMAINS_IN_CONTEXT,)
     return body
 
 
@@ -173,23 +161,18 @@ def _build_aggregate_body(target_ids: Sequence[int], analysis_header: str) -> st
     ]
     text = "\n".join(parts)
     if len(text) > MAX_CONTEXT_CHARS:
-        return text[
-            :MAX_CONTEXT_CHARS
-        ] + "\n\n... (overall context truncated at %s characters)\n" % (
+        return text[:MAX_CONTEXT_CHARS] + "\n\n... (overall context truncated at %s characters)\n" % (
             MAX_CONTEXT_CHARS,
         )
     return text
 
 
 def build_context_for_target(target: Target) -> str:
-    header = (
-        "Analysis level: single Target\nTarget id=%s value=%s type=%s\nTarget scan_config (summary): %s\n"
-        % (
-            target.id,
-            target.value,
-            target.target_type,
-            _scan_config_summary(target.scan_config),
-        )
+    header = "Analysis level: single Target\nTarget id=%s value=%s type=%s\nTarget scan_config (summary): %s\n" % (
+        target.id,
+        target.value,
+        target.target_type,
+        _scan_config_summary(target.scan_config),
     )
     return _build_aggregate_body([target.id], header)
 
@@ -259,12 +242,8 @@ def _vulnerability_summary_for_scan_history(scan_id: int) -> str:
     by_sev = base.values("severity").annotate(n=Count("id")).order_by(severity_weight)
     sev_parts = ["%s:%s" % (row["severity"], row["n"]) for row in by_sev]
     lines = ["Total vulnerabilities (for this scan): %s" % (total,)]
-    lines.append(
-        "By severity code: %s" % (", ".join(sev_parts) if sev_parts else "none",)
-    )
-    sample = base.order_by(severity_weight, "id").values_list("name", flat=True)[
-        :MAX_VULN_ROWS_IN_CONTEXT
-    ]
+    lines.append("By severity code: %s" % (", ".join(sev_parts) if sev_parts else "none",))
+    sample = base.order_by(severity_weight, "id").values_list("name", flat=True)[:MAX_VULN_ROWS_IN_CONTEXT]
     names = list(sample)
     for name in names:
         lines.append("- %s" % (name[:300],))
@@ -278,14 +257,9 @@ def _vulnerability_summary_for_scan_history(scan_id: int) -> str:
 
 def _ip_block_for_scan_history(scan_id: int) -> str:
     base_qs = (
-        IpAddress.objects.filter(
-            Q(ip_addresses__scan_history__id=scan_id)
-            | Q(ip_endpoints__scan_history__id=scan_id)
-        )
+        IpAddress.objects.filter(Q(ip_addresses__scan_history__id=scan_id) | Q(ip_endpoints__scan_history__id=scan_id))
         .distinct()
-        .prefetch_related(
-            Prefetch("ports", queryset=Port.objects.order_by("number", "id"))
-        )
+        .prefetch_related(Prefetch("ports", queryset=Port.objects.order_by("number", "id")))
         .order_by("id")
     )
     rows = list(base_qs[: MAX_IPS_IN_CONTEXT + 1])
@@ -293,9 +267,7 @@ def _ip_block_for_scan_history(scan_id: int) -> str:
     rows = rows[:MAX_IPS_IN_CONTEXT]
     lines = []
     for ip_row in rows:
-        ports = ", ".join(
-            "%s/%s" % (p.number, p.service_name or "") for p in ip_row.ports.all()[:40]
-        )
+        ports = ", ".join("%s/%s" % (p.number, p.service_name or "") for p in ip_row.ports.all()[:40])
         lines.append(
             "IP: %s | alive=%s | cdn=%s | proto=%s | ptr=%s | ports=%s"
             % (
@@ -309,19 +281,13 @@ def _ip_block_for_scan_history(scan_id: int) -> str:
         )
     body = "\n".join(lines) + "\n"
     if truncated:
-        body += (
-            "\n... (more IP rows found in this scan run; list truncated at %s)\n"
-            % (MAX_IPS_IN_CONTEXT,)
-        )
+        body += "\n... (more IP rows found in this scan run; list truncated at %s)\n" % (MAX_IPS_IN_CONTEXT,)
     return body
 
 
 def _subdomain_block_for_scan_history(scan_id: int) -> str:
     base_qs: QuerySet[Subdomain] = (
-        Subdomain.objects.filter(scan_history_id=scan_id)
-        .distinct()
-        .prefetch_related("technologies")
-        .order_by("id")
+        Subdomain.objects.filter(scan_history_id=scan_id).distinct().prefetch_related("technologies").order_by("id")
     )
     rows = list(base_qs[: MAX_SUBDOMAINS_IN_CONTEXT + 1])
     truncated = len(rows) > MAX_SUBDOMAINS_IN_CONTEXT
@@ -343,10 +309,7 @@ def _subdomain_block_for_scan_history(scan_id: int) -> str:
         )
     body = "\n".join(lines) + "\n"
     if truncated:
-        body += (
-            "\n... (more subdomains found in this scan run; list truncated at %s)\n"
-            % (MAX_SUBDOMAINS_IN_CONTEXT,)
-        )
+        body += "\n... (more subdomains found in this scan run; list truncated at %s)\n" % (MAX_SUBDOMAINS_IN_CONTEXT,)
     return body
 
 
@@ -395,9 +358,7 @@ def build_context_for_scan_history(scan: ScanHistory) -> str:
     ]
     text = "\n".join(parts)
     if len(text) > MAX_CONTEXT_CHARS:
-        return text[
-            :MAX_CONTEXT_CHARS
-        ] + "\n\n... (overall context truncated at %s characters)\n" % (
+        return text[:MAX_CONTEXT_CHARS] + "\n\n... (overall context truncated at %s characters)\n" % (
             MAX_CONTEXT_CHARS,
         )
     return text

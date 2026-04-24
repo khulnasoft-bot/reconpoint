@@ -21,9 +21,7 @@ def apply_endpoint_techs_prefetch(queryset: QuerySet) -> QuerySet:
     Keep the base queryset shape unchanged so upstream ``only()`` / ``defer()`` remains intact.
     Field narrowing is applied only on the related ``Technology`` queryset.
     """
-    tech_qs = Technology.objects.only(
-        "id", "name", "value", "category", "stored_response_path"
-    )
+    tech_qs = Technology.objects.only("id", "name", "value", "category", "stored_response_path")
     return queryset.prefetch_related(Prefetch("techs", queryset=tech_qs))
 
 
@@ -33,12 +31,8 @@ def apply_endpoint_port_and_techs_related(queryset: QuerySet) -> QuerySet:
 
     Keep base queryset fields untouched so upstream ``only()`` / ``defer()`` remains effective.
     """
-    tech_qs = Technology.objects.only(
-        "id", "name", "value", "category", "stored_response_path"
-    )
-    return queryset.select_related("port").prefetch_related(
-        Prefetch("techs", queryset=tech_qs)
-    )
+    tech_qs = Technology.objects.only("id", "name", "value", "category", "stored_response_path")
+    return queryset.select_related("port").prefetch_related(Prefetch("techs", queryset=tech_qs))
 
 
 def subdomain_all_endpoints_for_tech_queryset() -> QuerySet:
@@ -48,6 +42,4 @@ def subdomain_all_endpoints_for_tech_queryset() -> QuerySet:
     Keep rows scoped to the owning subdomain scan (same semantics used by serializers)
     and order by id for deterministic output.
     """
-    return EndPoint.objects.filter(
-        scan_history_id=F("subdomain__scan_history_id")
-    ).order_by("id")
+    return EndPoint.objects.filter(scan_history_id=F("subdomain__scan_history_id")).order_by("id")

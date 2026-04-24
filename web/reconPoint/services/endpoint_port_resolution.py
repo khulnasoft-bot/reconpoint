@@ -59,9 +59,7 @@ def resolve_port_id_for_subdomain_from_ip_port_map(
     linked_ip_ids: AbstractSet[int],
     port_number: int,
 ) -> Optional[int]:
-    candidate_port_ids = {
-        port_id_by_ip_and_number.get((ip_id, port_number)) for ip_id in linked_ip_ids
-    }
+    candidate_port_ids = {port_id_by_ip_and_number.get((ip_id, port_number)) for ip_id in linked_ip_ids}
     candidate_port_ids.discard(None)
     if len(candidate_port_ids) == 1:
         return next(iter(candidate_port_ids))
@@ -84,18 +82,14 @@ def resolve_port_pk_for_endpoint_maps(
     then subdomain + linked IPs + ``resolve_port_id_for_subdomain_from_ip_port_map``.
     """
     if ip_address_id:
-        return resolve_port_id_from_ip_port_map(
-            port_id_by_ip_and_number, ip_address_id, port_number
-        )
+        return resolve_port_id_from_ip_port_map(port_id_by_ip_and_number, ip_address_id, port_number)
     if not subdomain_id:
         return None
     cache_key = (subdomain_id, port_number)
     if subdomain_port_cache is not None and cache_key in subdomain_port_cache:
         return subdomain_port_cache[cache_key]
     ip_ids = subdomain_to_ip_ids.get(subdomain_id, set())
-    resolved = resolve_port_id_for_subdomain_from_ip_port_map(
-        port_id_by_ip_and_number, ip_ids, port_number
-    )
+    resolved = resolve_port_id_for_subdomain_from_ip_port_map(port_id_by_ip_and_number, ip_ids, port_number)
     if subdomain_port_cache is not None:
         subdomain_port_cache[cache_key] = resolved
     return resolved

@@ -101,13 +101,8 @@ class PortRepository:
             )
             return None
 
-    def _process_secator_port_item(
-        self, item: Dict[str, Any], scan_history_id: int, target_id: int
-    ) -> Optional[Port]:
-        target_value = (
-            Target.objects.filter(id=target_id).values_list("value", flat=True).first()
-            or ""
-        )
+    def _process_secator_port_item(self, item: Dict[str, Any], scan_history_id: int, target_id: int) -> Optional[Port]:
+        target_value = Target.objects.filter(id=target_id).values_list("value", flat=True).first() or ""
         domain = resolve_domain_for_scan(
             scan_history_id,
             target_value,
@@ -140,8 +135,7 @@ class PortRepository:
             logger.log_line(
                 PREFIX_PORT_REPO,
                 "SAVE",
-                "Invalid port number type/value: %s"
-                % (bounded_diagnostic_preview(raw_port, use_repr=True),),
+                "Invalid port number type/value: %s" % (bounded_diagnostic_preview(raw_port, use_repr=True),),
                 level="warning",
             )
             return None
@@ -173,8 +167,7 @@ class PortRepository:
                 logger.log_line(
                     PREFIX_PORT_REPO,
                     "SAVE",
-                    "Port item host is not an IP address; treating 'host' as hostname: %s"
-                    % (raw_host,),
+                    "Port item host is not an IP address; treating 'host' as hostname: %s" % (raw_host,),
                     level="info",
                 )
         if ip_address is None:
@@ -194,9 +187,7 @@ class PortRepository:
                 )
             return None
 
-        EndpointRepository().create_endpoint_for_ip(
-            ip_address, scan_history_id, domain.id
-        )
+        EndpointRepository().create_endpoint_for_ip(ip_address, scan_history_id, domain.id)
 
         implies_alive = secator_port_data_implies_alive_host(item)
         alive_kw: Optional[bool] = True if implies_alive else None
@@ -228,9 +219,7 @@ class PortRepository:
         }
         if extra_init is not None:
             port_defaults["extra_data"] = extra_init
-        if src := extract_secator_tool_source(
-            item, include_provider=False, max_length=200
-        ):
+        if src := extract_secator_tool_source(item, include_provider=False, max_length=200):
             port_defaults["source"] = src
 
         port_obj, created = Port.objects.get_or_create(
@@ -254,24 +243,14 @@ class PortRepository:
                 level="debug",
             )
 
-        self._apply_secator_port_followup(
-            port_obj, item, created, ip_address, raw_host, extra_init
-        )
+        self._apply_secator_port_followup(port_obj, item, created, ip_address, raw_host, extra_init)
 
-        if (
-            raw_host
-            and raw_host.strip().lower() != ip_address
-            and is_acceptable_subdomain_name(raw_host)
-        ):
-            SubdomainRepository().get_or_create_from_host(
-                scan_history_id, target_id, raw_host
-            )
+        if raw_host and raw_host.strip().lower() != ip_address and is_acceptable_subdomain_name(raw_host):
+            SubdomainRepository().get_or_create_from_host(scan_history_id, target_id, raw_host)
 
         return port_obj
 
-    def get_or_create(
-        self, port_number: int, ip_address: str, **kwargs
-    ) -> Tuple[Optional[Port], bool]:
+    def get_or_create(self, port_number: int, ip_address: str, **kwargs) -> Tuple[Optional[Port], bool]:
         """
         Get or create a port.
 
@@ -317,9 +296,7 @@ class PortRepository:
                 "description": "",
                 "is_uncommon": self._is_uncommon_port(port_number),
             } | kwargs
-            port_obj, created = Port.objects.get_or_create(
-                number=port_number, ip_address=ip_obj, defaults=defaults
-            )
+            port_obj, created = Port.objects.get_or_create(number=port_number, ip_address=ip_obj, defaults=defaults)
 
             return port_obj, created
 
@@ -363,9 +340,7 @@ class PortRepository:
             )
             return []
 
-    def _create_ports_in_bulk(
-        self, scan_history_id: int, domain_id: int, ports: List[Dict[str, Any]]
-    ) -> List[Port]:
+    def _create_ports_in_bulk(self, scan_history_id: int, domain_id: int, ports: List[Dict[str, Any]]) -> List[Port]:
         # Validate scan_history and domain exist
         scan_history = ScanHistory.objects.get(id=scan_history_id)
         if get_domain_by_id(domain_id) is None:
@@ -383,12 +358,8 @@ class PortRepository:
             if is_valid_port(port_number) and is_valid_ip(ip_address):
                 if ip_address not in seen_ips:
                     seen_ips.add(ip_address)
-                    EndpointRepository().create_endpoint_for_ip(
-                        ip_address, scan_history_id, domain_id
-                    )
-                alive_kw: Optional[bool] = (
-                    True if secator_port_data_implies_alive_host(port_data) else None
-                )
+                    EndpointRepository().create_endpoint_for_ip(ip_address, scan_history_id, domain_id)
+                alive_kw: Optional[bool] = True if secator_port_data_implies_alive_host(port_data) else None
                 ip_obj, _ = IpRepository().get_or_create_for_scan(
                     scan_history_id,
                     target_id,
@@ -420,9 +391,7 @@ class PortRepository:
 
         return []
 
-    def update_service_info(
-        self, port_id: int, service_name: str = None, description: str = None
-    ) -> bool:
+    def update_service_info(self, port_id: int, service_name: str = None, description: str = None) -> bool:
         """
         Update service information for a port.
 
@@ -485,14 +454,8 @@ class PortRepository:
         ):
             update_fields.append("extra_data")
         if not created:
-            update_fields.extend(
-                self._fill_empty_port_fields_from_secator(
-                    port_obj, item, ip_literal, raw_host
-                )
-            )
-        if src := extract_secator_tool_source(
-            item, include_provider=False, max_length=200
-        ):
+            update_fields.extend(self._fill_empty_port_fields_from_secator(port_obj, item, ip_literal, raw_host))
+        if src := extract_secator_tool_source(item, include_provider=False, max_length=200):
             if port_obj.source != src:
                 port_obj.source = src
                 update_fields.append("source")
@@ -548,9 +511,7 @@ class PortRepository:
     ) -> None:
         if not raw_host:
             return
-        if not PortRepository._secator_raw_host_is_hostname_candidate(
-            raw_host, ip_literal
-        ):
+        if not PortRepository._secator_raw_host_is_hostname_candidate(raw_host, ip_literal):
             return
         rh = raw_host.strip()
         cur = (port_obj.host or "").strip()
@@ -567,12 +528,8 @@ class PortRepository:
     ) -> List[str]:
         """Populate empty columns from a newer Secator port item (e.g. naabu then nmap)."""
         fields: List[str] = []
-        self._fill_empty_port_string_field_if_blank(
-            port_obj, item, "service_name", fields
-        )
-        self._fill_empty_port_string_field_if_blank(
-            port_obj, item, "description", fields
-        )
+        self._fill_empty_port_string_field_if_blank(port_obj, item, "service_name", fields)
+        self._fill_empty_port_string_field_if_blank(port_obj, item, "description", fields)
         self._fill_empty_port_string_field_if_blank(port_obj, item, "state", fields)
         self._fill_empty_port_string_field_if_blank(port_obj, item, "protocol", fields)
         conf = self._validate_confidence(item.get("confidence", ""))

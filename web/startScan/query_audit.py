@@ -75,9 +75,7 @@ def build_audit_samples() -> Dict[str, Any]:
     return samples
 
 
-def get_audit_queries(
-    samples: Dict[str, Any], app_filter: Optional[str] = None
-) -> List[Tuple[str, str, List[Any]]]:
+def get_audit_queries(samples: Dict[str, Any], app_filter: Optional[str] = None) -> List[Tuple[str, str, List[Any]]]:
     """
     Return list of (name, sql, params) for all critical EXPLAIN patterns.
     If app_filter is set, only return queries for that app.

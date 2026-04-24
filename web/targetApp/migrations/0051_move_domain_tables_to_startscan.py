@@ -63,16 +63,12 @@ class Migration(migrations.Migration):
         _op_rename_and_delete("NameServer", "startScan_nameserver"),
         _op_rename_and_delete("DNSRecord", "startScan_dnsrecord"),
         # Through tables use Django default names (model name lowercased, no extra underscores)
-        _op_rename_table_only(
-            "targetapp_domaininfostatusthrough", "startScan_domaininfo_status"
-        ),
+        _op_rename_table_only("targetapp_domaininfostatusthrough", "startScan_domaininfo_status"),
         _op_rename_table_only(
             "targetapp_domaininfonameserversthrough",
             "startScan_domaininfo_name_servers",
         ),
-        _op_rename_table_only(
-            "targetapp_domaininfodnsrecordsthrough", "startScan_domaininfo_dns_records"
-        ),
+        _op_rename_table_only("targetapp_domaininfodnsrecordsthrough", "startScan_domaininfo_dns_records"),
         _op_rename_table_only(
             "targetapp_domaininforelateddomainsthrough",
             "startScan_domaininfo_related_domains",

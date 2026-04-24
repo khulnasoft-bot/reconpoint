@@ -20,9 +20,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="scanactivity",
-            index=models.Index(
-                fields=["scan_of_id", "status"], name="startScan_s_scan_of_3c4d7a_idx"
-            ),
+            index=models.Index(fields=["scan_of_id", "status"], name="startScan_s_scan_of_3c4d7a_idx"),
         ),
         migrations.AddIndex(
             model_name="scanactivity",
@@ -61,15 +59,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="vulnerability",
-            index=models.Index(
-                fields=["scan_history_id", "cvss_score"], name="ss_vuln_scan_cvss_idx"
-            ),
+            index=models.Index(fields=["scan_history_id", "cvss_score"], name="ss_vuln_scan_cvss_idx"),
         ),
         migrations.AddIndex(
             model_name="vulnerability",
-            index=models.Index(
-                fields=["scan_history_id", "severity"], name="ss_vuln_scan_severity_idx"
-            ),
+            index=models.Index(fields=["scan_history_id", "severity"], name="ss_vuln_scan_severity_idx"),
         ),
         migrations.AddIndex(
             model_name="secatorrunner",

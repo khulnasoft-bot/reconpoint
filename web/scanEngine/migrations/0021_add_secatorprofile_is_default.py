@@ -18,9 +18,7 @@ def set_initial_defaults(apps, schema_editor):
         try:
             profile = SecatorProfile.objects.get(name=profile_name, category=category)
             # Only set default if no default already exists for this category
-            if not SecatorProfile.objects.filter(
-                category=category, is_default=True
-            ).exists():
+            if not SecatorProfile.objects.filter(category=category, is_default=True).exists():
                 profile.is_default = True
                 profile.save(update_fields=["is_default"])
         except SecatorProfile.DoesNotExist:

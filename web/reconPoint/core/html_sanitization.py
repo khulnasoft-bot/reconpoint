@@ -51,9 +51,7 @@ ALLOWED_HTML_TAGS = frozenset(
 )
 
 ALLOWED_ATTRIBUTES = {
-    "a": frozenset(
-        {"href", "title", "id", "class", "aria-label", "aria-expanded", "role"}
-    ),
+    "a": frozenset({"href", "title", "id", "class", "aria-label", "aria-expanded", "role"}),
     "div": frozenset({"id", "class", "role", "aria-label", "aria-hidden"}),
     "span": frozenset({"id", "class", "role", "aria-label", "aria-hidden"}),
     "pre": frozenset({"id", "class", "aria-label"}),

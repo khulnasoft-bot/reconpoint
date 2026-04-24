@@ -21,8 +21,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="domaininfo",
             name="related_tlds",
-            field=models.ManyToManyField(
-                blank=True, related_name="related_tlds", to="targetApp.AssociatedDomain"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="related_tlds", to="targetApp.AssociatedDomain"),
         ),
     ]

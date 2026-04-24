@@ -32,9 +32,7 @@ class TestGetDatatablesOrderColumn(BaseTestCase):
         if dir is not None:
             params["order[0][dir]"] = dir
         request = self.factory.get("/", params)
-        return get_datatables_order_column(
-            request, self.column_map, default_order=default_order
-        )
+        return get_datatables_order_column(request, self.column_map, default_order=default_order)
 
     def test_mapped_column_asc_uses_request_direction(self):
         """Mapped column with dir=asc returns bare field."""
@@ -52,9 +50,7 @@ class TestGetDatatablesOrderColumn(BaseTestCase):
             self._order_column(column="99", dir=None, default_order="-severity"),
             "-severity",
         )
-        self.assertEqual(
-            self._order_column(column="99", dir=None, default_order="id"), "id"
-        )
+        self.assertEqual(self._order_column(column="99", dir=None, default_order="id"), "id")
 
     def test_fallback_default_order_asc_overrides_default_direction(self):
         """When fallback and dir=asc, result is ascending even if default_order is descending."""
@@ -65,9 +61,7 @@ class TestGetDatatablesOrderColumn(BaseTestCase):
 
     def test_fallback_default_order_desc_overrides_default_direction(self):
         """When fallback and dir=desc, result is descending."""
-        self.assertEqual(
-            self._order_column(column="99", dir="desc", default_order="id"), "-id"
-        )
+        self.assertEqual(self._order_column(column="99", dir="desc", default_order="id"), "-id")
 
 
 class TestGetDatatableActionUrls(BaseTestCase):
@@ -100,9 +94,7 @@ class TestGetDatatableActionUrls(BaseTestCase):
         self.assertIn("getIpDetails", ip_urls)
         self.assertIn("querySubdomains", ip_urls)
         for key, path in ip_urls.items():
-            self.assertTrue(
-                path.startswith("/"), msg=f"ip.{key} should be absolute path"
-            )
+            self.assertTrue(path.startswith("/"), msg=f"ip.{key} should be absolute path")
 
     def test_subdomain_urls_are_absolute_paths(self):
         """Subdomain action URLs are non-empty paths."""
@@ -113,9 +105,7 @@ class TestGetDatatableActionUrls(BaseTestCase):
         self.assertIn("attackSurface", sub)
         self.assertIn("toggleSubdomain", sub)
         for key, path in sub.items():
-            self.assertTrue(
-                path.startswith("/"), msg=f"subdomain.{key} should be absolute path"
-            )
+            self.assertTrue(path.startswith("/"), msg=f"subdomain.{key} should be absolute path")
 
     def test_vulnerability_urls_are_absolute_paths(self):
         """Vulnerability action URLs are non-empty paths."""
@@ -127,9 +117,7 @@ class TestGetDatatableActionUrls(BaseTestCase):
         self.assertIn("hackeroneReport", vuln)
         self.assertIn("deleteVulnerability", vuln)
         for key, path in vuln.items():
-            self.assertTrue(
-                path.startswith("/"), msg=f"vulnerability.{key} should be absolute path"
-            )
+            self.assertTrue(path.startswith("/"), msg=f"vulnerability.{key} should be absolute path")
 
     def test_target_urls_are_base_without_trailing_id(self):
         """Target URLs are base paths (no trailing /0) so frontend can append row id."""
@@ -149,9 +137,7 @@ class TestGetDatatableActionUrls(BaseTestCase):
                 path.endswith("/0") or path.endswith("/0/"),
                 msg=f"target.{key} must be base path",
             )
-            self.assertTrue(
-                path.startswith("/"), msg=f"target.{key} must be absolute path for href"
-            )
+            self.assertTrue(path.startswith("/"), msg=f"target.{key} must be absolute path for href")
             self.assertTrue(
                 path.endswith("/"),
                 msg=f"target.{key} must end with / so that base+id yields base/id",
@@ -170,8 +156,7 @@ def _get_all_column_maps():
     return [
         (name, getattr(datatables_module, name))
         for name in dir(datatables_module)
-        if name.startswith("DATATABLE_COLUMN_MAP_")
-        and isinstance(getattr(datatables_module, name), dict)
+        if name.startswith("DATATABLE_COLUMN_MAP_") and isinstance(getattr(datatables_module, name), dict)
     ]
 
 
@@ -184,9 +169,7 @@ class TestDatatableColumnMaps(BaseTestCase):
             self.assertIsInstance(column_map, dict, msg=f"{name} must be a dict")
             for key, value in column_map.items():
                 self.assertIsInstance(key, str, msg=f"{name}: key {key!r} must be str")
-                self.assertIsInstance(
-                    value, str, msg=f"{name}: value for key {key!r} must be str"
-                )
+                self.assertIsInstance(value, str, msg=f"{name}: value for key {key!r} must be str")
                 self.assertTrue(
                     len(value) > 0,
                     msg=f"{name}: value for key {key!r} must be non-empty",
@@ -211,9 +194,7 @@ class TestDatatableColumnMaps(BaseTestCase):
         """Each column map has unique keys (no duplicate column index)."""
         for name, column_map in _get_all_column_maps():
             keys = list(column_map.keys())
-            self.assertEqual(
-                len(keys), len(set(keys)), msg=f"{name}: duplicate keys in column map"
-            )
+            self.assertEqual(len(keys), len(set(keys)), msg=f"{name}: duplicate keys in column map")
 
 
 class TestGetRequestFilterList(BaseTestCase):
@@ -234,9 +215,7 @@ class TestGetRequestFilterList(BaseTestCase):
         """When values are sent as param_key (multiple), returns list of values."""
         from api.helpers.datatables import get_request_filter_list
 
-        request = self.factory.get(
-            "/", [("filter_scope", "scope-a"), ("filter_scope", "scope-b")]
-        )
+        request = self.factory.get("/", [("filter_scope", "scope-a"), ("filter_scope", "scope-b")])
         result = get_request_filter_list(request, "filter_scope")
         self.assertIsInstance(result, list)
         self.assertIn("scope-a", result)
@@ -246,9 +225,7 @@ class TestGetRequestFilterList(BaseTestCase):
         """When values are sent as param_key[], returns list of values."""
         from api.helpers.datatables import get_request_filter_list
 
-        request = self.factory.get(
-            "/", [("filter_scope[]", "scope-1"), ("filter_scope[]", "scope-2")]
-        )
+        request = self.factory.get("/", [("filter_scope[]", "scope-1"), ("filter_scope[]", "scope-2")])
         result = get_request_filter_list(request, "filter_scope")
         self.assertEqual(len(result), 2)
         self.assertIn("scope-1", result)
@@ -258,9 +235,7 @@ class TestGetRequestFilterList(BaseTestCase):
         """When both param_key and param_key[] exist, getlist(param_key) is used first."""
         from api.helpers.datatables import get_request_filter_list
 
-        request = self.factory.get(
-            "/", [("filter_x", "a"), ("filter_x[]", "b"), ("filter_x[]", "c")]
-        )
+        request = self.factory.get("/", [("filter_x", "a"), ("filter_x[]", "b"), ("filter_x[]", "c")])
         result = get_request_filter_list(request, "filter_x")
         self.assertEqual(result, ["a"])
 
@@ -297,9 +272,7 @@ class TestApplyFilterListIn(BaseTestCase):
         def map_only_first(v):
             return v if v == target.id else None
 
-        result = apply_filter_list_in(
-            qs, "id__in", [target.id, 99999], value_mapper=map_only_first
-        )
+        result = apply_filter_list_in(qs, "id__in", [target.id, 99999], value_mapper=map_only_first)
         self.assertEqual(result.count(), 1)
         self.assertEqual(result.first().id, target.id)
 
@@ -308,9 +281,7 @@ class TestApplyFilterListIn(BaseTestCase):
         from api.helpers.datatables import apply_filter_list_in
 
         qs = self.data_generator.project.target_set.all()
-        result = apply_filter_list_in(
-            qs, "id__in", [self.data_generator.target.id], distinct=True
-        )
+        result = apply_filter_list_in(qs, "id__in", [self.data_generator.target.id], distinct=True)
         self.assertTrue(result.query.distinct)
 
     def test_all_mapped_to_none_returns_empty_queryset_by_default(self):
@@ -318,9 +289,7 @@ class TestApplyFilterListIn(BaseTestCase):
         from api.helpers.datatables import apply_filter_list_in
 
         qs = self.data_generator.project.target_set.all()
-        result = apply_filter_list_in(
-            qs, "id__in", [1, 2, 3], value_mapper=lambda v: None
-        )
+        result = apply_filter_list_in(qs, "id__in", [1, 2, 3], value_mapper=lambda v: None)
         self.assertEqual(result.count(), 0)
 
     def test_all_mapped_to_none_returns_queryset_unchanged_when_opt_out(self):
@@ -520,9 +489,7 @@ class TestGetScopeTypeValuesForLabels(BaseTestCase):
         """Known SCOPE_TYPE_CHOICES labels return corresponding values."""
         from api.helpers.datatables import get_scope_type_values_for_labels
 
-        result = get_scope_type_values_for_labels(
-            ["Bug Bounty Program", "Internal Engagement"]
-        )
+        result = get_scope_type_values_for_labels(["Bug Bounty Program", "Internal Engagement"])
         self.assertEqual(len(result), 2)
         self.assertIn("program_bug_bounty", result)
         self.assertIn("engagement_internal", result)

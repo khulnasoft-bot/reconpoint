@@ -163,9 +163,7 @@ class TestSendScanStatusThrottleAndForce(BaseTestCase):
                         return_value=None,
                     ):
                         with patch("reconPoint.utilities.websocket._set_last_full_ts"):
-                            with patch(
-                                "reconPoint.utilities.websocket._THROTTLE_SECONDS", 2
-                            ):
+                            with patch("reconPoint.utilities.websocket._THROTTLE_SECONDS", 2):
                                 with patch(
                                     "reconPoint.utilities.websocket.async_to_sync",
                                     side_effect=lambda f: lambda *a, **kw: f(*a, **kw),
@@ -191,9 +189,7 @@ class TestSendScanStatusThrottleAndForce(BaseTestCase):
                         return_value=None,
                     ):
                         with patch("reconPoint.utilities.websocket._set_last_full_ts"):
-                            with patch(
-                                "reconPoint.utilities.websocket._THROTTLE_SECONDS", 2
-                            ):
+                            with patch("reconPoint.utilities.websocket._THROTTLE_SECONDS", 2):
                                 with patch(
                                     "reconPoint.utilities.websocket.async_to_sync",
                                     side_effect=lambda f: lambda *a, **kw: f(*a, **kw),

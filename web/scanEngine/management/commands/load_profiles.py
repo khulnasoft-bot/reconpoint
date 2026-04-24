@@ -62,17 +62,11 @@ class Command(SecatorLoaderBase):
                 try:
                     # Extract profile information from TemplateLoader
                     profile_name = profile_loader.name
-                    profile_description = (
-                        getattr(profile_loader, "description", "") or ""
-                    )
+                    profile_description = getattr(profile_loader, "description", "") or ""
                     profile_path = getattr(profile_loader, "_path", None)
 
                     if not profile_path:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"Profile {profile_name} has no path, skipping"
-                            )
-                        )
+                        self.stdout.write(self.style.WARNING(f"Profile {profile_name} has no path, skipping"))
                         failed_count += 1
                         continue
 
@@ -90,11 +84,7 @@ class Command(SecatorLoaderBase):
                         failed_count += 1
                         continue
                     except Exception as e:
-                        self.stdout.write(
-                            self.style.ERROR(
-                                f"Failed to read YAML file for profile {profile_name}: {e}"
-                            )
-                        )
+                        self.stdout.write(self.style.ERROR(f"Failed to read YAML file for profile {profile_name}: {e}"))
                         failed_count += 1
                         continue
 
@@ -102,37 +92,24 @@ class Command(SecatorLoaderBase):
                     try:
                         profile_data = yaml.safe_load(yaml_config)
                     except yaml.YAMLError as e:
-                        self.stdout.write(
-                            self.style.ERROR(
-                                f"Invalid YAML for profile {profile_name}: {e}"
-                            )
-                        )
+                        self.stdout.write(self.style.ERROR(f"Invalid YAML for profile {profile_name}: {e}"))
                         failed_count += 1
                         continue
 
                     if not profile_data:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"Empty YAML for profile: {profile_name}"
-                            )
-                        )
+                        self.stdout.write(self.style.WARNING(f"Empty YAML for profile: {profile_name}"))
                         failed_count += 1
                         continue
 
                     # Extract profile fields
                     name = profile_data.get("name", profile_name)
                     category = profile_data.get("category", "general")
-                    description = (
-                        profile_data.get("description", profile_description)
-                        or f"Built-in {name}"
-                    )
+                    description = profile_data.get("description", profile_description) or f"Built-in {name}"
                     enforce = profile_data.get("enforce", False)
                     opts = profile_data.get("opts", {})
 
                     # Convert opts dict to YAML string
-                    opts_yaml = (
-                        yaml.dump(opts, default_flow_style=False) if opts else ""
-                    )
+                    opts_yaml = yaml.dump(opts, default_flow_style=False) if opts else ""
 
                     # Define default profiles for each category (only set on first creation)
                     default_profiles = {
@@ -144,8 +121,7 @@ class Command(SecatorLoaderBase):
 
                     # Check if this profile should be default (only on first creation)
                     should_be_default = (
-                        name == default_profiles.get(category)
-                        and not SecatorProfile.objects.filter(name=name).exists()
+                        name == default_profiles.get(category) and not SecatorProfile.objects.filter(name=name).exists()
                     )
 
                     # Use profile_loader.name directly as name (unique identifier for Secator)
@@ -167,9 +143,7 @@ class Command(SecatorLoaderBase):
                         profile.save(bypass_builtin_constraints=True)
                         created_count += 1
                         default_msg = " (set as default)" if should_be_default else ""
-                        self.stdout.write(
-                            f"Created built-in profile: {name}{default_msg}"
-                        )
+                        self.stdout.write(f"Created built-in profile: {name}{default_msg}")
                     else:
                         # Update existing profile using update() to bypass save() constraints
                         # Do NOT modify is_default field on updates
@@ -184,9 +158,7 @@ class Command(SecatorLoaderBase):
 
                 except Exception as e:
                     self.stdout.write(
-                        self.style.ERROR(
-                            f"Error processing profile {getattr(profile_loader, 'name', 'unknown')}: {e}"
-                        )
+                        self.style.ERROR(f"Error processing profile {getattr(profile_loader, 'name', 'unknown')}: {e}")
                     )
                     failed_count += 1
 
@@ -194,14 +166,10 @@ class Command(SecatorLoaderBase):
                 f"Loaded {created_count} new built-in profiles, updated {updated_count} existing profiles"
             )
             if failed_count > 0:
-                self.stdout.write(
-                    self.style.WARNING(f"Failed to load {failed_count} profiles")
-                )
+                self.stdout.write(self.style.WARNING(f"Failed to load {failed_count} profiles"))
 
         except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f"Failed to get profiles from secator: {e}")
-            )
+            self.stdout.write(self.style.ERROR(f"Failed to get profiles from secator: {e}"))
 
         self._load_profiles_from_config_dir(profile_type="builtin")
 
@@ -211,9 +179,7 @@ class Command(SecatorLoaderBase):
 
         if not os.path.exists(profiles_dir):
             if profile_type == "builtin":
-                self.stdout.write(
-                    self.style.WARNING("Config profiles directory not found, skipping")
-                )
+                self.stdout.write(self.style.WARNING("Config profiles directory not found, skipping"))
             return
 
         label = "built-in (config)" if profile_type == "builtin" else "custom"
@@ -239,9 +205,7 @@ class Command(SecatorLoaderBase):
                     profile_data = yaml.safe_load(f)
 
                 if not profile_data or "name" not in profile_data:
-                    self.stdout.write(
-                        self.style.WARNING("Invalid profile file: %s" % (filename,))
-                    )
+                    self.stdout.write(self.style.WARNING("Invalid profile file: %s" % (filename,)))
                     continue
 
                 profile_name = profile_data["name"]
@@ -267,9 +231,7 @@ class Command(SecatorLoaderBase):
                         "opts": opts_yaml,
                         "profile_type": profile_type,
                         "is_active": True,
-                        "is_default": should_be_default
-                        if profile_type == "builtin"
-                        else False,
+                        "is_default": should_be_default if profile_type == "builtin" else False,
                     },
                 )
 
@@ -279,14 +241,8 @@ class Command(SecatorLoaderBase):
                     else:
                         profile.save()
                     created_count += 1
-                    default_msg = (
-                        " (set as default)"
-                        if (profile_type == "builtin" and should_be_default)
-                        else ""
-                    )
-                    self.stdout.write(
-                        "Created %s profile: %s%s" % (label, profile_name, default_msg)
-                    )
+                    default_msg = " (set as default)" if (profile_type == "builtin" and should_be_default) else ""
+                    self.stdout.write("Created %s profile: %s%s" % (label, profile_name, default_msg))
                 else:
                     update_fields = {
                         "category": category,
@@ -300,29 +256,16 @@ class Command(SecatorLoaderBase):
                     self.stdout.write("Updated %s profile: %s" % (label, profile_name))
 
             except (FileNotFoundError, PermissionError) as e:
-                self.stdout.write(
-                    self.style.ERROR("Profile file %s: %s" % (filename, e))
-                )
+                self.stdout.write(self.style.ERROR("Profile file %s: %s" % (filename, e)))
             except yaml.YAMLError as e:
-                self.stdout.write(
-                    self.style.ERROR(
-                        "Invalid YAML in profile file %s: %s" % (filename, e)
-                    )
-                )
+                self.stdout.write(self.style.ERROR("Invalid YAML in profile file %s: %s" % (filename, e)))
             except UnicodeDecodeError as e:
-                self.stdout.write(
-                    self.style.ERROR(
-                        "Encoding error in profile file %s: %s" % (filename, e)
-                    )
-                )
+                self.stdout.write(self.style.ERROR("Encoding error in profile file %s: %s" % (filename, e)))
             except Exception as e:
-                self.stdout.write(
-                    self.style.ERROR("Error loading profile %s: %s" % (filename, e))
-                )
+                self.stdout.write(self.style.ERROR("Error loading profile %s: %s" % (filename, e)))
 
         self.stdout.write(
-            "Loaded %s new %s profiles from config, updated %s existing"
-            % (created_count, label, updated_count)
+            "Loaded %s new %s profiles from config, updated %s existing" % (created_count, label, updated_count)
         )
 
     def load_custom_profiles(self) -> None:
@@ -480,8 +423,7 @@ class Command(SecatorLoaderBase):
 
                                 # Store the first non-None value encountered for each key
                                 if key not in all_opts_by_category[option_category] or (
-                                    all_opts_by_category[option_category][key] is None
-                                    and value is not None
+                                    all_opts_by_category[option_category][key] is None and value is not None
                                 ):
                                     all_opts_by_category[option_category][key] = value
 
@@ -524,9 +466,7 @@ class Command(SecatorLoaderBase):
                             else:
                                 value_str = value
                         else:
-                            value_str = yaml.dump(
-                                value, default_flow_style=True
-                            ).strip()
+                            value_str = yaml.dump(value, default_flow_style=True).strip()
 
                         # Add comment if available
                         comment = option_descriptions.get(key, "")

@@ -21,9 +21,7 @@ class TestScanHistoryCountAnnotations(BaseTestCase):
         subdomain = gen.subdomain
         endpoint = gen.endpoint
         # One subdomain, one endpoint, one vulnerability (severity=1) already created by create_project_full
-        Subdomain.objects.create(
-            name="second.example.com", domain=domain, scan_history=sh
-        )
+        Subdomain.objects.create(name="second.example.com", domain=domain, scan_history=sh)
         EndPoint.objects.create(
             domain=domain,
             subdomain=subdomain,
@@ -59,15 +57,9 @@ class TestScanHistoryCountAnnotations(BaseTestCase):
                 subdomain_count=count_subquery(Subdomain, "scan_history_id"),
                 endpoint_count=count_subquery(EndPoint, "scan_history_id"),
                 vuln_count=count_subquery(Vulnerability, "scan_history_id"),
-                vuln_critical_count=count_subquery(
-                    Vulnerability, "scan_history_id", filter_kwargs={"severity": 4}
-                ),
-                vuln_high_count=count_subquery(
-                    Vulnerability, "scan_history_id", filter_kwargs={"severity": 3}
-                ),
-                vuln_medium_count=count_subquery(
-                    Vulnerability, "scan_history_id", filter_kwargs={"severity": 2}
-                ),
+                vuln_critical_count=count_subquery(Vulnerability, "scan_history_id", filter_kwargs={"severity": 4}),
+                vuln_high_count=count_subquery(Vulnerability, "scan_history_id", filter_kwargs={"severity": 3}),
+                vuln_medium_count=count_subquery(Vulnerability, "scan_history_id", filter_kwargs={"severity": 2}),
             )
         )
         row = queryset.get(id=sh.id)
@@ -85,9 +77,7 @@ class TestScanHistoryView(BaseTestCase):
 
     def test_scan_history_view_returns_200_and_context(self):
         """scan_history view returns 200 and context contains scan_history queryset."""
-        response = self.client.get(
-            reverse("scan_history", kwargs={"slug": self.data_generator.project.slug})
-        )
+        response = self.client.get(reverse("scan_history", kwargs={"slug": self.data_generator.project.slug}))
         self.assertEqual(response.status_code, 200)
         self.assertIn("scan_history", response.context)
         self.assertIn("scan_history_active", response.context)

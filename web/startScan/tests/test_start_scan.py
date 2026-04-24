@@ -217,15 +217,11 @@ class TestStartScanModels(BaseTestCase):
     def test_subdomain_model(self):
         """Test the Subdomain model."""
         self.assertIsInstance(self.data_generator.subdomain, Subdomain)
-        self.assertEqual(
-            str(self.data_generator.subdomain), self.data_generator.subdomain.name
-        )
+        self.assertEqual(str(self.data_generator.subdomain), self.data_generator.subdomain.name)
 
     def test_subdomain_model_with_missing_fields(self):
         """Test the Subdomain model with missing fields."""
-        minimal_subdomain = Subdomain.objects.create(
-            name="test.example.com", domain=self.data_generator.domain
-        )
+        minimal_subdomain = Subdomain.objects.create(name="test.example.com", domain=self.data_generator.domain)
         self.assertIsInstance(minimal_subdomain, Subdomain)
         self.assertEqual(str(minimal_subdomain), "test.example.com")
         self.assertIsNone(minimal_subdomain.http_url)
@@ -234,9 +230,7 @@ class TestStartScanModels(BaseTestCase):
     def test_endpoint_model(self):
         """Test the EndPoint model."""
         self.assertIsInstance(self.data_generator.endpoint, EndPoint)
-        self.assertEqual(
-            str(self.data_generator.endpoint), self.data_generator.endpoint.http_url
-        )
+        self.assertEqual(str(self.data_generator.endpoint), self.data_generator.endpoint.http_url)
 
     def test_endpoint_model_with_missing_fields(self):
         """Test the EndPoint model with missing fields."""

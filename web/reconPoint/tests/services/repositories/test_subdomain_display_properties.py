@@ -64,9 +64,7 @@ class SubdomainDisplayPropertiesTestCase(BaseTestCase):
             "time": 1.5,
         }
 
-        endpoint = self.repository.save_from_secator(
-            item, self.secator_scan.id, self.data_generator.target.id
-        )
+        endpoint = self.repository.save_from_secator(item, self.secator_scan.id, self.data_generator.target.id)
         endpoint.refresh_from_db()
 
         # Verify endpoint is default
@@ -106,9 +104,7 @@ class SubdomainDisplayPropertiesTestCase(BaseTestCase):
             "title": "Endpoint Title",
         }
 
-        endpoint = self.repository.save_from_secator(
-            item, self.legacy_scan.id, self.data_generator.target.id
-        )
+        endpoint = self.repository.save_from_secator(item, self.legacy_scan.id, self.data_generator.target.id)
         endpoint.refresh_from_db()
 
         # Refresh subdomain

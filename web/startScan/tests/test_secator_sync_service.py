@@ -61,9 +61,7 @@ class SecatorSyncServiceTestCase(BaseTestCase):
             submit_sync(runner_id)
             time.sleep(1.0)
             error_calls = [
-                c
-                for c in mock_logger.log_line.call_args_list
-                if len(c[0]) >= 3 and c[1].get("level") == "error"
+                c for c in mock_logger.log_line.call_args_list if len(c[0]) >= 3 and c[1].get("level") == "error"
             ]
             self.assertEqual(len(error_calls), 1)
             call_args = error_calls[0]

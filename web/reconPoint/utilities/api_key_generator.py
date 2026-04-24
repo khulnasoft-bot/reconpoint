@@ -70,9 +70,7 @@ def generate_secator_api_key(recreate: bool = False) -> Tuple[str, bool]:
                 )
 
             # Check for existing system API key
-            existing_key = UserAPIKey.objects.filter(
-                user=user, name=key_name, is_system=True
-            ).first()
+            existing_key = UserAPIKey.objects.filter(user=user, name=key_name, is_system=True).first()
 
             if existing_key and not recreate:
                 logger.log_line(

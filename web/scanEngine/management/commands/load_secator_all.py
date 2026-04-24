@@ -66,6 +66,4 @@ class Command(SecatorLoaderBase):
             call_command("load_scans")
             self.stdout.write("")
 
-        self.stdout.write(
-            self.style.SUCCESS("All Secator components loaded successfully!")
-        )
+        self.stdout.write(self.style.SUCCESS("All Secator components loaded successfully!"))

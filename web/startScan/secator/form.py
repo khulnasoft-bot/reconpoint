@@ -62,9 +62,7 @@ class StartSecatorScanKwargs(ExecutionModeParams, total=False):
     selected_targets_per_task: dict[str, list[str]]
     scan_history_id: int
     worker_id: int
-    _worker_ids: list[
-        int
-    ]  # scope-derived worker IDs; internal, not part of secator_config
+    _worker_ids: list[int]  # scope-derived worker IDs; internal, not part of secator_config
 
 
 def parse_secator_config(post: QueryDict) -> SecatorConfig:
@@ -92,14 +90,11 @@ def parse_secator_config(post: QueryDict) -> SecatorConfig:
                 logger.log_line(
                     PREFIX_SECATOR_FORM,
                     "FORM",
-                    "Failed to decode 'secator_config' JSON from POST: %s (raw value=%r)"
-                    % (exc, secator_config_data),
+                    "Failed to decode 'secator_config' JSON from POST: %s (raw value=%r)" % (exc, secator_config_data),
                     level="warning",
                 )
                 if getattr(settings, "DEBUG", False):
-                    raise ValueError(
-                        "Invalid JSON in 'secator_config'; expected a JSON object."
-                    ) from exc
+                    raise ValueError("Invalid JSON in 'secator_config'; expected a JSON object.") from exc
 
         if parsed_dict is not None:
             profiles = parsed_dict.get("profiles", [])
@@ -116,9 +111,7 @@ def parse_secator_config(post: QueryDict) -> SecatorConfig:
         if raw_delay is not None and raw_delay != "":
             delay = max(0, min(60, safe_int_cast(raw_delay, 0)))
 
-    result: dict[str, Any] = {
-        "profiles": profiles if isinstance(profiles, list) else []
-    }
+    result: dict[str, Any] = {"profiles": profiles if isinstance(profiles, list) else []}
     if proxy is not None:
         result["proxy"] = proxy
     if delay is not None:
@@ -157,9 +150,7 @@ def parse_secator_profiles_to_dict(post: QueryDict) -> dict[str, str]:
     """
     profiles: dict[str, str] = {}
     for category, switch_key, custom_key, fallback_key in _PROFILE_CATEGORY_POST_KEYS:
-        if safe_bool_cast(post.get(switch_key)) and (
-            profile := post.get(custom_key) or post.get(fallback_key)
-        ):
+        if safe_bool_cast(post.get(switch_key)) and (profile := post.get(custom_key) or post.get(fallback_key)):
             profiles[category] = profile
     return profiles
 
@@ -264,9 +255,7 @@ def _get_target_and_scope_for_scope_merge(
 
     if scope_id is not None:
         try:
-            scope = Scope.objects.select_related("organization__project").get(
-                id=scope_id
-            )
+            scope = Scope.objects.select_related("organization__project").get(id=scope_id)
         except Scope.DoesNotExist:
             return (None, None)
         if target.project_id != scope.organization.project_id:
@@ -338,9 +327,7 @@ def _merge_scope_params_into_config(
     cast_param_value (int/float/bool/str). header, if present, must be
     a dict (caller must parse JSON elsewhere).
     """
-    target, scope = _get_target_and_scope_for_scope_merge(
-        post, target_id, target, scope
-    )
+    target, scope = _get_target_and_scope_for_scope_merge(post, target_id, target, scope)
     if target is None:
         return secator_config, []
 
@@ -353,9 +340,7 @@ def _merge_scope_params_into_config(
             organization = orgs.first()
 
     user_override = _parse_secator_user_override_from_post(post)
-    resolved = resolve_scan_params(
-        target, scope=scope, organization=organization, user_override=user_override
-    )
+    resolved = resolve_scan_params(target, scope=scope, organization=organization, user_override=user_override)
     apply_resolved_to_secator_config(secator_config, resolved)
     return secator_config, list(resolved.get("worker_ids", []))
 
@@ -423,14 +408,8 @@ def build_start_secator_scan_kwargs(
         effective_scope = get_scope_for_target(target)
     optional_worker_id = safe_int_cast(post.get("worker_id"))
     if effective_scope is not None:
-        optional_worker_id = resolve_worker_for_scope(
-            effective_scope, optional_worker_id
-        )
-    elif (
-        scope_worker_ids
-        and optional_worker_id is not None
-        and optional_worker_id not in scope_worker_ids
-    ):
+        optional_worker_id = resolve_worker_for_scope(effective_scope, optional_worker_id)
+    elif scope_worker_ids and optional_worker_id is not None and optional_worker_id not in scope_worker_ids:
         optional_worker_id = None
     if optional_worker_id is not None:
         kwargs["worker_id"] = optional_worker_id

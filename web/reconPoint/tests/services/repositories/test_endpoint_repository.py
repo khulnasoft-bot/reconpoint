@@ -29,9 +29,7 @@ class EndpointRepositoryHttpStatusBreakdownTestCase(BaseTestCase):
         self.data_generator.create_subdomain(http_status=200)
         self.data_generator.create_subdomain(name="api.example.com", http_status=200)
         self.data_generator.create_subdomain(name="www.example.com", http_status=404)
-        result = self.repository.get_http_status_breakdown(
-            self.data_generator.scan_history
-        )
+        result = self.repository.get_http_status_breakdown(self.data_generator.scan_history)
         by_status = {r["http_status"]: r["http_status__count"] for r in result}
         self.assertEqual(by_status.get(200), 2)
         self.assertEqual(by_status.get(404), 1)
@@ -40,9 +38,7 @@ class EndpointRepositoryHttpStatusBreakdownTestCase(BaseTestCase):
         """Legacy scan with all http_status=0 returns empty list."""
         self.data_generator.create_scan_history(is_legacy=True)
         self.data_generator.create_subdomain()
-        result = self.repository.get_http_status_breakdown(
-            self.data_generator.scan_history
-        )
+        result = self.repository.get_http_status_breakdown(self.data_generator.scan_history)
         self.assertEqual(result, [])
 
     def test_secator_scan_returns_default_endpoint_breakdown(self):
@@ -51,12 +47,8 @@ class EndpointRepositoryHttpStatusBreakdownTestCase(BaseTestCase):
         self.data_generator.create_subdomain()
         self.data_generator.create_endpoint(is_default=True, http_status=200)
         sub2 = self.data_generator.create_subdomain(name="api.example.com")
-        self.data_generator.create_endpoint(
-            subdomain=sub2, name="ep2", http_status=301, is_default=True
-        )
-        result = self.repository.get_http_status_breakdown(
-            self.data_generator.scan_history
-        )
+        self.data_generator.create_endpoint(subdomain=sub2, name="ep2", http_status=301, is_default=True)
+        result = self.repository.get_http_status_breakdown(self.data_generator.scan_history)
         by_status = {r["http_status"]: r["http_status__count"] for r in result}
         self.assertEqual(by_status.get(200), 1)
         self.assertEqual(by_status.get(301), 1)
@@ -66,12 +58,8 @@ class EndpointRepositoryHttpStatusBreakdownTestCase(BaseTestCase):
         self.data_generator.create_scan_history(is_legacy=False)
         self.data_generator.create_subdomain()
         self.data_generator.create_endpoint(is_default=True, http_status=200)
-        self.data_generator.create_endpoint(
-            name="ep2", http_status=404, is_default=False
-        )
-        result = self.repository.get_http_status_breakdown(
-            self.data_generator.scan_history
-        )
+        self.data_generator.create_endpoint(name="ep2", http_status=404, is_default=False)
+        result = self.repository.get_http_status_breakdown(self.data_generator.scan_history)
         by_status = {r["http_status"]: r["http_status__count"] for r in result}
         self.assertEqual(by_status.get(200), 1)
         self.assertNotIn(404, by_status)
@@ -81,9 +69,7 @@ class EndpointRepositoryHttpStatusBreakdownTestCase(BaseTestCase):
         self.data_generator.create_scan_history(is_legacy=False)
         self.data_generator.create_subdomain()
         self.data_generator.create_endpoint(http_status=0)
-        result = self.repository.get_http_status_breakdown(
-            self.data_generator.scan_history
-        )
+        result = self.repository.get_http_status_breakdown(self.data_generator.scan_history)
         self.assertEqual(result, [])
 
     def test_domain_merges_legacy_subdomains_and_secator_endpoints(self):
@@ -93,9 +79,7 @@ class EndpointRepositoryHttpStatusBreakdownTestCase(BaseTestCase):
         self.data_generator.create_subdomain(http_status=200)
         self.data_generator.create_subdomain(name="api.example.com", http_status=404)
         scan_secator = self.data_generator.create_scan_history(is_legacy=False)
-        sub_sec = self.data_generator.create_subdomain(
-            name="www.example.com", scan_history=scan_secator
-        )
+        sub_sec = self.data_generator.create_subdomain(name="www.example.com", scan_history=scan_secator)
         self.data_generator.create_endpoint(
             subdomain=sub_sec,
             scan_history=scan_secator,
@@ -133,9 +117,7 @@ class EndpointRepositoryHttpStatusBreakdownTestCase(BaseTestCase):
         self.data_generator.create_domain(scan_history=self.data_generator.scan_history)
         self.data_generator.create_subdomain(name="www.example.com", http_status=200)
         scan_secator = self.data_generator.create_scan_history(is_legacy=False)
-        sub_sec = self.data_generator.create_subdomain(
-            name="www.example.com", scan_history=scan_secator
-        )
+        sub_sec = self.data_generator.create_subdomain(name="www.example.com", scan_history=scan_secator)
         self.data_generator.create_endpoint(
             subdomain=sub_sec,
             scan_history=scan_secator,
@@ -169,9 +151,7 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
 
     def _save_secator_endpoint(self, url: str, **overrides):
         item = {"url": url, "status_code": 200} | overrides
-        return self.repository.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        return self.repository.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
 
     def test_endpoint_with_ip_url_gets_ip_address(self):
         """Endpoint with IP URL (CIDR-style scan) is linked to IpAddress, not Subdomain."""
@@ -211,36 +191,26 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
         endpoint.refresh_from_db()
 
         # Assert it's marked as default
-        self.assertTrue(
-            endpoint.is_default, "First endpoint should be marked as default"
-        )
-        self.assertIsNotNone(
-            endpoint.subdomain, "Endpoint should be associated with subdomain"
-        )
+        self.assertTrue(endpoint.is_default, "First endpoint should be marked as default")
+        self.assertIsNotNone(endpoint.subdomain, "Endpoint should be associated with subdomain")
         if endpoint.subdomain:
             self.assertEqual(endpoint.subdomain.name, "test.example.com")
 
     def test_second_endpoint_not_default(self):
         """Test that a second endpoint does not become default if one already exists."""
         # Create first endpoint
-        endpoint1 = self._save_secator_endpoint(
-            "https://test.example.com/", title="Test Page"
-        )
+        endpoint1 = self._save_secator_endpoint("https://test.example.com/", title="Test Page")
         endpoint1.refresh_from_db()
 
         # Verify first is default
         self.assertTrue(endpoint1.is_default)
 
         # Create second endpoint
-        endpoint2 = self._save_secator_endpoint(
-            "https://test.example.com/api", title="API Page"
-        )
+        endpoint2 = self._save_secator_endpoint("https://test.example.com/api", title="API Page")
         endpoint2.refresh_from_db()
 
         # Assert second is NOT default
-        self.assertFalse(
-            endpoint2.is_default, "Second endpoint should not be marked as default"
-        )
+        self.assertFalse(endpoint2.is_default, "Second endpoint should not be marked as default")
 
         # Verify first is still default
         endpoint1.refresh_from_db()
@@ -262,9 +232,7 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
             endpoints.append(endpoint)
 
         # Count default endpoints for this subdomain
-        default_count = EndPoint.objects.filter(
-            subdomain=self.subdomain, is_default=True
-        ).count()
+        default_count = EndPoint.objects.filter(subdomain=self.subdomain, is_default=True).count()
 
         self.assertEqual(
             default_count,
@@ -287,9 +255,7 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
         # First endpoint on port 80 (different port)
         ep80_1 = self._save_secator_endpoint("http://test.example.com/")
         ep80_1.refresh_from_db()
-        self.assertTrue(
-            ep80_1.is_default, "First endpoint on port 80 should be default"
-        )
+        self.assertTrue(ep80_1.is_default, "First endpoint on port 80 should be default")
 
         # Second endpoint on port 443 should not become default
         ep443_2 = self._save_secator_endpoint("https://test.example.com/api")
@@ -389,13 +355,9 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
             "192.0.2.25",
         )
         self.assertIsNotNone(ip_obj)
-        port = Port.objects.create(
-            number=8080, ip_address=ip_obj, service_name="http-alt"
-        )
+        port = Port.objects.create(number=8080, ip_address=ip_obj, service_name="http-alt")
 
-        endpoint = self._save_secator_endpoint(
-            "http://192.0.2.25:8080/", status_code=200
-        )
+        endpoint = self._save_secator_endpoint("http://192.0.2.25:8080/", status_code=200)
         self.assertIsNotNone(endpoint)
         endpoint.refresh_from_db()
         self.assertEqual(endpoint.port_id, port.id)
@@ -409,13 +371,9 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
         )
         self.assertIsNotNone(ip_obj)
         self.subdomain.ip_addresses.add(ip_obj)
-        port = Port.objects.create(
-            number=8443, ip_address=ip_obj, service_name="https-alt"
-        )
+        port = Port.objects.create(number=8443, ip_address=ip_obj, service_name="https-alt")
 
-        endpoint = self._save_secator_endpoint(
-            "https://test.example.com:8443/", status_code=200
-        )
+        endpoint = self._save_secator_endpoint("https://test.example.com:8443/", status_code=200)
         self.assertIsNotNone(endpoint)
         endpoint.refresh_from_db()
         self.assertEqual(endpoint.subdomain_id, self.subdomain.id)
@@ -436,9 +394,7 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
             },
         ]
 
-        result = self.repository._create_endpoints_in_bulk(
-            self.scan_history.id, self.domain.id, endpoints_data
-        )
+        result = self.repository._create_endpoints_in_bulk(self.scan_history.id, self.domain.id, endpoints_data)
 
         self.assertEqual(len(result), 2)
         created_urls = [ep.http_url for ep in result]
@@ -447,9 +403,7 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
 
     def test_create_endpoints_in_bulk_empty_list(self):
         """Test _create_endpoints_in_bulk with empty list."""
-        result = self.repository._create_endpoints_in_bulk(
-            self.scan_history.id, self.domain.id, []
-        )
+        result = self.repository._create_endpoints_in_bulk(self.scan_history.id, self.domain.id, [])
 
         self.assertEqual(result, [])
 
@@ -460,9 +414,7 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
             {"http_url": "also-invalid", "http_status": 200},
         ]
 
-        result = self.repository._create_endpoints_in_bulk(
-            self.scan_history.id, self.domain.id, endpoints_data
-        )
+        result = self.repository._create_endpoints_in_bulk(self.scan_history.id, self.domain.id, endpoints_data)
 
         self.assertEqual(result, [])
 
@@ -500,9 +452,7 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
             "request_headers": {"User-Agent": "Secator/1.0", "Accept": "text/html"},
         }
 
-        result = self.repository.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.repository.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
 
         self.assertIsNotNone(result)
         result.refresh_from_db()
@@ -523,9 +473,7 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
             "screenshot_path": full_screenshot,
             "stored_response_path": full_response,
         }
-        result = self.repository.save_from_secator(
-            item, self.scan_history.id, self.data_generator.target.id
-        )
+        result = self.repository.save_from_secator(item, self.scan_history.id, self.data_generator.target.id)
         self.assertIsNotNone(result)
         result.refresh_from_db()
         self.assertEqual(
@@ -604,28 +552,20 @@ class EndpointRepositoryIsDefaultTestCase(BaseTestCase):
         """Test that a missing subdomain is created and linked to the endpoint."""
         missing_hostname = "missing.example.com"
         self.assertFalse(
-            Subdomain.objects.filter(
-                name=missing_hostname, scan_history=self.scan_history
-            ).exists(),
+            Subdomain.objects.filter(name=missing_hostname, scan_history=self.scan_history).exists(),
             "Precondition failed: subdomain should not exist before creating endpoint",
         )
 
-        endpoint = self._save_secator_endpoint(
-            f"https://{missing_hostname}/", title="Missing Host"
-        )
+        endpoint = self._save_secator_endpoint(f"https://{missing_hostname}/", title="Missing Host")
         self.assertIsNotNone(endpoint, "Endpoint should be created")
 
         endpoint.refresh_from_db()
-        self.assertIsNotNone(
-            endpoint.subdomain, "Endpoint should be associated with a subdomain"
-        )
+        self.assertIsNotNone(endpoint.subdomain, "Endpoint should be associated with a subdomain")
         if endpoint.subdomain:
             self.assertEqual(endpoint.subdomain.name, missing_hostname)
             self.assertEqual(endpoint.subdomain.scan_history, self.scan_history)
 
-        created_subdomain = Subdomain.objects.get(
-            name=missing_hostname, scan_history=self.scan_history
-        )
+        created_subdomain = Subdomain.objects.get(name=missing_hostname, scan_history=self.scan_history)
         self.assertEqual(endpoint.subdomain_id, created_subdomain.id)
 
     def test_save_from_secator_directory_links_dir_subscan_ids(self):
@@ -683,9 +623,7 @@ class EndpointRepositoryIpEndpointTestCase(BaseTestCase):
     def test_create_endpoint_for_ip_creates_endpoint_for_valid_ip(self) -> None:
         """create_endpoint_for_ip creates an endpoint for a valid IP address."""
         ip = "192.0.2.1"
-        endpoint = self.repository.create_endpoint_for_ip(
-            ip, self.scan_history.id, self.domain.id
-        )
+        endpoint = self.repository.create_endpoint_for_ip(ip, self.scan_history.id, self.domain.id)
 
         self.assertIsNotNone(endpoint)
         endpoint.refresh_from_db()
@@ -696,16 +634,10 @@ class EndpointRepositoryIpEndpointTestCase(BaseTestCase):
     def test_create_endpoint_for_ip_invalid_ip_returns_none(self) -> None:
         """create_endpoint_for_ip returns None and does not create endpoint for invalid IP."""
         ip = "not-an-ip"
-        result = self.repository.create_endpoint_for_ip(
-            ip, self.scan_history.id, self.domain.id
-        )
+        result = self.repository.create_endpoint_for_ip(ip, self.scan_history.id, self.domain.id)
 
         self.assertIsNone(result)
-        self.assertFalse(
-            EndPoint.objects.filter(
-                scan_history=self.scan_history, http_url__contains=ip
-            ).exists()
-        )
+        self.assertFalse(EndPoint.objects.filter(scan_history=self.scan_history, http_url__contains=ip).exists())
 
     def test_create_endpoint_for_ip_reuses_existing_when_duplicates_present(
         self,
@@ -743,21 +675,15 @@ class EndpointRepositoryIpEndpointTestCase(BaseTestCase):
             discovered_date=timezone.now(),
         )
 
-        endpoint = self.repository.create_endpoint_for_ip(
-            ip, self.scan_history.id, self.domain.id
-        )
+        endpoint = self.repository.create_endpoint_for_ip(ip, self.scan_history.id, self.domain.id)
 
         self.assertIsNotNone(endpoint)
         self.assertIn(
             endpoint.id,
-            list(
-                EndPoint.objects.filter(http_url=http_url).values_list("id", flat=True)
-            ),
+            list(EndPoint.objects.filter(http_url=http_url).values_list("id", flat=True)),
         )
         self.assertEqual(
-            EndPoint.objects.filter(
-                http_url=http_url, scan_history=self.scan_history
-            ).count(),
+            EndPoint.objects.filter(http_url=http_url, scan_history=self.scan_history).count(),
             2,
         )
 
@@ -768,9 +694,7 @@ class EndpointRepositoryScopeEnforcementTest(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.data_generator.create_organization()
-        self.data_generator.create_scope(
-            restrict_findings_to_target=True, allowed_finding_domains=[]
-        )
+        self.data_generator.create_scope(restrict_findings_to_target=True, allowed_finding_domains=[])
         self.scope = self.data_generator.scope
         self.target = self.data_generator.target
         self.scan_history = self.data_generator.create_scan_history()
@@ -782,11 +706,7 @@ class EndpointRepositoryScopeEnforcementTest(BaseTestCase):
         from targetApp.services.scope_params import get_finding_scope_filters_for_target
 
         url = "http://out-of-scope-unrelated.com/"
-        reconpoint_context = {
-            "finding_scope_filters": get_finding_scope_filters_for_target(
-                self.target.id
-            )
-        }
+        reconpoint_context = {"finding_scope_filters": get_finding_scope_filters_for_target(self.target.id)}
         initial_count = EndPoint.objects.filter(scan_history=self.scan_history).count()
 
         with self.assertRaises(FindingOutOfScopeError):
@@ -808,11 +728,7 @@ class EndpointRepositoryScopeEnforcementTest(BaseTestCase):
         from targetApp.services.scope_params import get_finding_scope_filters_for_target
 
         url = "http://%s/" % (self.target.value,)
-        reconpoint_context = {
-            "finding_scope_filters": get_finding_scope_filters_for_target(
-                self.target.id
-            )
-        }
+        reconpoint_context = {"finding_scope_filters": get_finding_scope_filters_for_target(self.target.id)}
 
         result = self.repository.save_from_secator(
             {"url": url},

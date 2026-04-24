@@ -45,9 +45,7 @@ class Command(BaseCommand):
                 config = yaml.safe_load(workflow.yaml_configuration)
                 if not config:
                     self.stdout.write(
-                        self.style.WARNING(
-                            f"Skipping workflow '{workflow.name}' - invalid YAML configuration"
-                        )
+                        self.style.WARNING(f"Skipping workflow '{workflow.name}' - invalid YAML configuration")
                     )
                     continue
 
@@ -60,28 +58,20 @@ class Command(BaseCommand):
                 base_str = str(secator_configs_dir.resolve())
                 if not is_safe_path(base_str, str(configs_file)):
                     self.stdout.write(
-                        self.style.ERROR(
-                            f"Refused path outside configs dir: {workflow.name} -> {configs_file}"
-                        )
+                        self.style.ERROR(f"Refused path outside configs dir: {workflow.name} -> {configs_file}")
                     )
                     continue
                 if not configs_file.exists() or force:
                     with open(configs_file, "w") as f:
                         yaml.dump(config, f, default_flow_style=False)
                     synced_count += 1
-                    self.stdout.write(
-                        f"Synced workflow: {workflow.name} -> {configs_file}"
-                    )
+                    self.stdout.write(f"Synced workflow: {workflow.name} -> {configs_file}")
 
                 # Write to Secator templates directory (backup location)
                 templates_file = (secator_templates_dir / filename).resolve()
-                if not is_safe_path(
-                    str(secator_templates_dir.resolve()), str(templates_file)
-                ):
+                if not is_safe_path(str(secator_templates_dir.resolve()), str(templates_file)):
                     self.stdout.write(
-                        self.style.ERROR(
-                            f"Refused path outside templates dir: {workflow.name} -> {templates_file}"
-                        )
+                        self.style.ERROR(f"Refused path outside templates dir: {workflow.name} -> {templates_file}")
                     )
                     continue
                 if not templates_file.exists() or force:
@@ -89,12 +79,6 @@ class Command(BaseCommand):
                         yaml.dump(config, f, default_flow_style=False)
 
             except Exception as e:
-                self.stdout.write(
-                    self.style.ERROR(f"Error syncing workflow '{workflow.name}': {e}")
-                )
+                self.stdout.write(self.style.ERROR(f"Error syncing workflow '{workflow.name}': {e}"))
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Successfully synced {synced_count} workflows to filesystem"
-            )
-        )
+        self.stdout.write(self.style.SUCCESS(f"Successfully synced {synced_count} workflows to filesystem"))

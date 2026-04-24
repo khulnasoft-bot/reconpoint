@@ -22,9 +22,7 @@ class _ModelStub:
         self.saved_update_fields: Optional[List[str]] = None
 
     def save(self, update_fields: Optional[List[str]] = None) -> None:
-        self.saved_update_fields = (
-            list(update_fields) if update_fields is not None else []
-        )
+        self.saved_update_fields = list(update_fields) if update_fields is not None else []
 
 
 class _NastyDict(dict):
@@ -49,9 +47,7 @@ class ExtraDataMergeHelpersTestCase(BaseTestCase):
         self.assertEqual(coerce_extra_data_field_to_plain_dict(bad), {})
 
     def test_coerce_extra_data_broken_dict_subclass_returns_empty(self) -> None:
-        self.assertEqual(
-            coerce_extra_data_field_to_plain_dict(_NastyDict({"a": 1})), {}
-        )
+        self.assertEqual(coerce_extra_data_field_to_plain_dict(_NastyDict({"a": 1})), {})
 
     @patch("reconPoint.utilities.extra_data_merge._logger")
     def test_coerce_logs_bounded_preview_when_copy_fails(self, mock_logger) -> None:
@@ -84,9 +80,7 @@ class ExtraDataMergeHelpersTestCase(BaseTestCase):
 
     def test_merge_payload_persist_false_mutates_without_save(self) -> None:
         obj = _ModelStub({"x": 0})
-        self.assertTrue(
-            merge_extra_data_payload_into_model(obj, {"y": 1}, persist=False)
-        )
+        self.assertTrue(merge_extra_data_payload_into_model(obj, {"y": 1}, persist=False))
         self.assertEqual(obj.extra_data, {"x": 0, "y": 1})
         self.assertIsNone(obj.saved_update_fields)
 
@@ -101,17 +95,13 @@ class ExtraDataMergeHelpersTestCase(BaseTestCase):
     def test_merge_secator_item_non_dict_extra_data(self) -> None:
         obj = _ModelStub({})
         not_a_dict: Any = []
-        self.assertFalse(
-            merge_secator_item_extra_data_into_model(obj, {"extra_data": not_a_dict})
-        )
+        self.assertFalse(merge_secator_item_extra_data_into_model(obj, {"extra_data": not_a_dict}))
         self.assertIsNone(obj.saved_update_fields)
 
     def test_merge_secator_item_merges_dict(self) -> None:
         obj = _ModelStub({"k": 1})
         self.assertTrue(
-            merge_secator_item_extra_data_into_model(
-                obj, {"extra_data": {"k": 2, "z": 3}}
-            ),
+            merge_secator_item_extra_data_into_model(obj, {"extra_data": {"k": 2, "z": 3}}),
         )
         self.assertEqual(obj.extra_data, {"k": 2, "z": 3})
         self.assertEqual(obj.saved_update_fields, ["extra_data"])

@@ -4,9 +4,7 @@ from . import consumers, views
 
 
 websocket_urlpatterns = [
-    path(
-        "ollama/download/<str:model_name>/", consumers.OllamaDownloadConsumer.as_asgi()
-    ),
+    path("ollama/download/<str:model_name>/", consumers.OllamaDownloadConsumer.as_asgi()),
     path("ip-scan/<str:scan_id>/", consumers.IPScanProgressConsumer.as_asgi()),
 ]
 

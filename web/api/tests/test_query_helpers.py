@@ -62,9 +62,7 @@ class DatatableSubdomainListSerializerContextTestCase(BaseTestCase):
     """Tests for datatable_subdomain_list_serializer_context."""
 
     def test_omits_interesting_names_when_none(self) -> None:
-        ctx = datatable_subdomain_list_serializer_context(
-            scan_id=1, target_id=None, port_query_param=None
-        )
+        ctx = datatable_subdomain_list_serializer_context(scan_id=1, target_id=None, port_query_param=None)
         self.assertEqual(ctx["scan_id"], 1)
         self.assertIsNone(ctx["target_id"])
         self.assertFalse(ctx["expose_ip_port_services"])

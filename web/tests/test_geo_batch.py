@@ -31,9 +31,7 @@ class TestIPCollection(TestCase):
         self.data_generator.create_project_base()
 
         # Create user for initiated_by field
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
         self.data_generator.scan_history.initiated_by = self.user
         self.data_generator.scan_history.save()
 
@@ -126,9 +124,7 @@ class TestBatchGeolocalization(TestCase):
         self.data_generator.create_project_base()
 
         # Create user for initiated_by field
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
         self.data_generator.scan_history.initiated_by = self.user
         self.data_generator.scan_history.save()
 
@@ -247,9 +243,7 @@ class TestBatchGeolocalization(TestCase):
             # Mock subprocess.run to avoid actual geoiplookup calls
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value.returncode = 0
-                mock_run.return_value.stdout = (
-                    "GeoIP Country Edition: US, United States"
-                )
+                mock_run.return_value.stdout = "GeoIP Country Edition: US, United States"
 
                 success, country_iso, country_name, error = geoiplookup(valid_ip)
                 # Should succeed for valid IPs
@@ -267,9 +261,7 @@ class TestBatchGeolocalization(TestCase):
         country = CountryISO.objects.create(iso="US", name="United States")
 
         # Create IP with existing geolocalization
-        ip1, _ = IpAddress.objects.get_or_create(
-            address="8.8.8.8", defaults={"geo_iso": country}
-        )
+        ip1, _ = IpAddress.objects.get_or_create(address="8.8.8.8", defaults={"geo_iso": country})
         ip1.geo_iso = country
         ip1.save()
         ip2, _ = IpAddress.objects.get_or_create(address="1.1.1.1")
@@ -417,9 +409,7 @@ class TestDecorator(TestCase):
         self.data_generator.create_project_base()
 
         # Create user for initiated_by field
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
         self.data_generator.scan_history.initiated_by = self.user
         self.data_generator.scan_history.save()
 
@@ -501,9 +491,7 @@ class TestIntegration(TestCase):
         self.data_generator.create_project_base()
 
         # Create user for initiated_by field
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
         self.data_generator.scan_history.initiated_by = self.user
         self.data_generator.scan_history.save()
 
@@ -591,9 +579,7 @@ class TestIntegration(TestCase):
 
         # Collect IPs in separate thread
         thread_results = []
-        thread = threading.Thread(
-            target=collect_ips_in_thread, args=(["1.1.1.1"], thread_results)
-        )
+        thread = threading.Thread(target=collect_ips_in_thread, args=(["1.1.1.1"], thread_results))
         thread.start()
         thread.join()
 

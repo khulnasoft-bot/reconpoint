@@ -209,13 +209,9 @@ def validate_datatable_filter_config() -> list[str]:
         actual_ids = set(ctx.keys())
         actual_params = set(ctx.values())
         if actual_ids != expected_ids:
-            errors.append(
-                f"{table_id}: filter_context keys {actual_ids!r} != expected {expected_ids!r}"
-            )
+            errors.append(f"{table_id}: filter_context keys {actual_ids!r} != expected {expected_ids!r}")
         if actual_params != expected_params:
-            errors.append(
-                f"{table_id}: filter_context values {actual_params!r} != expected {expected_params!r}"
-            )
+            errors.append(f"{table_id}: filter_context values {actual_params!r} != expected {expected_params!r}")
     return errors
 
 

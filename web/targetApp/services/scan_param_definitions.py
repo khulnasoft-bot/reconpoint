@@ -98,13 +98,9 @@ DICT_PARAM_KEYS_EMPTY_IS_NO_OVERRIDE = ("header", "profiles", "extra_config")
 
 # User-facing copy for header (Scope, Target, target update form, scope form).
 HEADER_HELP_TEXT = 'One header per line in the form "Header-Name": "header value".'
-HEADER_ERROR_MUST_BE_OBJECT = (
-    'Request headers must be a JSON object (e.g. {"X-Header": "value"}).'
-)
+HEADER_ERROR_MUST_BE_OBJECT = 'Request headers must be a JSON object (e.g. {"X-Header": "value"}).'
 HEADER_ERROR_INVALID_JSON = "Invalid JSON. Changes were not applied."
-HEADER_ERROR_INVALID_LINE = (
-    'Invalid header line. Use format "Header-Name": "value" (one per line).'
-)
+HEADER_ERROR_INVALID_LINE = 'Invalid header line. Use format "Header-Name": "value" (one per line).'
 
 
 def header_dict_to_lines(header_dict: dict[str, Any]) -> str:

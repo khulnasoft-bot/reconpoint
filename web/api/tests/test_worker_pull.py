@@ -26,15 +26,9 @@ class TestWorkerPullApi(BaseTestCase):
             https_pull_agent=True,
             is_active=True,
         )
-        self.claim_url = reverse(
-            "api:secator_worker_pull_claim", kwargs={"worker_id": self.worker.id}
-        )
-        self.complete_url = reverse(
-            "api:secator_worker_pull_complete", kwargs={"worker_id": self.worker.id}
-        )
-        self.checkin_url = reverse(
-            "api:secator_worker_pull_checkin", kwargs={"worker_id": self.worker.id}
-        )
+        self.claim_url = reverse("api:secator_worker_pull_claim", kwargs={"worker_id": self.worker.id})
+        self.complete_url = reverse("api:secator_worker_pull_complete", kwargs={"worker_id": self.worker.id})
+        self.checkin_url = reverse("api:secator_worker_pull_checkin", kwargs={"worker_id": self.worker.id})
 
     def test_claim_without_token_returns_403(self) -> None:
         r = self.client.post(self.claim_url, content_type="application/json")

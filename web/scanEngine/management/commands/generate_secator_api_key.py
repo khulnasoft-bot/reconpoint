@@ -45,19 +45,13 @@ class Command(BaseCommand):
         try:
             if has_secator_api_key() and not recreate:
                 if raw_key:
-                    self.stderr.write(
-                        "System API key already exists. Use --recreate to generate a new one.\n"
-                    )
+                    self.stderr.write("System API key already exists. Use --recreate to generate a new one.\n")
                     raise SystemExit(1)
                 self.stdout.write(
-                    self.style.WARNING(
-                        "System API key already exists. Use --recreate to generate a new one."
-                    )
+                    self.style.WARNING("System API key already exists. Use --recreate to generate a new one.")
                 )
                 self.stdout.write("")
-                self.stdout.write(
-                    "Note: The actual key value cannot be retrieved from the database."
-                )
+                self.stdout.write("Note: The actual key value cannot be retrieved from the database.")
                 self.stdout.write(
                     "If you need to see the key, you must use --recreate to generate a new one with --show-key."
                 )
@@ -80,49 +74,27 @@ class Command(BaseCommand):
                 raise SystemExit(1)
 
             if created:
-                self.stdout.write(
-                    self.style.SUCCESS("✓ System API key generated successfully!")
-                )
+                self.stdout.write(self.style.SUCCESS("✓ System API key generated successfully!"))
                 self.stdout.write("")
 
                 if show_key and key:
                     self.stdout.write(self.style.SUCCESS("━" * 80))
-                    self.stdout.write(
-                        self.style.SUCCESS("API Key (save this securely):")
-                    )
+                    self.stdout.write(self.style.SUCCESS("API Key (save this securely):"))
                     self.stdout.write(self.style.SUCCESS(key))
                     self.stdout.write(self.style.SUCCESS("━" * 80))
                     self.stdout.write("")
                     self.stdout.write("Add this to your .env file:")
                     self.stdout.write(f"RECONPOINT_API_KEY={key}")
                     self.stdout.write("")
+                    self.stdout.write(self.style.WARNING("⚠️  This is the only time you will see this key!"))
                     self.stdout.write(
-                        self.style.WARNING(
-                            "⚠️  This is the only time you will see this key!"
-                        )
-                    )
-                    self.stdout.write(
-                        self.style.WARNING(
-                            "⚠️  Store it securely - it cannot be retrieved again from the database."
-                        )
+                        self.style.WARNING("⚠️  Store it securely - it cannot be retrieved again from the database.")
                     )
                 else:
-                    self.stdout.write(
-                        self.style.WARNING(
-                            "⚠️  API key was generated but not displayed."
-                        )
-                    )
-                    self.stdout.write(
-                        self.style.WARNING(
-                            "Use --show-key flag to see the key when generating."
-                        )
-                    )
+                    self.stdout.write(self.style.WARNING("⚠️  API key was generated but not displayed."))
+                    self.stdout.write(self.style.WARNING("Use --show-key flag to see the key when generating."))
             else:
-                self.stdout.write(
-                    self.style.WARNING(
-                        "System API key already exists (returned existing)."
-                    )
-                )
+                self.stdout.write(self.style.WARNING("System API key already exists (returned existing)."))
 
             self.stdout.write("")
             self.stdout.write("System API key details:")
@@ -130,9 +102,7 @@ class Command(BaseCommand):
             self.stdout.write("  - Name: Secator Worker System Key")
             self.stdout.write("  - Type: System (cannot be deleted via UI)")
             self.stdout.write("")
-            self.stdout.write(
-                "This key is used by Secator workers to authenticate with the reconPoint API."
-            )
+            self.stdout.write("This key is used by Secator workers to authenticate with the reconPoint API.")
 
         except SystemExit:
             raise
@@ -141,8 +111,6 @@ class Command(BaseCommand):
             if getattr(e, "__cause__", None) is not None:
                 err_msg = f"{err_msg} (cause: {e.__cause__})"
             if raw_key:
-                self.stderr.write(
-                    "Failed to generate system API key: %s\n" % (err_msg,)
-                )
+                self.stderr.write("Failed to generate system API key: %s\n" % (err_msg,))
                 raise SystemExit(1)
             raise CommandError(f"Failed to generate system API key: {err_msg}")

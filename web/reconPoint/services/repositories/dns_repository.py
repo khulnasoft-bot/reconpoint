@@ -82,9 +82,7 @@ class DnsRepository:
             DNSRecord: Saved DNS record object or None
         """
         try:
-            return self._process_secator_dns_record_item(
-                item, scan_history_id, target_id
-            )
+            return self._process_secator_dns_record_item(item, scan_history_id, target_id)
         except ObjectDoesNotExist as e:
             logger.log_line(
                 PREFIX_DNS_REPO,
@@ -146,40 +144,26 @@ class DnsRepository:
             )
             return None
 
-        target_value = (
-            Target.objects.filter(id=target_id).values_list("value", flat=True).first()
-            or ""
-        )
-        domain = (
-            get_or_create_domain_for_target(scan_history_id, target_value)
-            if target_value
-            else None
-        )
+        target_value = Target.objects.filter(id=target_id).values_list("value", flat=True).first() or ""
+        domain = get_or_create_domain_for_target(scan_history_id, target_value) if target_value else None
         if not domain and is_acceptable_subdomain_name(record_name):
             domain = get_or_create_domain_for_target(scan_history_id, record_name)
         if not domain:
             logger.log_line(
                 PREFIX_DNS_REPO,
                 "SAVE",
-                "Could not resolve domain for target_id=%s, record name=%s"
-                % (target_id, record_name),
+                "Could not resolve domain for target_id=%s, record name=%s" % (target_id, record_name),
                 level="warning",
             )
             return None
 
         if is_acceptable_subdomain_name(record_name):
-            SubdomainRepository().get_or_create_from_host(
-                scan_history_id, target_id, record_name
-            )
+            SubdomainRepository().get_or_create_from_host(scan_history_id, target_id, record_name)
         if host and host != record_name and is_acceptable_subdomain_name(host):
-            SubdomainRepository().get_or_create_from_host(
-                scan_history_id, target_id, host
-            )
+            SubdomainRepository().get_or_create_from_host(scan_history_id, target_id, host)
 
         name_value = record_name
-        task_source = extract_secator_tool_source(
-            item, include_provider=False, max_length=200
-        )
+        task_source = extract_secator_tool_source(item, include_provider=False, max_length=200)
         incoming_extra = item.get("extra_data", {}) or {}
         if not isinstance(incoming_extra, dict):
             raw_extra = incoming_extra
@@ -214,11 +198,7 @@ class DnsRepository:
         # select_for_update locks the domain row until the transaction commits.
         with transaction.atomic():
             domain = Domain.objects.select_for_update().get(id=domain.id)
-            domain_info = (
-                domain.domain_info
-                if hasattr(domain, "domain_info") and domain.domain_info
-                else None
-            )
+            domain_info = domain.domain_info if hasattr(domain, "domain_info") and domain.domain_info else None
             if not domain_info:
                 domain_info = DomainInfo()
                 domain_info.save()
@@ -232,21 +212,16 @@ class DnsRepository:
                 )
 
             if existing_record := (
-                domain_info.dns_records.filter(
-                    type=record_type, name=name_value
-                ).first()
+                domain_info.dns_records.filter(type=record_type, name=name_value).first()
                 or domain_info.dns_records.filter(type=record_type, name=host).first()
             ):
                 old_name = existing_record.name
-                old_extra = coerce_extra_data_field_to_plain_dict(
-                    existing_record.extra_data
-                )
+                old_extra = coerce_extra_data_field_to_plain_dict(existing_record.extra_data)
                 if old_name != name_value:
                     logger.log_line(
                         PREFIX_DNS_REPO,
                         "SAVE",
-                        "Updated DNS record name from %s to %s (%s)"
-                        % (host, name_value, record_type),
+                        "Updated DNS record name from %s to %s (%s)" % (host, name_value, record_type),
                         level="info",
                     )
                 else:
@@ -257,9 +232,7 @@ class DnsRepository:
                         level="debug",
                     )
                 existing_record.name = name_value
-                new_extra = self._merge_dns_extra_payload(
-                    old_extra, incoming_extra, host
-                )
+                new_extra = self._merge_dns_extra_payload(old_extra, incoming_extra, host)
                 existing_record.extra_data = new_extra
                 update_fields: List[str] = []
                 if existing_record.name != old_name:
@@ -314,9 +287,7 @@ class DnsRepository:
         for key, val in incoming.items():
             base[key] = val
         if secator_host:
-            incoming_host = DnsRepository._strip_secator_scalar_as_host_string(
-                secator_host
-            )
+            incoming_host = DnsRepository._strip_secator_scalar_as_host_string(secator_host)
             current = base.get("secator_host")
             stored = ""
             if current is not None and current != "":
@@ -333,9 +304,7 @@ class DnsRepository:
                 )
         return base
 
-    def _update_dns_record_extra_data(
-        self, extra_data: Any, dns_record: DNSRecord
-    ) -> None:
+    def _update_dns_record_extra_data(self, extra_data: Any, dns_record: DNSRecord) -> None:
         """
         Merge extra_data into an existing DNS record (does not set secator_host — use save_from_secator for full Secator rows).
         """
@@ -359,9 +328,7 @@ class DnsRepository:
             return
         merge_extra_data_payload_into_model(dns_record, extra_data)
 
-    def get_or_create(
-        self, name: str, record_type: str, **kwargs
-    ) -> Tuple[Optional[DNSRecord], bool]:
+    def get_or_create(self, name: str, record_type: str, **kwargs) -> Tuple[Optional[DNSRecord], bool]:
         """
         Get or create a DNS record.
 
@@ -402,9 +369,7 @@ class DnsRepository:
                 )
                 return None, False
 
-            dns_record, created = DNSRecord.objects.get_or_create(
-                name=name.strip(), type=record_type
-            )
+            dns_record, created = DNSRecord.objects.get_or_create(name=name.strip(), type=record_type)
 
             return dns_record, created
 
@@ -437,9 +402,7 @@ class DnsRepository:
                     record_objects.append(DNSRecord(name=name, type=record_type))
 
             if record_objects:
-                created = DNSRecord.objects.bulk_create(
-                    record_objects, ignore_conflicts=True
-                )
+                created = DNSRecord.objects.bulk_create(record_objects, ignore_conflicts=True)
                 logger.log_line(
                     PREFIX_DNS_REPO,
                     "BULK_CREATE",
@@ -498,9 +461,7 @@ class DnsRepository:
             )
             return []
 
-    def get_records_by_type(
-        self, record_type: str, domain_id: int = None
-    ) -> List[DNSRecord]:
+    def get_records_by_type(self, record_type: str, domain_id: int = None) -> List[DNSRecord]:
         """
         Get DNS records by type, optionally filtered by domain.
 

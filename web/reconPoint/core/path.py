@@ -36,9 +36,7 @@ def safe_unlink(base_dir: Union[str, Path], path: Union[str, Path]) -> UnlinkRes
         return "failed"
     resolved_abs = os.path.abspath(str(resolved_path))
     if not is_safe_path(base_dir_abs, resolved_abs):
-        logger.warning(
-            "Refused to remove path outside base: %s -> %s", path, resolved_abs
-        )
+        logger.warning("Refused to remove path outside base: %s -> %s", path, resolved_abs)
         return "refused"
     if not resolved_path.exists():
         return "not_found"
@@ -92,9 +90,7 @@ def _normalize_results_dir_components(results_dir: str) -> Optional[List[str]]:
     return _safe_path_components(raw, separator=os.sep, reject_absolute=False)
 
 
-def resolve_results_dir_under_base(
-    base_dir: Union[str, Path], results_dir: str
-) -> Optional[Path]:
+def resolve_results_dir_under_base(base_dir: Union[str, Path], results_dir: str) -> Optional[Path]:
     """Resolve and validate a results_dir string against a base directory (e.g. RECONPOINT_RESULTS).
 
     For absolute results_dir: resolve and ensure it is a directory under base_dir.
@@ -155,9 +151,7 @@ def safe_rmtree(base_dir: Union[str, Path], path: Union[str, Path]) -> RmtreeRes
         return "failed"
     resolved_abs = os.path.abspath(str(resolved_path))
     if not is_safe_path(base_dir_abs, resolved_abs):
-        logger.warning(
-            "Refused to remove path outside base: %s -> %s", path, resolved_abs
-        )
+        logger.warning("Refused to remove path outside base: %s -> %s", path, resolved_abs)
         return "refused"
     if not os.path.isdir(resolved_abs):
         return "not_found"
@@ -177,9 +171,7 @@ def normalize_relative_path(relative_path: str) -> Optional[str]:
     Splits into segments, sanitizes each, and rejoins. Returns None if invalid.
     Filenames containing '..' as part of the name (e.g. 'file..name') remain valid.
     """
-    components = _safe_path_components(
-        relative_path, separator="/", reject_absolute=True
-    )
+    components = _safe_path_components(relative_path, separator="/", reject_absolute=True)
     if not components:
         return None
     normalized = "/".join(components)
@@ -271,9 +263,7 @@ class SafePath:
             abs_path = full_path.resolve()
 
             if not str(abs_path).startswith(str(base_path)):
-                raise ValueError(
-                    f"Invalid path: {abs_path} is outside base directory {base_path}"
-                )
+                raise ValueError(f"Invalid path: {abs_path} is outside base directory {base_path}")
 
             if create_dir:
                 abs_path.mkdir(parents=True, mode=mode, exist_ok=True)
@@ -308,9 +298,7 @@ class SafePath:
             base_path = Path(base_dir).resolve()
             check_path = Path(path)
 
-            check_path = (
-                check_path.resolve() if follow_symlinks else check_path.absolute()
-            )
+            check_path = check_path.resolve() if follow_symlinks else check_path.absolute()
             return str(check_path).startswith(str(base_path))
         except Exception:
             return False

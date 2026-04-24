@@ -23,9 +23,7 @@ class Command(BaseCommand):
         dry_run = options["dry_run"]
 
         if dry_run:
-            self.stdout.write(
-                self.style.WARNING("DRY RUN MODE - No changes will be made")
-            )
+            self.stdout.write(self.style.WARNING("DRY RUN MODE - No changes will be made"))
 
         self.stdout.write("Starting migration of EngineType to SecatorScan...")
 
@@ -113,9 +111,7 @@ class Command(BaseCommand):
                     defaults={
                         "description": f"Built-in {scan_config['workflow_name']} workflow",
                         "workflow_type": "builtin",
-                        "yaml_configuration": self.get_builtin_workflow_yaml(
-                            scan_config["workflow_name"]
-                        ),
+                        "yaml_configuration": self.get_builtin_workflow_yaml(scan_config["workflow_name"]),
                         "scan_type": scan_config["scan_type"],
                     },
                 )
@@ -137,13 +133,9 @@ class Command(BaseCommand):
                     created_count += 1
             else:
                 # In dry run mode, check if the scan configuration would actually be created
-                SecatorWorkflow.objects.filter(
-                    name=scan_config["workflow_name"]
-                ).exists()
+                SecatorWorkflow.objects.filter(name=scan_config["workflow_name"]).exists()
 
-                scan_exists = SecatorScan.objects.filter(
-                    name=scan_config["name"]
-                ).exists()
+                scan_exists = SecatorScan.objects.filter(name=scan_config["name"]).exists()
 
                 # Only count as "would be created" if it doesn't already exist
                 if not scan_exists:

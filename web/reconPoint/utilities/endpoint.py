@@ -114,9 +114,7 @@ def get_http_urls(
         )
         logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", log_found, level="debug")
     elif exclude_subdomains and domain:
-        logger.log_line(
-            PREFIX_ENDPOINT, "GET_HTTP_URLS", "Excluding subdomains", level="debug"
-        )
+        logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", "Excluding subdomains", level="debug")
         query = query.filter(http_url=domain.http_url)
         log_found = "%s%s endpoints for domain %s" % (log_header, query.count(), domain)
         logger.log_line(PREFIX_ENDPOINT, "GET_HTTP_URLS", log_found, level="debug")
@@ -274,9 +272,7 @@ def get_interesting_endpoints(scan_history=None, target=None, target_id=None):
     return url_lookup_query | title_lookup_query
 
 
-def ensure_endpoints_crawled_and_execute(
-    task_function, ctx, description=None, max_wait_time=300
-):
+def ensure_endpoints_crawled_and_execute(task_function, ctx, description=None, max_wait_time=300):
     """
     DEPRECATED: Ensure endpoints are crawled before executing a task that needs alive endpoints.
 

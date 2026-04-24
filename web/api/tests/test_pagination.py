@@ -68,16 +68,12 @@ class ParseLimitFromRequestTestCase(BaseTestCase):
 
     def test_get_limit_in_query_returns_value(self):
         """GET with limit in query_params returns validated limit."""
-        request = type(
-            "Req", (), {"method": "GET", "data": None, "query_params": {"limit": "50"}}
-        )()
+        request = type("Req", (), {"method": "GET", "data": None, "query_params": {"limit": "50"}})()
         self.assertEqual(parse_limit_from_request(request, default_limit=200), 50)
 
     def test_post_limit_in_data_returns_value(self):
         """POST with limit in data returns validated limit."""
-        request = type(
-            "Req", (), {"method": "POST", "data": {"limit": 30}, "query_params": {}}
-        )()
+        request = type("Req", (), {"method": "POST", "data": {"limit": 30}, "query_params": {}})()
         self.assertEqual(parse_limit_from_request(request, default_limit=200), 30)
 
     def test_limit_capped_at_max(self):
@@ -101,7 +97,5 @@ class ParseLimitFromRequestTestCase(BaseTestCase):
             {"method": "GET", "data": None, "query_params": {"limit": "invalid"}},
         )()
         self.assertEqual(parse_limit_from_request(request, default_limit=100), 100)
-        request2 = type(
-            "Req", (), {"method": "GET", "data": None, "query_params": {"limit": "0"}}
-        )()
+        request2 = type("Req", (), {"method": "GET", "data": None, "query_params": {"limit": "0"}})()
         self.assertEqual(parse_limit_from_request(request2, default_limit=100), 100)

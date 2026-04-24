@@ -85,9 +85,7 @@ class ScanRepository:
         from reconPoint.definitions import ABORTED_TASK, FAILED_TASK, SUCCESS_TASK
         from reconPoint.utilities.websocket import send_scan_status_update
 
-        send_scan_status_update(
-            scan_history_id, force=(status in (FAILED_TASK, SUCCESS_TASK, ABORTED_TASK))
-        )
+        send_scan_status_update(scan_history_id, force=(status in (FAILED_TASK, SUCCESS_TASK, ABORTED_TASK)))
         return True
 
     def update_progress(self, scan_history_id, progress):
@@ -187,9 +185,7 @@ class ScanRepository:
             )
             return None
 
-    def _create_scan_activity_entry(
-        self, scan_history_id: int, message: str, status: int
-    ) -> int:
+    def _create_scan_activity_entry(self, scan_history_id: int, message: str, status: int) -> int:
         scan_activity = ScanActivity()
         scan_activity.scan_of = ScanHistory.objects.get(id=scan_history_id)
         scan_activity.title = message
@@ -287,9 +283,7 @@ class ScanRepository:
             int: ID of the created scan history
         """
         try:
-            return self._create_scan_history_entry(
-                engine_id, initiated_by_id=initiated_by_id, target_id=target_id
-            )
+            return self._create_scan_history_entry(engine_id, initiated_by_id=initiated_by_id, target_id=target_id)
         except ObjectDoesNotExist as e:
             logger.log_line(
                 PREFIX_SCAN_REPO,
@@ -365,9 +359,7 @@ class ScanRepository:
             )
             raise
 
-    def _build_scan_activity_entry(
-        self, scan_history_id: int, message: str, status: int
-    ) -> int:
+    def _build_scan_activity_entry(self, scan_history_id: int, message: str, status: int) -> int:
         scan = ScanHistory.objects.get(pk=scan_history_id)
 
         scan_activity = ScanActivity()
@@ -380,8 +372,7 @@ class ScanRepository:
         logger.log_line(
             PREFIX_SCAN_REPO,
             "CREATE",
-            "Created scan activity %s for scan %s: %s"
-            % (scan_activity.id, scan_history_id, message),
+            "Created scan activity %s for scan %s: %s" % (scan_activity.id, scan_history_id, message),
             level="info",
         )
         return scan_activity.id
@@ -416,9 +407,7 @@ class ScanRepository:
             )
             return False
 
-    def _mark_scan_failed_and_notify(
-        self, scan_history_id: int, error_message: str = None
-    ) -> bool:
+    def _mark_scan_failed_and_notify(self, scan_history_id: int, error_message: str = None) -> bool:
         from reconPoint.definitions import FAILED_TASK
 
         scan = ScanHistory.objects.get(id=scan_history_id)
@@ -450,13 +439,10 @@ class ScanRepository:
             status: reconPoint status code (SUCCESS_TASK, FAILED_TASK, ABORTED_TASK, etc.)
         """
         now = timezone.now()
-        if updated := SubScan.objects.filter(secator_runner_id=runner_id).update(
-            status=status, stop_scan_date=now
-        ):
+        if updated := SubScan.objects.filter(secator_runner_id=runner_id).update(status=status, stop_scan_date=now):
             logger.log_line(
                 PREFIX_SCAN_REPO,
                 "UPDATE",
-                "Marked %s subscan(s) finished for runner %s (status=%s)"
-                % (updated, runner_id, status),
+                "Marked %s subscan(s) finished for runner %s (status=%s)" % (updated, runner_id, status),
                 level="debug",
             )

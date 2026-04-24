@@ -43,22 +43,10 @@ def setup_debugger(wait=False, gevent="False"):
         if not is_port_in_use(UI_REMOTE_DEBUG_PORT, debug_host):
             try:
                 debugpy.listen((debug_host, UI_REMOTE_DEBUG_PORT))
-                print(
-                    "\n⚡ Debugger started on "
-                    + debug_host
-                    + ":"
-                    + str(UI_REMOTE_DEBUG_PORT)
-                    + " ⚡\n"
-                )
+                print("\n⚡ Debugger started on " + debug_host + ":" + str(UI_REMOTE_DEBUG_PORT) + " ⚡\n")
                 if wait:
                     debugpy.wait_for_client()
             except Exception as e:
                 print(f"Failed to start debugger: {e}")
         else:
-            print(
-                "\n⚠️  Debugger already started on "
-                + debug_host
-                + ":"
-                + str(UI_REMOTE_DEBUG_PORT)
-                + " ⚠️\n"
-            )
+            print("\n⚠️  Debugger already started on " + debug_host + ":" + str(UI_REMOTE_DEBUG_PORT) + " ⚠️\n")

@@ -82,9 +82,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="organization",
             name="targets",
-            field=models.ManyToManyField(
-                blank=True, related_name="organizations", to="targetApp.target"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="organizations", to="targetApp.target"),
         ),
         migrations.AddConstraint(
             model_name="target",

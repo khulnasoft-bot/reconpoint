@@ -20,9 +20,7 @@ class RunFpingSyncHooksTestCase(BaseTestCase):
         self.assertTrue(run_opts.get("enable_hooks"))
 
     @patch("reconPoint.services.ip_discovery_secator.Task")
-    def test_run_fping_sync_forces_hooks_even_if_caller_disables(
-        self, mock_task: MagicMock
-    ) -> None:
+    def test_run_fping_sync_forces_hooks_even_if_caller_disables(self, mock_task: MagicMock) -> None:
         instance = MagicMock()
         instance.run.return_value = []
         mock_task.return_value = instance

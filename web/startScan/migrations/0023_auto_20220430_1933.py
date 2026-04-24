@@ -23,8 +23,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="subdomain",
             name="waf",
-            field=models.ManyToManyField(
-                blank=True, related_name="waf", to="startScan.Waf"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="waf", to="startScan.Waf"),
         ),
     ]

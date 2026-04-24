@@ -32,9 +32,7 @@ class OllamaDownloadConsumer(WebsocketConsumer):
                 level="info",
             )
             self.model_name = self.scope["url_route"]["kwargs"]["model_name"]
-            self.room_group_name = (
-                f"ollama-download-{self.clean_channel_name(self.model_name)}"
-            )
+            self.room_group_name = f"ollama-download-{self.clean_channel_name(self.model_name)}"
 
             logger.log_line(
                 PREFIX_API,
@@ -44,9 +42,7 @@ class OllamaDownloadConsumer(WebsocketConsumer):
             )
 
             # Join room group
-            async_to_sync(self.channel_layer.group_add)(
-                self.room_group_name, self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
 
             logger.log_line(
                 PREFIX_API,
@@ -74,9 +70,7 @@ class OllamaDownloadConsumer(WebsocketConsumer):
                 level="info",
             )
             # Leave room group
-            async_to_sync(self.channel_layer.group_discard)(
-                self.room_group_name, self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_discard)(self.room_group_name, self.channel_name)
         except Exception as e:
             logger.log_line(
                 PREFIX_API,
@@ -162,9 +156,7 @@ class IPScanProgressConsumer(WebsocketConsumer):
             )
 
             # Join room group
-            async_to_sync(self.channel_layer.group_add)(
-                self.room_group_name, self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
 
             logger.log_line(
                 PREFIX_API,
@@ -192,9 +184,7 @@ class IPScanProgressConsumer(WebsocketConsumer):
                 level="info",
             )
             # Leave room group
-            async_to_sync(self.channel_layer.group_discard)(
-                self.room_group_name, self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_discard)(self.room_group_name, self.channel_name)
         except Exception as e:
             logger.log_line(
                 PREFIX_API,
@@ -266,21 +256,16 @@ class ScanStatusConsumer(WebsocketConsumer):
             logger.log_line(
                 PREFIX_API,
                 "WS_SCAN_STATUS",
-                "Scan Status WebSocket connection attempt with scope: %s"
-                % (self.scope,),
+                "Scan Status WebSocket connection attempt with scope: %s" % (self.scope,),
                 level="info",
             )
             scan_id = self.scope["url_route"]["kwargs"].get("scan_id")
             project_slug = self.scope["url_route"]["kwargs"].get("project_slug")
 
             if scan_id:
-                self.room_group_name = (
-                    f"scan-status-{self.clean_channel_name(str(scan_id))}"
-                )
+                self.room_group_name = f"scan-status-{self.clean_channel_name(str(scan_id))}"
             elif project_slug:
-                self.room_group_name = (
-                    f"scan-status-project-{self.clean_channel_name(project_slug)}"
-                )
+                self.room_group_name = f"scan-status-project-{self.clean_channel_name(project_slug)}"
             else:
                 logger.log_line(
                     PREFIX_API,
@@ -299,9 +284,7 @@ class ScanStatusConsumer(WebsocketConsumer):
             )
 
             # Join room group
-            async_to_sync(self.channel_layer.group_add)(
-                self.room_group_name, self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
 
             logger.log_line(
                 PREFIX_API,
@@ -329,9 +312,7 @@ class ScanStatusConsumer(WebsocketConsumer):
                 level="info",
             )
             # Leave room group
-            async_to_sync(self.channel_layer.group_discard)(
-                self.room_group_name, self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_discard)(self.room_group_name, self.channel_name)
         except Exception as e:
             logger.log_line(
                 PREFIX_API,
@@ -363,9 +344,7 @@ class WorkerStatusConsumer(WebsocketConsumer):
 
     def connect(self):
         try:
-            async_to_sync(self.channel_layer.group_add)(
-                WORKER_STATUS_GROUP, self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_add)(WORKER_STATUS_GROUP, self.channel_name)
             self.accept()
         except Exception as e:
             logger.log_line(
@@ -378,9 +357,7 @@ class WorkerStatusConsumer(WebsocketConsumer):
 
     def disconnect(self, close_code):
         try:
-            async_to_sync(self.channel_layer.group_discard)(
-                WORKER_STATUS_GROUP, self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_discard)(WORKER_STATUS_GROUP, self.channel_name)
         except Exception as e:
             logger.log_line(
                 PREFIX_API,
@@ -408,9 +385,7 @@ class WorkerDeployConsumer(WebsocketConsumer):
     def connect(self):
         try:
             worker_id = self.scope["url_route"]["kwargs"].get("worker_id")
-            if worker_id is None or (
-                isinstance(worker_id, str) and not worker_id.isdigit()
-            ):
+            if worker_id is None or (isinstance(worker_id, str) and not worker_id.isdigit()):
                 self.close(code=4000)
                 return
             self.worker_id = int(worker_id)
@@ -418,9 +393,7 @@ class WorkerDeployConsumer(WebsocketConsumer):
                 self.close(code=4000)
                 return
             self.room_group_name = worker_deploy_group(self.worker_id)
-            async_to_sync(self.channel_layer.group_add)(
-                self.room_group_name, self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
             self.accept()
         except Exception as e:
             logger.log_line(
@@ -434,9 +407,7 @@ class WorkerDeployConsumer(WebsocketConsumer):
     def disconnect(self, close_code):
         try:
             if hasattr(self, "room_group_name"):
-                async_to_sync(self.channel_layer.group_discard)(
-                    self.room_group_name, self.channel_name
-                )
+                async_to_sync(self.channel_layer.group_discard)(self.room_group_name, self.channel_name)
         except Exception as e:
             logger.log_line(
                 PREFIX_API,
@@ -464,9 +435,7 @@ class WorkerRefreshConsumer(WebsocketConsumer):
     def connect(self):
         try:
             worker_id = self.scope["url_route"]["kwargs"].get("worker_id")
-            if worker_id is None or (
-                isinstance(worker_id, str) and not worker_id.isdigit()
-            ):
+            if worker_id is None or (isinstance(worker_id, str) and not worker_id.isdigit()):
                 self.close(code=4000)
                 return
             self.worker_id = int(worker_id)
@@ -474,9 +443,7 @@ class WorkerRefreshConsumer(WebsocketConsumer):
                 self.close(code=4000)
                 return
             self.room_group_name = worker_refresh_group(self.worker_id)
-            async_to_sync(self.channel_layer.group_add)(
-                self.room_group_name, self.channel_name
-            )
+            async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
             self.accept()
         except Exception as e:
             logger.log_line(
@@ -490,9 +457,7 @@ class WorkerRefreshConsumer(WebsocketConsumer):
     def disconnect(self, close_code):
         try:
             if hasattr(self, "room_group_name"):
-                async_to_sync(self.channel_layer.group_discard)(
-                    self.room_group_name, self.channel_name
-                )
+                async_to_sync(self.channel_layer.group_discard)(self.room_group_name, self.channel_name)
         except Exception as e:
             logger.log_line(
                 PREFIX_API,

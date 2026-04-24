@@ -93,9 +93,7 @@ class GetProjectForScanFilePathTestCase(BaseTestCase):
         self.data_generator.create_scan_history()
         subdomain = self.data_generator.create_subdomain(scan_history=None)
         rel_path = "tech/response_%s.html" % uuid.uuid4().hex
-        tech = Technology.objects.create(
-            name="TechNoScan", stored_response_path=rel_path
-        )
+        tech = Technology.objects.create(name="TechNoScan", stored_response_path=rel_path)
         subdomain.technologies.add(tech)
         result = get_project_for_scan_file_path(rel_path)
         self.assertIsNotNone(result)
@@ -110,9 +108,7 @@ class GetProjectForScanFilePathTestCase(BaseTestCase):
         self.data_generator.create_subdomain()
         rel_path = "shared/path/file_%s.txt" % uuid.uuid4().hex
         self.data_generator.create_endpoint(stored_response_path=rel_path)
-        tech = Technology.objects.create(
-            name="OtherTech", stored_response_path=rel_path
-        )
+        tech = Technology.objects.create(name="OtherTech", stored_response_path=rel_path)
         self.data_generator.subdomain.technologies.add(tech)
         result = get_project_for_scan_file_path(rel_path)
         self.assertIsNotNone(result)
@@ -166,9 +162,7 @@ class ServeScanFileViewTestCase(BaseTestCase):
         self.assertEqual(response.data.get("error"), "Invalid path")
 
     def test_returns_404_when_file_does_not_exist(self):
-        response = self.client.get(
-            self._url("nonexistent/workspace/domain/screenshot.png")
-        )
+        response = self.client.get(self._url("nonexistent/workspace/domain/screenshot.png"))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data.get("error"), "Not found")
 
@@ -249,9 +243,7 @@ class ServeScanFileViewTestCase(BaseTestCase):
     def test_build_scan_file_url_returns_relative_url_for_absolute_stored_path(self):
         with patch("reconPoint.secator.path_utils.to_relative_scan_path") as mock_norm:
             mock_norm.return_value = "example/domain/file.png"
-            url = build_scan_file_url(
-                "/home/secator/.secator/reports/example/domain/file.png"
-            )
+            url = build_scan_file_url("/home/secator/.secator/reports/example/domain/file.png")
         self.assertIsNotNone(url)
         self.assertIn("example/domain/file.png", url)
         self.assertNotIn("/home/", url)
@@ -271,9 +263,7 @@ class ServeScanFileViewTestCase(BaseTestCase):
             (base / "legacy").mkdir(exist_ok=True)
             (base / "legacy" / "screenshot.png").write_text("image data")
             with patch("api.scan_file.RECONPOINT_RESULTS", str(base)):
-                url = reverse(
-                    "api:serve_scan_file", kwargs={"relative_path": absolute_stored}
-                )
+                url = reverse("api:serve_scan_file", kwargs={"relative_path": absolute_stored})
                 response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = b"".join(response.streaming_content)

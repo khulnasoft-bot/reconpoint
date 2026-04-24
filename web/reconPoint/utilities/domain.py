@@ -64,25 +64,19 @@ def normalize_allowed_hosts_from_list(raw: Any) -> list[str]:
     return result
 
 
-def get_domain_for_scan_by_name(
-    scan_history_id: int, domain_name: str
-) -> Optional[Domain]:
+def get_domain_for_scan_by_name(scan_history_id: int, domain_name: str) -> Optional[Domain]:
     """
     Return the Domain for this scan with the given name, or None.
 
     Does not create; used when we must only attach data to an existing scan domain.
     """
     if normalized := normalize_domain_name(domain_name):
-        return Domain.objects.filter(
-            scan_history_id=scan_history_id, name=normalized
-        ).first()
+        return Domain.objects.filter(scan_history_id=scan_history_id, name=normalized).first()
     else:
         return None
 
 
-def get_or_create_domain_for_target(
-    scan_history_id: int, domain_name: str
-) -> Optional[Domain]:
+def get_or_create_domain_for_target(scan_history_id: int, domain_name: str) -> Optional[Domain]:
     """
     Get or create a Domain for the given scan and domain name.
 
@@ -134,9 +128,7 @@ def resolve_domain_for_scan(
         registered = get_domain_from_subdomain(normalized)
         domain_name_to_use = registered or normalized
         if create:
-            domain = get_or_create_domain_for_target(
-                scan_history_id, domain_name_to_use
-            )
+            domain = get_or_create_domain_for_target(scan_history_id, domain_name_to_use)
         else:
             domain = get_domain_for_scan_by_name(scan_history_id, domain_name_to_use)
         if domain is not None:

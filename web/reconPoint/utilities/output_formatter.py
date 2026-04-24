@@ -69,9 +69,7 @@ def convert_ansi_to_html(text: str) -> str:
             text_segment = text[last_pos : match.start()]
             if text_segment:
                 if current_classes:
-                    result.append(
-                        f'<span class="{" ".join(current_classes)}">{text_segment}</span>'
-                    )
+                    result.append(f'<span class="{" ".join(current_classes)}">{text_segment}</span>')
                 else:
                     result.append(text_segment)
 
@@ -97,25 +95,17 @@ def convert_ansi_to_html(text: str) -> str:
                     if "ansi-underline" not in current_classes:
                         current_classes.append("ansi-underline")
                 elif code == 22:  # Reset bold/dim
-                    current_classes = [
-                        c for c in current_classes if c not in ["ansi-bold", "ansi-dim"]
-                    ]
+                    current_classes = [c for c in current_classes if c not in ["ansi-bold", "ansi-dim"]]
                 elif code == 23:  # Reset italic
-                    current_classes = [
-                        c for c in current_classes if c not in ["ansi-italic"]
-                    ]
+                    current_classes = [c for c in current_classes if c not in ["ansi-italic"]]
                 elif code == 24:  # Reset underline
-                    current_classes = [
-                        c for c in current_classes if c not in ["ansi-underline"]
-                    ]
+                    current_classes = [c for c in current_classes if c not in ["ansi-underline"]]
                 elif 30 <= code <= 37:
                     # Remove existing foreground colors
                     current_classes = [
                         c
                         for c in current_classes
-                        if not c.startswith("ansi-")
-                        or c
-                        in ["ansi-bold", "ansi-dim", "ansi-italic", "ansi-underline"]
+                        if not c.startswith("ansi-") or c in ["ansi-bold", "ansi-dim", "ansi-italic", "ansi-underline"]
                     ]
                     color_map = {
                         30: "ansi-black",
@@ -130,9 +120,7 @@ def convert_ansi_to_html(text: str) -> str:
                     current_classes.append(color_map[code])
                 elif 40 <= code <= 47:
                     # Remove existing background colors
-                    current_classes = [
-                        c for c in current_classes if not c.startswith("ansi-bg-")
-                    ]
+                    current_classes = [c for c in current_classes if not c.startswith("ansi-bg-")]
                     bg_color_map = {
                         40: "ansi-bg-black",
                         41: "ansi-bg-red",
@@ -150,8 +138,7 @@ def convert_ansi_to_html(text: str) -> str:
                         c
                         for c in current_classes
                         if not c.startswith("ansi-")
-                        or c
-                        in ["ansi-bold", "ansi-dim", "ansi-italic", "ansi-underline"]
+                        or c in ["ansi-bold", "ansi-dim", "ansi-italic", "ansi-underline"]
                         or c.startswith("ansi-bg-")
                     ]
                     bright_color_map = {
@@ -167,9 +154,7 @@ def convert_ansi_to_html(text: str) -> str:
                     current_classes.append(bright_color_map[code])
                 elif 100 <= code <= 107:
                     # Remove existing background colors
-                    current_classes = [
-                        c for c in current_classes if not c.startswith("ansi-bg-")
-                    ]
+                    current_classes = [c for c in current_classes if not c.startswith("ansi-bg-")]
                     bright_bg_color_map = {
                         100: "ansi-bg-bright-black",
                         101: "ansi-bg-bright-red",
@@ -187,9 +172,7 @@ def convert_ansi_to_html(text: str) -> str:
     if last_pos < len(text):
         if text_segment := text[last_pos:]:
             if current_classes:
-                result.append(
-                    f'<span class="{" ".join(current_classes)}">{text_segment}</span>'
-                )
+                result.append(f'<span class="{" ".join(current_classes)}">{text_segment}</span>')
             else:
                 result.append(text_segment)
 

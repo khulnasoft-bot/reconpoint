@@ -115,10 +115,7 @@ class SecatorConfigConverter:
         )
 
         # Parse YAML configuration if available
-        if (
-            hasattr(engine_type, "yaml_configuration")
-            and engine_type.yaml_configuration
-        ):
+        if hasattr(engine_type, "yaml_configuration") and engine_type.yaml_configuration:
             try:
                 import yaml
 
@@ -192,9 +189,7 @@ class SecatorConfigConverter:
 
         return merged_config
 
-    def _recursive_merge(
-        self, base: Dict[str, Any], update: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _recursive_merge(self, base: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
         """
         Recursively merge two dictionaries, preserving nested structures.
 
@@ -208,11 +203,7 @@ class SecatorConfigConverter:
         result = base.copy()
 
         for key, value in update.items():
-            if (
-                key in result
-                and isinstance(result[key], dict)
-                and isinstance(value, dict)
-            ):
+            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
                 # Both values are dictionaries, merge recursively
                 result[key] = self._recursive_merge(result[key], value)
             else:

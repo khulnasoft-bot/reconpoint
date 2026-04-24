@@ -30,9 +30,7 @@ class SecatorScanController:
         self.scan_history_id = scan_history_id
         self.scan_repo = ScanRepository()
 
-    def _create_or_update_command_for_runner(
-        self, runner: SecatorRunner, activity_id: Optional[int] = None
-    ) -> None:
+    def _create_or_update_command_for_runner(self, runner: SecatorRunner, activity_id: Optional[int] = None) -> None:
         """
         Create or update Command for a runner to ensure it appears in logs.
 
@@ -62,15 +60,11 @@ class SecatorScanController:
                     )
             elif runner.scan_history:
                 # Try to find existing activity for this runner
-                activity = ScanActivity.objects.filter(
-                    scan_of=runner.scan_history, runner_id=runner
-                ).first()
+                activity = ScanActivity.objects.filter(scan_of=runner.scan_history, runner_id=runner).first()
 
             # Create or update Command
             command_repo = CommandRepository()
-            scan_history_id = (
-                runner.scan_history.id if runner.scan_history else self.scan_history_id
-            )
+            scan_history_id = runner.scan_history.id if runner.scan_history else self.scan_history_id
             command_repo.save_from_secator(
                 runner.runner_data or {},
                 scan_history_id,
@@ -105,11 +99,7 @@ class SecatorScanController:
                 return False
 
             # Get all SecatorRunner instances associated with this scan (include worker for remote revoke)
-            runners = list(
-                SecatorRunner.objects.filter(
-                    scan_history_id=self.scan_history_id
-                ).select_related("worker")
-            )
+            runners = list(SecatorRunner.objects.filter(scan_history_id=self.scan_history_id).select_related("worker"))
 
             if not runners:
                 logger.log_line(
@@ -142,9 +132,7 @@ class SecatorScanController:
                                 revoke_task_on_remote_worker,
                             )
 
-                            if revoke_task_on_remote_worker(
-                                runner.worker, celery_id, task_name=task_name
-                            ):
+                            if revoke_task_on_remote_worker(runner.worker, celery_id, task_name=task_name):
                                 revoked_count += 1
                                 logger.log_line(
                                     PREFIX_SECATOR_CONTROL,
@@ -161,8 +149,7 @@ class SecatorScanController:
                             logger.log_line(
                                 PREFIX_SECATOR_CONTROL,
                                 "STOP",
-                                "Successfully revoked Celery task %s for scan %s"
-                                % (celery_id, self.scan_history_id),
+                                "Successfully revoked Celery task %s for scan %s" % (celery_id, self.scan_history_id),
                                 level="debug",
                             )
                     except Exception as e:
@@ -170,8 +157,7 @@ class SecatorScanController:
                         logger.log_line(
                             PREFIX_SECATOR_CONTROL,
                             "STOP",
-                            "Failed to revoke Celery task %s for scan %s: %s"
-                            % (celery_id, self.scan_history_id, e),
+                            "Failed to revoke Celery task %s for scan %s: %s" % (celery_id, self.scan_history_id, e),
                             level="error",
                         )
                 else:
@@ -195,36 +181,29 @@ class SecatorScanController:
                 logger.log_line(
                     PREFIX_SECATOR_CONTROL,
                     "STOP",
-                    "Revoked %s Celery task(s) for scan %s"
-                    % (revoked_count, self.scan_history_id),
+                    "Revoked %s Celery task(s) for scan %s" % (revoked_count, self.scan_history_id),
                     level="info",
                 )
             if failed_count > 0:
                 logger.log_line(
                     PREFIX_SECATOR_CONTROL,
                     "STOP",
-                    "Failed to revoke %s Celery task(s) for scan %s"
-                    % (failed_count, self.scan_history_id),
+                    "Failed to revoke %s Celery task(s) for scan %s" % (failed_count, self.scan_history_id),
                     level="warning",
                 )
 
             # Update scan status regardless of individual task revocation results
             self.scan_repo.update_status(self.scan_history_id, ABORTED_TASK)
-            self.scan_repo.create_scan_activity(
-                self.scan_history_id, "Scan stopped by user", ABORTED_TASK
-            )
+            self.scan_repo.create_scan_activity(self.scan_history_id, "Scan stopped by user", ABORTED_TASK)
 
             # Update all running activities to ABORTED_TASK
-            running_activities = ScanActivity.objects.filter(
-                scan_of_id=self.scan_history_id, status=RUNNING_TASK
-            )
+            running_activities = ScanActivity.objects.filter(scan_of_id=self.scan_history_id, status=RUNNING_TASK)
             running_activities.update(status=ABORTED_TASK)
 
             logger.log_line(
                 PREFIX_SECATOR_CONTROL,
                 "STOP",
-                "Stopped scan %s (revoked %s/%s runners)"
-                % (self.scan_history_id, revoked_count, len(runners)),
+                "Stopped scan %s (revoked %s/%s runners)" % (self.scan_history_id, revoked_count, len(runners)),
                 level="info",
             )
             return True
@@ -277,9 +256,7 @@ class SecatorScanController:
 
             # Check if there are other running subscans for this scan
             other_running_subscans = (
-                SubScan.objects.filter(scan_history=scan, status=RUNNING_TASK)
-                .exclude(id=subscan_id)
-                .count()
+                SubScan.objects.filter(scan_history=scan, status=RUNNING_TASK).exclude(id=subscan_id).count()
             )
 
             if other_running_subscans > 0:
@@ -304,18 +281,13 @@ class SecatorScanController:
 
             revoked_count = self._revoke_runners_for_subscan(runners, subscan_id, scan)
             self._abort_subscan(subscan)
-            self.scan_repo.create_activity(
-                scan.id, f"Subscan {subscan_id} aborted", ABORTED_TASK
-            )
-            ScanActivity.objects.filter(scan_of=scan, status=RUNNING_TASK).update(
-                status=ABORTED_TASK
-            )
+            self.scan_repo.create_activity(scan.id, f"Subscan {subscan_id} aborted", ABORTED_TASK)
+            ScanActivity.objects.filter(scan_of=scan, status=RUNNING_TASK).update(status=ABORTED_TASK)
 
             logger.log_line(
                 PREFIX_SECATOR_CONTROL,
                 "STOP_SUBSCAN",
-                "Stopped subscan %s (revoked %s/%s runners)"
-                % (subscan_id, revoked_count, len(runners)),
+                "Stopped subscan %s (revoked %s/%s runners)" % (subscan_id, revoked_count, len(runners)),
                 level="info",
             )
             return True
@@ -334,47 +306,35 @@ class SecatorScanController:
         Collect SecatorRunner instances to revoke for this subscan.
         Scopes by subdomain when subscan has a subdomain; otherwise uses domain-level runners only.
         """
-        subscan_activities = ScanActivity.objects.filter(
-            scan_of=scan, status=RUNNING_TASK
-        ).select_related("runner_id")
+        subscan_activities = ScanActivity.objects.filter(scan_of=scan, status=RUNNING_TASK).select_related("runner_id")
         activity_runner_ids = set()
         subscan_subdomain = subscan.subdomain
         for activity in subscan_activities:
             if not activity.runner_id:
                 continue
             runner = activity.runner_id
-            runner_context = (
-                runner.runner_data.get("context", {}) if runner.runner_data else {}
-            )
+            runner_context = runner.runner_data.get("context", {}) if runner.runner_data else {}
             runner_subdomain_id = runner_context.get("subdomain_id")
             if subscan_subdomain is None:
                 if runner_subdomain_id is None:
                     activity_runner_ids.add(runner.id)
-            elif (
-                runner_subdomain_id is not None
-                and runner_subdomain_id == subscan_subdomain.id
-            ):
+            elif runner_subdomain_id is not None and runner_subdomain_id == subscan_subdomain.id:
                 activity_runner_ids.add(runner.id)
 
         if activity_runner_ids:
             runners = list(
-                SecatorRunner.objects.filter(
-                    id__in=activity_runner_ids, scan_history_id=scan.id
-                ).select_related("worker")
+                SecatorRunner.objects.filter(id__in=activity_runner_ids, scan_history_id=scan.id).select_related(
+                    "worker"
+                )
             )
             logger.log_line(
                 PREFIX_SECATOR_CONTROL,
                 "STOP_SUBSCAN",
-                "Scoping subscan %s stop to %s activity-specific runner(s)"
-                % (subscan.id, len(runners)),
+                "Scoping subscan %s stop to %s activity-specific runner(s)" % (subscan.id, len(runners)),
                 level="debug",
             )
         else:
-            runners = list(
-                SecatorRunner.objects.filter(scan_history_id=scan.id).select_related(
-                    "worker"
-                )
-            )
+            runners = list(SecatorRunner.objects.filter(scan_history_id=scan.id).select_related("worker"))
             logger.log_line(
                 PREFIX_SECATOR_CONTROL,
                 "STOP_SUBSCAN",
@@ -391,24 +351,19 @@ class SecatorScanController:
         revoked_count = 0
         task_name = f"subscan_{subscan_id}"
         for runner in runners:
-            if celery_id := runner.celery_id or (runner.runner_data or {}).get(
-                "context", {}
-            ).get("celery_id"):
+            if celery_id := runner.celery_id or (runner.runner_data or {}).get("context", {}).get("celery_id"):
                 try:
                     if runner.worker_id:
                         from reconPoint.secator.remote_runner import (
                             revoke_task_on_remote_worker,
                         )
 
-                        if revoke_task_on_remote_worker(
-                            runner.worker, celery_id, task_name=task_name
-                        ):
+                        if revoke_task_on_remote_worker(runner.worker, celery_id, task_name=task_name):
                             revoked_count += 1
                             logger.log_line(
                                 PREFIX_SECATOR_CONTROL,
                                 "STOP_SUBSCAN",
-                                "Successfully revoked Celery task %s for subscan %s (remote)"
-                                % (celery_id, subscan_id),
+                                "Successfully revoked Celery task %s for subscan %s (remote)" % (celery_id, subscan_id),
                                 level="debug",
                             )
                         else:
@@ -425,16 +380,14 @@ class SecatorScanController:
                         logger.log_line(
                             PREFIX_SECATOR_CONTROL,
                             "STOP_SUBSCAN",
-                            "Successfully revoked Celery task %s for subscan %s"
-                            % (celery_id, subscan_id),
+                            "Successfully revoked Celery task %s for subscan %s" % (celery_id, subscan_id),
                             level="debug",
                         )
                 except Exception as e:
                     logger.log_line(
                         PREFIX_SECATOR_CONTROL,
                         "STOP_SUBSCAN",
-                        "Failed to revoke Celery task %s for subscan %s: %s"
-                        % (celery_id, subscan_id, e),
+                        "Failed to revoke Celery task %s for subscan %s: %s" % (celery_id, subscan_id, e),
                         level="error",
                     )
             else:
@@ -456,9 +409,7 @@ class SecatorScanController:
                 )
 
                 activity = (
-                    ScanActivity.objects.filter(
-                        scan_of=runner.scan_history, runner_id=runner
-                    ).first()
+                    ScanActivity.objects.filter(scan_of=runner.scan_history, runner_id=runner).first()
                     if runner.scan_history
                     else None
                 )
@@ -471,8 +422,7 @@ class SecatorScanController:
                 logger.log_line(
                     PREFIX_SECATOR_CONTROL,
                     "COMMAND",
-                    "Failed to create/update Command for runner %s: %s"
-                    % (runner.id, e),
+                    "Failed to create/update Command for runner %s: %s" % (runner.id, e),
                     level="warning",
                 )
 
@@ -515,11 +465,7 @@ class SecatorScanController:
         try:
             from secator.celery import revoke_task
 
-            activity = (
-                ScanActivity.objects.filter(id=activity_id)
-                .select_related("runner_id__worker")
-                .first()
-            )
+            activity = ScanActivity.objects.filter(id=activity_id).select_related("runner_id__worker").first()
             if not activity:
                 logger.log_line(
                     PREFIX_SECATOR_CONTROL,
@@ -544,8 +490,7 @@ class SecatorScanController:
                 logger.log_line(
                     PREFIX_SECATOR_CONTROL,
                     "STOP_ACTIVITY",
-                    "ScanActivity %s has runner_id %s but no celery_id"
-                    % (activity_id, activity.runner_id.id),
+                    "ScanActivity %s has runner_id %s but no celery_id" % (activity_id, activity.runner_id.id),
                     level="warning",
                 )
                 self._abort_activity(activity)
@@ -554,9 +499,7 @@ class SecatorScanController:
             # Correlation check: Verify that this activity is actually associated with this runner
             # Check if there are other activities using the same runner to ensure we're stopping the right one
             other_activities_with_same_runner = (
-                ScanActivity.objects.filter(
-                    runner_id=activity.runner_id, status=RUNNING_TASK
-                )
+                ScanActivity.objects.filter(runner_id=activity.runner_id, status=RUNNING_TASK)
                 .exclude(id=activity_id)
                 .count()
             )
@@ -623,8 +566,7 @@ class SecatorScanController:
                 logger.log_line(
                     PREFIX_SECATOR_CONTROL,
                     "STOP_ACTIVITY",
-                    "Successfully revoked Celery task %s for activity %s"
-                    % (activity.runner_id.celery_id, activity_id),
+                    "Successfully revoked Celery task %s for activity %s" % (activity.runner_id.celery_id, activity_id),
                     level="debug",
                 )
             except Exception as e:

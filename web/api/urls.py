@@ -133,9 +133,7 @@ from .views_worker_pull import (
 
 app_name = "api"
 router = routers.DefaultRouter()
-router.register(
-    r"listDatatableSubdomain", SubdomainDatatableViewSet, basename="subdomain-datatable"
-)
+router.register(r"listDatatableSubdomain", SubdomainDatatableViewSet, basename="subdomain-datatable")
 router.register(r"listScopes", ListScopesDatatableViewSet, basename="scopes-datatable")
 router.register(
     r"listDatatableOrganizations",
@@ -164,12 +162,8 @@ router.register(
     InterestingEndpointViewSet,
     basename="interesting-endpoints",
 )
-router.register(
-    r"listSubdomainChanges", SubdomainChangesViewSet, basename="subdomain-changes"
-)
-router.register(
-    r"listEndPointChanges", EndPointChangesViewSet, basename="endpoint-changes"
-)
+router.register(r"listSubdomainChanges", SubdomainChangesViewSet, basename="subdomain-changes")
+router.register(r"listEndPointChanges", EndPointChangesViewSet, basename="endpoint-changes")
 router.register(r"listIps", IpAddressViewSet, basename="ip-addresses")
 router.register(r"listActivityLogs", ListActivityLogsViewSet, basename="activity-logs")
 router.register(r"listScanLogs", ListScanLogsViewSet, basename="scan-logs")
@@ -277,13 +271,9 @@ urlpatterns = [
         name="vulnerability_report",
     ),
     path("tools/csrf_token/", GetCSRFToken.as_view(), name="csrf_token"),
-    path(
-        "tools/domain_ip_history", DomainIPHistory.as_view(), name="domain_ip_history"
-    ),
+    path("tools/domain_ip_history", DomainIPHistory.as_view(), name="domain_ip_history"),
     path("tools/gf_list/", GfList.as_view(), name="gf_list"),
-    path(
-        "tools/cidr_discovery/", CidrDiscoveryToolView.as_view(), name="cidr_discovery"
-    ),
+    path("tools/cidr_discovery/", CidrDiscoveryToolView.as_view(), name="cidr_discovery"),
     path("tools/ping_hosts_v2/", PingHostsV2ToolView.as_view(), name="ping_hosts_v2"),
     path(
         "tools/llm_vulnerability_report/",
@@ -312,9 +302,7 @@ urlpatterns = [
         ReconpointUpdateCheck.as_view(),
         name="check_reconpoint_update",
     ),
-    path(
-        "action/subdomain/delete/", DeleteSubdomain.as_view(), name="delete_subdomain"
-    ),
+    path("action/subdomain/delete/", DeleteSubdomain.as_view(), name="delete_subdomain"),
     path(
         "action/vulnerability/delete/",
         DeleteVulnerability.as_view(),
@@ -341,9 +329,7 @@ urlpatterns = [
         UnlinkTargetIpAddresses.as_view(),
         name="unlink_target_ip_addresses",
     ),
-    path(
-        "action/initiate/subtask/", InitiateSubTask.as_view(), name="initiate_subscan"
-    ),
+    path("action/initiate/subtask/", InitiateSubTask.as_view(), name="initiate_subscan"),
     path("subdomain/names/", GetSubdomainNames.as_view(), name="get_subdomain_names"),
     path(
         "secator/input-types-targets",
@@ -388,9 +374,7 @@ urlpatterns = [
     # API for fetching currently ongoing scans and upcoming scans
     path("scan_status/", ScanStatus.as_view(), name="scan_status"),
     path("action/create/project", CreateProjectApi.as_view(), name="create_project"),
-    path(
-        "uncommon-web-ports/", UncommonWebPortsView.as_view(), name="uncommonWebPorts"
-    ),
+    path("uncommon-web-ports/", UncommonWebPortsView.as_view(), name="uncommonWebPorts"),
     # Workflow API endpoints
     path("workflows/create/", CreateSecatorWorkflow.as_view(), name="create_workflow"),
     path(
@@ -410,20 +394,12 @@ urlpatterns = [
     ),
     path("tasks/create/", CreateSecatorTask.as_view(), name="create_task"),
     path("tasks/<int:task_id>/", GetTaskDetail.as_view(), name="get_task_detail"),
-    path(
-        "tasks/<int:task_id>/update/", UpdateSecatorTask.as_view(), name="update_task"
-    ),
-    path(
-        "tasks/<int:task_id>/delete/", DeleteSecatorTask.as_view(), name="delete_task"
-    ),
+    path("tasks/<int:task_id>/update/", UpdateSecatorTask.as_view(), name="update_task"),
+    path("tasks/<int:task_id>/delete/", DeleteSecatorTask.as_view(), name="delete_task"),
     path("scans/create/", CreateSecatorScan.as_view(), name="create_scan"),
     path("scans/<int:scan_id>/", GetScanDetail.as_view(), name="get_scan_detail"),
-    path(
-        "scans/<int:scan_id>/update/", UpdateSecatorScan.as_view(), name="update_scan"
-    ),
-    path(
-        "scans/<int:scan_id>/delete/", DeleteSecatorScan.as_view(), name="delete_scan"
-    ),
+    path("scans/<int:scan_id>/update/", UpdateSecatorScan.as_view(), name="update_scan"),
+    path("scans/<int:scan_id>/delete/", DeleteSecatorScan.as_view(), name="delete_scan"),
     path(
         "workflows/load-builtin/",
         LoadBuiltinWorkflows.as_view(),
@@ -454,9 +430,7 @@ urlpatterns = [
     ),
     # Secator API Hook endpoints (for runner and finding CRUD operations)
     # POST uses plural (runners/findings), PUT uses singular (runner/finding) per Secator hook API
-    path(
-        "secator/runners", SecatorRunnerCreate.as_view(), name="secator_runner_create"
-    ),
+    path("secator/runners", SecatorRunnerCreate.as_view(), name="secator_runner_create"),
     path(
         "secator/runner/<str:runner_id>",
         SecatorRunnerUpdate.as_view(),

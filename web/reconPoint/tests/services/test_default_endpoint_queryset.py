@@ -44,7 +44,6 @@ class DefaultEndpointQuerysetHelpersTestCase(BaseTestCase):
         self.assertIn("techs", flat_names)
         sr_techs = qs.query.select_related
         self.assertTrue(
-            sr_techs is False
-            or (isinstance(sr_techs, dict) and "port" not in sr_techs),
+            sr_techs is False or (isinstance(sr_techs, dict) and "port" not in sr_techs),
             msg="apply_endpoint_techs_prefetch must not select_related port",
         )

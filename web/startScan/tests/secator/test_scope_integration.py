@@ -21,9 +21,7 @@ class MergeScopeParamsTest(BaseTestCase):
     def test_no_scope_id_returns_unchanged(self):
         config = {"proxy": None, "delay": 0, "profiles": []}
         post = QueryDict("", mutable=True)
-        result, _ = _merge_scope_params_into_config(
-            config, post, self.data_generator.target.id
-        )
+        result, _ = _merge_scope_params_into_config(config, post, self.data_generator.target.id)
         self.assertEqual(result, config)
 
     def test_scope_params_merged(self):
@@ -37,9 +35,7 @@ class MergeScopeParamsTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post["scope_id"] = str(scope.id)
 
-        result, _ = _merge_scope_params_into_config(
-            config, post, self.data_generator.target.id
-        )
+        result, _ = _merge_scope_params_into_config(config, post, self.data_generator.target.id)
 
         self.assertEqual(result["threads"], 5)
         self.assertEqual(result["rate_limit"], 50)
@@ -52,9 +48,7 @@ class MergeScopeParamsTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post["scope_id"] = str(scope.id)
 
-        result, _ = _merge_scope_params_into_config(
-            config, post, self.data_generator.target.id
-        )
+        result, _ = _merge_scope_params_into_config(config, post, self.data_generator.target.id)
 
         self.assertEqual(result["proxy"], "socks5://10.0.0.1:1080")
         self.assertEqual(result["delay"], 5)
@@ -67,9 +61,7 @@ class MergeScopeParamsTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post["scope_id"] = str(scope.id)
 
-        result, _ = _merge_scope_params_into_config(
-            config, post, self.data_generator.target.id
-        )
+        result, _ = _merge_scope_params_into_config(config, post, self.data_generator.target.id)
 
         self.assertIn("polite", result["profiles"])
         self.assertIn("stealth", result["profiles"])
@@ -81,9 +73,7 @@ class MergeScopeParamsTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post["scope_id"] = str(scope.id)
 
-        result, _ = _merge_scope_params_into_config(
-            config, post, self.data_generator.target.id
-        )
+        result, _ = _merge_scope_params_into_config(config, post, self.data_generator.target.id)
 
         self.assertIn("polite", result["profiles"])
         self.assertIn("stealth", result["profiles"])
@@ -94,9 +84,7 @@ class MergeScopeParamsTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post["scope_id"] = str(scope.id)
 
-        result, _ = _merge_scope_params_into_config(
-            config, post, self.data_generator.target.id
-        )
+        result, _ = _merge_scope_params_into_config(config, post, self.data_generator.target.id)
 
         self.assertEqual(result["profiles"], ["insane"])
 
@@ -105,9 +93,7 @@ class MergeScopeParamsTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post["scope_id"] = "99999"
 
-        result, _ = _merge_scope_params_into_config(
-            config, post, self.data_generator.target.id
-        )
+        result, _ = _merge_scope_params_into_config(config, post, self.data_generator.target.id)
         self.assertEqual(result, config)
 
     def test_invalid_target_id_returns_unchanged(self):
@@ -125,9 +111,7 @@ class MergeScopeParamsTest(BaseTestCase):
         post = QueryDict("", mutable=True)
         post["scope_id"] = str(scope.id)
 
-        config_result, scope_worker_ids = _merge_scope_params_into_config(
-            config, post, self.data_generator.target.id
-        )
+        config_result, scope_worker_ids = _merge_scope_params_into_config(config, post, self.data_generator.target.id)
 
         self.assertNotIn("_worker_ids", config_result)
 

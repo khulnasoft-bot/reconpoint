@@ -130,9 +130,7 @@ class TestScanRepository(BaseTestCase):
         message = "Test activity message"
         status = 1
 
-        result = self.scan_repo.create_scan_activity(
-            self.scan_history.id, message, status
-        )
+        result = self.scan_repo.create_scan_activity(self.scan_history.id, message, status)
 
         self.assertIsNotNone(result)
         from startScan.models import ScanActivity
@@ -198,9 +196,7 @@ class TestScanRepository(BaseTestCase):
             password="testpass123",
         )
 
-        result = self.scan_repo.create_scan(
-            engine_id=engine.id, target_id=target.id, initiated_by_id=user.id
-        )
+        result = self.scan_repo.create_scan(engine_id=engine.id, target_id=target.id, initiated_by_id=user.id)
 
         self.assertIsNotNone(result)
         from startScan.models import ScanHistory
@@ -214,12 +210,8 @@ class TestScanRepository(BaseTestCase):
 
         from reconPoint.definitions import SUCCESS_TASK
 
-        with patch(
-            "reconPoint.utilities.websocket.send_scan_status_update"
-        ) as mock_notify:
-            result = self.scan_repo._update_scan_status_and_notify(
-                self.scan_history.id, SUCCESS_TASK
-            )
+        with patch("reconPoint.utilities.websocket.send_scan_status_update") as mock_notify:
+            result = self.scan_repo._update_scan_status_and_notify(self.scan_history.id, SUCCESS_TASK)
 
             self.assertTrue(result)
             self.scan_history.refresh_from_db()
@@ -231,9 +223,7 @@ class TestScanRepository(BaseTestCase):
         message = "Test activity"
         status = 1
 
-        result = self.scan_repo._create_scan_activity_entry(
-            self.scan_history.id, message, status
-        )
+        result = self.scan_repo._create_scan_activity_entry(self.scan_history.id, message, status)
 
         self.assertIsNotNone(result)
         from startScan.models import ScanActivity
@@ -248,9 +238,7 @@ class TestScanRepository(BaseTestCase):
         message = "Test activity"
         status = 1
 
-        result = self.scan_repo._build_scan_activity_entry(
-            self.scan_history.id, message, status
-        )
+        result = self.scan_repo._build_scan_activity_entry(self.scan_history.id, message, status)
 
         self.assertIsNotNone(result)
         from startScan.models import ScanActivity
@@ -264,9 +252,7 @@ class TestScanRepository(BaseTestCase):
         engine = self.data_generator.engine_type
         target = self.data_generator.target
 
-        result = self.scan_repo._create_scan_history_entry(
-            engine.id, target_id=target.id
-        )
+        result = self.scan_repo._create_scan_history_entry(engine.id, target_id=target.id)
 
         self.assertIsNotNone(result)
         from startScan.models import ScanHistory
@@ -288,9 +274,7 @@ class TestScanRepository(BaseTestCase):
             password="testpass123",
         )
 
-        result = self.scan_repo._create_scan_history_entry(
-            engine.id, initiated_by_id=user.id, target_id=target.id
-        )
+        result = self.scan_repo._create_scan_history_entry(engine.id, initiated_by_id=user.id, target_id=target.id)
 
         self.assertIsNotNone(result)
         from startScan.models import ScanHistory
@@ -305,12 +289,8 @@ class TestScanRepository(BaseTestCase):
 
         from reconPoint.definitions import FAILED_TASK
 
-        with patch(
-            "reconPoint.utilities.websocket.send_scan_status_update"
-        ) as mock_notify:
-            result = self.scan_repo._mark_scan_failed_and_notify(
-                self.scan_history.id, error_message
-            )
+        with patch("reconPoint.utilities.websocket.send_scan_status_update") as mock_notify:
+            result = self.scan_repo._mark_scan_failed_and_notify(self.scan_history.id, error_message)
 
             self.assertTrue(result)
             self.scan_history.refresh_from_db()
@@ -325,12 +305,8 @@ class TestScanRepository(BaseTestCase):
 
         from reconPoint.definitions import FAILED_TASK
 
-        with patch(
-            "reconPoint.utilities.websocket.send_scan_status_update"
-        ) as mock_notify:
-            result = self.scan_repo._mark_scan_failed_and_notify(
-                self.scan_history.id, None
-            )
+        with patch("reconPoint.utilities.websocket.send_scan_status_update") as mock_notify:
+            result = self.scan_repo._mark_scan_failed_and_notify(self.scan_history.id, None)
 
             self.assertTrue(result)
             self.scan_history.refresh_from_db()

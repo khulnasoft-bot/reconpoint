@@ -25,9 +25,7 @@ websocket_urlpatterns = [
     ),
     re_path(r"^ws/worker-status/$", WorkerStatusConsumer.as_asgi()),
     re_path(r"^ws/worker-deploy/(?P<worker_id>\d+)/$", WorkerDeployConsumer.as_asgi()),
-    re_path(
-        r"^ws/worker-refresh/(?P<worker_id>\d+)/$", WorkerRefreshConsumer.as_asgi()
-    ),
+    re_path(r"^ws/worker-refresh/(?P<worker_id>\d+)/$", WorkerRefreshConsumer.as_asgi()),
 ]
 
 application = ProtocolTypeRouter(

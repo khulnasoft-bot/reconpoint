@@ -37,9 +37,7 @@ class EndpointPortBackfillMigrationTestCase(BaseTestCase):
         self.domain = self.data_generator.create_domain(scan_history=self.scan_history)
 
     def test_migration_ip_addresses_m2m_through_meta_matches_live_model(self) -> None:
-        mod = importlib.import_module(
-            "startScan.migrations.0130_endpoint_port_fk_and_backfill"
-        )
+        mod = importlib.import_module("startScan.migrations.0130_endpoint_port_fk_and_backfill")
         through_model, sub_att, ip_att = mod._ip_addresses_m2m_through_meta(Subdomain)
         self.assertIs(through_model, Subdomain.ip_addresses.through)
         exp_sub, exp_ip = _live_subdomain_ip_m2m_column_names()
@@ -47,9 +45,7 @@ class EndpointPortBackfillMigrationTestCase(BaseTestCase):
         self.assertEqual(ip_att, exp_ip)
 
     def test_backfill_sets_port_for_ip_endpoint(self):
-        ip = IpAddress.objects.create(
-            address="203.0.113.10", scan_history=self.scan_history
-        )
+        ip = IpAddress.objects.create(address="203.0.113.10", scan_history=self.scan_history)
         port = Port.objects.create(number=8080, ip_address=ip)
         endpoint = EndPoint.objects.create(
             scan_history=self.scan_history,
@@ -60,9 +56,7 @@ class EndpointPortBackfillMigrationTestCase(BaseTestCase):
             port=None,
         )
 
-        migration_module = importlib.import_module(
-            "startScan.migrations.0130_endpoint_port_fk_and_backfill"
-        )
+        migration_module = importlib.import_module("startScan.migrations.0130_endpoint_port_fk_and_backfill")
         migration_module.backfill_endpoint_port(global_apps, schema_editor=None)
 
         endpoint.refresh_from_db()
@@ -74,9 +68,7 @@ class EndpointPortBackfillMigrationTestCase(BaseTestCase):
             scan_history=self.scan_history,
             domain=self.domain,
         )
-        ip = IpAddress.objects.create(
-            address="198.51.100.21", scan_history=self.scan_history
-        )
+        ip = IpAddress.objects.create(address="198.51.100.21", scan_history=self.scan_history)
         subdomain.ip_addresses.add(ip)
         port = Port.objects.create(number=8443, ip_address=ip)
         endpoint = EndPoint.objects.create(
@@ -88,9 +80,7 @@ class EndpointPortBackfillMigrationTestCase(BaseTestCase):
             port=None,
         )
 
-        migration_module = importlib.import_module(
-            "startScan.migrations.0130_endpoint_port_fk_and_backfill"
-        )
+        migration_module = importlib.import_module("startScan.migrations.0130_endpoint_port_fk_and_backfill")
         migration_module.backfill_endpoint_port(global_apps, schema_editor=None)
 
         endpoint.refresh_from_db()

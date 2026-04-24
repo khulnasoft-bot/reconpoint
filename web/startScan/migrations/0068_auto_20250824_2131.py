@@ -18,8 +18,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="directoryfile",
-            index=models.Index(
-                fields=["http_status"], name="startScan_d_http_st_43c970_idx"
-            ),
+            index=models.Index(fields=["http_status"], name="startScan_d_http_st_43c970_idx"),
         ),
     ]

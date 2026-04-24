@@ -50,9 +50,7 @@ class TestSecretRepository(BaseTestCase):
             self.target.id,
         )
         self.assertIsNone(obj)
-        self.assertEqual(
-            Secret.objects.filter(scan_history=self.scan_history).count(), 0
-        )
+        self.assertEqual(Secret.objects.filter(scan_history=self.scan_history).count(), 0)
 
     def test_save_from_secator_tag_invalid_scan_history_returns_none(self):
         """Invalid scan_history_id returns None."""

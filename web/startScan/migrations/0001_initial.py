@@ -128,21 +128,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "dorks",
-                    models.ManyToManyField(
-                        blank=True, related_name="dorks", to="startScan.Dork"
-                    ),
+                    models.ManyToManyField(blank=True, related_name="dorks", to="startScan.Dork"),
                 ),
                 (
                     "emails",
-                    models.ManyToManyField(
-                        blank=True, related_name="emails", to="startScan.Email"
-                    ),
+                    models.ManyToManyField(blank=True, related_name="emails", to="startScan.Email"),
                 ),
                 (
                     "employees",
-                    models.ManyToManyField(
-                        blank=True, related_name="employees", to="startScan.Employee"
-                    ),
+                    models.ManyToManyField(blank=True, related_name="employees", to="startScan.Employee"),
                 ),
                 (
                     "scan_type",
@@ -323,9 +317,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="subdomain",
             name="technologies",
-            field=models.ManyToManyField(
-                blank=True, related_name="technologies", to="startScan.Technology"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="technologies", to="startScan.Technology"),
         ),
         migrations.CreateModel(
             name="ScanActivity",
@@ -398,9 +390,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="endpoint",
             name="scan_history",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"
-            ),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="startScan.scanhistory"),
         ),
         migrations.AddField(
             model_name="endpoint",
@@ -425,8 +415,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="endpoint",
             name="technologies",
-            field=models.ManyToManyField(
-                related_name="technology", to="startScan.Technology"
-            ),
+            field=models.ManyToManyField(related_name="technology", to="startScan.Technology"),
         ),
     ]

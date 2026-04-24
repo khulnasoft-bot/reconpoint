@@ -68,10 +68,6 @@ class TestParseSecatorTargetValue(TestCase):
         self.assertFalse(parse_secator_target_value("/relative/path").is_valid)
         self.assertFalse(parse_secator_target_value("javascript:alert(1)").is_valid)
         self.assertFalse(parse_secator_target_value("not-a-valid-ip-or-url").is_valid)
-        self.assertFalse(
-            parse_secator_target_value("example.com").is_valid
-        )  # no port, not IP
+        self.assertFalse(parse_secator_target_value("example.com").is_valid)  # no port, not IP
         self.assertFalse(parse_secator_target_value(":443").is_valid)
-        self.assertFalse(
-            parse_secator_target_value("host:99999").is_valid
-        )  # port out of range
+        self.assertFalse(parse_secator_target_value("host:99999").is_valid)  # port out of range

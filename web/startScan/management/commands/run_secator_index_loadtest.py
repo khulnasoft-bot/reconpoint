@@ -76,9 +76,7 @@ class Command(BaseCommand):
         self.stdout.write(f"Building sample PKs for apps: {app_labels}")
         samples = build_loadtest_samples(app_labels)
         queries = get_loadtest_queries(app_labels, samples)
-        self.stdout.write(
-            f"Running {len(queries)} queries: iterations={iterations}, warmup={warmup}\n"
-        )
+        self.stdout.write(f"Running {len(queries)} queries: iterations={iterations}, warmup={warmup}\n")
 
         with connection.cursor() as cursor:
             for name, sql, params in queries:

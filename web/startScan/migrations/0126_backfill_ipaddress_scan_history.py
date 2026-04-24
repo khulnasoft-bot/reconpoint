@@ -14,11 +14,7 @@ def _duplicate_ports_for_target(port_model, source_ip, target_ip):
     source_ports = list(port_model.objects.filter(ip_address_id=source_ip.id))
     if not source_ports:
         return
-    target_port_numbers = set(
-        port_model.objects.filter(ip_address_id=target_ip.id).values_list(
-            "number", flat=True
-        )
-    )
+    target_port_numbers = set(port_model.objects.filter(ip_address_id=target_ip.id).values_list("number", flat=True))
     new_ports = []
     for source_port in source_ports:
         if source_port.number in target_port_numbers:
@@ -39,20 +35,16 @@ def _migrate_relations_for_scan(
     scan_history_id,
 ):
     if target_ip.id != source_ip.id:
-        subdomains = subdomain_model.objects.filter(
-            scan_history_id=scan_history_id, ip_addresses=source_ip
-        ).distinct()
+        subdomains = subdomain_model.objects.filter(scan_history_id=scan_history_id, ip_addresses=source_ip).distinct()
         for subdomain in subdomains:
             subdomain.ip_addresses.add(target_ip)
             subdomain.ip_addresses.remove(source_ip)
 
-        endpoint_model.objects.filter(
-            scan_history_id=scan_history_id, ip_address_id=source_ip.id
-        ).update(ip_address_id=target_ip.id)
+        endpoint_model.objects.filter(scan_history_id=scan_history_id, ip_address_id=source_ip.id).update(
+            ip_address_id=target_ip.id
+        )
 
-        subscans = subscan_model.objects.filter(
-            scan_history_id=scan_history_id, ip_subscan_ids=source_ip
-        ).distinct()
+        subscans = subscan_model.objects.filter(scan_history_id=scan_history_id, ip_subscan_ids=source_ip).distinct()
         for subscan in subscans:
             subscan.ip_subscan_ids.add(target_ip)
             subscan.ip_subscan_ids.remove(source_ip)
@@ -67,9 +59,7 @@ def backfill_scan_history(apps, schema_editor):
 
     address_scan_to_id = {
         (address, scan_history_id): ip_id
-        for ip_id, address, scan_history_id in ip_model.objects.exclude(
-            address__isnull=True
-        )
+        for ip_id, address, scan_history_id in ip_model.objects.exclude(address__isnull=True)
         .exclude(scan_history_id__isnull=True)
         .values_list("id", "address", "scan_history_id")
     }
@@ -107,11 +97,7 @@ def backfill_scan_history(apps, schema_editor):
             continue
 
         ordered_scan_ids = sorted(candidate_scans)
-        primary_scan_id = (
-            ip_row.scan_history_id
-            if ip_row.scan_history_id in candidate_scans
-            else ordered_scan_ids[0]
-        )
+        primary_scan_id = ip_row.scan_history_id if ip_row.scan_history_id in candidate_scans else ordered_scan_ids[0]
         if ip_row.scan_history_id != primary_scan_id:
             ip_row.scan_history_id = primary_scan_id
             ip_row.save(update_fields=["scan_history_id"])
@@ -122,11 +108,7 @@ def backfill_scan_history(apps, schema_editor):
             if scan_id == primary_scan_id:
                 target_ip = ip_row
             else:
-                target_ip_id = (
-                    address_scan_to_id.get((ip_row.address, scan_id))
-                    if ip_row.address
-                    else None
-                )
+                target_ip_id = address_scan_to_id.get((ip_row.address, scan_id)) if ip_row.address else None
                 if target_ip_id:
                     if target_ip_id in ip_instance_cache:
                         target_ip = ip_instance_cache[target_ip_id]

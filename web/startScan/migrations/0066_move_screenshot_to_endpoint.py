@@ -10,9 +10,7 @@ def transfer_screenshots_to_endpoints(apps, schema_editor):
     EndPoint = apps.get_model("startScan", "EndPoint")
 
     # Check if there are any subdomains with screenshots to transfer
-    subdomains_with_screenshots = Subdomain.objects.exclude(
-        screenshot_path__isnull=True
-    ).exclude(screenshot_path="")
+    subdomains_with_screenshots = Subdomain.objects.exclude(screenshot_path__isnull=True).exclude(screenshot_path="")
 
     if not subdomains_with_screenshots.exists():
         print("No screenshots to transfer")
@@ -21,9 +19,7 @@ def transfer_screenshots_to_endpoints(apps, schema_editor):
     transferred_count = 0
     for subdomain in subdomains_with_screenshots:
         # Find matching endpoints for this subdomain
-        endpoints = EndPoint.objects.filter(
-            subdomain=subdomain, scan_history=subdomain.scan_history
-        )
+        endpoints = EndPoint.objects.filter(subdomain=subdomain, scan_history=subdomain.scan_history)
 
         if endpoints.exists():
             # Priority order for endpoint selection:
@@ -53,17 +49,11 @@ def transfer_screenshots_to_endpoints(apps, schema_editor):
                 target_endpoint.screenshot_path = subdomain.screenshot_path
                 target_endpoint.save()
                 transferred_count += 1
-                print(
-                    f"✓ Transferred screenshot: {subdomain.name} → {target_endpoint.http_url}"
-                )
+                print(f"✓ Transferred screenshot: {subdomain.name} → {target_endpoint.http_url}")
         else:
-            print(
-                f"⚠ No endpoints found for subdomain {subdomain.name}, skipping screenshot"
-            )
+            print(f"⚠ No endpoints found for subdomain {subdomain.name}, skipping screenshot")
 
-    print(
-        f"Successfully transferred {transferred_count} screenshots from subdomains to endpoints"
-    )
+    print(f"Successfully transferred {transferred_count} screenshots from subdomains to endpoints")
 
 
 def reverse_transfer_screenshots(apps, schema_editor):

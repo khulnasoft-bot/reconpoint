@@ -39,9 +39,7 @@ class CommandRepository:
             Command: Saved Command object or None
         """
         try:
-            return self._process_secator_runner_data(
-                runner_data, scan_history_id, activity_id
-            )
+            return self._process_secator_runner_data(runner_data, scan_history_id, activity_id)
         except ObjectDoesNotExist as e:
             logger.log_line(
                 PREFIX_CMD_REPO,
@@ -106,9 +104,7 @@ class CommandRepository:
         if not workflow_name and runner_type == "workflow":
             workflow_name = runner_data.get("config", {}).get("name")
         # node_id from context.node_id or config.node_id
-        node_id = runner_data.get("context", {}).get("node_id") or runner_data.get(
-            "config", {}
-        ).get("node_id")
+        node_id = runner_data.get("context", {}).get("node_id") or runner_data.get("config", {}).get("node_id")
         # Extract ancestor_id from node_id if available (more reliable than API)
         # node_id format: "workflow_name.task_name" -> extract "workflow_name"
         ancestor_id = None
@@ -130,8 +126,7 @@ class CommandRepository:
                 logger.log_line(
                     PREFIX_CMD_REPO,
                     "SAVE",
-                    "Command data missing both cmd and output fields for runner type %s"
-                    % (runner_type,),
+                    "Command data missing both cmd and output fields for runner type %s" % (runner_type,),
                     level="warning",
                 )
                 return None
@@ -166,8 +161,7 @@ class CommandRepository:
                 logger.log_line(
                     PREFIX_CMD_REPO,
                     "SAVE",
-                    "ScanActivity with ID %s not found, continuing without activity link"
-                    % (activity_id,),
+                    "ScanActivity with ID %s not found, continuing without activity link" % (activity_id,),
                     level="warning",
                 )
 
@@ -202,9 +196,7 @@ class CommandRepository:
         existing_command = None
         if name and start_time:
             try:
-                existing_command = Command.objects.filter(
-                    scan_history=scan_history, name=name, time=start_time
-                ).first()
+                existing_command = Command.objects.filter(scan_history=scan_history, name=name, time=start_time).first()
             except Exception as e:
                 logger.log_line(
                     PREFIX_CMD_REPO,
@@ -219,13 +211,9 @@ class CommandRepository:
                 existing_command.command = cmd
             if output:
                 existing_command.output = output
-            existing_command.return_code = (
-                return_code if return_code is not None else existing_command.return_code
-            )
+            existing_command.return_code = return_code if return_code is not None else existing_command.return_code
             existing_command.end_time = end_time or existing_command.end_time
-            existing_command.elapsed = (
-                elapsed_float if elapsed_float is not None else existing_command.elapsed
-            )
+            existing_command.elapsed = elapsed_float if elapsed_float is not None else existing_command.elapsed
             existing_command.errors = errors or existing_command.errors
             existing_command.warnings = warnings or existing_command.warnings
             # Only update status for legacy scans (Secator scans use runner.status)
@@ -297,9 +285,7 @@ class CommandRepository:
             list: List of Command objects
         """
         try:
-            return list(
-                Command.objects.filter(scan_history_id=scan_history_id).order_by("time")
-            )
+            return list(Command.objects.filter(scan_history_id=scan_history_id).order_by("time"))
         except Exception as e:
             logger.log_line(
                 PREFIX_CMD_REPO,
@@ -320,9 +306,7 @@ class CommandRepository:
             list: List of Command objects
         """
         try:
-            return list(
-                Command.objects.filter(activity_id=activity_id).order_by("time")
-            )
+            return list(Command.objects.filter(activity_id=activity_id).order_by("time"))
         except Exception as e:
             logger.log_line(
                 PREFIX_CMD_REPO,

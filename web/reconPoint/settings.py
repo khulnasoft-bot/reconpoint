@@ -22,12 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Root env vars
 RECONPOINT_HOME = env("RECONPOINT_HOME", default=str(Path.home() / "reconpoint"))
-RECONPOINT_RESULTS = env(
-    "RECONPOINT_RESULTS", default=str(Path.home() / "scan_results")
-)
-SECATOR_RESULTS = env(
-    "SECATOR_RESULTS", default=str(Path.home() / ".secator" / "reports")
-)
+RECONPOINT_RESULTS = env("RECONPOINT_RESULTS", default=str(Path.home() / "scan_results"))
+SECATOR_RESULTS = env("SECATOR_RESULTS", default=str(Path.home() / ".secator" / "reports"))
 # Prefix to strip from Secator report paths when storing (path_utils.strip_secator_reports_prefix).
 # Must match the path prefix used by Secator workers when they emit screenshot_path / stored_response_path.
 # Default aligned with SECATOR_RESULTS so unconfigured setups behave consistently. In Docker/worker setups
@@ -37,22 +33,12 @@ SECATOR_REPORTS_PREFIX = env(
     "SECATOR_REPORTS_PREFIX",
     default=str(Path.home() / ".secator" / "reports"),
 )
-RECONPOINT_CUSTOM_ENGINES = env(
-    "RECONPOINT_CUSTOM_ENGINES", default=str(Path.home() / "custom_engines")
-)
-RECONPOINT_WORDLISTS = env(
-    "RECONPOINT_WORDLISTS", default=str(Path.home() / "wordlists")
-)
-RECONPOINT_GF_PATTERNS_DIR = env(
-    "RECONPOINT_GF_PATTERNS_DIR", default=str(Path.home() / ".gf")
-)
-RECONPOINT_NUCLEI_TEMPLATES_DIR = env(
-    "RECONPOINT_NUCLEI_TEMPLATES_DIR", default=str(Path.home() / "nuclei-templates")
-)
+RECONPOINT_CUSTOM_ENGINES = env("RECONPOINT_CUSTOM_ENGINES", default=str(Path.home() / "custom_engines"))
+RECONPOINT_WORDLISTS = env("RECONPOINT_WORDLISTS", default=str(Path.home() / "wordlists"))
+RECONPOINT_GF_PATTERNS_DIR = env("RECONPOINT_GF_PATTERNS_DIR", default=str(Path.home() / ".gf"))
+RECONPOINT_NUCLEI_TEMPLATES_DIR = env("RECONPOINT_NUCLEI_TEMPLATES_DIR", default=str(Path.home() / "nuclei-templates"))
 RECONPOINT_TOOL_PATH = env("RECONPOINT_TOOL_PATH", default=str(Path.home() / "tools"))
-RECONPOINT_TOOL_GITHUB_PATH = env(
-    "RECONPOINT_TOOL_GITHUB_PATH", default=str(Path(RECONPOINT_TOOL_PATH) / ".github")
-)
+RECONPOINT_TOOL_GITHUB_PATH = env("RECONPOINT_TOOL_GITHUB_PATH", default=str(Path(RECONPOINT_TOOL_PATH) / ".github"))
 # Default SSH key path for worker connections (generated at container startup in ~/.ssh/id_ed25519)
 RECONPOINT_SSH_DEFAULT_KEY_PATH = env(
     "RECONPOINT_SSH_DEFAULT_KEY_PATH",
@@ -63,9 +49,7 @@ RECONPOINT_CACHE_ENABLED = env.bool("RECONPOINT_CACHE_ENABLED", default=False)
 RECONPOINT_RECORD_ENABLED = env.bool("RECONPOINT_RECORD_ENABLED", default=True)
 RECONPOINT_RAISE_ON_ERROR = env.bool("RECONPOINT_RAISE_ON_ERROR", default=False)
 
-with open(
-    Path(RECONPOINT_HOME) / "reconPoint" / "version.txt", "r", encoding="utf-8"
-) as f:
+with open(Path(RECONPOINT_HOME) / "reconPoint" / "version.txt", "r", encoding="utf-8") as f:
     RECONPOINT_CURRENT_VERSION = f.read().strip()
 
 # Debug env vars
@@ -109,32 +93,22 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Additional CSRF settings for better security
 CSRF_COOKIE_SECURE = not DEBUG  # Use secure cookies in production
-CSRF_COOKIE_HTTPONLY = (
-    True  # Prevent JavaScript access to CSRF cookie for better security
-)
+CSRF_COOKIE_HTTPONLY = True  # Prevent JavaScript access to CSRF cookie for better security
 CSRF_COOKIE_SAMESITE = "Lax"  # CSRF protection while allowing some cross-site requests
-CSRF_USE_SESSIONS = (
-    True  # Use sessions for CSRF tokens when HTTPONLY is True (more secure)
-)
+CSRF_USE_SESSIONS = True  # Use sessions for CSRF tokens when HTTPONLY is True (more secure)
 CSRF_COOKIE_AGE = 31449600  # 1 year in seconds
 
 # Session security settings
 SESSION_COOKIE_SECURE = not DEBUG  # Use secure cookies in production
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
-SESSION_COOKIE_SAMESITE = (
-    "Lax"  # Session protection while allowing some cross-site requests
-)
+SESSION_COOKIE_SAMESITE = "Lax"  # Session protection while allowing some cross-site requests
 
 # Databases
 USE_PGBOUNCER = env.bool("USE_PGBOUNCER", default=True)
-RECONPOINT_DB_PROBE_AT_STARTUP = env.bool(
-    "RECONPOINT_DB_PROBE_AT_STARTUP", default=False
-)
+RECONPOINT_DB_PROBE_AT_STARTUP = env.bool("RECONPOINT_DB_PROBE_AT_STARTUP", default=False)
 
 
-_db_host, _db_port = resolve_db_host_port(
-    env, USE_PGBOUNCER, RECONPOINT_DB_PROBE_AT_STARTUP, sys.argv
-)
+_db_host, _db_port = resolve_db_host_port(env, USE_PGBOUNCER, RECONPOINT_DB_PROBE_AT_STARTUP, sys.argv)
 
 # DISABLE_SERVER_SIDE_CURSORS must be at top level; in OPTIONS it would be passed to psycopg2.connect() and cause an error.
 DATABASES = {
@@ -247,12 +221,8 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.BrowsableAPIRenderer",
         "rest_framework_datatables.renderers.DatatablesRenderer",
     ),
-    "DEFAULT_FILTER_BACKENDS": (
-        "rest_framework_datatables.filters.DatatablesFilterBackend",
-    ),
-    "DEFAULT_PAGINATION_CLASS": (
-        "rest_framework_datatables.pagination.DatatablesPageNumberPagination"
-    ),
+    "DEFAULT_FILTER_BACKENDS": ("rest_framework_datatables.filters.DatatablesFilterBackend",),
+    "DEFAULT_PAGINATION_CLASS": ("rest_framework_datatables.pagination.DatatablesPageNumberPagination"),
     "PAGE_SIZE": 500,
 }
 WSGI_APPLICATION = "reconPoint.wsgi.application"
@@ -261,8 +231,7 @@ WSGI_APPLICATION = "reconPoint.wsgi.application"
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation."
-        + "UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation." + "UserAttributeSimilarityValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation." + "MinimumLengthValidator",
@@ -408,37 +377,25 @@ DELETE_DUPLICATES_THRESHOLD = 10
 """
 SECATOR settings
 """
-SECATOR_CELERY_BROKER_URL = env(
-    "SECATOR_CELERY_BROKER_URL", default="redis://redis:6379/0"
-)
-SECATOR_CELERY_RESULT_BACKEND = env(
-    "SECATOR_CELERY_RESULT_BACKEND", default="redis://redis:6379/0"
-)
+SECATOR_CELERY_BROKER_URL = env("SECATOR_CELERY_BROKER_URL", default="redis://redis:6379/0")
+SECATOR_CELERY_RESULT_BACKEND = env("SECATOR_CELERY_RESULT_BACKEND", default="redis://redis:6379/0")
 # Used when deploying remote workers (worker .env generation)
 SECATOR_ADDONS_API_URL = env(
     "SECATOR_ADDONS_API_URL",
     default=f"https://{DOMAIN_NAME}/api/secator",
 )
-SECATOR_ADDONS_API_HEADER_NAME = env(
-    "SECATOR_ADDONS_API_HEADER_NAME", default="Api-Key"
-)
-SECATOR_ADDONS_API_WORKSPACE_GET_ENDPOINT = env(
-    "SECATOR_ADDONS_API_WORKSPACE_GET_ENDPOINT", default=""
-)
+SECATOR_ADDONS_API_HEADER_NAME = env("SECATOR_ADDONS_API_HEADER_NAME", default="Api-Key")
+SECATOR_ADDONS_API_WORKSPACE_GET_ENDPOINT = env("SECATOR_ADDONS_API_WORKSPACE_GET_ENDPOINT", default="")
 SECATOR_ADDONS_API_KEY = env("SECATOR_ADDONS_API_KEY", default="")
 SECATOR_ADDONS_API_FORCE_SSL = env.bool("SECATOR_ADDONS_API_FORCE_SSL", default=False)
 
 # When False, run runner/ScanHistory sync in the request (inline, e.g. for tests). When True, run in a bounded
 # background thread pool. Set to False in production if you observe concurrency/connection issues.
-SECATOR_RUNNER_UPDATE_SYNC_BACKGROUND = bool(
-    int(os.environ.get("SECATOR_RUNNER_UPDATE_SYNC_BACKGROUND", "1"))
-)
+SECATOR_RUNNER_UPDATE_SYNC_BACKGROUND = bool(int(os.environ.get("SECATOR_RUNNER_UPDATE_SYNC_BACKGROUND", "1")))
 
 # Max workers for the thread pool used when SECATOR_RUNNER_UPDATE_SYNC_BACKGROUND is True.
 # Limits concurrent sync tasks to avoid unbounded thread growth and DB connection pressure.
-SECATOR_RUNNER_UPDATE_SYNC_MAX_WORKERS = env.int(
-    "SECATOR_RUNNER_UPDATE_SYNC_MAX_WORKERS", default=8
-)
+SECATOR_RUNNER_UPDATE_SYNC_MAX_WORKERS = env.int("SECATOR_RUNNER_UPDATE_SYNC_MAX_WORKERS", default=8)
 
 # Python executable used inside the remote worker container to run the Secator job script.
 # Set this when Secator is installed via pipx in the container (e.g. /root/.local/share/pipx/venvs/secator/bin/python).
@@ -451,16 +408,12 @@ SECATOR_WORKER_CONTAINER_PYTHON = env(
 # Set this when the container sees a different path than deploy_path (e.g. container user is secator:
 # deploy_path may be /home/reconpoint/secator-worker on the host, container has /home/secator/secator-worker).
 # If unset, deploy_path is used for both SFTP upload and the container command.
-SECATOR_WORKER_CONTAINER_SCRIPT_BASE = env(
-    "SECATOR_WORKER_CONTAINER_SCRIPT_BASE", default="/home/secator"
-)
+SECATOR_WORKER_CONTAINER_SCRIPT_BASE = env("SECATOR_WORKER_CONTAINER_SCRIPT_BASE", default="/home/secator")
 
 # SSH reverse tunnel (worker api_access_type=tunnel): bind and target for ssh -R on the worker host.
 # Bind: where the worker host listens; default Docker bridge gateway so only the Secator container
 # can reach it via host.docker.internal. Use 127.0.0.1 for localhost-only, 0.0.0.0 for all interfaces.
-RECONPOINT_TUNNEL_BIND_ADDRESS = env(
-    "RECONPOINT_TUNNEL_BIND_ADDRESS", default="172.17.0.1"
-)
+RECONPOINT_TUNNEL_BIND_ADDRESS = env("RECONPOINT_TUNNEL_BIND_ADDRESS", default="172.17.0.1")
 
 # Target: host/port the tunnel forwards to (where nginx/API listens). In Docker use "proxy", bare metal "localhost".
 RECONPOINT_TUNNEL_TARGET_HOST = env("RECONPOINT_TUNNEL_TARGET_HOST", default="proxy")
@@ -555,9 +508,7 @@ LOGGING = {
             "format": "%(levelname)s %(message)s",
             "datefmt": "%y %b %d, %H:%M:%S",
         },
-        "migration": {
-            "format": "%(asctime)s [%(levelname)s] %(app)s: %(message)s (Migrations: %(migration_count)s)"
-        },
+        "migration": {"format": "%(asctime)s [%(levelname)s] %(app)s: %(message)s (Migrations: %(migration_count)s)"},
     },
     "loggers": {
         "django": {

@@ -13,9 +13,7 @@ from django.db.models import Q
 from api.helpers.advanced_search import parse_advanced_search_term
 
 
-def boolean_field_value_from_token(
-    content: str, true_val: str, false_val: str
-) -> Optional[bool]:
+def boolean_field_value_from_token(content: str, true_val: str, false_val: str) -> Optional[bool]:
     """Parse boolean literal; return None if the token is not a recognized true/false."""
     c = (content or "").lower().strip()
     tv = (true_val or "").lower().strip()
@@ -36,9 +34,7 @@ def ast_branch_children(node: tuple[Any, ...]) -> Optional[list[Any]]:
     return list(ch)
 
 
-def ast_requires_legacy_eval(
-    node: Any, atom_requires_legacy: Callable[[str], bool]
-) -> bool:
+def ast_requires_legacy_eval(node: Any, atom_requires_legacy: Callable[[str], bool]) -> bool:
     """True if any atom must use legacy per-branch queryset evaluation (e.g. port!)."""
     if not isinstance(node, tuple) or len(node) != 2:
         return False
@@ -89,9 +85,7 @@ def ast_to_q(node: Any, atom_to_q: Callable[[str], Q]) -> Q:
     return Q()
 
 
-def atom_requires_port_bang_legacy(
-    term_raw: str, custom_handlers: Optional[dict[str, Any]]
-) -> bool:
+def atom_requires_port_bang_legacy(term_raw: str, custom_handlers: Optional[dict[str, Any]]) -> bool:
     """Whether this atom must use legacy eval (subdomain port! exclude)."""
     term = (term_raw or "").strip()
     parsed, term_err = parse_advanced_search_term(term)

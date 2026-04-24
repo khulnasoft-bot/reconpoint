@@ -42,14 +42,12 @@ class DatatableIndexesTestCase(BaseTestCase):
         missing = set(EXPECTED_DATATABLE_INDEX_TO_TABLE) - set(existing_by_index)
         self.assertFalse(
             missing,
-            "Missing DataTable indexes in database: %s. Run migrations: manage.py migrate startScan."
-            % (missing,),
+            "Missing DataTable indexes in database: %s. Run migrations: manage.py migrate startScan." % (missing,),
         )
         for indexname, expected_table in EXPECTED_DATATABLE_INDEX_TO_TABLE.items():
             actual_table = existing_by_index.get(indexname)
             self.assertEqual(
                 actual_table,
                 expected_table,
-                "Index %s should be on table %s, found on %s"
-                % (indexname, expected_table, actual_table),
+                "Index %s should be on table %s, found on %s" % (indexname, expected_table, actual_table),
             )

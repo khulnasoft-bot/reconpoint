@@ -35,9 +35,7 @@ class TestInputTypeService(BaseTestCase):
     def test_get_input_types_by_workflow_name(self, mock_get):
         """get_input_types with workflow_name returns input_types."""
         mock_get.return_value = ["host"]
-        result = InputTypeService.get_input_types(
-            workflow_name=self.secator_workflow.name
-        )
+        result = InputTypeService.get_input_types(workflow_name=self.secator_workflow.name)
         mock_get.assert_called_once_with(self.secator_workflow.name)
         self.assertEqual(result, ["host"])
 
@@ -115,9 +113,7 @@ class TestInputTypeService(BaseTestCase):
         mock_loader.return_value = {"input_types": ["url", "host"]}
         self.secator_workflow.workflow_type = "builtin"
         self.secator_workflow.save()
-        result = InputTypeService.get_input_types_for_workflow(
-            self.secator_workflow.name
-        )
+        result = InputTypeService.get_input_types_for_workflow(self.secator_workflow.name)
         self.assertEqual(result, ["url", "host"])
 
     @patch("reconPoint.secator.services.input_type_service.TemplateLoader")
@@ -126,36 +122,22 @@ class TestInputTypeService(BaseTestCase):
         mock_loader.return_value = {}
         self.secator_workflow.workflow_type = "builtin"
         self.secator_workflow.save()
-        result = InputTypeService.get_input_types_for_workflow(
-            self.secator_workflow.name
-        )
+        result = InputTypeService.get_input_types_for_workflow(self.secator_workflow.name)
         self.assertEqual(result, [])
 
     @patch("reconPoint.secator.services.input_type_service._template_from_yaml_string")
-    def test_get_input_types_for_workflow_custom_uses_template_from_yaml(
-        self, mock_template
-    ):
+    def test_get_input_types_for_workflow_custom_uses_template_from_yaml(self, mock_template):
         """get_input_types_for_workflow uses _template_from_yaml_string for custom workflows."""
         mock_template.return_value = type(
             "Config",
             (),
-            {
-                "get": lambda s, k, d=None: (
-                    ["ip", "cidr_range"] if k == "input_types" else d
-                )
-            },
+            {"get": lambda s, k, d=None: (["ip", "cidr_range"] if k == "input_types" else d)},
         )()
         self.secator_workflow.workflow_type = "custom"
-        self.secator_workflow.yaml_configuration = (
-            "name: test\ninput_types:\n  - ip\n  - cidr_range\n"
-        )
+        self.secator_workflow.yaml_configuration = "name: test\ninput_types:\n  - ip\n  - cidr_range\n"
         self.secator_workflow.save()
-        result = InputTypeService.get_input_types_for_workflow(
-            self.secator_workflow.name
-        )
-        mock_template.assert_called_once_with(
-            "name: test\ninput_types:\n  - ip\n  - cidr_range\n"
-        )
+        result = InputTypeService.get_input_types_for_workflow(self.secator_workflow.name)
+        mock_template.assert_called_once_with("name: test\ninput_types:\n  - ip\n  - cidr_range\n")
         self.assertEqual(result, ["ip", "cidr_range"])
 
     @patch("reconPoint.secator.services.input_type_service.TemplateLoader")
@@ -185,16 +167,12 @@ class TestInputTypeService(BaseTestCase):
         self.assertEqual(result, ["host:port"])
 
     @patch("reconPoint.secator.services.input_type_service.TemplateLoader")
-    def test_get_input_types_for_workflow_returns_normalized_host_port(
-        self, mock_loader
-    ):
+    def test_get_input_types_for_workflow_returns_normalized_host_port(self, mock_loader):
         """get_input_types_for_workflow returns host:port when config has host_port."""
         mock_loader.return_value = {"input_types": ["host_port", "url"]}
         self.secator_workflow.workflow_type = "builtin"
         self.secator_workflow.save()
-        result = InputTypeService.get_input_types_for_workflow(
-            self.secator_workflow.name
-        )
+        result = InputTypeService.get_input_types_for_workflow(self.secator_workflow.name)
         self.assertEqual(result, ["host:port", "url"])
 
     @patch("reconPoint.secator.services.input_type_service.TemplateLoader")

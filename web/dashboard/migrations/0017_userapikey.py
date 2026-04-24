@@ -47,9 +47,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "name",
-                    models.CharField(
-                        help_text="Name to identify this API key", max_length=100
-                    ),
+                    models.CharField(help_text="Name to identify this API key", max_length=100),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("last_used", models.DateTimeField(blank=True, null=True)),

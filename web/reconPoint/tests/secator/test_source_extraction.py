@@ -20,15 +20,11 @@ class TestSourceExtraction(BaseTestCase):
 
     def test_extract_uses_source_when_no_provider(self) -> None:
         item = {"_source": "dnsx"}
-        self.assertEqual(
-            extract_secator_tool_source(item, include_provider=False), "dnsx"
-        )
+        self.assertEqual(extract_secator_tool_source(item, include_provider=False), "dnsx")
 
     def test_extract_falls_back_to_context_runner_name(self) -> None:
         item = {"_context": {"runner_name": "workflow_recon"}}
-        self.assertEqual(
-            extract_secator_tool_source(item, include_provider=False), "workflow_recon"
-        )
+        self.assertEqual(extract_secator_tool_source(item, include_provider=False), "workflow_recon")
 
     def test_extract_truncates_to_max_length(self) -> None:
         long_src = "x" * 250

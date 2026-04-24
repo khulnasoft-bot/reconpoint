@@ -74,17 +74,11 @@ def parse_selected_targets(
                 level="warning",
                 exc_info=True,
             )
-            raise ValueError(
-                f"Invalid JSON in {field_name}. Please refresh and try again."
-            ) from exc
+            raise ValueError(f"Invalid JSON in {field_name}. Please refresh and try again.") from exc
         if not isinstance(parsed, list):
-            raise ValueError(
-                f"{field_name} must be a JSON array. Please refresh and try again."
-            )
+            raise ValueError(f"{field_name} must be a JSON array. Please refresh and try again.")
         return _normalize_target_list(parsed)
-    raise ValueError(
-        f"{field_name} must be a JSON array. Please refresh and try again."
-    )
+    raise ValueError(f"{field_name} must be a JSON array. Please refresh and try again.")
 
 
 def parse_selected_targets_per_task(
@@ -101,11 +95,7 @@ def parse_selected_targets_per_task(
     if value is None or value == "":
         return {}
     if isinstance(value, dict):
-        return {
-            str(k): lst
-            for k, v in value.items()
-            if v is not None and (lst := _normalize_target_list(v))
-        }
+        return {str(k): lst for k, v in value.items() if v is not None and (lst := _normalize_target_list(v))}
     if isinstance(value, str):
         try:
             parsed = json.loads(value)
@@ -117,21 +107,11 @@ def parse_selected_targets_per_task(
                 level="warning",
                 exc_info=True,
             )
-            raise ValueError(
-                f"Invalid JSON in {field_name}. Please refresh and try again."
-            ) from exc
+            raise ValueError(f"Invalid JSON in {field_name}. Please refresh and try again.") from exc
         if not isinstance(parsed, dict):
-            raise ValueError(
-                f"{field_name} must be a JSON object. Please refresh and try again."
-            )
-        return {
-            str(k): lst
-            for k, v in parsed.items()
-            if v is not None and (lst := _normalize_target_list(v))
-        }
-    raise ValueError(
-        f"{field_name} must be a JSON object. Please refresh and try again."
-    )
+            raise ValueError(f"{field_name} must be a JSON object. Please refresh and try again.")
+        return {str(k): lst for k, v in parsed.items() if v is not None and (lst := _normalize_target_list(v))}
+    raise ValueError(f"{field_name} must be a JSON object. Please refresh and try again.")
 
 
 def resolve_selected_targets(
@@ -156,9 +136,7 @@ def resolve_selected_targets(
     and selected_targets_per_task (per_task mode, empty dict in single mode).
     """
     selected_targets = parse_selected_targets(raw_selected_targets)
-    selected_targets_per_task = parse_selected_targets_per_task(
-        raw_selected_targets_per_task
-    )
+    selected_targets_per_task = parse_selected_targets_per_task(raw_selected_targets_per_task)
 
     use_per_task = execution_mode == "tasks" and bool(selected_targets_per_task)
     if use_per_task:
