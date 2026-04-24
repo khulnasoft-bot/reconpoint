@@ -1,6 +1,15 @@
 from rolepermissions.roles import AbstractUserRole
 
-from reconPoint.definitions import *
+from reconPoint.definitions import (
+    PERM_INITATE_SCANS_SUBSCANS,
+    PERM_MODIFY_INTERESTING_LOOKUP,
+    PERM_MODIFY_SCAN_CONFIGURATIONS,
+    PERM_MODIFY_SCAN_REPORT,
+    PERM_MODIFY_SCAN_RESULTS,
+    PERM_MODIFY_SYSTEM_CONFIGURATIONS,
+    PERM_MODIFY_TARGETS,
+    PERM_MODIFY_WORDLISTS,
+)
 
 
 class SysAdmin(AbstractUserRole):
@@ -13,8 +22,6 @@ class SysAdmin(AbstractUserRole):
         PERM_MODIFY_SCAN_REPORT: True,
         PERM_INITATE_SCANS_SUBSCANS: True,
         PERM_MODIFY_TARGETS: True,
-        PERM_TRIGGER_AI_ANALYSIS: True,
-        PERM_AUTONOMOUS_SCAN_EXECUTION: True,
     }
 
 
@@ -28,7 +35,6 @@ class PenetrationTester(AbstractUserRole):
         PERM_MODIFY_SCAN_REPORT: True,
         PERM_INITATE_SCANS_SUBSCANS: True,
         PERM_MODIFY_TARGETS: True,
-        PERM_TRIGGER_AI_ANALYSIS: True,
     }
 
 

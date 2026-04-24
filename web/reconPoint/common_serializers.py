@@ -1,6 +1,14 @@
 from rest_framework import serializers
 
-from targetApp.models import *
+from targetApp.models import (
+    DNSRecord,
+    DomainRegistration,
+    HistoricalIP,
+    NameServer,
+    Registrar,
+    RelatedDomain,
+    WhoisStatus,
+)
 
 
 class HistoricalIPSerializer(serializers.ModelSerializer):

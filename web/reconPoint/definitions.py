@@ -1,6 +1,11 @@
 #!/usr/bin/python
 import logging
+import os
+from pathlib import Path
 import re
+
+from .settings import RECONPOINT_WORDLISTS
+
 
 ###############################################################################
 # TOOLS DEFINITIONS
@@ -11,7 +16,15 @@ logger = logging.getLogger("django")
 # TOOLS DEFINITIONS
 ###############################################################################
 
-EMAIL_REGEX = re.compile(r"[\w\.-]+@[\w\.-]+")
+EMAIL_REGEX = re.compile(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+")
+
+# Max bytes to read for asset preview (e.g. GF patterns, Nuclei templates) in API.
+MAX_ASSET_PREVIEW_BYTES = 256 * 1024  # 256 KiB
+# Default timeout in seconds for outbound HTTP requests (e.g. notifications).
+REQUEST_TIMEOUT_SECONDS = 10
+
+# Generic user-facing error message when exception details must not be exposed (security).
+GENERIC_USER_ERROR_MESSAGE = "An error occurred. Please try again."
 
 ###############################################################################
 # YAML CONFIG DEFINITIONS
@@ -20,9 +33,8 @@ EMAIL_REGEX = re.compile(r"[\w\.-]+@[\w\.-]+")
 ALL = "all"
 AMASS_WORDLIST = "amass_wordlist"
 AUTO_CALIBRATION = "auto_calibration"
-CUSTOM_HEADERS = "custom_headers"
 CUSTOM_HEADER = "custom_header"
-FETCH_GPT_REPORT = "fetch_gpt_report"
+FETCH_LLM_REPORT = "fetch_llm_report"
 RUN_NUCLEI = "run_nuclei"
 RUN_CRLFUZZ = "run_crlfuzz"
 RUN_DALFOX = "run_dalfox"
@@ -48,11 +60,11 @@ NMAP_SCRIPT = "nmap_script"
 NMAP_SCRIPT_ARGS = "nmap_script_args"
 NAABU_PASSIVE = "passive"
 NAABU_RATE = "rate"
-NUCLEI_CUSTOM_TEMPLATE = "custom_templates"
 NUCLEI_TAGS = "tags"
-NUCLEI_TEMPLATE = "templates"
 NUCLEI_SEVERITY = "severities"
 NUCLEI_CONCURRENCY = "concurrency"
+NUCLEI_TEMPLATES = "templates"
+NUCLEI_CUSTOM_TEMPLATES = "custom_templates"
 OSINT = "osint"
 OSINT_DOCUMENTS_LIMIT = "documents_limit"
 OSINT_DISCOVER = "discover"
@@ -68,7 +80,6 @@ RETRIES = "retries"
 SCREENSHOT = "screenshot"
 SUBDOMAIN_DISCOVERY = "subdomain_discovery"
 STOP_ON_ERROR = "stop_on_error"
-ENABLE_HTTP_CRAWL = "enable_http_crawl"
 THREADS = "threads"
 TIMEOUT = "timeout"
 USE_AMASS_CONFIG = "use_amass_config"
@@ -106,9 +117,8 @@ DEFAULT_SCAN_INTENSITY = "normal"
 ###############################################################################
 
 # amass
-AMASS_DEFAULT_WORDLIST_PATH = (
-    "wordlist/default_wordlist/deepmagic.com-prefixes-top50000.txt"
-)
+AMASS_DEFAULT_WORDLIST_NAME = "deepmagic.com-prefixes-top50000"
+AMASS_DEFAULT_WORDLIST_PATH = str(Path(RECONPOINT_WORDLISTS))
 
 # dorks
 DORKS_DEFAULT_NAMES = [
@@ -129,16 +139,17 @@ DORKS_DEFAULT_NAMES = [
 ]
 
 # ffuf
-FFUF_DEFAULT_WORDLIST_PATH = "/usr/src/wordlist/dicc.txt"
+FFUF_DEFAULT_WORDLIST_NAME = "fuzz-Bo0oM"
+FFUF_DEFAULT_WORDLIST_PATH = str(Path(RECONPOINT_WORDLISTS))
 FFUF_DEFAULT_MATCH_HTTP_STATUS = [200, 204]
-FFUF_DEFAULT_RECURSIVE_LEVEL = 2
+FFUF_DEFAULT_RECURSIVE_LEVEL = 0
 FFUF_DEFAULT_FOLLOW_REDIRECT = False
 
 # naabu
 NAABU_DEFAULT_PORTS = ["top-100"]
 
 # nuclei
-NUCLEI_DEFAULT_TEMPLATES_PATH = "/root/nuclei-templates"
+NUCLEI_DEFAULT_TEMPLATES_PATH = str(Path.home() / "nuclei-templates")
 NUCLEI_SEVERITY_MAP = {
     "info": 0,
     "low": 1,
@@ -189,6 +200,13 @@ SUBDOMAIN_SCAN_DEFAULT_TOOLS = ["subfinder", "ctfr", "sublist3r", "tlsx"]
 ENDPOINT_SCAN_DEFAULT_TOOLS = ["gospider"]
 ENDPOINT_SCAN_DEFAULT_DUPLICATE_FIELDS = ["content_length", "page_title"]
 
+# http crawl
+HTTP_THREADS = 30
+HTTP_FOLLOW_REDIRECT = False
+HTTP_PRE_CRAWL_UNCOMMON_PORTS = False
+HTTP_PRE_CRAWL_ALL_PORTS = False
+HTTP_PRE_CRAWL_BATCH_SIZE = 350
+
 
 ###############################################################################
 # Logger DEFINITIONS
@@ -232,58 +250,161 @@ MATCHED_SUBDOMAIN = "Subdomain"
 MATCHED_PAGE_TITLE = "Page Title"
 
 ###############################################################################
-# Celery Task Status CODES
+# Task and Scan Status Codes
 ###############################################################################
+# When to use which:
+#   - ScanHistory.scan_status: use SCAN_STATUS_* constants and
+#     SCAN_STATUS_DISPLAY_MAP (or SCAN_STATUSES, SCAN_STATUSES_CURRENT, etc.)
+#     for filtering, ordering, and get_status_display().
+#   - ScanActivity.status, SubScan.status, Command: use *_TASK constants and
+#     TASK_STATUS_MAP for the same. Same integers (-1..5) are shared; labels
+#     and semantics differ (e.g. 0 = "QUEUED" for scan, "FAILED" for task).
+#   - Do not mix: e.g. do not filter ScanHistory by FAILED_TASK; use
+#     SCAN_STATUS_QUEUED or SCAN_STATUS_FAILED depending on intent.
+#
+# Scan status: single source of truth for ScanHistory.scan_status.
+SCAN_STATUS_PENDING = -1
+SCAN_STATUS_QUEUED = 0
+SCAN_STATUS_RUNNING = 1
+SCAN_STATUS_COMPLETED = 2
+SCAN_STATUS_FAILED = 3
+SCAN_STATUS_RUNNING_BACKGROUND = 4
+SCAN_STATUS_SKIPPED = 5
+
+# Tuple of (value, label) for ScanHistory.scan_status choices. Derived from
+# SCAN_STATUS_* to keep one source of truth.
+SCAN_STATUSES = (
+    (SCAN_STATUS_PENDING, "Pending"),
+    (SCAN_STATUS_QUEUED, "Queued"),
+    (SCAN_STATUS_RUNNING, "Running"),
+    (SCAN_STATUS_COMPLETED, "Completed"),
+    (SCAN_STATUS_FAILED, "Failed"),
+    (SCAN_STATUS_RUNNING_BACKGROUND, "Running Background"),
+    (SCAN_STATUS_SKIPPED, "Skipped"),
+)
+
+# Scan domain: value -> display string for ScanHistory.get_status_display().
+# Use this map only for ScanHistory; for SubScan/ScanActivity use TASK_STATUS_MAP.
+SCAN_STATUS_DISPLAY_MAP = {
+    SCAN_STATUS_PENDING: "PENDING",
+    SCAN_STATUS_QUEUED: "QUEUED",
+    SCAN_STATUS_RUNNING: "RUNNING",
+    SCAN_STATUS_COMPLETED: "COMPLETED",
+    SCAN_STATUS_FAILED: "FAILED",
+    SCAN_STATUS_RUNNING_BACKGROUND: "RUNNING_BACKGROUND",
+    SCAN_STATUS_SKIPPED: "SKIPPED",
+}
+
+# Task status: same integers as scan status but for ScanActivity, SubScan, Command.
+# Use these constants for task-level status; do not use them for ScanHistory.scan_status.
 INITIATED_TASK = -1
 FAILED_TASK = 0
 RUNNING_TASK = 1
 SUCCESS_TASK = 2
 ABORTED_TASK = 3
+RUNNING_BACKGROUND = 4
+SKIPPED_TASK = 5
 
-CELERY_TASK_STATUS_MAP = {
-    INITIATED_TASK: "INITITATED",
+# Task domain: value -> display string for SubScan.get_status_display() and
+# ScanActivity.get_status_display(). Use TASK_STATUS_MAP only for task models.
+TASK_STATUS_MAP = {
+    INITIATED_TASK: "INITIATED",
     FAILED_TASK: "FAILED",
     RUNNING_TASK: "RUNNING",
     SUCCESS_TASK: "SUCCESS",
     ABORTED_TASK: "ABORTED",
+    RUNNING_BACKGROUND: "RUNNING_BACKGROUND",
+    SKIPPED_TASK: "SKIPPED",
 }
 
-CELERY_TASK_STATUSES = (
-    (INITIATED_TASK, INITIATED_TASK),
-    (FAILED_TASK, FAILED_TASK),
-    (RUNNING_TASK, RUNNING_TASK),
-    (SUCCESS_TASK, SUCCESS_TASK),
-    (ABORTED_TASK, ABORTED_TASK),
+# Backward compatibility: SCAN_STATUS_MAP pointed at task labels; keep for code
+# that still imports it but prefer SCAN_STATUS_DISPLAY_MAP (scan) or TASK_STATUS_MAP (task).
+SCAN_STATUS_MAP = TASK_STATUS_MAP
+
+# Valid status codes for validation and type hints. Use assert_scan_status /
+# assert_task_status (from reconPoint.utilities.status) in services or models.
+SCAN_STATUS_VALUES = frozenset(SCAN_STATUS_DISPLAY_MAP.keys())
+TASK_STATUS_VALUES = frozenset(TASK_STATUS_MAP.keys())
+
+# Type aliases for annotations (ScanHistory.scan_status vs ScanActivity/SubScan/Command status).
+ScanStatus = int
+TaskStatus = int
+
+# Dashboard query helpers: which ScanHistory.scan_status values count as
+# "recently completed" vs "current". Derived from SCAN_STATUS_* to avoid drift.
+# QUEUED is included so scans that never started or stayed in queue appear in the
+# "recently completed" dashboard bucket; to show only runs that actually finished
+# (success/failure), use (SCAN_STATUS_COMPLETED, SCAN_STATUS_FAILED) instead.
+SCAN_STATUSES_RECENTLY_COMPLETED = (
+    SCAN_STATUS_QUEUED,
+    SCAN_STATUS_COMPLETED,
+    SCAN_STATUS_FAILED,
 )
+SCAN_STATUSES_CURRENT = (SCAN_STATUS_RUNNING, SCAN_STATUS_RUNNING_BACKGROUND)
+
 DYNAMIC_ID = -1
 
 ###############################################################################
 # Uncommon Ports
 # Source: https://github.com/six2dez/reconftw/blob/main/reconftw.cfg
 ###############################################################################
+COMMON_WEB_PORTS = [80, 443, 8000, 8001, 8080, 8081, 8082, 8443, 3000, 3001, 5000, 9000]
 UNCOMMON_WEB_PORTS = [
     81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
     300,
     591,
     593,
     832,
     981,
     1010,
-    1311,
     1099,
+    1311,
     2082,
+    2083,
+    2086,
+    2087,
     2095,
     2096,
     2480,
-    3000,
+    3002,
+    3003,
+    3004,
+    3005,
     3128,
     3333,
+    4000,
+    4001,
+    4002,
+    4003,
+    4004,
+    4005,
+    4200,
     4243,
+    4443,
+    4444,
+    4445,
+    4446,
+    4447,
+    4448,
+    4449,
     4567,
     4711,
     4712,
     4993,
-    5000,
+    5001,
+    5002,
+    5003,
+    5004,
+    5005,
     5104,
     5108,
     5280,
@@ -293,52 +414,103 @@ UNCOMMON_WEB_PORTS = [
     6543,
     7000,
     7001,
+    7002,
     7396,
     7474,
-    8000,
-    8001,
+    8002,
+    8003,
+    8004,
+    8005,
+    8006,
+    8007,
     8008,
+    8009,
     8014,
     8042,
     8060,
     8069,
-    8080,
-    8081,
     8083,
+    8084,
+    8085,
+    8086,
+    8087,
     8088,
+    8089,
     8090,
     8091,
+    8092,
+    8093,
+    8094,
     8095,
+    8096,
+    8097,
+    8098,
+    8099,
+    8100,
     8118,
     8123,
     8172,
+    8180,
     8181,
+    8182,
+    8183,
+    8184,
+    8185,
+    8186,
+    8187,
+    8188,
+    8189,
     8222,
     8243,
     8280,
     8281,
     8333,
     8337,
-    8443,
+    8444,
+    8445,
+    8446,
+    8447,
+    8448,
+    8449,
     8500,
+    8800,
     8834,
     8880,
     8888,
+    8889,
     8983,
-    9000,
     9001,
+    9002,
+    9003,
+    9004,
+    9005,
     9043,
     9060,
     9080,
     9090,
     9091,
+    9092,
+    9093,
+    9094,
+    9095,
     9200,
     9443,
+    9444,
+    9445,
+    9446,
+    9447,
+    9448,
+    9449,
     9502,
     9800,
     9981,
     10000,
+    10001,
+    10002,
+    10003,
+    10004,
     10250,
+    10443,
     11371,
     12443,
     15672,
@@ -346,6 +518,7 @@ UNCOMMON_WEB_PORTS = [
     17778,
     18091,
     18092,
+    20000,
     20720,
     32000,
     55440,
@@ -420,21 +593,6 @@ DEFAULT_DIR_FILE_FUZZ_EXTENSIONS = [
     ".pdf",
 ]
 
-# Default Excluded Paths during Initate Scan
-# Mostly static files and directories
-DEFAULT_EXCLUDED_PATHS = [
-    # Static assets (using regex patterns)
-    "/static/.*",
-    "/assets/.*",
-    "/css/.*",
-    "/js/.*",
-    "/images/.*",
-    "/img/.*",
-    "/fonts/.*",
-    # File types (using regex patterns)
-    r".*\.ico",
-]
-
 # Roles and Permissions
 PERM_MODIFY_SYSTEM_CONFIGURATIONS = "modify_system_configurations"
 PERM_MODIFY_SCAN_CONFIGURATIONS = "modify_scan_configurations"
@@ -444,122 +602,51 @@ PERM_MODIFY_WORDLISTS = "modify_wordlists"
 PERM_MODIFY_INTERESTING_LOOKUP = "modify_interesting_lookup"
 PERM_MODIFY_SCAN_REPORT = "modify_scan_report"
 PERM_INITATE_SCANS_SUBSCANS = "initiate_scans_subscans"
-PERM_TRIGGER_AI_ANALYSIS = "trigger_ai_analysis"
-PERM_AUTONOMOUS_SCAN_EXECUTION = "autonomous_scan_execution"
 
 # 404 page url
 FOUR_OH_FOUR_URL = "/404/"
 
+# OSINT GooFuzz Path
+GOFUZZ_EXEC_PATH = "GooFuzz"
 
 ###############################################################################
-# OLLAMA DEFINITIONS
+# LLM DEFINITIONS
 ###############################################################################
-OLLAMA_INSTANCE = "http://ollama:11434"
 
-DEFAULT_GPT_MODELS = [
-    {
-        "name": "gpt-3",
-        "model": "gpt-3",
-        "modified_at": "",
-        "details": {
-            "family": "GPT",
-            "parameter_size": "~175B",
-        },
-    },
-    {
-        "name": "gpt-3.5-turbo",
-        "model": "gpt-3.5-turbo",
-        "modified_at": "",
-        "details": {
-            "family": "GPT",
-            "parameter_size": "~7B",
-        },
-    },
-    {
-        "name": "gpt-4",
-        "model": "gpt-4",
-        "modified_at": "",
-        "details": {
-            "family": "GPT",
-            "parameter_size": "~1.7T",
-        },
-    },
-    {
-        "name": "gpt-4-turbo",
-        "model": "gpt-4",
-        "modified_at": "",
-        "details": {
-            "family": "GPT",
-            "parameter_size": "~1.7T",
-        },
-    },
+# Default Ollama instance URL if not set in environment
+DEFAULT_OLLAMA_INSTANCE = "http://ollama:11434"
+
+# Get Ollama instance URL from environment or use default
+OLLAMA_INSTANCE = os.getenv("OLLAMA_INSTANCE", DEFAULT_OLLAMA_INSTANCE)
+
+###############################################################################
+# SCAN ENGINES DEFINITIONS
+###############################################################################
+
+# ⚠️ LEGACY: These definitions are kept for backward compatibility with old scans
+# New scans use Secator workflows and tasks instead
+ENGINE_DISPLAY_NAMES = [
+    ("subdomain_discovery", "Subdomain Discovery"),
+    ("port_scan", "Port Scan"),
+    ("fetch_url", "Fetch URLs"),
+    ("dir_file_fuzz", "Directory and File Fuzzing"),
+    ("vulnerability_scan", "Vulnerability Scan"),
+    ("osint", "Open-Source Intelligence"),
+    ("screenshot", "Screenshot"),
+    ("waf_detection", "WAF Detection"),
 ]
 
+# Engine names for internal use (LEGACY - kept for backward compatibility)
+ENGINE_NAMES = [engine[0] for engine in ENGINE_DISPLAY_NAMES]
 
-# GPT Vulnerability Report Generator
-VULNERABILITY_DESCRIPTION_SYSTEM_MESSAGE = """
-You are an expert penetration tester who has just completed a comprehensive security assessment. Based on the provided vulnerability title, vulnerable URL, and vulnerability description, your task is to generate a detailed, technical penetration testing report in plain text format.
-Your task is to generate a detailed, technical penetration testing report. This report should offer an in-depth analysis of the discovered vulnerabilities, adhering to industry best practices and standards.
+###############################################################################
+# Secator Output Types DEFINITIONS
+###############################################################################
 
-The output should adhere to the following structure:
+# Confidence levels for endpoints and ports
+CONFIDENCE_LEVELS = ["low", "medium", "high"]
+CONFIDENCE_CHOICES = [(level, level.capitalize()) for level in CONFIDENCE_LEVELS]
 
-Description:
-A comprehensive explanation of the vulnerability, including: Detailed technical analysis, Associated CVE IDs (if any), Related known vulnerabilities, Exploitation methods
-
-Impact:
-A thorough assessment of the vulnerability's potential impact on web applications, including: Data confidentiality breaches, System integrity compromises, Service availability disruptions, Potential for further exploitation
-
-Remediation:
-A prioritized list of specific, actionable steps to address the vulnerability, such as: Code modifications, Configuration changes, Security patch applications, Implementation of security controls
-
-References:
-Relevant, authoritative sources supporting your analysis, such as: Official CVE database entries, Vendor security advisories, Respected security research publications, Applicable industry standards or guidelines
-
-
-Ensure that:
-1. Each section (Description, Impact, Remediation, References) is separated by ONLY ONE blank line and no multiple new lines. The content must be immediately after the section title.
-2. Do not make title as bold, italic or underline. It must be Title ending with a colon. Example: Description:
-3. All URLs in the 'references' section begin with 'http://' or 'https://'.
-4. Remediation steps should be specific and actionable and should not contain any ambiguous or general recommendations.
-5. Refrain from including any personal opinions or subjective assessments in your report.
-"""
-
-
-ATTACK_SUGGESTION_GPT_SYSTEM_PROMPT = """
-    You are a highly skilled penetration tester who has recently completed a reconnaissance on a target.
-    As a penetration tester, you've conducted a thorough reconnaissance on a specific subdomain.
-    Based on the reconnaissance you will be given with a
-        - Subdomain Name
-        - Subdomain Page Title
-        - Open Ports if any detected
-        - HTTP Status
-        - Technologies Detected
-        - Content Type
-        - Web Server
-        - Page Content Length
-    I'm seeking insights into potential technical web application attacks that could be executed on this subdomain, along with explanations for why these attacks are feasible given the discovered information.
-    Please provide a detailed list of these attack types and their underlying technical rationales on every attacks you suggested.
-    Also suggest if any CVE ID, known exploits, existing vulnerabilities, any news articles URL related to the information provided to you.
-"""
-
-
-# OSINT GooFuzz Path
-GOFUZZ_EXEC_PATH = "/usr/src/github/goofuzz/GooFuzz"
-
-
-# In App Notification Definitions
-SYSTEM_LEVEL_NOTIFICATION = "system"
-PROJECT_LEVEL_NOTIFICATION = "project"
-NOTIFICATION_TYPES = (
-    ("system", SYSTEM_LEVEL_NOTIFICATION),
-    ("project", PROJECT_LEVEL_NOTIFICATION),
-)
-NOTIFICATION_STATUS_TYPES = (
-    ("success", "Success"),
-    ("info", "Informational"),
-    ("warning", "Warning"),
-    ("error", "Error"),
-)
-
-# Bountyhub Definitions
-HACKERONE_ALLOWED_ASSET_TYPES = ["WILDCARD", "DOMAIN", "IP_ADDRESS", "URL"]
+# IP Protocol types
+IP_PROTOCOLS = ["IPv4", "IPv6"]
+IP_PROTOCOL_CHOICES = [(protocol, protocol) for protocol in IP_PROTOCOLS]

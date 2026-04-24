@@ -1,19 +1,34 @@
-"""
-ASGI config for reconPoint project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
-"""
-
 import os
 
-import django
-from channels.routing import get_default_application
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
+from django.core.asgi import get_asgi_application
+
+from reconPoint.settings import UI_REMOTE_DEBUG
+
+from .routing import websocket_urlpatterns
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "reconPoint.settings")
 
+# Initialize Django settings first
+import django
+
+
 django.setup()
 
-from .routing import application
+# Remote debug setup for ASGI (daphne) development server
+if UI_REMOTE_DEBUG:
+    try:
+        from debugger_setup import setup_debugger
+
+        setup_debugger()
+    except ImportError:
+        print("⚠️  Could not import debugger_setup module")
+
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        "websocket": AuthMiddlewareStack(URLRouter(websocket_urlpatterns)),
+    }
+)
