@@ -147,7 +147,9 @@ class TestIpDiscoveryServiceHelpers(BaseTestCase):
         self.assertEqual(mock_fping.call_count, 4)
         workspace_names = {call.kwargs.get("workspace_name") for call in mock_fping.call_args_list}
         self.assertEqual(len(workspace_names), 4)
-        self.assertTrue(all(name and name.startswith("reconpoint-ephemeral-ip-discovery-c") for name in workspace_names))
+        self.assertTrue(
+            all(name and name.startswith("reconpoint-ephemeral-ip-discovery-c") for name in workspace_names)
+        )
         self.assertEqual(mock_ptr.call_count, 0)
 
     @patch("reconPoint.services.ip_discovery_secator.emit_ip_scan_progress")

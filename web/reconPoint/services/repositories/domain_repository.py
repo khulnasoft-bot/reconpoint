@@ -40,7 +40,9 @@ def _is_ip_address_label(normalized: str) -> bool:
     return bool(normalized) and is_valid_ip(normalized)
 
 
-def _domain_scope_filter(reconpoint_context: Optional[Dict[str, Any]], target_id: int) -> Optional[Callable[[str], bool]]:
+def _domain_scope_filter(
+    reconpoint_context: Optional[Dict[str, Any]], target_id: int
+) -> Optional[Callable[[str], bool]]:
     """Resolve domain filter from context or from target_id."""
     if reconpoint_context:
         filters = reconpoint_context.get("finding_scope_filters") or {}
@@ -73,7 +75,9 @@ class DomainRepository:
             DomainInfo: Saved domain info object or None
         """
         try:
-            return self._process_secator_domain_item(item, scan_history_id, target_id, reconpoint_context=reconpoint_context)
+            return self._process_secator_domain_item(
+                item, scan_history_id, target_id, reconpoint_context=reconpoint_context
+            )
         except FindingOutOfScopeError as e:
             reason = format_exception_for_log(e)
             domain_name = self._domain_string_from_item(item) or "?"
