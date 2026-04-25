@@ -2,11 +2,12 @@ from django import forms
 from django.contrib.auth.models import User
 
 from dashboard.models import Project
-from reconPoint.validators import validate_domain
 from scanEngine.models import SecatorWorker
 from startScan.models import Domain
 
 from .models import Organization, Scope, Target
+from .services.scope_params import normalize_allowed_hosts_from_list
+from reconPoint.validators import validate_domain
 from .services.scope_params import normalize_allowed_hosts_from_list
 
 
