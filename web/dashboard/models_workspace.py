@@ -1,6 +1,7 @@
 """
 Workspace models for multi-team collaboration.
 """
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -65,6 +66,7 @@ class WorkspaceMembership(models.Model):
     """
     Links users to workspaces with specific roles.
     """
+
     workspace = models.ForeignKey(
         Workspace,
         on_delete=models.CASCADE,
@@ -102,6 +104,7 @@ class WorkspaceInvitation(models.Model):
     """
     Pending invitations to join a workspace.
     """
+
     class Status(models.TextChoices):
         PENDING = "pending", "Pending"
         ACCEPTED = "accepted", "Accepted"
@@ -149,6 +152,7 @@ class ActivityFeed(models.Model):
     """
     Activity log for workspace events and collaboration.
     """
+
     class Action(models.TextChoices):
         CREATED = "created", "Created"
         UPDATED = "updated", "Updated"
@@ -203,6 +207,7 @@ class FindingComment(models.Model):
     """
     Comments on vulnerabilities and other findings for collaboration.
     """
+
     workspace = models.ForeignKey(
         Workspace,
         on_delete=models.CASCADE,

@@ -1,6 +1,7 @@
 """
 Ticketing integration service for external issue tracking.
 """
+
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
@@ -16,6 +17,7 @@ logger = get_module_logger(__name__)
 @dataclass
 class TicketResult:
     """Result of ticket creation/update."""
+
     success: bool
     ticket_id: Optional[str] = None
     ticket_url: Optional[str] = None
@@ -34,6 +36,7 @@ class JiraIntegration:
 
     def _get_auth(self):
         import requests.auth
+
         return requests.auth.HTTPBasicAuth(self.username, self.api_token)
 
     def create_ticket(
@@ -58,12 +61,7 @@ class JiraIntegration:
                     "description": {
                         "type": "doc",
                         "version": 1,
-                        "content": [
-                            {
-                                "type": "paragraph",
-                                "content": [{"type": "text", "text": description[:32000]}]
-                            }
-                        ]
+                        "content": [{"type": "paragraph", "content": [{"type": "text", "text": description[:32000]}]}],
                     },
                     "issuetype": {"name": issue_type},
                 }
@@ -118,7 +116,12 @@ class JiraIntegration:
             if comment:
                 requests.post(
                     f"{self.url}/rest/api/3/issue/{ticket_id}/comment",
-                    json={"body": {"type": "doc", "content": [{"type": "paragraph", "content": [{"type": "text", "text": comment}]}]}},
+                    json={
+                        "body": {
+                            "type": "doc",
+                            "content": [{"type": "paragraph", "content": [{"type": "text", "text": comment}]}],
+                        }
+                    },
                     auth=self._get_auth(),
                     timeout=10,
                 )
@@ -301,31 +304,35 @@ def get_integration(integration) -> Any:
         raise ValueError(f"Unsupported provider: {provider}")
 
 
-def create_ticket_for_vulnerability(vulnerability, integration, assignee: str = None, labels: List[str] = None) -> TicketResult:
+def create_ticket_for_vulnerability(
+    vulnerability, integration, assignee: str = None, labels: List[str] = None
+) -> TicketResult:
     """Create a ticket for a vulnerability."""
     handler = get_integration(integration)
     summary = f"[{vulnerability.severity.upper()}] {vulnerability.name} - {vulnerability.template}"
     description = f"""## Vulnerability Details
 
 **Severity:** {vulnerability.severity}
-**CVSS Score:** {vulnerability.cvss_score or 'N/A'}
+**CVSS Score:** {vulnerability.cvss_score or "N/A"}
 **Template:** {vulnerability.template}
-**Endpoint:** {vulnerability.endpoint or 'N/A'}
-**Description:** {vulnerability.description or 'No description'}
+**Endpoint:** {vulnerability.endpoint or "N/A"}
+**Description:** {vulnerability.description or "No description"}
 
 ## Technical Details
 - **Scan ID:** {vulnerability.scan_history_id}
 - **Discovered:** {vulnerability.insert_date}
 
 ## Remediation Recommendations
-{vulnerability.remediation or 'Review and fix according to best practices.'}
+{vulnerability.remediation or "Review and fix according to best practices."}
 """
-    return handler.create_ticket(summary=summary, description=description, priority=vulnerability.severity, assignee=assignee, labels=labels)
+    return handler.create_ticket(
+        summary=summary, description=description, priority=vulnerability.severity, assignee=assignee, labels=labels
+    )
 
 
 def apply_rules_and_create_tickets(vulnerability, target_id: int) -> List[TicketResult]:
     """Apply ticket creation rules and create tickets for matching vulnerabilities."""
-    from .models_ticketing import TicketCreationRule, CreatedTicket
+    from .models_ticketing import CreatedTicket, TicketCreationRule
 
     results = []
     rules = TicketCreationRule.objects.filter(integration__is_enabled=True, integration__is_default=True)
@@ -337,10 +344,20 @@ def apply_rules_and_create_tickets(vulnerability, target_id: int) -> List[Ticket
         if CreatedTicket.objects.filter(vulnerability=vulnerability, integration=rule.integration).exists():
             continue
 
-        result = create_ticket_for_vulnerability(vulnerability, rule.integration, assignee=rule.assignee.username if rule.assign_to else None, labels=rule.labels)
+        result = create_ticket_for_vulnerability(
+            vulnerability,
+            rule.integration,
+            assignee=rule.assignee.username if rule.assign_to else None,
+            labels=rule.labels,
+        )
 
         if result.success:
-            CreatedTicket.objects.create(integration=rule.integration, vulnerability=vulnerability, external_ticket_id=result.ticket_id, external_ticket_url=result.ticket_url)
+            CreatedTicket.objects.create(
+                integration=rule.integration,
+                vulnerability=vulnerability,
+                external_ticket_id=result.ticket_id,
+                external_ticket_url=result.ticket_url,
+            )
 
         results.append(result)
 
@@ -351,7 +368,10 @@ def get_sla_status(target_id: int) -> List[Dict[str, Any]]:
     """Get SLA status for all vulnerabilities with tickets."""
     from .models_ticketing import CreatedTicket, SLAPolicy
 
-    tickets = CreatedTicket.objects.filter(vulnerability__scan_history__target_id=target_id, status__in=[CreatedTicket.TicketStatus.OPEN, CreatedTicket.TicketStatus.IN_PROGRESS]).select_related("vulnerability", "integration")
+    tickets = CreatedTicket.objects.filter(
+        vulnerability__scan_history__target_id=target_id,
+        status__in=[CreatedTicket.TicketStatus.OPEN, CreatedTicket.TicketStatus.IN_PROGRESS],
+    ).select_related("vulnerability", "integration")
 
     status_list = []
     for ticket in tickets:
@@ -364,15 +384,17 @@ def get_sla_status(target_id: int) -> List[Dict[str, Any]]:
         remaining_hours = sla.get_remaining_time(ticket.created_at)
         is_breached = sla.is_breached(ticket.created_at)
 
-        status_list.append({
-            "ticket_id": ticket.external_ticket_id,
-            "ticket_url": ticket.external_ticket_url,
-            "vulnerability": ticket.vulnerability.name,
-            "severity": severity,
-            "status": ticket.status,
-            "remaining_hours": round(remaining_hours, 1),
-            "is_breached": is_breached,
-            "policy": sla.name,
-        })
+        status_list.append(
+            {
+                "ticket_id": ticket.external_ticket_id,
+                "ticket_url": ticket.external_ticket_url,
+                "vulnerability": ticket.vulnerability.name,
+                "severity": severity,
+                "status": ticket.status,
+                "remaining_hours": round(remaining_hours, 1),
+                "is_breached": is_breached,
+                "policy": sla.name,
+            }
+        )
 
     return status_list

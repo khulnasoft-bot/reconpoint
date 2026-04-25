@@ -62,9 +62,7 @@ class DomainValidator:
         return False, f"Invalid domain format: {value}"
 
     @classmethod
-    def validate_batch(
-        cls, values: List[str], max_count: int = 10000
-    ) -> Tuple[List[str], List[Tuple[str, str]]]:
+    def validate_batch(cls, values: List[str], max_count: int = 10000) -> Tuple[List[str], List[Tuple[str, str]]]:
         """Validate a batch of domains. Returns (valid, invalid_with_errors)."""
         if len(values) > max_count:
             raise ImportValidationError([f"Max {max_count} items allowed"])
@@ -105,9 +103,7 @@ class URLValidator:
             return False, f"Invalid URL: {str(e)}"
 
     @classmethod
-    def validate_batch(
-        cls, values: List[str], max_count: int = 10000
-    ) -> Tuple[List[str], List[Tuple[str, str]]]:
+    def validate_batch(cls, values: List[str], max_count: int = 10000) -> Tuple[List[str], List[Tuple[str, str]]]:
         """Validate a batch of URLs."""
         if len(values) > max_count:
             raise ImportValidationError([f"Max {max_count} items allowed"])
@@ -154,9 +150,7 @@ class CIDRValidator:
             return False, f"Invalid CIDR: {str(e)}"
 
     @classmethod
-    def validate_batch(
-        cls, values: List[str], max_count: int = 10000
-    ) -> Tuple[List[str], List[Tuple[str, str]]]:
+    def validate_batch(cls, values: List[str], max_count: int = 10000) -> Tuple[List[str], List[Tuple[str, str]]]:
         """Validate a batch of CIDR blocks."""
         if len(values) > max_count:
             raise ImportValidationError([f"Max {max_count} items allowed"])

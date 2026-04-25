@@ -5,6 +5,7 @@ from reconPoint.validation_funcs import (
     validate_url,
 )
 
+
 __all__ = [
     "validate_domain",
     "validate_url",
@@ -18,6 +19,7 @@ from .import_validators import (
     ImportValidationError,
     URLValidator,
 )
+
 
 __all__ += [
     "DomainValidator",

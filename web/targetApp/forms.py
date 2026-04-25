@@ -2,12 +2,12 @@ from django import forms
 from django.contrib.auth.models import User
 
 from dashboard.models import Project
+from reconPoint.validators import validate_domain
 from scanEngine.models import SecatorWorker
 from startScan.models import Domain
 
 from .models import Organization, Scope, Target
 from .services.scope_params import normalize_allowed_hosts_from_list
-from reconPoint.validators import validate_domain
 
 
 class AddTargetForm(forms.Form):
@@ -181,9 +181,7 @@ class UpdateOrganizationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UpdateOrganizationForm, self).__init__(*args, **kwargs)
         project = getattr(self.instance, "project", None)
-        target_queryset = (
-            Target.objects.filter(project=project) if project else Target.objects.none()
-        )
+        target_queryset = Target.objects.filter(project=project) if project else Target.objects.none()
         self.fields["targets"] = forms.ModelMultipleChoiceField(
             queryset=target_queryset,
             widget=forms.SelectMultiple(
@@ -269,29 +267,25 @@ class ScopeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if project_slug:
-            self.fields["organization"].queryset = Organization.objects.for_project(
-                project_slug
-            )
+            self.fields["organization"].queryset = Organization.objects.for_project(project_slug)
             self.fields["targets"].queryset = Target.objects.for_project(project_slug)
         elif self.instance and self.instance.pk:
             project = self.instance.organization.project
-            self.fields["organization"].queryset = Organization.objects.for_project(
-                project
-            )
+            self.fields["organization"].queryset = Organization.objects.for_project(project)
             self.fields["targets"].queryset = Target.objects.for_project(project)
 
         self.fields["workers"].queryset = SecatorWorker.objects.active()
         self.fields[
             "workers"
-        ].help_text = 'Remote workers allowed for scans in this scope. Use "Allow Local worker" to include the reconPoint server.'
+        ].help_text = (
+            'Remote workers allowed for scans in this scope. Use "Allow Local worker" to include the reconPoint server.'
+        )
         if self.instance and self.instance.pk:
             base_qs = SecatorWorker.objects.active().filter(scopes=self.instance)
             default_id = getattr(self.instance, "default_worker_id", None)
             if default_id and not base_qs.filter(pk=default_id).exists():
                 self.fields["default_worker"].queryset = (
-                    (base_qs | SecatorWorker.objects.filter(pk=default_id))
-                    .distinct()
-                    .order_by("name")
+                    (base_qs | SecatorWorker.objects.filter(pk=default_id)).distinct().order_by("name")
                 )
             else:
                 self.fields["default_worker"].queryset = base_qs.order_by("name")
@@ -335,9 +329,7 @@ class ScopeForm(forms.ModelForm):
                     "data-width": "100%",
                 }
             ),
-            "name": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Scope name"}
-            ),
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Scope name"}),
             "scope_type": forms.Select(
                 attrs={
                     "class": "form-control select2",
@@ -345,12 +337,8 @@ class ScopeForm(forms.ModelForm):
                     "data-width": "100%",
                 }
             ),
-            "start_date": forms.DateInput(
-                attrs={"class": "form-control", "type": "date"}
-            ),
-            "end_date": forms.DateInput(
-                attrs={"class": "form-control", "type": "date"}
-            ),
+            "start_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "end_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
             "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "targets": forms.SelectMultiple(
                 attrs={
@@ -368,9 +356,7 @@ class ScopeForm(forms.ModelForm):
                     "data-placeholder": "Choose remote workers",
                 }
             ),
-            "allow_local_worker": forms.CheckboxInput(
-                attrs={"class": "form-check-input"}
-            ),
+            "allow_local_worker": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "default_worker": forms.Select(
                 attrs={
                     "class": "form-control select2",
@@ -379,9 +365,7 @@ class ScopeForm(forms.ModelForm):
                     "data-placeholder": "Local (default)",
                 }
             ),
-            "restrict_findings_to_target": forms.CheckboxInput(
-                attrs={"class": "form-check-input"}
-            ),
+            "restrict_findings_to_target": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
     def clean_allowed_finding_domains(self):
@@ -389,14 +373,8 @@ class ScopeForm(forms.ModelForm):
         if value is None:
             return []
         if isinstance(value, list):
-            return [
-                str(x).strip().lower()
-                for x in value
-                if isinstance(x, str) and x.strip()
-            ]
-        return [
-            line.strip().lower() for line in str(value).splitlines() if line.strip()
-        ]
+            return [str(x).strip().lower() for x in value if isinstance(x, str) and x.strip()]
+        return [line.strip().lower() for line in str(value).splitlines() if line.strip()]
 
     def clean_allowed_finding_hosts(self):
         value = self.cleaned_data.get("allowed_finding_hosts")
@@ -430,9 +408,7 @@ class ProjectForm(forms.ModelForm):
     users = forms.ModelMultipleChoiceField(
         queryset=User.objects.all(), widget=forms.CheckboxSelectMultiple, required=False
     )
-    description = forms.CharField(
-        widget=forms.Textarea(attrs={"rows": 4}), required=False
-    )
+    description = forms.CharField(widget=forms.Textarea(attrs={"rows": 4}), required=False)
 
     class Meta:
         model = Project

@@ -16,11 +16,10 @@ from .views_metrics import (
     vulnerability_sla_status_view,
 )
 
+
 router = DefaultRouter()
 router.register(r"metrics", MetricViewSet, basename="metric")
-router.register(
-    r"metric-thresholds", MetricThresholdViewSet, basename="metric-threshold"
-)
+router.register(r"metric-thresholds", MetricThresholdViewSet, basename="metric-threshold")
 router.register(r"metric-history", MetricHistoryViewSet, basename="metric-history")
 router.register(r"sla-policies", SLAPolicyViewSet, basename="sla-policy")
 router.register(

@@ -1,6 +1,7 @@
 """
 Threat Intelligence models for integrating with external threat feeds.
 """
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
