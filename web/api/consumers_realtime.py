@@ -69,9 +69,7 @@ class LiveScanConsumer(WebsocketConsumer):
     def disconnect(self, close_code):
         try:
             if hasattr(self, "room_group_name"):
-                async_to_sync(self.channel_layer.group_discard)(
-                    self.room_group_name, self.channel_name
-                )
+                async_to_sync(self.channel_layer.group_discard)(self.room_group_name, self.channel_name)
             self._cleanup_subscriptions()
         except Exception as e:
             logger.log_line(PREFIX_API, "LIVE_SCAN", f"Disconnect failed: {e}", level="error")
@@ -115,10 +113,7 @@ class LiveScanConsumer(WebsocketConsumer):
         """Handle heartbeat check requests."""
         elapsed = (timezone.now() - self.last_heartbeat).total_seconds()
         if elapsed > self.HEARTBEAT_TIMEOUT:
-            self.send(text_data=json.dumps({
-                "type": "connection_timeout",
-                "message": "No heartbeat received"
-            }))
+            self.send(text_data=json.dumps({"type": "connection_timeout", "message": "No heartbeat received"}))
             self.close()
 
     def _send_safe(self, payload: dict):
@@ -128,13 +123,17 @@ class LiveScanConsumer(WebsocketConsumer):
             logger.log_line(PREFIX_API, "LIVE_SCAN", f"Send failed: {e}", level="error")
 
     def _send_initial_state(self):
-        self.send(text_data=json.dumps({
-            "type": "connected",
-            "scan_ids": list(self.scan_ids),
-            "project_slugs": list(self.project_slugs),
-            "heartbeat_interval": self.HEARTBEAT_INTERVAL,
-            "timestamp": timezone.now().isoformat(),
-        }))
+        self.send(
+            text_data=json.dumps(
+                {
+                    "type": "connected",
+                    "scan_ids": list(self.scan_ids),
+                    "project_slugs": list(self.project_slugs),
+                    "heartbeat_interval": self.HEARTBEAT_INTERVAL,
+                    "timestamp": timezone.now().isoformat(),
+                }
+            )
+        )
 
     def _subscribe_to_all_scans(self):
         pass
@@ -148,11 +147,15 @@ class LiveScanConsumer(WebsocketConsumer):
         if project_slug:
             self.project_slugs.add(project_slug)
 
-        self.send(text_data=json.dumps({
-            "type": "subscribed",
-            "scan_ids": list(self.scan_ids),
-            "project_slugs": list(self.project_slugs),
-        }))
+        self.send(
+            text_data=json.dumps(
+                {
+                    "type": "subscribed",
+                    "scan_ids": list(self.scan_ids),
+                    "project_slugs": list(self.project_slugs),
+                }
+            )
+        )
 
     def _handle_unsubscribe(self, data: dict):
         scan_id = data.get("scan_id")
@@ -181,10 +184,14 @@ class VulnerabilityAlertConsumer(WebsocketConsumer):
             async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
             self.accept()
 
-            self.send(text_data=json.dumps({
-                "type": "connected",
-                "group": self.room_group_name,
-            }))
+            self.send(
+                text_data=json.dumps(
+                    {
+                        "type": "connected",
+                        "group": self.room_group_name,
+                    }
+                )
+            )
         except Exception as e:
             logger.log_line(PREFIX_API, "VULN_ALERT", f"Connect failed: {e}", level="error")
             raise
@@ -192,9 +199,7 @@ class VulnerabilityAlertConsumer(WebsocketConsumer):
     def disconnect(self, close_code):
         try:
             if hasattr(self, "room_group_name"):
-                async_to_sync(self.channel_layer.group_discard)(
-                    self.room_group_name, self.channel_name
-                )
+                async_to_sync(self.channel_layer.group_discard)(self.room_group_name, self.channel_name)
         except Exception as e:
             logger.log_line(PREFIX_API, "VULN_ALERT", f"Disconnect failed: {e}", level="error")
 
@@ -233,9 +238,6 @@ class ScanHeartbeatMonitor:
             if channel_layer is None:
                 return
 
-            async_to_sync(channel_layer.group_send)(
-                "live-scan-all",
-                {"type": "live_heartbeat_check"}
-            )
+            async_to_sync(channel_layer.group_send)("live-scan-all", {"type": "live_heartbeat_check"})
         except Exception as e:
             logger.log_line(PREFIX_API, "HEARTBEAT", f"Monitor check failed: {e}", level="error")

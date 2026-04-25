@@ -1,8 +1,9 @@
 """
 Plugin registry for discovering and managing available plugins.
 """
-import inspect
+
 from dataclasses import dataclass, field
+import inspect
 from typing import Any, Callable, Dict, List, Optional
 
 from django.utils import timezone
@@ -115,7 +116,8 @@ class PluginRegistry:
         """Search plugins by name, description, or tags."""
         query_lower = query.lower()
         return [
-            p for p in cls._plugins.values()
+            p
+            for p in cls._plugins.values()
             if query_lower in p.name.lower()
             or query_lower in p.description.lower()
             or any(query_lower in tag.lower() for tag in p.tags)
@@ -130,6 +132,7 @@ class PluginRegistry:
     ) -> PluginResult:
         """Execute a plugin with given configuration."""
         import time
+
         start_time = time.time()
 
         plugin = cls.get(slug)
@@ -149,6 +152,7 @@ class PluginRegistry:
         try:
             if inspect.iscoroutinefunction(executor):
                 import asyncio
+
                 output = asyncio.run(executor(config, context or {}))
             else:
                 output = executor(config, context or {})
@@ -162,9 +166,7 @@ class PluginRegistry:
             )
         except Exception as e:
             duration_ms = int((time.time() - start_time) * 1000)
-            logger.log_line(
-                PREFIX_PLUGIN, "EXECUTE", f"Plugin {slug} failed: {e}", level="error"
-            )
+            logger.log_line(PREFIX_PLUGIN, "EXECUTE", f"Plugin {slug} failed: {e}", level="error")
             return PluginResult(
                 success=False,
                 error=str(e),
@@ -203,8 +205,9 @@ class PluginSandbox:
         context: Dict[str, Any],
     ) -> PluginResult:
         """Execute plugin source code in sandbox."""
-        import time
         import signal
+        import time
+
         start_time = time.time()
 
         def timeout_handler(signum, frame):
@@ -215,11 +218,7 @@ class PluginSandbox:
 
         try:
             exec_globals = {
-                "__builtins__": {
-                    name: __import__(name)
-                    for name in self.allowed_modules
-                    if name in dir(__builtins__)
-                },
+                "__builtins__": {name: __import__(name) for name in self.allowed_modules if name in dir(__builtins__)},
                 "config": config,
                 "context": context,
                 "results": None,
@@ -292,22 +291,28 @@ class PluginSecurityScanner:
         for pattern, description in cls.DANGEROUS_PATTERNS:
             matches = re.finditer(pattern, source_code)
             for match in matches:
-                line_num = source_code[:match.start()].count("\n") + 1
-                issues.append({
-                    "pattern": description,
-                    "line": line_num,
-                    "code": match.group(),
-                    "severity": "error" if pattern.startswith(r"import\s+os") or "eval" in description else "warning",
-                })
+                line_num = source_code[: match.start()].count("\n") + 1
+                issues.append(
+                    {
+                        "pattern": description,
+                        "line": line_num,
+                        "code": match.group(),
+                        "severity": "error"
+                        if pattern.startswith(r"import\s+os") or "eval" in description
+                        else "warning",
+                    }
+                )
 
                 severity = "error" if issues[-1]["severity"] == "error" else "warning"
                 severity_counts[severity] += 1
 
         if "import" not in source_code and "import" not in source_code.lower():
-            issues.append({
-                "pattern": "No imports found",
-                "severity": "info",
-            })
+            issues.append(
+                {
+                    "pattern": "No imports found",
+                    "severity": "info",
+                }
+            )
             severity_counts["info"] += 1
 
         return {
@@ -320,6 +325,7 @@ class PluginSecurityScanner:
 
 def register_builtin_plugins():
     """Register built-in plugins."""
+
     def run_subdomain_enum(config, context):
         return {"subdomains": [], "count": 0}
 

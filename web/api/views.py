@@ -48,7 +48,6 @@ from rest_framework.status import (
 from rest_framework.views import APIView
 import validators
 
-from api.throttling import ExportRateThrottle, ScanRateThrottle, SearchRateThrottle
 from api.helpers.datatables import (
     DATATABLE_COLUMN_MAP_DIRECTORY,
     DATATABLE_COLUMN_MAP_ENDPOINT,

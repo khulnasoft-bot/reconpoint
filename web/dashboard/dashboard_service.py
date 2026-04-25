@@ -1,6 +1,7 @@
 """
 Dashboard service for data visualization.
 """
+
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict
@@ -26,6 +27,7 @@ logger = get_module_logger(__name__)
 @dataclass
 class DashboardData:
     """Data container for dashboard widgets."""
+
     widget_type: str
     data: Dict[str, Any]
     updated_at: datetime
@@ -42,7 +44,18 @@ class DashboardDataService:
         vulns = Vulnerability.objects.filter(scan_history__target_id=self.target_id)
         counts = {"total": 0, "critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
 
-        severity_map = {"critical": "critical", "high": "high", "medium": "medium", "low": "low", "info": "info", 4: "critical", 3: "high", 2: "medium", 1: "low", 0: "info"}
+        severity_map = {
+            "critical": "critical",
+            "high": "high",
+            "medium": "medium",
+            "low": "low",
+            "info": "info",
+            4: "critical",
+            3: "high",
+            2: "medium",
+            1: "low",
+            0: "info",
+        }
 
         for sev, count in vulns.values("severity").annotate(count=Count("id")):
             key = severity_map.get(sev, "total")
@@ -89,25 +102,30 @@ class DashboardDataService:
             low = vulns.filter(severity=1).count()
             info = vulns.filter(severity=0).count()
 
-            timeline.append({
-                "date": scan.start_scan_date.isoformat(),
-                "critical": critical,
-                "high": high,
-                "medium": medium,
-                "low": low,
-                "info": info,
-                "total": critical + high + medium + low + info,
-            })
+            timeline.append(
+                {
+                    "date": scan.start_scan_date.isoformat(),
+                    "critical": critical,
+                    "high": high,
+                    "medium": medium,
+                    "low": low,
+                    "info": info,
+                    "total": critical + high + medium + low + info,
+                }
+            )
 
         return {"timeline": timeline, "days": days}
 
     def get_top_targets(self, limit: int = 10) -> Dict[str, Any]:
         """Get most vulnerable targets."""
-        targets = Vulnerability.objects.filter(
-            scan_history__target_id=self.target_id,
-        ).values("endpoint", "template").annotate(
-            vuln_count=Count("id")
-        ).order_by("-vuln_count")[:limit]
+        targets = (
+            Vulnerability.objects.filter(
+                scan_history__target_id=self.target_id,
+            )
+            .values("endpoint", "template")
+            .annotate(vuln_count=Count("id"))
+            .order_by("-vuln_count")[:limit]
+        )
 
         data = [
             {
@@ -122,9 +140,13 @@ class DashboardDataService:
 
     def get_recent_scans(self, limit: int = 10) -> Dict[str, Any]:
         """Get recent scan history."""
-        scans = ScanHistory.objects.filter(
-            target_id=self.target_id,
-        ).select_related("scan_type").order_by("-start_scan_date")[:limit]
+        scans = (
+            ScanHistory.objects.filter(
+                target_id=self.target_id,
+            )
+            .select_related("scan_type")
+            .order_by("-start_scan_date")[:limit]
+        )
 
         data = [
             {
@@ -145,7 +167,11 @@ class DashboardDataService:
 
         penalty = 0
         for severity_label, count in vulns.values("severity").annotate(count=Count("id")):
-            key = ["info", "low", "medium", "high", "critical"][severity_label] if severity_label in [0, 1, 2, 3, 4] else "info"
+            key = (
+                ["info", "low", "medium", "high", "critical"][severity_label]
+                if severity_label in [0, 1, 2, 3, 4]
+                else "info"
+            )
             penalty += severity_map.get(key, 0) * count
 
         score = max(0, 100 - penalty)
@@ -153,7 +179,11 @@ class DashboardDataService:
 
         trend = self._calculate_trend()
 
-        return {"score": score, "trend": trend, "level": "good" if score >= 70 else "warning" if score >= 50 else "critical"}
+        return {
+            "score": score,
+            "trend": trend,
+            "level": "good" if score >= 70 else "warning" if score >= 50 else "critical",
+        }
 
     def _calculate_trend(self) -> str:
         """Calculate score trend compared to last scan."""
@@ -205,12 +235,18 @@ class DashboardDataService:
 
     def get_threat_intel_summary(self) -> Dict[str, Any]:
         """Get threat intelligence summary."""
-        matches = ThreatMatch.objects.filter(matched_type="ip", status__in=["new", "reviewed"]).select_related("indicator")
+        matches = ThreatMatch.objects.filter(matched_type="ip", status__in=["new", "reviewed"]).select_related(
+            "indicator"
+        )
 
         critical_count = matches.filter(risk_score__gte=70).count()
         total_count = matches.count()
 
-        return {"total_matches": total_count, "critical_indicators": critical_count, "risk_score_avg": round(matches.aggregate(p=Avg("risk_score"))["p"], 1) if total_count else 0}
+        return {
+            "total_matches": total_count,
+            "critical_indicators": critical_count,
+            "risk_score_avg": round(matches.aggregate(p=Avg("risk_score"))["p"], 1) if total_count else 0,
+        }
 
     def get_widget_data(self, widget_type: str, config: Dict = None) -> Dict[str, Any]:
         """Get data for a specific widget type."""
@@ -250,7 +286,7 @@ def get_dashboard_for_user(user, dashboard_id: int = None):
 
 def create_dashboard_from_template(user, template_id: str):
     """Create a new dashboard from a template."""
-    from .models_dashboard import Dashboard, DashboardWidget, DashboardTemplate
+    from .models_dashboard import Dashboard, DashboardTemplate, DashboardWidget
 
     template = DashboardTemplate.objects.filter(id=template_id).first()
     if not template:

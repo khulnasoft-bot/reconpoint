@@ -1,6 +1,7 @@
 """
 LLM-powered remediation suggestions service.
 """
+
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
@@ -15,6 +16,7 @@ logger = get_module_logger(__name__)
 @dataclass
 class RemediationSuggestion:
     """LLM-generated remediation suggestion."""
+
     title: str
     description: str
     steps: List[str]
@@ -48,7 +50,7 @@ Respond with structured JSON containing:
 """
 
     def __init__(self):
-        self.llm_config = get_llm_config() if hasattr(__import__('reconPoint.llm.utils'), 'get_llm_config') else {}
+        self.llm_config = get_llm_config() if hasattr(__import__("reconPoint.llm.utils"), "get_llm_config") else {}
 
     def generate_remediation(
         self,
@@ -76,7 +78,8 @@ Respond with structured JSON containing:
             return self._parse_response(response)
         except Exception as e:
             logger.log_line(
-                PREFIX_LLM, "GENERATE",
+                PREFIX_LLM,
+                "GENERATE",
                 f"Failed to generate remediation: {e}",
                 level="error",
             )
@@ -109,9 +112,7 @@ Respond with structured JSON containing:
         if description:
             prompt_parts.append(f"Description: {description}")
 
-        prompt_parts.append(
-            "\nProvide remediation steps in JSON format."
-        )
+        prompt_parts.append("\nProvide remediation steps in JSON format.")
 
         return "\n\n".join(prompt_parts)
 
@@ -150,8 +151,7 @@ Respond with structured JSON containing:
                     priority=data.get("priority", "medium"),
                     confidence=data.get("confidence", 0.8),
                     references=[
-                        {"title": r.get("title", ""), "url": r.get("url", "")}
-                        for r in data.get("references", [])
+                        {"title": r.get("title", ""), "url": r.get("url", "")} for r in data.get("references", [])
                     ],
                 )
             except json.JSONDecodeError:
@@ -244,7 +244,8 @@ class BatchRemediationGenerator:
                 results.append(suggestion)
             except Exception as e:
                 logger.log_line(
-                    PREFIX_LLM, "BATCH",
+                    PREFIX_LLM,
+                    "BATCH",
                     f"Failed to generate for {vuln.get('name')}: {e}",
                     level="error",
                 )
