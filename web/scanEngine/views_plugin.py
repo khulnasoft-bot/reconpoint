@@ -1,6 +1,7 @@
 """
 Plugin API views.
 """
+
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -28,6 +29,7 @@ class PluginViewSet(viewsets.ModelViewSet):
     """
     API endpoints for plugin marketplace management.
     """
+
     permission_classes = [IsAuthenticated]
     serializer_class = PluginSerializer
 
@@ -40,12 +42,10 @@ class PluginViewSet(viewsets.ModelViewSet):
         sort_by = self.request.query_params.get("sort_by", "downloads")
 
         if query:
-            queryset = queryset.filter(
-                name__icontains=query
-            ) | queryset.filter(
-                description__icontains=query
-            ) | queryset.filter(
-                tags__contains=[query]
+            queryset = (
+                queryset.filter(name__icontains=query)
+                | queryset.filter(description__icontains=query)
+                | queryset.filter(tags__contains=[query])
             )
 
         if category:
@@ -203,6 +203,7 @@ class PluginInstallationViewSet(viewsets.ModelViewSet):
     """
     API endpoints for managing plugin installations.
     """
+
     permission_classes = [IsAuthenticated]
     serializer_class = PluginInstallationSerializer
     http_method_names = ["get", "delete", "patch"]
@@ -242,9 +243,7 @@ class PluginInstallationViewSet(viewsets.ModelViewSet):
         )
 
         execution_log.status = (
-            PluginExecutionLog.ExecutionStatus.SUCCESS
-            if result.success
-            else PluginExecutionLog.ExecutionStatus.FAILED
+            PluginExecutionLog.ExecutionStatus.SUCCESS if result.success else PluginExecutionLog.ExecutionStatus.FAILED
         )
         execution_log.output_data = result.output or {}
         execution_log.error_message = result.error
@@ -257,13 +256,15 @@ class PluginInstallationViewSet(viewsets.ModelViewSet):
 
         execution_log.save()
 
-        return Response({
-            "success": result.success,
-            "output": result.output,
-            "error": result.error,
-            "duration_ms": result.duration_ms,
-            "log_id": execution_log.id,
-        })
+        return Response(
+            {
+                "success": result.success,
+                "output": result.output,
+                "error": result.error,
+                "duration_ms": result.duration_ms,
+                "log_id": execution_log.id,
+            }
+        )
 
     @action(detail=True, methods=["post"])
     def uninstall(self, request, pk=None):
@@ -299,6 +300,5 @@ class PluginInstallationViewSet(viewsets.ModelViewSet):
         installation = self.get_object()
         logs = PluginExecutionLog.objects.filter(installation=installation)[:50]
         from .serializers_plugin import PluginExecutionLogSerializer
-        return Response(
-            PluginExecutionLogSerializer(logs, many=True).data
-        )
+
+        return Response(PluginExecutionLogSerializer(logs, many=True).data)

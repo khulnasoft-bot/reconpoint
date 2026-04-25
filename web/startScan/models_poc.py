@@ -1,6 +1,7 @@
 """
 Models for AI-Powered Proof-of-Concept generation and execution.
 """
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -246,7 +247,7 @@ class PoCTemplate(models.Model):
                 "description": "Path traversal test",
                 "category": "file",
                 "vuln_pattern": "path|traversal|lfi",
-                "code": "# Path Traversal Test\npayload = \"../../../etc/passwd\"",
+                "code": '# Path Traversal Test\npayload = "../../../etc/passwd"',
                 "language": "text",
                 "risk": "medium",
             },

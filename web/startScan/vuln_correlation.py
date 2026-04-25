@@ -1,6 +1,7 @@
 """
 Vulnerability correlation and attack chain analysis services.
 """
+
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -17,6 +18,7 @@ logger = get_module_logger(__name__)
 @dataclass
 class VulnerabilityNode:
     """Node in attack chain graph."""
+
     id: int
     name: str
     severity: int
@@ -30,6 +32,7 @@ class VulnerabilityNode:
 @dataclass
 class AttackChainResult:
     """Result of attack chain analysis."""
+
     chains: List[Dict[str, Any]]
     critical_paths: List[List[int]]
     highest_risk_score: float
@@ -71,11 +74,9 @@ class VulnerabilityCorrelator:
             Vulnerability.objects.filter(
                 scan_history__target_id=self.target_id,
                 open_status=True,
-            ).select_related(
-                "scan_history"
-            ).prefetch_related(
-                "endpoints"
             )
+            .select_related("scan_history")
+            .prefetch_related("endpoints")
         )
         return len(self.vulnerabilities)
 
@@ -88,12 +89,14 @@ class VulnerabilityCorrelator:
         ).select_related("parent", "child")
 
         for rel in relation_objects:
-            self.relations[rel.parent_id].append({
-                "child_id": rel.child_id,
-                "type": rel.relation_type,
-                "confidence": float(rel.confidence),
-                "evidence": rel.evidence,
-            })
+            self.relations[rel.parent_id].append(
+                {
+                    "child_id": rel.child_id,
+                    "type": rel.relation_type,
+                    "confidence": float(rel.confidence),
+                    "evidence": rel.evidence,
+                }
+            )
             self.graph[rel.parent_id].append(rel.child_id)
 
     def detect_attack_chains(self) -> AttackChainResult:
@@ -116,13 +119,15 @@ class VulnerabilityCorrelator:
                     if path_key not in visited_paths:
                         visited_paths.add(path_key)
                         chain_risk = self._calculate_chain_risk(path)
-                        chains.append({
-                            "path": path,
-                            "risk_score": chain_risk,
-                            "entry_point": entry_id,
-                            "critical_target": critical_id,
-                            "length": len(path),
-                        })
+                        chains.append(
+                            {
+                                "path": path,
+                                "risk_score": chain_risk,
+                                "entry_point": entry_id,
+                                "critical_target": critical_id,
+                                "length": len(path),
+                            }
+                        )
 
                         if len(path) >= 2:
                             critical_paths.append(path)
@@ -213,9 +218,7 @@ class VulnerabilityCorrelator:
             if not vuln:
                 continue
 
-            severity_weight = self.SEVERITY_WEIGHTS.get(
-                vuln.severity.lower(), 0
-            )
+            severity_weight = self.SEVERITY_WEIGHTS.get(vuln.severity.lower(), 0)
 
             cvss_contribution = float(vuln.cvss_score or 0) * 10
 
@@ -256,23 +259,22 @@ class VulnerabilityCorrelator:
         for vuln_id, block_count in sorted_blocking[:5]:
             vuln = next((v for v in self.vulnerabilities if v.id == vuln_id), None)
             if vuln:
-                recommended_fixes.append({
-                    "vulnerability_id": vuln_id,
-                    "name": vuln.name,
-                    "severity": vuln.severity,
-                    "blocks_chains": block_count,
-                    "priority": "high" if block_count > 5 else "medium",
-                })
+                recommended_fixes.append(
+                    {
+                        "vulnerability_id": vuln_id,
+                        "name": vuln.name,
+                        "severity": vuln.severity,
+                        "blocks_chains": block_count,
+                        "priority": "high" if block_count > 5 else "medium",
+                    }
+                )
 
         critical_chains = sum(1 for c in chains if c["risk_score"] > 70)
 
         return {
             "total_chains": vulnerable_paths,
             "critical_chains": critical_chains,
-            "blocking_points": [
-                {"vulnerability_id": v[0], "blocks": v[1]}
-                for v in sorted_blocking[:10]
-            ],
+            "blocking_points": [{"vulnerability_id": v[0], "blocks": v[1]} for v in sorted_blocking[:10]],
             "recommended_fixes": recommended_fixes,
         }
 
@@ -282,23 +284,27 @@ class VulnerabilityCorrelator:
         edges = []
 
         for vuln in self.vulnerabilities:
-            nodes.append({
-                "id": vuln.id,
-                "name": vuln.name,
-                "severity": vuln.severity,
-                "cvss": float(vuln.cvss_score or 0),
-                "template": vuln.template,
-                "url": vuln.endpoint,
-            })
+            nodes.append(
+                {
+                    "id": vuln.id,
+                    "name": vuln.name,
+                    "severity": vuln.severity,
+                    "cvss": float(vuln.cvss_score or 0),
+                    "template": vuln.template,
+                    "url": vuln.endpoint,
+                }
+            )
 
         for parent_id, relations in self.relations.items():
             for rel in relations:
-                edges.append({
-                    "source": parent_id,
-                    "target": rel["child_id"],
-                    "type": rel["type"],
-                    "confidence": rel["confidence"],
-                })
+                edges.append(
+                    {
+                        "source": parent_id,
+                        "target": rel["child_id"],
+                        "type": rel["type"],
+                        "confidence": rel["confidence"],
+                    }
+                )
 
         return {
             "nodes": nodes,
@@ -338,25 +344,25 @@ class RemediationPriorityQueue:
             exploitability = self._calculate_exploitability(vuln)
 
             priority_score = (
-                self.correlator.SEVERITY_WEIGHTS.get(
-                    vuln.severity.lower(), 0
-                ) * 10 +
-                exploitability * 20 +
-                blocking_count * 5
+                self.correlator.SEVERITY_WEIGHTS.get(vuln.severity.lower(), 0) * 10
+                + exploitability * 20
+                + blocking_count * 5
             )
 
-            prioritized.append({
-                "id": vuln.id,
-                "name": vuln.name,
-                "severity": vuln.severity,
-                "cvss_score": float(vuln.cvss_score or 0),
-                "template": vuln.template,
-                "priority_score": priority_score,
-                "exploitability": exploitability,
-                "blocks_attack_chains": blocking_count,
-                "estimated_fix_time": self._estimate_fix_time(vuln),
-                "in_attack_chain": blocking_count > 0,
-            })
+            prioritized.append(
+                {
+                    "id": vuln.id,
+                    "name": vuln.name,
+                    "severity": vuln.severity,
+                    "cvss_score": float(vuln.cvss_score or 0),
+                    "template": vuln.template,
+                    "priority_score": priority_score,
+                    "exploitability": exploitability,
+                    "blocks_attack_chains": blocking_count,
+                    "estimated_fix_time": self._estimate_fix_time(vuln),
+                    "in_attack_chain": blocking_count > 0,
+                }
+            )
 
         prioritized.sort(key=lambda x: x["priority_score"], reverse=True)
 
@@ -437,12 +443,14 @@ class VulnerabilityDeduplicator:
             if canonical_key in canonical_map:
                 canonical_vuln_id = canonical_map[canonical_key]
                 if canonical_vuln_id != vuln.id:
-                    duplicates.append({
-                        "canonical_id": canonical_vuln_id,
-                        "duplicate_id": vuln.id,
-                        "canonical_name": vuln.name,
-                        "similarity": 1.0,
-                    })
+                    duplicates.append(
+                        {
+                            "canonical_id": canonical_vuln_id,
+                            "duplicate_id": vuln.id,
+                            "canonical_name": vuln.name,
+                            "similarity": 1.0,
+                        }
+                    )
             else:
                 canonical_map[canonical_key] = vuln.id
 

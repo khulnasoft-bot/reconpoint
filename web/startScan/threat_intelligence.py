@@ -1,15 +1,16 @@
 """
 Threat Intelligence service for integrating external feeds.
 """
-import hashlib
-import re
+
 from dataclasses import dataclass
 from datetime import datetime
+import hashlib
+import re
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 
-import requests
 from django.utils import timezone
+import requests
 
 from reconPoint.utilities.logger import get_module_logger
 
@@ -21,6 +22,7 @@ logger = get_module_logger(__name__)
 @dataclass
 class FeedSyncResult:
     """Result of a threat feed sync operation."""
+
     success: bool
     indicators_added: int
     indicators_updated: int
@@ -31,6 +33,7 @@ class FeedSyncResult:
 @dataclass
 class ThreatMatchResult:
     """Result of threat indicator matching."""
+
     matched: bool
     indicator_id: Optional[int]
     indicator_value: Optional[str]
@@ -98,6 +101,7 @@ class ThreatFeedIntegrator:
     def sync(self) -> FeedSyncResult:
         """Sync indicators from the threat feed."""
         import time
+
         start_time = time.time()
 
         if not self.feed.is_enabled:
@@ -481,9 +485,11 @@ def sync_all_feeds():
     for feed in feeds:
         integrator = ThreatFeedIntegrator(feed)
         result = integrator.sync()
-        results.append({
-            "feed": feed.name,
-            "result": result,
-        })
+        results.append(
+            {
+                "feed": feed.name,
+                "result": result,
+            }
+        )
 
     return results
