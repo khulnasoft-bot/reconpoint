@@ -1,6 +1,7 @@
 """
 Plugin models for third-party tool marketplace and custom integrations.
 """
+
 from django.contrib.auth.models import User
 from django.db import models
 

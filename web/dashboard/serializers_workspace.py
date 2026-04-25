@@ -1,6 +1,7 @@
 """
 Workspace API serializers.
 """
+
 from rest_framework import serializers
 
 from .models_workspace import (
@@ -83,9 +84,7 @@ class WorkspaceMembershipSerializer(serializers.ModelSerializer):
 
 class WorkspaceInvitationSerializer(serializers.ModelSerializer):
     workspace_name = serializers.CharField(source="workspace.name", read_only=True)
-    invited_by_username = serializers.CharField(
-        source="invited_by.username", read_only=True
-    )
+    invited_by_username = serializers.CharField(source="invited_by.username", read_only=True)
     is_expired = serializers.SerializerMethodField()
 
     class Meta:
@@ -147,9 +146,7 @@ class ActivityFeedSerializer(serializers.ModelSerializer):
 
 class FindingCommentSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
-    resolved_by_username = serializers.CharField(
-        source="resolved_by.username", read_only=True, allow_null=True
-    )
+    resolved_by_username = serializers.CharField(source="resolved_by.username", read_only=True, allow_null=True)
 
     class Meta:
         model = FindingComment

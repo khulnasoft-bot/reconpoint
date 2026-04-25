@@ -1,6 +1,7 @@
 """
 PoC Generation and Execution Service.
 """
+
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
@@ -15,6 +16,7 @@ logger = get_module_logger(__name__)
 @dataclass
 class PoCGenerationResult:
     """Result of PoC generation."""
+
     success: bool
     code: Optional[str] = None
     language: Optional[str] = None
@@ -26,6 +28,7 @@ class PoCGenerationResult:
 @dataclass
 class PoCExecutionResult:
     """Result of PoC execution."""
+
     success: bool
     output: Optional[str] = None
     error: Optional[str] = None
@@ -79,6 +82,7 @@ The PoC should:
     ) -> PoCGenerationResult:
         """Generate PoC for a vulnerability."""
         import time
+
         start_time = time.time()
 
         try:
@@ -143,6 +147,7 @@ The PoC should:
 
     def _extract_code(self, response: str) -> str:
         import re
+
         code_block_pattern = r"```(?:\w+)?\n?(.*?)```"
         matches = re.findall(code_block_pattern, response, re.DOTALL)
         if matches:
@@ -185,6 +190,7 @@ class PoCExecutor:
     ) -> PoCExecutionResult:
         """Execute PoC code in a sandboxed environment."""
         import time
+
         start_time = time.time()
 
         try:
@@ -213,8 +219,8 @@ class PoCExecutor:
         start_time: float,
     ) -> PoCExecutionResult:
         """Execute Python PoC in sandbox."""
-        import time
         import sys
+        import time
 
         output_capture = []
         error_capture = []
@@ -259,7 +265,7 @@ class PoCExecutor:
 
             return PoCExecutionResult(
                 success=not error,
-                output=output[:self.MAX_OUTPUT_SIZE],
+                output=output[: self.MAX_OUTPUT_SIZE],
                 error=error or None,
                 execution_time_ms=execution_time_ms,
             )
@@ -275,6 +281,7 @@ class PoCExecutor:
     ) -> PoCExecutionResult:
         """Execute JavaScript PoC (simulated)."""
         import time
+
         return PoCExecutionResult(
             success=True,
             output="[Simulated] JavaScript execution not supported in sandbox",

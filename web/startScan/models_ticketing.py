@@ -1,7 +1,9 @@
 """
 Ticketing integration models for external issue tracking.
 """
+
 from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -30,7 +32,9 @@ class TicketIntegration(models.Model):
     is_default = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="created_ticket_integrations")
+    created_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="created_ticket_integrations"
+    )
 
     class Meta:
         ordering = ["name"]
@@ -54,6 +58,7 @@ class TicketIntegration(models.Model):
 
     def _test_jira(self) -> bool:
         import requests.auth
+
         auth = requests.auth.HTTPBasicAuth(self.config.get("username"), self.config.get("api_token"))
         url = f"{self.config.get('url')}/rest/api/3/myself"
         response = requests.get(url, auth=auth, timeout=10)
@@ -61,14 +66,18 @@ class TicketIntegration(models.Model):
 
     def _test_github(self) -> bool:
         import requests
+
         headers = {"Authorization": f"Token {self.config.get('token')}", "Accept": "application/vnd.github.v3+json"}
         response = requests.get("https://api.github.com/user", headers=headers, timeout=10)
         return response.status_code == 200
 
     def _test_linear(self) -> bool:
         import requests
+
         headers = {"Authorization": self.config.get("api_key"), "Content-Type": "application/json"}
-        response = requests.post("https://api.linear.app/graphql", json={"query": "{ me { id } }"}, headers=headers, timeout=10)
+        response = requests.post(
+            "https://api.linear.app/graphql", json={"query": "{ me { id } }"}, headers=headers, timeout=10
+        )
         return response.status_code == 200
 
 
@@ -78,7 +87,11 @@ class TicketCreationRule(models.Model):
     name = models.CharField(max_length=255)
     integration = models.ForeignKey(TicketIntegration, on_delete=models.CASCADE, related_name="rules")
     is_enabled = models.BooleanField(default=True)
-    priority_threshold = models.CharField(max_length=20, choices=[("critical", "Critical"), ("high", "High"), ("medium", "Medium"), ("low", "Low")], default="high")
+    priority_threshold = models.CharField(
+        max_length=20,
+        choices=[("critical", "Critical"), ("high", "High"), ("medium", "Medium"), ("low", "Low")],
+        default="high",
+    )
     vulnerability_type_filter = models.JSONField(default=list, blank=True)
     target_filter = models.JSONField(default=list, blank=True)
     create_subtasks = models.BooleanField(default=False)
@@ -159,11 +172,13 @@ class SLAPolicy(models.Model):
 
     def is_breached(self, created_at: datetime) -> bool:
         from datetime import timedelta
+
         deadline = created_at + timedelta(hours=self.resolution_time_hours)
         return timezone.now() > deadline
 
     def get_remaining_time(self, created_at: datetime) -> float:
         from datetime import timedelta
+
         deadline = created_at + timedelta(hours=self.resolution_time_hours)
         remaining = deadline - timezone.now()
         return remaining.total_seconds() / 3600

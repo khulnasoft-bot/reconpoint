@@ -12,9 +12,7 @@ from django.utils import timezone
 from startScan.models import Vulnerability
 
 
-def calculate_metric_value(
-    metric, start_date: datetime, end_date: datetime
-) -> Dict[str, Any]:
+def calculate_metric_value(metric, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
     """
     Calculate metric value for a date range based on metric type.
     """
@@ -42,9 +40,7 @@ def calculate_metric_value(
         return {"value": 0, "unit": "", "description": "Custom metric not implemented"}
 
 
-def calculate_vulnerability_count(
-    metric, start_date: datetime, end_date: datetime
-) -> Dict[str, Any]:
+def calculate_vulnerability_count(metric, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
     """Calculate total vulnerability count."""
     count = Vulnerability.objects.filter(
         discovered_at__gte=start_date,
@@ -58,9 +54,7 @@ def calculate_vulnerability_count(
     }
 
 
-def calculate_severity_distribution(
-    metric, start_date: datetime, end_date: datetime
-) -> Dict[str, Any]:
+def calculate_severity_distribution(metric, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
     """Calculate severity distribution."""
     distribution = (
         Vulnerability.objects.filter(
@@ -93,9 +87,7 @@ def calculate_mttd(metric, start_date: datetime, end_date: datetime) -> Dict[str
         created_at__isnull=False,
     ).annotate(time_to_detect=F("discovered_at") - F("created_at"))
 
-    avg_seconds = vulns.annotate(seconds=ExtractEpoch("time_to_detect")).aggregate(
-        avg_seconds=Avg("seconds")
-    )
+    avg_seconds = vulns.annotate(seconds=ExtractEpoch("time_to_detect")).aggregate(avg_seconds=Avg("seconds"))
 
     avg_hours = (avg_seconds["avg_seconds"] or 0) / 3600
 
@@ -121,9 +113,7 @@ def calculate_mttr(metric, start_date: datetime, end_date: datetime) -> Dict[str
         resolved_at__isnull=False,
     ).annotate(time_to_remediate=F("resolved_at") - F("discovered_at"))
 
-    avg_seconds = vulns.annotate(seconds=ExtractEpoch("time_to_remediate")).aggregate(
-        avg_seconds=Avg("seconds")
-    )
+    avg_seconds = vulns.annotate(seconds=ExtractEpoch("time_to_remediate")).aggregate(avg_seconds=Avg("seconds"))
 
     avg_hours = (avg_seconds["avg_seconds"] or 0) / 3600
 
@@ -134,9 +124,7 @@ def calculate_mttr(metric, start_date: datetime, end_date: datetime) -> Dict[str
     }
 
 
-def calculate_closure_rate(
-    metric, start_date: datetime, end_date: datetime
-) -> Dict[str, Any]:
+def calculate_closure_rate(metric, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
     """
     Calculate vulnerability closure rate as percentage.
     """
@@ -161,9 +149,7 @@ def calculate_closure_rate(
     }
 
 
-def calculate_security_posture_score(
-    metric, start_date: datetime, end_date: datetime
-) -> Dict[str, Any]:
+def calculate_security_posture_score(metric, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
     """
     Calculate overall security posture score (0-100).
 
@@ -189,9 +175,7 @@ def calculate_security_posture_score(
         count = vulns.filter(severity=severity).count()
         total_weighted += count * weight
 
-    open_vulns = vulns.filter(
-        status__in=[Vulnerability.STATUS_OPEN, Vulnerability.STATUS_IN_PROGRESS]
-    )
+    open_vulns = vulns.filter(status__in=[Vulnerability.STATUS_OPEN, Vulnerability.STATUS_IN_PROGRESS])
     open_weighted = 0
     for severity, weight in severity_weights.items():
         count = open_vulns.filter(severity=severity).count()
@@ -210,9 +194,7 @@ def calculate_security_posture_score(
     }
 
 
-def calculate_risk_score(
-    metric, start_date: datetime, end_date: datetime
-) -> Dict[str, Any]:
+def calculate_risk_score(metric, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
     """
     Calculate overall risk score based on open vulnerabilities.
     """
@@ -243,9 +225,7 @@ def calculate_risk_score(
     }
 
 
-def calculate_threat_intel_matches(
-    metric, start_date: datetime, end_date: datetime
-) -> Dict[str, Any]:
+def calculate_threat_intel_matches(metric, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
     """
     Calculate threat intelligence matches.
     """
@@ -263,9 +243,7 @@ def calculate_threat_intel_matches(
     }
 
 
-def calculate_compliance_status(
-    metric, start_date: datetime, end_date: datetime
-) -> Dict[str, Any]:
+def calculate_compliance_status(metric, start_date: datetime, end_date: datetime) -> Dict[str, Any]:
     """
     Calculate compliance status based on mapped requirements.
     """
@@ -277,11 +255,7 @@ def calculate_compliance_status(
     non_compliant = 0
 
     for req in requirements:
-        metric_ids = list(
-            ComplianceMapping.objects.filter(requirement=req).values_list(
-                "metric_id", flat=True
-            )
-        )
+        metric_ids = list(ComplianceMapping.objects.filter(requirement=req).values_list("metric_id", flat=True))
         if metric_ids:
             compliant += 1
         else:
@@ -358,9 +332,7 @@ def get_aggregated_metrics(
     total = base_qs.count()
     by_severity = list(base_qs.values("severity").annotate(count=Count("id")))
 
-    open_count = base_qs.filter(
-        status__in=[Vulnerability.STATUS_OPEN, Vulnerability.STATUS_IN_PROGRESS]
-    ).count()
+    open_count = base_qs.filter(status__in=[Vulnerability.STATUS_OPEN, Vulnerability.STATUS_IN_PROGRESS]).count()
 
     resolved_count = base_qs.filter(status=Vulnerability.STATUS_RESOLVED).count()
 

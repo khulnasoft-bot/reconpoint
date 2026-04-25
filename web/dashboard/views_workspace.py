@@ -1,7 +1,9 @@
 """
 Workspace API views.
 """
+
 from datetime import timedelta
+from secrets import token_urlsafe
 
 from django.db.models import Q
 from django.utils import timezone
@@ -10,7 +12,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from secrets import token_urlsafe
 
 from .models_workspace import (
     ActivityFeed,
@@ -34,6 +35,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
     """
     API endpoints for workspace management.
     """
+
     permission_classes = [IsAuthenticated]
     serializer_class = WorkspaceSerializer
 
@@ -83,9 +85,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
     def members(self, request, pk=None):
         """Get members of a workspace."""
         workspace = self.get_object()
-        members = WorkspaceMembership.objects.filter(
-            workspace=workspace, is_active=True
-        )
+        members = WorkspaceMembership.objects.filter(workspace=workspace, is_active=True)
         serializer = WorkspaceMembershipSerializer(members, many=True)
         return Response(serializer.data)
 
@@ -106,9 +106,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
         email = serializer.validated_data["email"]
         role = serializer.validated_data["role"]
 
-        if WorkspaceMembership.objects.filter(
-            workspace=workspace, user__email=email, is_active=True
-        ).exists():
+        if WorkspaceMembership.objects.filter(workspace=workspace, user__email=email, is_active=True).exists():
             return Response(
                 {"error": "User is already a member of this workspace"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -171,9 +169,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            membership = WorkspaceMembership.objects.get(
-                workspace=workspace, id=member_id, is_active=True
-            )
+            membership = WorkspaceMembership.objects.get(workspace=workspace, id=member_id, is_active=True)
         except WorkspaceMembership.DoesNotExist:
             return Response(
                 {"error": "Member not found"},
@@ -220,9 +216,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            membership = WorkspaceMembership.objects.get(
-                workspace=workspace, id=member_id, is_active=True
-            )
+            membership = WorkspaceMembership.objects.get(workspace=workspace, id=member_id, is_active=True)
         except WorkspaceMembership.DoesNotExist:
             return Response(
                 {"error": "Member not found"},
@@ -266,9 +260,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            membership = WorkspaceMembership.objects.get(
-                workspace=workspace, id=member_id, is_active=True
-            )
+            membership = WorkspaceMembership.objects.get(workspace=workspace, id=member_id, is_active=True)
         except WorkspaceMembership.DoesNotExist:
             return Response(
                 {"error": "Member not found"},
@@ -306,6 +298,7 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 
 class InvitationAcceptView(APIView):
     """Accept a workspace invitation."""
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, token):
@@ -370,6 +363,7 @@ class InvitationAcceptView(APIView):
 
 class FindingCommentViewSet(viewsets.ModelViewSet):
     """API for comments on findings."""
+
     permission_classes = [IsAuthenticated]
     serializer_class = FindingCommentSerializer
 
