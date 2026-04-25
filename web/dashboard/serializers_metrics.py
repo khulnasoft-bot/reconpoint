@@ -1,6 +1,7 @@
 """
 Metrics API serializers.
 """
+
 from rest_framework import serializers
 
 from .models_metrics import (

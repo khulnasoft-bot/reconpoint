@@ -1,6 +1,7 @@
 """
 Metrics URL configuration.
 """
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -17,7 +18,9 @@ from .views_metrics import (
 
 router = DefaultRouter()
 router.register(r"metrics", MetricViewSet, basename="metric")
-router.register(r"metric-thresholds", MetricThresholdViewSet, basename="metric-threshold")
+router.register(
+    r"metric-thresholds", MetricThresholdViewSet, basename="metric-threshold"
+)
 router.register(r"metric-history", MetricHistoryViewSet, basename="metric-history")
 router.register(r"sla-policies", SLAPolicyViewSet, basename="sla-policy")
 router.register(

@@ -1,6 +1,7 @@
 """
 Metrics API views.
 """
+
 from datetime import timedelta
 
 from django.utils import timezone
@@ -39,6 +40,7 @@ class MetricViewSet(viewsets.ModelViewSet):
     """
     API endpoints for metric management.
     """
+
     permission_classes = [IsAuthenticated]
     serializer_class = MetricSerializer
 
@@ -99,6 +101,7 @@ class MetricThresholdViewSet(viewsets.ModelViewSet):
     """
     API endpoints for metric thresholds.
     """
+
     permission_classes = [IsAuthenticated]
     serializer_class = MetricThresholdSerializer
 
@@ -110,6 +113,7 @@ class MetricHistoryViewSet(viewsets.ModelViewSet):
     """
     API endpoints for metric history.
     """
+
     permission_classes = [IsAuthenticated]
     serializer_class = MetricHistorySerializer
 
@@ -121,6 +125,7 @@ class SLAPolicyViewSet(viewsets.ModelViewSet):
     """
     API endpoints for SLA policies.
     """
+
     permission_classes = [IsAuthenticated]
     serializer_class = SLAPolicySerializer
 
@@ -137,6 +142,7 @@ class ComplianceRequirementViewSet(viewsets.ModelViewSet):
     """
     API endpoints for compliance requirements.
     """
+
     permission_classes = [IsAuthenticated]
     serializer_class = ComplianceRequirementSerializer
 
@@ -148,6 +154,7 @@ class ComplianceMappingViewSet(viewsets.ModelViewSet):
     """
     API endpoints for compliance mappings.
     """
+
     permission_classes = [IsAuthenticated]
     serializer_class = ComplianceMappingSerializer
 

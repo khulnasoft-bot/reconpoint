@@ -1,6 +1,7 @@
 """
 Security Metrics and SLAs models.
 """
+
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict
@@ -13,6 +14,7 @@ from django.utils import timezone
 @dataclass
 class MetricCalculation:
     """Configuration for a calculated metric."""
+
     name: str
     sql_expression: str
     display_name: str
@@ -107,7 +109,9 @@ class MetricThreshold(models.Model):
         related_name="thresholds",
     )
 
-    severity = models.CharField(max_length=20, choices=Severity.choices, default=Severity.WARNING)
+    severity = models.CharField(
+        max_length=20, choices=Severity.choices, default=Severity.WARNING
+    )
     operator = models.CharField(max_length=10, default="gt")
     value = models.FloatField()
 
