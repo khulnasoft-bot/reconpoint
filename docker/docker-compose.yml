@@ -109,11 +109,11 @@ services:
       - wordlist:/home/reconpoint/wordlists
       - gf_patterns:/home/reconpoint/.gf
       - scan_results:/home/reconpoint/scan_results
-    healthcheck:
-      test: ["CMD", "curl", "-f", "-k", "http://localhost:8000"]
-      interval: 10s
-      timeout: 10s
-      retries: 20
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "-k", "http://localhost:8000"]
+    #   interval: 10s
+    #   timeout: 10s
+    #   retries: 20
     depends_on:
       db:
         condition: service_healthy
@@ -134,7 +134,7 @@ services:
     container_name: reconpoint-proxy-1
     depends_on:
       web:
-        condition: service_healthy
+        condition: service_started
       db:
         condition: service_healthy
       redis:

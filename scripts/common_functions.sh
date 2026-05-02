@@ -21,6 +21,15 @@ log() {
   tput sgr0  # Reset text color
 }
 
+# Portable sed -i command
+sed_i() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "$@"
+  else
+    sed -i "$@"
+  fi
+}
+
 # Ensure required commands are in PATH; exit with a consistent message if any are missing.
 # Usage: require_commands jq curl
 require_commands() {
@@ -43,8 +52,12 @@ merge_env_from_dist_at_root() {
   local env_file="${root_dir}/.env"
   [[ ! -f "$env_dist" ]] && return 0
   if [[ -f "$env_file" ]]; then
-    sed -i '/^POSTGRES_HOST=/d' "$env_file"
-    sed -i '/^POSTGRES_PORT=/d' "$env_file"
+    sed_i '/^POSTGRES_HOST=/d' "$env_file"
+    sed_i '/^POSTGRES_PORT=/d' "$env_file"
+  fi
+  # Ensure the file ends with a newline before appending
+  if [[ -f "$env_file" ]] && [[ -n $(tail -c1 "$env_file" 2>/dev/null) ]]; then
+    echo "" >> "$env_file"
   fi
   local line key
   while IFS= read -r line; do

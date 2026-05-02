@@ -4,8 +4,7 @@ from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 
-from reconPoint.settings import UI_REMOTE_DEBUG
-
+# Note: This import must come after django.setup() as it depends on Django being initialized
 from .routing import websocket_urlpatterns
 
 
@@ -17,14 +16,17 @@ import django
 
 django.setup()
 
+
 # Remote debug setup for ASGI (daphne) development server
-if UI_REMOTE_DEBUG:
-    try:
+try:
+    from reconPoint.settings import UI_REMOTE_DEBUG
+
+    if UI_REMOTE_DEBUG:
         from debugger_setup import setup_debugger
 
         setup_debugger()
-    except ImportError:
-        print("⚠️  Could not import debugger_setup module")
+except (ImportError, Exception):
+    pass
 
 application = ProtocolTypeRouter(
     {

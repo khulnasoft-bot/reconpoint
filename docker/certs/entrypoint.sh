@@ -52,8 +52,8 @@ if (! test -f ca.key) || (! test -f ca.crt); then
    -subj "/C=${COUNTRY_CODE}/O=${COMPANY}/CN=${CA_CN}"
 
   # Random initial serial so each instance gets a distinct (issuer, serial) pair
-  serial=$(od -A n -N 4 -t u4 /dev/urandom 2>/dev/null | tr -d ' ')
-  echo "${serial:-1}" > ca.srl
+  serial=$(od -A n -N 4 -t x1 /dev/urandom 2>/dev/null | tr -d ' ')
+  echo "${serial:-01}" > ca.srl
 fi
 
 # Create a new certificate for the DOMAIN_NAME

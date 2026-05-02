@@ -110,7 +110,7 @@ define gpu_config
 	$(eval export DOCKER_RUNTIME)
 endef
 
-.PHONY: certs up dev_up build_up build build-service pull superuser_create superuser_delete superuser_changepassword makemigrations migrate down stop restart remove_images test test-app test-only test-verbose test-app-verbose test-scripts ruff-format ruff-check ruff-fix ruff-unsafe-fix logs images prune help db-backup db-restore db-list secator-init secator-key secator-load secator-check secator-health update-check
+.PHONY: certs up dev_up build_up build build-service pull superuser_create superuser_delete superuser_changepassword makemigrations migrate down stop restart remove_images test test-app test-only test-verbose test-app-verbose test-scripts ruff-format ruff-check ruff-fix ruff-unsafe-fix logs images prune help db-backup db-restore db-list secator-init secator-key secator-load secator-fix-python secator-check secator-health update-check
 
 pull:			## Pull pre-built Docker images from repository.
 	${DOCKER_COMPOSE_FILE_CMD} pull
@@ -129,13 +129,12 @@ build-service:		## Build a specific Docker service without removing images. Usag
 		echo "Available services: ${SERVICES}"; \
 		exit 1; \
 	fi
-	@if ! echo "${SERVICES}" | grep -wq "$(SERVICE)"; then \
-		echo "Error: Service '$(SERVICE)' is not valid. Available services: ${SERVICES}"; \
+	@if ! echo "${SERVICES} certs" | grep -wq "$(SERVICE)"; then \
+		echo "Error: Service '$(SERVICE)' is not valid. Available services: ${SERVICES} certs"; \
 		exit 1; \
 	fi
 	@if [ "$(REBUILD)" = "1" ]; then \
 		echo "REBUILD=1 detected, removing $(SERVICE) image before build..."; \
-		# Map service names to image names \
 		case "$(SERVICE)" in \
 			"db") IMAGE_NAME="postgres" ;; \
 			*) IMAGE_NAME="$(SERVICE)" ;; \
@@ -150,9 +149,17 @@ build-service:		## Build a specific Docker service without removing images. Usag
 	fi
 	$(call gpu_config)
 	@if [ "$(REBUILD)" = "1" ]; then \
-		${DOCKER_COMPOSE_FILE_CMD} -f ${COMPOSE_FILE_BUILD} ${COMPOSE_GPU_FILE} build --no-cache --build-arg HOST_UID=$(HOST_UID) --build-arg HOST_GID=$(HOST_GID) $(SERVICE) --progress=plain; \
+		if [ "$(SERVICE)" = "certs" ]; then \
+			${DOCKER_COMPOSE_CMD} -f ${COMPOSE_FILE_SETUP} build --no-cache certs; \
+		else \
+			${DOCKER_COMPOSE_CMD} --progress=plain -f ${COMPOSE_FILE} -f ${COMPOSE_FILE_BUILD} ${COMPOSE_GPU_FILE} build --no-cache --build-arg HOST_UID=$(HOST_UID) --build-arg HOST_GID=$(HOST_GID) $(SERVICE); \
+		fi \
 	else \
-		${DOCKER_COMPOSE_FILE_CMD} -f ${COMPOSE_FILE_BUILD} ${COMPOSE_GPU_FILE} build --build-arg HOST_UID=$(HOST_UID) --build-arg HOST_GID=$(HOST_GID) $(SERVICE) --progress=plain; \
+		if [ "$(SERVICE)" = "certs" ]; then \
+			${DOCKER_COMPOSE_CMD} -f ${COMPOSE_FILE_SETUP} build certs; \
+		else \
+			${DOCKER_COMPOSE_CMD} --progress=plain -f ${COMPOSE_FILE} -f ${COMPOSE_FILE_BUILD} ${COMPOSE_GPU_FILE} build --build-arg HOST_UID=$(HOST_UID) --build-arg HOST_GID=$(HOST_GID) $(SERVICE); \
+		fi \
 	fi
 
 build_up:		## Build and start all services.
@@ -258,8 +265,14 @@ secator-key:		## Generate Secator API key only if none exists (use --recreate in
 	@echo "=== Generating Secator API Key (if missing) ==="
 	${DOCKER_COMPOSE_FILE_CMD} exec web poetry -C ${RECONPOINT_FOLDER} run python3 manage.py generate_secator_api_key --show-key
 
+secator-fix-python:	## Fix missing /usr/local/bin/python symlink in web container (needed by secator)
+	@echo "=== Fixing python symlink in web container ==="
+	${DOCKER_COMPOSE_FILE_CMD} exec -u root web ln -sf /usr/local/bin/python3 /usr/local/bin/python
+	@echo "✓ Symlink /usr/local/bin/python -> python3 created"
+
 secator-load:		## Load Secator components (tasks, workflows, scans)
 	@echo "=== Loading Secator Components ==="
+	@make secator-fix-python
 	${DOCKER_COMPOSE_FILE_CMD} exec web poetry -C ${RECONPOINT_FOLDER} run python3 manage.py load_secator_all
 
 update-check:		## Check if a reconPoint update is available (current vs GitHub latest release)
@@ -349,16 +362,20 @@ remove_images:	## Remove all Docker images for reconPoint services.
 
 # Ruff commands for code quality
 ruff-format:		## Format code using ruff formatter.
-	${DOCKER_COMPOSE_FILE_CMD} exec web poetry -C ${RECONPOINT_FOLDER} run ruff format --config ${RECONPOINT_HOME_FOLDER}/pyproject.toml ${RECONPOINT_FOLDER}
+	${DOCKER_COMPOSE_FILE_CMD} exec web bash -c "cd ${RECONPOINT_HOME_FOLDER} && python -m ruff format --config ${RECONPOINT_HOME_FOLDER}/pyproject.toml ${RECONPOINT_FOLDER}"
+
 
 ruff-check:		## Check code quality using ruff linter.
-	${DOCKER_COMPOSE_FILE_CMD} exec web poetry -C ${RECONPOINT_FOLDER} run ruff check --config ${RECONPOINT_HOME_FOLDER}/pyproject.toml ${RECONPOINT_FOLDER}
+	${DOCKER_COMPOSE_FILE_CMD} exec web bash -c "cd ${RECONPOINT_HOME_FOLDER} && python -m ruff check --config ${RECONPOINT_HOME_FOLDER}/pyproject.toml ${RECONPOINT_FOLDER}"
+
 
 ruff-fix:		## Fix code issues using ruff linter.
-	${DOCKER_COMPOSE_FILE_CMD} exec web poetry -C ${RECONPOINT_FOLDER} run ruff check --fix --config ${RECONPOINT_HOME_FOLDER}/pyproject.toml ${RECONPOINT_FOLDER}
+	${DOCKER_COMPOSE_FILE_CMD} exec web bash -c "cd ${RECONPOINT_HOME_FOLDER} && python -m ruff check --fix --config ${RECONPOINT_HOME_FOLDER}/pyproject.toml ${RECONPOINT_FOLDER}"
+
 
 ruff-unsafe-fix:	## Fix code issues using ruff linter with unsafe fixes.
-	${DOCKER_COMPOSE_FILE_CMD} exec web poetry -C ${RECONPOINT_FOLDER} run ruff check --fix --unsafe-fixes --config ${RECONPOINT_HOME_FOLDER}/pyproject.toml ${RECONPOINT_FOLDER}
+	${DOCKER_COMPOSE_FILE_CMD} exec web bash -c "cd ${RECONPOINT_HOME_FOLDER} && python -m ruff check --fix --unsafe-fixes --config ${RECONPOINT_HOME_FOLDER}/pyproject.toml ${RECONPOINT_FOLDER}"
+
 
 # Test commands (KEEPDB=1 to keep test DB, VERBOSITY=1|2|3, defaults: no keepdb, verbosity 1)
 VERBOSITY ?= 1
@@ -446,7 +463,7 @@ help:			## Show this help.
 	@echo "  make test-only TESTS=\"path [path...]\" [KEEPDB=1] [VERBOSITY=2]  Run specific test(s) by dotted path"
 	@echo "  make test-verbose                        Run all tests with VERBOSITY=2"
 	@echo "  make test-app-verbose APPS=app1,app2      Run app tests with verbose output"
-	@echo "  make test-scripts                        Run shell script tests (Secator env; no Docker)"
+	@echo "  make test-scripts                        Run shell script tests (Secator API key / .env logic; no Docker)"
 	@echo ""
 	@echo "Database backup/restore (backups in $(BACKUP_DIR)/):"
 	@echo "  make db-backup [PG_VOLUME=/path]         Create timestamped backup"
@@ -457,6 +474,7 @@ help:			## Show this help.
 	@echo "  make secator-init                        Generate API key + load tasks/workflows/scans"
 	@echo "  make secator-key                         Generate Secator API key if missing"
 	@echo "  make secator-load                        Load Secator components"
+	@echo "  make secator-fix-python                  Fix missing python symlink in web container"
 	@echo "  make secator-check                       Check Secator configuration"
 	@echo "  make secator-health [SECATOR_HEALTH_URL=...]  Test Secator API health"
 	@echo "  make update-check                       Check if reconPoint update is available"

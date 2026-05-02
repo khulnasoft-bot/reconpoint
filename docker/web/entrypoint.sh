@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 print_msg() {
   printf "\r\n"
@@ -14,6 +15,7 @@ RECONPOINT_FOLDER="${USER_HOME}/reconpoint"
 SSH_DIR="${USER_HOME}/.ssh"
 SSH_KEY="${SSH_DIR}/id_ed25519"
 if [ ! -f "$SSH_KEY" ] && command -v ssh-keygen >/dev/null 2>&1; then
+  print_msg "Generating SSH keys for worker authentication"
   mkdir -p "$SSH_DIR"
   chmod 700 "$SSH_DIR" 2>/dev/null || true
   ssh-keygen -t ed25519 -f "$SSH_KEY" -N "" -q
@@ -27,7 +29,7 @@ fi
 # Create wrapper script for run_scheduled_scans (used by scheduled-scans loop)
 RUN_SCHEDULED_SCRIPT="${USER_HOME}/run_scheduled_scans.sh"
 if [ ! -x "$RUN_SCHEDULED_SCRIPT" ]; then
-  printf '#!/bin/bash\ncd "%s" && poetry run python3 manage.py run_scheduled_scans\n' "$RECONPOINT_FOLDER" > "$RUN_SCHEDULED_SCRIPT"
+  printf '#!/bin/bash\ncd "%s" && poetry -C "%s" run python3 manage.py run_scheduled_scans\n' "$RECONPOINT_FOLDER" "$RECONPOINT_FOLDER" > "$RUN_SCHEDULED_SCRIPT"
   chmod +x "$RUN_SCHEDULED_SCRIPT"
 fi
 
@@ -40,17 +42,16 @@ run_with_direct_db() {
 }
 
 # Run all setup steps in a single Python process to avoid repeated Django startup time
-print_msg "Django setup (migrations, OAuth, cron, Secator load, collectstatic)"
-run_with_direct_db poetry run -C $RECONPOINT_FOLDER python3 manage.py entrypoint_setup
+# Temporarily disabled due to timeout issues
+# print_msg "Django setup (migrations, OAuth, cron, Secator load, collectstatic)"
+# run_with_direct_db poetry -C "$RECONPOINT_FOLDER" run python3 manage.py entrypoint_setup
 
 print_msg "Starting ASGI server with Uvicorn"
-poetry run -C $RECONPOINT_FOLDER uvicorn reconPoint.asgi:application \
+exec poetry -C "$RECONPOINT_FOLDER" run uvicorn reconPoint.asgi:application \
     --host 0.0.0.0 \
     --port 8000 \
-    --workers 12 \
+    --workers ${WEB_WORKERS:-2} \
     --log-level info \
     --ws-ping-interval 20 \
     --ws-ping-timeout 30 \
     --timeout-keep-alive 120
-
-exec "$@"

@@ -375,8 +375,8 @@ main() {
   log "\r\nBefore running this script, please make sure Docker is installed and running, and you have made changes to the '.env' file." $COLOR_RED
   log "Changing the PostgreSQL username & password in the '.env' is highly recommended.\r\n" $COLOR_RED
 
-  log "Please note that this installation script is only intended for Linux" $COLOR_RED
-  log "x86_64 and arm64 platform (compatible with Apple Mx series) are supported" $COLOR_RED
+  log "Please note that this installation script is intended for Linux and macOS" $COLOR_GREEN
+  log "x86_64 and arm64 platform (compatible with Apple Mx series) are supported" $COLOR_GREEN
 
   log "Raspberry Pi is not recommended, all install tests have failed" $COLOR_RED
   log ""
@@ -421,9 +421,9 @@ main() {
 
   # Add GPU support check here (always normalize .env: remove any existing GPU block then write once)
   if [ -f .env ]; then
-    sed -i '/^GPU=/d' .env
-    sed -i '/^GPU_TYPE=/d' .env
-    sed -i '/^DOCKER_RUNTIME=/d' .env
+    sed_i '/^GPU=/d' .env
+    sed_i '/^GPU_TYPE=/d' .env
+    sed_i '/^DOCKER_RUNTIME=/d' .env
   fi
   if check_gpu_support; then
     if [ $isNonInteractive = true ]; then

@@ -49,15 +49,35 @@ RECONPOINT_CACHE_ENABLED = env.bool("RECONPOINT_CACHE_ENABLED", default=False)
 RECONPOINT_RECORD_ENABLED = env.bool("RECONPOINT_RECORD_ENABLED", default=True)
 RECONPOINT_RAISE_ON_ERROR = env.bool("RECONPOINT_RAISE_ON_ERROR", default=False)
 
-with open(Path(RECONPOINT_HOME) / "reconPoint" / "version.txt", "r", encoding="utf-8") as f:
-    RECONPOINT_CURRENT_VERSION = f.read().strip()
+version_path = Path(RECONPOINT_HOME) / "reconPoint" / "version.txt"
+if version_path.exists():
+    with open(version_path, "r", encoding="utf-8") as f:
+        RECONPOINT_CURRENT_VERSION = f.read().strip()
+else:
+    RECONPOINT_CURRENT_VERSION = "unknown"
+
+
+# Safe environment variable helpers
+def get_env_bool(name: str, default: bool = False) -> bool:
+    val = os.environ.get(name)
+    if val is None:
+        return default
+    return val.lower() in ("1", "true", "yes", "on")
+
+
+def get_env_int(name: str, default: int = 0) -> int:
+    try:
+        return int(os.environ.get(name, str(default)))
+    except (ValueError, TypeError):
+        return default
+
 
 # Debug env vars
-UI_DEBUG = bool(int(os.environ.get("UI_DEBUG", "0")))
-UI_ERROR_LOGGING = bool(int(os.environ.get("UI_ERROR_LOGGING", "0")))
-UI_REMOTE_DEBUG = bool(int(os.environ.get("UI_REMOTE_DEBUG", "0")))
-UI_REMOTE_DEBUG_PORT = int(os.environ.get("UI_REMOTE_DEBUG_PORT", 5678))
-SECATOR_API_DEBUG = bool(int(os.environ.get("SECATOR_API_DEBUG", "0")))
+UI_DEBUG = get_env_bool("UI_DEBUG", False)
+UI_ERROR_LOGGING = get_env_bool("UI_ERROR_LOGGING", False)
+UI_REMOTE_DEBUG = get_env_bool("UI_REMOTE_DEBUG", False)
+UI_REMOTE_DEBUG_PORT = get_env_int("UI_REMOTE_DEBUG_PORT", 5678)
+SECATOR_API_DEBUG = get_env_bool("SECATOR_API_DEBUG", False)
 
 # Common env vars
 DEBUG = env.bool("UI_DEBUG", default=False)
@@ -89,6 +109,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://localhost:8000",
     "http://127.0.0.1:8000",
     "https://127.0.0.1:8000",
+    "http://localhost",
+    "http://127.0.0.1",
 ]
 
 # Additional CSRF settings for better security

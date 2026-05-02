@@ -185,8 +185,8 @@
   <script src="{% static 'plugins/datatables/datatables.min.js' %}"></script>
   {{ datatables_page_length_menu_values|json_script:"reconpoint-datatable-length-menu" }}
   <script type="text/javascript">
-    window.RECONPOINT_DATATABLE_USE_SCROLLER = {{ use_datatables_scroller | yesno: "true,false" }};
-    window.RECONPOINT_DATATABLE_PAGE_LENGTH = {{ datatables_page_length |default: 30 }};
+    window.RECONPOINT_DATATABLE_USE_SCROLLER = {{ use_datatables_scroller | yesno:"true,false" }};
+    window.RECONPOINT_DATATABLE_PAGE_LENGTH = {{ datatables_page_length|default:30 }};
     (function () {
       var el = document.getElementById('reconpoint-datatable-length-menu');
       window.RECONPOINT_DATATABLE_LENGTH_MENU_VALUES = el ? JSON.parse(el.textContent) : {{ datatables_page_length_menu_values }
@@ -245,7 +245,7 @@
       var currentProjectSlug = '{{ current_project.slug|default:""|escapejs }}';
       if (currentProjectSlug) {
         render_search_history(currentProjectSlug);
-        getScanStatusSidebar('{% url 'api: scan_status' %}', '{% url 'api: stop_scan' %}', '{% url 'api: fetch_subscan_results' %}', project = currentProjectSlug, reload = false);
+        getScanStatusSidebar('{% url 'api:scan_status' %}', '{% url 'api:stop_scan' %}', '{% url 'api:fetch_subscan_results' %}', project = currentProjectSlug, reload = false);
       }
 
       // reconPoint will also check everyday if update exists for reconPoint
