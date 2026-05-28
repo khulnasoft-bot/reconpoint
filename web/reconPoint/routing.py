@@ -1,5 +1,7 @@
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator, OriginValidator
+from django.conf import settings
 from django.urls import re_path
 
 from api.consumers import (
@@ -31,8 +33,9 @@ websocket_urlpatterns = [
     re_path(r"^ws/vuln-alerts/project/(?P<project_slug>[\w\-\.]+)/$", VulnerabilityAlertConsumer.as_asgi()),
 ]
 
-application = ProtocolTypeRouter(
-    {
-        "websocket": AuthMiddlewareStack(URLRouter(websocket_urlpatterns)),
-    }
+websocket_application = AllowedHostsOriginValidator(
+    OriginValidator(
+        AuthMiddlewareStack(URLRouter(websocket_urlpatterns)),
+        list(getattr(settings, "WEBSOCKET_ALLOWED_ORIGINS", [])),
+    )
 )

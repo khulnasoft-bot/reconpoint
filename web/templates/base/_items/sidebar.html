@@ -1,0 +1,130 @@
+<aside 
+  x-data="{ open: true, mobileOpen: false }"
+  @toggle-sidebar.window="open = !open"
+  @toggle-mobile-sidebar.window="mobileOpen = !mobileOpen"
+  :class="{ 'w-64': open, 'w-20': !open, 'translate-x-0': mobileOpen, '-translate-x-full': !mobileOpen && window.innerWidth < 1024 }"
+  class="fixed inset-y-0 left-0 z-50 transition-all duration-300 transform bg-slate-950 border-r border-slate-800 lg:translate-x-0 lg:static lg:inset-0 flex flex-col"
+>
+  <!-- Logo Section -->
+  <div class="flex items-center justify-between h-16 px-6 bg-slate-950 border-b border-slate-800/50">
+    <a href="{% if current_project %}{% url 'dashboardIndex' current_project.slug %}{% else %}{% url 'list_projects' %}{% endif %}" class="flex items-center gap-2 overflow-hidden">
+      <div class="flex-shrink-0 w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center">
+        <i data-lucide="shield" class="w-5 h-5 text-white"></i>
+      </div>
+      <span x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="text-lg font-bold text-white tracking-tight truncate">
+        Recon<span class="text-sky-400">Point</span>
+      </span>
+    </a>
+  </div>
+
+  <!-- Navigation -->
+  <div class="flex-1 overflow-y-auto py-6 px-4 space-y-8 custom-scrollbar">
+    
+    <!-- Main Group -->
+    <nav class="space-y-1">
+      <p x-show="open" class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Main</p>
+      
+      <a href="{% if current_project %}{% url 'dashboardIndex' current_project.slug %}{% else %}{% url 'list_projects' %}{% endif %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if request.resolver_match.url_name == 'dashboardIndex' %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if request.resolver_match.url_name == 'dashboardIndex' %} text-sky-400 {% endif %}"></i>
+        <span x-show="open">Dashboard</span>
+      </a>
+
+      <a href="{% url 'list_projects' %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if request.resolver_match.url_name == 'list_projects' %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="folder" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if request.resolver_match.url_name == 'list_projects' %} text-sky-400 {% endif %}"></i>
+        <span x-show="open">Projects</span>
+      </a>
+    </nav>
+
+    {% if current_project %}
+    <!-- Project Specific -->
+    <nav class="space-y-1">
+      <p x-show="open" class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Reconnaissance</p>
+      
+      <a href="{% url 'list_target' current_project.slug %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'target' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="crosshair" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if 'target' in request.path %} text-sky-400 {% endif %}"></i>
+        <span x-show="open">Targets</span>
+      </a>
+
+      <a href="{% url 'all_subdomains' current_project.slug %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'subdomain' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="globe" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if 'subdomain' in request.path %} text-sky-400 {% endif %}"></i>
+        <span x-show="open">Subdomains</span>
+      </a>
+
+      <a href="{% url 'all_endpoints' current_project.slug %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'endpoint' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="link" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if 'endpoint' in request.path %} text-sky-400 {% endif %}"></i>
+        <span x-show="open">Endpoints</span>
+      </a>
+
+      <a href="{% url 'all_vulns' current_project.slug %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'vuln' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="shield-alert" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-rose-400 {% if 'vuln' in request.path %} text-rose-400 {% endif %}"></i>
+        <span x-show="open">Vulnerabilities</span>
+      </a>
+    </nav>
+
+    <!-- Operations -->
+    <nav class="space-y-1">
+      <p x-show="open" class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Operations</p>
+      
+      <a href="{% url 'scan_history' current_project.slug %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'scan_history' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="history" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if 'scan_history' in request.path %} text-sky-400 {% endif %}"></i>
+        <span x-show="open">Scan History</span>
+      </a>
+
+      <a href="{% url 'list_note' current_project.slug %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'note' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="check-square" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if 'note' in request.path %} text-sky-400 {% endif %}"></i>
+        <span x-show="open">Tasks & Notes</span>
+      </a>
+    </nav>
+    {% endif %}
+
+    <!-- System -->
+    <nav class="space-y-1">
+      <p x-show="open" class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">System</p>
+      
+      <a href="{% if current_project %}{% url 'worker_list' current_project.slug %}{% else %}{% url 'worker_list' %}{% endif %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'worker' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="cpu" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if 'worker' in request.path %} text-sky-400 {% endif %}"></i>
+        <span x-show="open">Workers</span>
+      </a>
+
+      <a href="{% if current_project %}{% url 'api_keys' current_project.slug %}{% else %}{% url 'api_keys' %}{% endif %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'api-keys' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="key" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if 'api-keys' in request.path %} text-sky-400 {% endif %}"></i>
+        <span x-show="open">API Keys</span>
+      </a>
+
+      <a href="{% if current_project %}{% url 'interface_settings' current_project.slug %}{% else %}{% url 'interface_settings' %}{% endif %}" 
+         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'interface' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
+        <i data-lucide="settings" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if 'interface' in request.path %} text-sky-400 {% endif %}"></i>
+        <span x-show="open">Settings</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- User Section -->
+  <div class="p-4 border-t border-slate-800/50 bg-slate-950/50">
+    <div class="flex items-center gap-3 px-2">
+      <div class="w-8 h-8 rounded-full bg-sky-500/20 border border-sky-500/50 flex items-center justify-center text-sky-400 font-bold text-xs">
+        {{ user.get_username|slice:":1"|upper }}
+      </div>
+      <div x-show="open" class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-slate-200 truncate">{{ user.get_username }}</p>
+        <p class="text-[10px] text-slate-500 truncate">{{ RECONPOINT_CURRENT_VERSION }}</p>
+      </div>
+      <form method="post" action="{% url 'logout' %}" x-show="open">
+        {% csrf_token %}
+        <button type="submit" class="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 rounded-lg transition-colors">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</aside>

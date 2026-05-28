@@ -10,6 +10,14 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="csrf-token" content="{{ csrf_token }}">
   <link rel="shortcut icon" href="/staticfiles/img/favicon.png">
+
+  <!-- Modern Foundation: Inter Font, Lucide Icons, HTMX, Alpine.js -->
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/htmx.org@1.10.3"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
   <link href="{% static 'bootstrap/bootstrap.min.css' %}" rel="stylesheet" type="text/css" id="bootstrap-stylesheet" />
   <link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet" type="text/css" id="main-stylesheet" />
   <link href="{% static 'bootstrap/bootstrap-dark.min.css' %}" rel="stylesheet" type="text/css"
@@ -24,8 +32,17 @@
   <link href="{% static 'custom/design-improvements.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'custom/components-advanced.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'custom/animations.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'custom/tailwind.css' %}" rel="stylesheet" type="text/css" />
   <link rel="stylesheet" type="text/css" href="{% static 'plugins/datatables/datatables.min.css' %}">
   <style media="screen">
+    :root {
+      --font-family-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    
+    body {
+      font-family: var(--font-family-sans) !important;
+    }
+
     @font-face {
       font-family: "Cerebri Sans,sans-serif";
       src: url("{% static 'fonts/cerebrisans-light.eot' %}");
@@ -73,6 +90,52 @@
 
 <body class="loading" data-layout-mode="horizontal" data-project-slug="{{ current_project.slug|default:'' }}"
   data-project-slug-from-url="{{ project_slug_from_url|default:'' }}">
+  
+  <div class="flex min-h-screen bg-slate-50 dark:bg-slate-950" x-data="{ sidebarOpen: true }">
+    <!-- New Sidebar -->
+    {% include 'base/_items/sidebar.html' %}
+
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- New Top Bar -->
+      {% include 'base/_items/top_bar_modern.html' %}
+
+      <main class="flex-1 overflow-y-auto p-4 lg:p-8">
+        <div class="max-w-[1600px] mx-auto">
+          <!-- Page Header -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+              <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                {% block page_title %}{% endblock page_title %}
+              </h1>
+              <nav class="flex mt-1" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-2 text-xs font-medium text-slate-500">
+                  {% block breadcrumb_title %}
+                  {% endblock breadcrumb_title %}
+                </ol>
+              </nav>
+            </div>
+            <div class="flex items-center gap-3">
+              <!-- Page Actions Block -->
+              {% block page_actions %}{% endblock page_actions %}
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="animate-in fade-in duration-500">
+            {% block main_content %}
+            {% endblock main_content %}
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Hidden Legacy Elements for Compatibility -->
+  <div class="hidden">
+    {% include 'base/_items/top_bar.html' %}
+    {% include 'base/_items/top_nav.html' %}
+  </div>
+
   <script>
     (function () {
       try {
@@ -86,7 +149,6 @@
           fromUrl = fromUrl.trim();
           if (fromUrl.length) {
             window.sessionStorage.setItem(key, fromUrl);
-            return;
           }
         }
 
@@ -103,55 +165,31 @@
       } catch (e) { }
     })();
   </script>
-  <!-- Topbar begins -->
-  {% include 'base/_items/top_bar.html' %}
-  {# topbar ends #}
-  <div id="wrapper"></div>
-  {# top nav begins #}
-  {% include 'base/_items/top_nav.html' %}
-  {# top nav ends #}
-  {% include 'base/_items/datatables_action_urls_script.html' %}
-  <div class="content-page">
-    <div class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <div class="page-title-box">
-              <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                  {% block breadcrumb_title %}
-                  {% endblock breadcrumb_title %}
-                </ol>
-              </div>
-              <h4 class="page-title">{% block page_title %}{% endblock page_title %}</h4>
-            </div>
+
+  <div id="additional-content">
+    {# Persistent OAuth info banner for OAuth users without project access #}
+    {% if is_oauth_user %}
+      {% if not current_project|default:"" %}
+        <div class="container-fluid">
+          <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+            <i class="mdi mdi-shield-account me-2"></i>
+            <strong>OAuth Account</strong> &mdash;
+            Your account is managed via OAuth. An administrator needs to assign you to a project before you can access scan features.
+            <a href="https://github.com/KhulnaSoft/reconpoint/wiki/usage-oauth" target="_blank" class="alert-link">
+              <i class="mdi mdi-open-in-new"></i> Learn more on the Wiki
+            </a>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         </div>
-        {% block main_content %}
-        {% endblock main_content %}
-
-        {# Persistent OAuth info banner for OAuth users without project access #}
-        {% if is_oauth_user %}
-        {% if not current_project|default:"" %}
-        <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
-          <i class="mdi mdi-shield-account me-2"></i>
-          <strong>OAuth Account</strong> &mdash;
-          Your account is managed via OAuth. An administrator needs to assign you to a project before you can access
-          scan features.
-          <a href="https://github.com/KhulnaSoft/reconpoint/wiki/usage-oauth" target="_blank" class="alert-link">
-            <i class="mdi mdi-open-in-new"></i> Learn more on the Wiki
-          </a>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endif %}
-        {% endif %}
-      </div>
-      <div id="additional-content"></div>
-    </div>
-    {% include 'base/_items/modal.html' %}
-    {% include 'base/_items/xl_scrollable_modal.html' %}
-    {% include 'base/_items/offcanvas.html' %}
+      {% endif %}
+    {% endif %}
   </div>
+
+  {% include 'base/_items/modal.html' %}
+  {% include 'base/_items/xl_scrollable_modal.html' %}
+  {% include 'base/_items/offcanvas.html' %}
+  {% include 'components/asset_side_panel.html' %}
+  
   <div class="rightbar-overlay" aria-hidden="true"></div>
   {% include 'base/_items/right_bar.html' %}
   {% include 'base/_items/footer.html' %}
@@ -180,6 +218,7 @@
   <script src="{% static 'custom/reconpoint_datatable_port_endpoint_pure.js' %}"></script>
   <script src="{% static 'custom/port_display.js' %}"></script>
   <script src="{% static 'custom/reconpoint_storage.js' %}"></script>
+  <script src="{% static 'custom/modern_ui.js' %}"></script>
   <script src="{% static 'plugins/snackbar/snackbar.min.js' %}"></script>
   <script src="{% static 'plugins/sweetalert2/sweetalert2.all.min.js' %}"></script>
   <script src="{% static 'plugins/datatables/datatables.min.js' %}"></script>
@@ -489,7 +528,21 @@
   {% endfor %}
   {% endif %}
   {% block page_level_script %}
-  {% endblock page_level_script%}
+  {% endblock page_level_script %}
+
+  <script>
+    // Initialize Lucide icons
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+    
+    // Re-initialize Lucide icons after HTMX content swaps
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
+  </script>
 </body>
 
 </html>

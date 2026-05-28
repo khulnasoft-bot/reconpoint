@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import sys
 
+from django.core.exceptions import ImproperlyConfigured
+
 import environ
 
 from reconPoint.core.db import resolve_db_host_port
@@ -95,23 +97,33 @@ DEFAULT_DEPTH: int | None = None  # no depth limit by default
 DEFAULT_GET_LLM_REPORT = env.bool("DEFAULT_GET_LLM_REPORT", default=True)
 
 # Globals
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"] if DEBUG else [])
+if not DEBUG and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured("ALLOWED_HOSTS must be configured in production")
 SECRET_KEY = first_run(SECRET_FILE, BASE_DIR)
 
 # CSRF Configuration for Django 5.2 compatibility
 # Fix for "Origin checking failed" errors after Django upgrade
-CSRF_TRUSTED_ORIGINS = [
-    f"http://{DOMAIN_NAME}",
-    f"https://{DOMAIN_NAME}",
-    "https://localhost",
-    "https://127.0.0.1",
-    "http://localhost:8000",
-    "https://localhost:8000",
-    "http://127.0.0.1:8000",
-    "https://127.0.0.1:8000",
-    "http://localhost",
-    "http://127.0.0.1",
-]
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+if not CSRF_TRUSTED_ORIGINS:
+    default_csrf_origins = []
+    if DOMAIN_NAME:
+        if DOMAIN_NAME.startswith("http://") or DOMAIN_NAME.startswith("https://"):
+            default_csrf_origins.append(DOMAIN_NAME)
+        else:
+            default_csrf_origins.extend([f"https://{DOMAIN_NAME}", f"http://{DOMAIN_NAME}"])
+    if DEBUG:
+        default_csrf_origins.extend(
+            [
+                "https://localhost",
+                "https://127.0.0.1",
+                "http://localhost:8000",
+                "https://localhost:8000",
+                "http://127.0.0.1:8000",
+                "https://127.0.0.1:8000",
+            ]
+        )
+    CSRF_TRUSTED_ORIGINS = default_csrf_origins
 
 # Additional CSRF settings for better security
 CSRF_COOKIE_SECURE = not DEBUG  # Use secure cookies in production
@@ -184,7 +196,6 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "api.middleware.APIKeyAuthenticationMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "login_required.middleware.LoginRequiredMiddleware",
@@ -234,6 +245,7 @@ ROOT_URLCONF = "reconPoint.urls"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
+        "api.authentication.APIKeyAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "api.permissions.HasAPIKeyOrIsAuthenticated",
@@ -249,6 +261,9 @@ REST_FRAMEWORK = {
         "export": "5/minute",
     },
     "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework_datatables.renderers.DatatablesRenderer",
+    ) if not DEBUG else (
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
         "rest_framework_datatables.renderers.DatatablesRenderer",
@@ -354,6 +369,19 @@ if env.bool("TRUST_PROXY_HEADERS", default=False):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     USE_X_FORWARDED_HOST = True
     USE_X_FORWARDED_PORT = True
+
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=not DEBUG)
+SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=63072000)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True)
+SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD", default=True)
+SECURE_BROWSER_XSS_FILTER = env.bool("SECURE_BROWSER_XSS_FILTER", default=True)
+SECURE_CONTENT_TYPE_NOSNIFF = env.bool("SECURE_CONTENT_TYPE_NOSNIFF", default=True)
+SECURE_REFERRER_POLICY = env("SECURE_REFERRER_POLICY", default="strict-origin-when-cross-origin")
+X_FRAME_OPTIONS = env("X_FRAME_OPTIONS", default="DENY")
+
+# CORS settings exist for future hardened browser APIs. Install django-cors-headers
+# and add it to INSTALLED_APPS / MIDDLEWARE when ready.
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 
 # OAuth Provider Settings
 # Note: OpenID Connect providers are configured via Django admin
@@ -621,6 +649,11 @@ CHANNEL_LAYERS = {
 }
 
 # WebSocket settings
-WEBSOCKET_ACCEPT_ALL = True  # For development, change in production
+WEBSOCKET_ALLOWED_ORIGINS = env.list(
+    "WEBSOCKET_ALLOWED_ORIGINS",
+    default=["http://localhost:8000", "http://127.0.0.1:8000"] if DEBUG else [],
+)
+if not DEBUG and not WEBSOCKET_ALLOWED_ORIGINS:
+    raise ImproperlyConfigured("WEBSOCKET_ALLOWED_ORIGINS must be configured in production")
 WEBSOCKET_SCAN_STATUS_THROTTLE_SECONDS = 2
 WEBSOCKET_SCAN_STATUS_FULL_INTERVAL_SECONDS = 15

@@ -1,0 +1,81 @@
+<div 
+  x-data="{ open: false, title: '', content: '' }"
+  @open-asset-panel.window="open = true; title = $event.detail.title; content = $event.detail.content"
+  @close-asset-panel.window="open = false"
+  class="relative z-[60]"
+  aria-labelledby="slide-over-title"
+  role="dialog"
+  aria-modal="true"
+  x-show="open"
+  x-cloak
+>
+  <!-- Background backdrop -->
+  <div 
+    x-show="open"
+    x-transition:enter="ease-in-out duration-500"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="ease-in-out duration-500"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm transition-opacity"
+    @click="open = false"
+  ></div>
+
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+        <div 
+          x-show="open"
+          x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700"
+          x-transition:enter-start="translate-x-full"
+          x-transition:enter-end="translate-x-0"
+          x-transition:leave="transform transition ease-in-out duration-500 sm:duration-700"
+          x-transition:leave-start="translate-x-0"
+          x-transition:leave-end="translate-x-full"
+          class="pointer-events-auto w-screen max-w-2xl"
+        >
+          <div class="flex h-full flex-col overflow-y-scroll bg-white dark:bg-slate-950 shadow-2xl border-l border-slate-200 dark:border-slate-800">
+            <!-- Header -->
+            <div class="px-6 py-6 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
+              <div class="flex items-start justify-between">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white" id="slide-over-title" x-text="title"></h2>
+                <div class="ml-3 flex h-7 items-center">
+                  <button @click="open = false" class="rounded-lg text-slate-400 hover:text-slate-500 focus:outline-none transition-colors">
+                    <span class="sr-only">Close panel</span>
+                    <i data-lucide="x" class="h-6 w-6"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="relative flex-1 p-6" id="asset-panel-content">
+              <div x-html="content"></div>
+              
+              <!-- Skeleton Loader (shown when content is fetching) -->
+              <div id="asset-panel-loader" class="hidden space-y-4">
+                <div class="h-8 bg-slate-100 dark:bg-slate-900 rounded-lg animate-pulse w-3/4"></div>
+                <div class="h-32 bg-slate-100 dark:bg-slate-900 rounded-lg animate-pulse"></div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="h-20 bg-slate-100 dark:bg-slate-900 rounded-lg animate-pulse"></div>
+                  <div class="h-20 bg-slate-100 dark:bg-slate-900 rounded-lg animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="border-t border-slate-200 dark:border-slate-800 px-6 py-4 flex justify-end gap-3 bg-slate-50 dark:bg-slate-900/50">
+              <button @click="open = false" class="btn-premium border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                Close
+              </button>
+              <button class="btn-premium-primary">
+                Edit Asset
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
