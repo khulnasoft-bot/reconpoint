@@ -1,0 +1,98 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
+  <!-- Total Targets -->
+  <div class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-sky-500/5 hover:-translate-y-1">
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Targets</span>
+      <div class="p-2 bg-sky-500/10 rounded-lg group-hover:bg-sky-500/20 transition-colors">
+        <i data-lucide="target" class="w-4 h-4 text-sky-500"></i>
+      </div>
+    </div>
+    <div class="flex items-baseline gap-2">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ domain_count|default:0 }}</h2>
+      <span class="text-xs font-medium text-emerald-500 flex items-center">
+        <i data-lucide="trending-up" class="w-3 h-3 mr-1"></i> +0%
+      </span>
+    </div>
+    <div class="mt-4 h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+      <div class="h-full bg-sky-500 w-1/3"></div>
+    </div>
+  </div>
+
+  <!-- Total Subdomains -->
+  <div class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/5 hover:-translate-y-1">
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Subdomains</span>
+      <div class="p-2 bg-indigo-500/10 rounded-lg group-hover:bg-indigo-500/20 transition-colors">
+        <i data-lucide="globe" class="w-4 h-4 text-indigo-500"></i>
+      </div>
+    </div>
+    <div class="flex items-baseline gap-2">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ subdomain_count|default:0 }}</h2>
+      <span class="text-xs font-medium text-emerald-500">
+        {{ alive_count|default:0 }} alive
+      </span>
+    </div>
+    <div class="mt-4 h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+      <div class="h-full bg-indigo-500 w-1/2"></div>
+    </div>
+  </div>
+
+  <!-- Total Endpoints -->
+  <div class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/5 hover:-translate-y-1">
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Endpoints</span>
+      <div class="p-2 bg-amber-500/10 rounded-lg group-hover:bg-amber-500/20 transition-colors">
+        <i data-lucide="link" class="w-4 h-4 text-amber-500"></i>
+      </div>
+    </div>
+    <div class="flex items-baseline gap-2">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ endpoint_count|default:0 }}</h2>
+      <span class="text-xs font-medium text-amber-500">
+        {{ endpoint_alive_count|default:0 }} alive
+      </span>
+    </div>
+    <div class="mt-4 h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+      <div class="h-full bg-amber-500 w-2/3"></div>
+    </div>
+  </div>
+
+  <!-- Vulnerabilities -->
+  <div class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-rose-500/5 hover:-translate-y-1">
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-rose-500">Vulnerabilities</span>
+      <div class="p-2 bg-rose-500/10 rounded-lg group-hover:bg-rose-500/20 transition-colors">
+        <i data-lucide="shield-alert" class="w-4 h-4 text-rose-500"></i>
+      </div>
+    </div>
+    <div class="flex items-baseline gap-2">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ total_vul_count|default:0 }}</h2>
+      <span class="text-xs font-bold text-rose-500">
+        {{ critical_count|default:0 }} Critical
+      </span>
+    </div>
+    <div class="mt-4 flex gap-1 h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+      <div class="h-full bg-rose-600 w-1/4"></div>
+      <div class="h-full bg-rose-400 w-1/4"></div>
+      <div class="h-full bg-orange-400 w-1/4"></div>
+    </div>
+  </div>
+
+  <!-- Total IPs -->
+  <div class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-1">
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total IPs</span>
+      <div class="p-2 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
+        <i data-lucide="network" class="w-4 h-4 text-emerald-500"></i>
+      </div>
+    </div>
+    <div class="flex items-baseline gap-2">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ ip_address_count|default:0 }}</h2>
+      <span class="text-xs font-medium text-emerald-500">
+        {{ ip_alive_count|default:0 }} alive
+      </span>
+    </div>
+    <div class="mt-4 h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+      <div class="h-full bg-emerald-500 w-3/4"></div>
+    </div>
+  </div>
+</div>

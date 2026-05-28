@@ -1,24 +1,24 @@
 <div class="col-9 float-start">
-    <a class="disabled btn btn-soft-primary ms-0" data-button="subdomain_btns" data-toggle="tooltip" data-placement="top" title="Initiate Multiple Subscans" onclick="initiateMultipleSubscan()">
-      <i class="fe-zap"></i>
-      <span class="d-none d-md-inline">Initiate Subscan</span>
+    <a class="disabled inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-colors ms-0" data-button="subdomain_btns" data-toggle="tooltip" data-placement="top" title="Initiate Multiple Subscans" onclick="initiateMultipleSubscan()">
+      <i data-lucide="zap" class="w-4 h-4 mr-1"></i>
+      <span class="hidden md:inline">Initiate Subscan</span>
     </a>
-    <a class="disabled btn btn-soft-info" data-button="subdomain_btns" data-toggle="tooltip" data-placement="top" title="Download Selected Subdomains" onclick="downloadSelectedSubdomains('{% if target_summary %}{{ target.value|escapejs }}{% else %}{{ scan_display_name|escapejs }}{% endif %}')">
-      <i class="fe-download"></i>
-      <span class="d-none d-md-inline">Download Selected Subdomains</span>
+    <a class="disabled inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 transition-colors" data-button="subdomain_btns" data-toggle="tooltip" data-placement="top" title="Download Selected Subdomains" onclick="downloadSelectedSubdomains('{% if target_summary %}{{ target.value|escapejs }}{% else %}{{ scan_display_name|escapejs }}{% endif %}')">
+      <i data-lucide="download" class="w-4 h-4 mr-1"></i>
+      <span class="hidden md:inline">Download Selected Subdomains</span>
     </a>
-    <a class="disabled btn btn-soft-danger" data-button="subdomain_btns" data-toggle="tooltip" data-placement="top" title="Delete Multiple Subdomains" onclick="deleteMultipleSubdomains()">
-      <i class="fe-trash"></i>
-      <span class="d-none d-md-inline">Delete Multiple Subdomains</span>
+    <a class="disabled inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors" data-button="subdomain_btns" data-toggle="tooltip" data-placement="top" title="Delete Multiple Subdomains" onclick="deleteMultipleSubdomains()">
+      <i data-lucide="trash" class="w-4 h-4 mr-1"></i>
+      <span class="hidden md:inline">Delete Multiple Subdomains</span>
     </a>
     <div class="ms-2 mt-2" id="">
-      <a href="#" class="badge badge-soft-primary" id="subdomain_selected_count" onclick="uncheckSubdomains()"  data-toggle="tooltip" data-placement="top" title="Clear Subdomains"></a>
+      <a href="#" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-500/10 text-sky-600 dark:text-sky-400" id="subdomain_selected_count" onclick="uncheckSubdomains()"  data-toggle="tooltip" data-placement="top" title="Clear Subdomains"></a>
     </div>
   </div>
   <div class="col-3">
-    <div class="btn-group mb-2 float-end dropstart">
-      <button class="btn btn-soft-primary dropdown-toggle ms-1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-toggle="tooltip" data-placement="left" title="Filter Columns">
-        <i class="fe-filter"></i>
+    <div class="inline-flex mb-2 float-end dropstart">
+      <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-colors dropdown-toggle ms-1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-toggle="tooltip" data-placement="left" title="Filter Columns">
+        <i data-lucide="filter" class="w-4 h-4"></i>
       </button>
       <div class="dropdown-menu" style="">
         <div class="dropdown-item">
@@ -60,12 +60,12 @@
 
       </div>
 
-      <a class="btn btn-soft-primary ms-2 me-2" data-toggle="tooltip" data-placement="top" title="Reload Subdomains" id="reload_subdomain_table_btn">
-        <i class="fe-refresh-cw"></i>
+      <a class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-colors ms-2 me-2" data-toggle="tooltip" data-placement="top" title="Reload Subdomains" id="reload_subdomain_table_btn">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
       </a>
 
-      <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-toggle="tooltip" data-placement="left" title="Download Subdomains">
-        <i class="fe-download"></i>
+      <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-500 text-white hover:bg-sky-600 transition-colors dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-toggle="tooltip" data-placement="left" title="Download Subdomains">
+        <i data-lucide="download" class="w-4 h-4"></i>
       </button>
       <div class="dropdown-menu" style="">
         {% include 'base/_items/_subdomain_download_links.html' %}

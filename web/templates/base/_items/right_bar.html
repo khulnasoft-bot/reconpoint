@@ -6,64 +6,64 @@
           <li class="nav-item active">
             <a href="#tasks" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
               Scans
-              <span id="scans-tab-count" class="badge bg-primary rounded-pill ms-1" style="display: none;"></span>
+              <span id="scans-tab-count" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-sky-500 text-white ms-1" style="display: none;"></span>
             </a>
           </li>
           <li class="nav-item">
             <a href="#subscan" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
               Tasks
-              <span id="tasks-tab-count" class="badge bg-primary rounded-pill ms-1" style="display: none;"></span>
+              <span id="tasks-tab-count" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-sky-500 text-white ms-1" style="display: none;"></span>
             </a>
           </li>
         </ul>
         <div class="tab-content px-2">
           <div class="tab-pane show active" id="tasks">
-            <h6 class="fw-medium mt-1 text-uppercase">Currently Scanning</h6>
-            <h5><span class="badge bg-primary rounded-pill" id="current_scan_count"></span></h5>
-            <button type="button" id="stop-all-scans-btn" class="btn btn-sm btn-soft-danger mt-1 mb-1" style="display: none;" onclick="stopAllScans(); return false;"><i class="fe-alert-triangle"></i> Stop all scans</button>
+            <h6 class="font-medium mt-1 text-uppercase text-slate-500 dark:text-slate-400">Currently Scanning</h6>
+            <h5><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-sky-500 text-white" id="current_scan_count"></span></h5>
+            <button type="button" id="stop-all-scans-btn" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors mt-1 mb-1" style="display: none;" onclick="stopAllScans(); return false;"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1"></i> Stop all scans</button>
             <div id="currently_scanning">
             </div>
-            <h6 class="fw-medium mt-1 text-uppercase">Recently Completed</h6>
+            <h6 class="font-medium mt-1 text-uppercase text-slate-500 dark:text-slate-400">Recently Completed</h6>
             <div id="completed" class="">
             </div>
             <div class="">
               {% if current_project %}
-              <a href="{% url 'scan_history' current_project.slug %}" class="float-end">Show All</a>
+              <a href="{% url 'scan_history' current_project.slug %}" class="float-end text-sky-600 dark:text-sky-400 hover:underline">Show All</a>
               {% endif %}
             </div>
             <br>
-            <h6 class="fw-medium mt-2 text-uppercase">Upcoming</h6>
+            <h6 class="font-medium mt-2 text-uppercase text-slate-500 dark:text-slate-400">Upcoming</h6>
             <div class="">
-              <h5><span class="badge bg-warning rounded-pill float-end" id="pending_scan_count"></span></h5>
+              <h5><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500 text-white float-end" id="pending_scan_count"></span></h5>
               <div id="upcoming_scans">
               </div>
             </div>
           </div>
 
           <div class="tab-pane" id="subscan">
-            <h6 class="fw-medium mt-1 text-uppercase">Currently Running</h6>
-            <h5><span class="badge bg-primary rounded-pill" id="current_task_count"></span></h5>
-            <button type="button" id="stop-all-tasks-btn" class="btn btn-sm btn-soft-danger mt-1 mb-1" style="display: none;" onclick="stopAllTasks(); return false;"><i class="fe-alert-triangle"></i> Stop all tasks</button>
+            <h6 class="font-medium mt-1 text-uppercase text-slate-500 dark:text-slate-400">Currently Running</h6>
+            <h5><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-sky-500 text-white" id="current_task_count"></span></h5>
+            <button type="button" id="stop-all-tasks-btn" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors mt-1 mb-1" style="display: none;" onclick="stopAllTasks(); return false;"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1"></i> Stop all tasks</button>
             <div id="currently_running_tasks">
             </div>
-            <h6 class="fw-medium mt-1 text-uppercase">Recently Completed</h6>
+            <h6 class="font-medium mt-1 text-uppercase text-slate-500 dark:text-slate-400">Recently Completed</h6>
             <div id="completed_tasks" class="">
             </div>
             <div class="">
               {% if current_project %}
-              <a href="{% url 'subscan_history' current_project.slug %}" class="float-end">Show All</a>
+              <a href="{% url 'subscan_history' current_project.slug %}" class="float-end text-sky-600 dark:text-sky-400 hover:underline">Show All</a>
               {% endif %}
             </div>
             <br>
-            <h6 class="fw-medium mt-2 text-uppercase">Upcoming</h6>
+            <h6 class="font-medium mt-2 text-uppercase text-slate-500 dark:text-slate-400">Upcoming</h6>
             <div class="">
-              <h5><span class="badge bg-warning rounded-pill float-end" id="pending_task_count"></span></h5>
+              <h5><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500 text-white float-end" id="pending_task_count"></span></h5>
               <div id="upcoming_tasks">
               </div>
             </div>
           </div>
           <div class="text-center mt-3 mb-4">
-            <a href="javascript:getScanStatusSidebar('{% url 'api:scan_status' %}', '{% url 'api:stop_scan' %}', '{% url 'api:stop_activity' %}', '{% url 'api:fetch_subscan_results' %}', { project: '{{ current_project.slug |default:''}}', reload: true, openBar: false })" class="btn btn-md btn-primary">
+            <a href="javascript:getScanStatusSidebar('{% url 'api:scan_status' %}', '{% url 'api:stop_scan' %}', '{% url 'api:stop_activity' %}', '{% url 'api:fetch_subscan_results' %}', { project: '{{ current_project.slug |default:''}}', reload: true, openBar: false })" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-sky-500 text-white hover:bg-sky-600 transition-colors">
               Reload
             </a>
             <script>

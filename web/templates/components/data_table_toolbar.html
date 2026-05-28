@@ -1,0 +1,86 @@
+<div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
+  <div class="flex items-center gap-2 w-full md:w-auto">
+    <!-- Selection Info -->
+    <div x-data="{ count: 0 }" 
+         x-init="window.addEventListener('subdomain-selection-change', e => count = e.detail.count)"
+         x-show="count > 0"
+         class="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300">
+      <span class="px-2.5 py-1 bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-lg text-xs font-bold">
+        <span x-text="count"></span> selected
+      </span>
+      <button onclick="uncheckSubdomains()" class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+      <div class="h-4 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1"></div>
+      
+      <!-- Bulk Actions -->
+      <div class="flex items-center gap-1">
+        {% if user|can:'initiate_scans' %}
+        <button onclick="initiateMultipleSubscan()" class="p-1.5 text-slate-600 dark:text-slate-400 hover:text-sky-500 hover:bg-sky-500/10 rounded-lg transition-colors" title="Initiate Scans">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+        </button>
+        {% endif %}
+        <button onclick="downloadSelectedSubdomains()" class="p-1.5 text-slate-600 dark:text-slate-400 hover:text-sky-500 hover:bg-sky-500/10 rounded-lg transition-colors" title="Download">
+          <i data-lucide="download" class="w-4 h-4"></i>
+        </button>
+        {% if user|can:'initiate_scans' %}
+        <button onclick="deleteMultipleSubdomains()" class="p-1.5 text-slate-600 dark:text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors" title="Delete">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    
+    <div x-show="count === 0" class="text-sm font-medium text-slate-500 dark:text-slate-400">
+      {{ title|default:"Subdomains" }}
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2 w-full md:w-auto">
+    <!-- Search Trigger (Command + F style) -->
+    <div class="relative flex-1 md:w-64">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <i data-lucide="filter" class="h-3.5 w-3.5 text-slate-400"></i>
+      </div>
+      <input type="text" 
+             id="{{ search_id|default:'table-search' }}"
+             class="block w-full pl-9 pr-3 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-900/50 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all" 
+             placeholder="Filter results...">
+    </div>
+
+    <!-- View Options Dropdown -->
+    <div class="relative" x-data="{ open: false }">
+      <button @click="open = !open" @click.away="open = false" class="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+        <i data-lucide="settings-2" class="w-4 h-4"></i>
+      </button>
+      
+      <div x-show="open" 
+           x-transition:enter="transition ease-out duration-100"
+           x-transition:enter-start="opacity-0 scale-95"
+           x-transition:enter-end="opacity-100 scale-100"
+           class="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden">
+        <div class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Display Columns</p>
+        </div>
+        <div class="p-2 space-y-1 max-h-64 overflow-y-auto custom-scrollbar">
+          {% block column_filters %}{% endblock %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-1 border-l border-slate-200 dark:border-slate-800 ml-1 pl-2">
+      <button id="reload_table_btn" class="p-2 text-slate-500 hover:bg-sky-500/10 hover:text-sky-600 rounded-lg transition-colors" title="Reload Data">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+      </button>
+      <div class="relative" x-data="{ open: false }">
+        <button @click="open = !open" @click.away="open = false" class="p-2 text-slate-500 hover:bg-sky-500/10 hover:text-sky-600 rounded-lg transition-colors" title="Export">
+          <i data-lucide="download" class="w-4 h-4"></i>
+        </button>
+        <div x-show="open" class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden py-1">
+          {% include 'base/_items/_subdomain_download_links.html' %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

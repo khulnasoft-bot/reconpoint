@@ -91,3 +91,5 @@ backup/
 
 analyse*
 *.json
+
+node_modules/

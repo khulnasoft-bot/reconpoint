@@ -1,13 +1,13 @@
 {% if detail_scan %}
 	<a
-		class="dropdown-item"
+		class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
 		href="#"
 		onclick="download_ips({{ scan_history_id }}, null, '{{ scan_display_name|escapejs }}'); return false;"
 	>
 		Download All IP Addresses
 	</a>
 	<a
-		class="dropdown-item"
+		class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
 		href="#"
 		onclick="download_important_ips({{ scan_history_id }}, null, '{{ scan_display_name|escapejs }}'); return false;"
 	>
@@ -16,14 +16,14 @@
 {% endif %}
 {% if target_summary %}
 	<a
-		class="dropdown-item"
+		class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
 		href="#"
 		onclick="download_ips(null, {{ target.id }}, '{{ target.value|escapejs }}'); return false;"
 	>
 		Download All IP Addresses
 	</a>
 	<a
-		class="dropdown-item"
+		class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
 		href="#"
 		onclick="download_important_ips(null, {{ target.id }}, '{{ target.value|escapejs }}'); return false;"
 	>

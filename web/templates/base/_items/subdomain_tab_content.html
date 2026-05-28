@@ -1,160 +1,71 @@
 {% load permission_tags %}
 <style>
-#subdomain_scan_results td.col-action,
-#subdomain_scan_results th.col-action,
-#subdomain_scan_results th:nth-child(24),
-#subdomain_scan_results td:nth-child(24) {
-	min-width: 180px;
-}
+/* Keeping legacy compatibility for min-widths if needed, but moving to Tailwind for spacing */
 .ports-popover .popover-body {
 	max-height: 18rem;
 	overflow-y: auto;
 }
 </style>
+
 {% include "base/_items/_datatable_advanced_search_block.html" with wrapper_id="subdomain-search-input" advanced_search_context="subdomains" input_id="subdomains-search" button_id="subdomain-search-button" autocom_box_id="subdomains-autocom-box" placeholder="Filter Subdomains" aria_label="Filter Subdomains" %}
-<div class="row">
-	<div class="col-12">
-		<div class="card">
-			<div class="card-body">
-				<div class="row">
-					<div class="col-8 float-start d-flex align-items-center flex-wrap gap-1">
-						<span class="small text-muted me-1">Bulk actions:</span>
-						<div class="btn-group" role="group">
-							{% if user|can:'initiate_scans' %}
-							<a class="btn btn-sm btn-soft-primary disabled" data-button="subdomain_btns" data-toggle="tooltip" title="Initiate multiple subscans" aria-label="Initiate multiple subscans" onclick="initiateMultipleSubscan(); return false;"><i class="fe-zap"></i></a>
-							{% endif %}
-							<a class="btn btn-sm btn-soft-info disabled" data-button="subdomain_btns" data-toggle="tooltip" title="Download selected subdomains" aria-label="Download selected subdomains" onclick="downloadSelectedSubdomains('{% if target_summary %}{{ target.value|escapejs }}{% else %}{{ scan_display_name|escapejs }}{% endif %}'); return false;"><i class="fe-download"></i></a>
-							{% if user|can:'initiate_scans' %}
-							<a class="btn btn-sm btn-soft-danger disabled" data-button="subdomain_btns" data-toggle="tooltip" title="Permanently delete selected subdomains and their dependent recon data" aria-label="Permanently delete selected subdomains and their dependent recon data" onclick="deleteMultipleSubdomains(); return false;"><i class="fe-trash-2"></i></a>
-							{% endif %}
-						</div>
-						<div class="ms-1">
-							<a href="#" class="badge badge-soft-primary" id="subdomain_selected_count" onclick="uncheckSubdomains(); return false;" data-toggle="tooltip" data-placement="top" title="Clear Subdomains" aria-label="Clear selection"></a>
-						</div>
-					</div>
-					<div class="col-4">
-						<div class="btn-group btn-group-sm mb-2 float-end dropstart">
-							<button class="btn btn-sm btn-soft-primary dropdown-toggle ms-1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-toggle="tooltip" data-placement="left" title="Filter Columns" aria-label="Filter columns">
-								<i class="fe-filter"></i>
-							</button>
-							<div class="dropdown-menu" style="">
-								<div class="dropdown-item">
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="sub_http_status_filter_checkbox" name="sub_http_status_filter_checkbox" checked>
-										<label class="form-check-label" for="http_status_filter_checkbox">HTTP Status</label>
-									</div>
-								</div>
-								<div class="dropdown-item">
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="sub_page_title_filter_checkbox" name="sub_page_title_filter_checkbox" checked>
-										<label class="form-check-label" for="page_title_filter_checkbox">Page Title</label>
-									</div>
-								</div>
-								<div class="dropdown-item">
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="sub_ip_filter_checkbox" name="sub_ip_filter_checkbox" checked>
-										<label class="form-check-label" for="ip_filter_checkbox">IP Address</label>
-									</div>
-								</div>
-								<div class="dropdown-item">
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="sub_ports_filter_checkbox" name="sub_ports_filter_checkbox" checked>
-										<label class="form-check-label" for="ports_filter_checkbox">Ports</label>
-									</div>
-								</div>
-								<div class="dropdown-item">
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="sub_content_length_filter_checkbox" name="sub_content_length_filter_checkbox" checked>
-										<label class="form-check-label" for="content_length_filter_checkbox">Content Length</label>
-									</div>
-								</div>
-								<div class="dropdown-item">
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="sub_response_time_filter_checkbox" name="sub_response_time_filter_checkbox" checked>
-										<label class="form-check-label" for="response_time_filter_checkbox">Response Time</label>
-									</div>
-								</div>
 
-							</div>
+<div class="space-y-4">
+  <!-- Modern Toolbar -->
+  {% include "components/data_table_toolbar.html" with title="Subdomains" search_id="subdomain-table-filter" %}
 
-							<a class="btn btn-sm btn-soft-danger ms-1" data-toggle="tooltip" data-placement="top" title="Toggle important subdomains" id="load_important_subdomain_table_btn" aria-label="Toggle important subdomains" aria-pressed="false"><i class="mdi mdi-alert-rhombus-outline"></i></a>
-							<a class="btn btn-sm btn-soft-primary ms-2 me-2" data-toggle="tooltip" data-placement="top" title="Reload Subdomains" id="reload_subdomain_table_btn" aria-label="Reload"><i class="fe-refresh-cw"></i></a>
-							<button class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-toggle="tooltip" data-placement="left" title="Download Subdomains" aria-label="Download">
-								<i class="fe-download"></i>
-							</button>
-							<div class="dropdown-menu" style="">
-								{% include 'base/_items/_subdomain_download_links.html' %}
-							</div>
-
-						</div>
-						<div class="btn-group btn-group-sm mb-2 float-end dropstart">
-							<button class="btn btn-sm btn-soft-info dropdown-toggle ms-1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-toggle="tooltip" data-placement="left" title="Vulnerability Grouping" aria-label="Grouping">
-								<i class="fe-layout"></i>
-							</button>
-							<div class="dropdown-menu" style="">
-								<div class="dropdown-item">
-									<div class="form-check">
-										<input type="radio" id="subdomain_group_none" name="grouping_subd_row" class="form-check-input" value="" checked>
-										<label class="form-check-label" for="subdomain_group_none">None</label>
-									</div>
-								</div>
-								<div class="dropdown-item">
-									<div class="form-check">
-										<input type="radio" id="subdomain_page_title_grouping" name="grouping_subd_row" class="form-check-input" value="page_title">
-										<label class="form-check-label" for="subdomain_page_title_grouping">Page Title</label>
-									</div>
-								</div>
-								<div class="dropdown-item">
-									<div class="form-check">
-										<input type="radio" id="subdomain_http_status_grouping" name="grouping_subd_row" class="form-check-input" value="http_status">
-										<label class="form-check-label" for="subdomain_http_status_grouping">HTTP Status</label>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="row mt-1">
-					<div class="col-12">
-						<table id="subdomain_scan_results" class="table dt-responsive w-100">
-							<thead>
-								<tr>
-									<th class="checkbox-column">Status</th>
-									<th>Subdomain</th>
-									<th class="text-center">Endpoints</th>
-									<th class="text-center">Vulnerabilities</th>
-									<th class="text-center">Status</th>
-									<th class="text-center">Title</th>
-									<th class="text-center">IP</th>
-									<th class="text-center">Ports</th>
-									<th class="text-center">Content Length</th>
-									<th class="text-center">Response Time</th>
-									<th>Technology</th>
-									<th>HTTP URL</th>
-									<th>CNAME</th>
-									<th>is_interesting</th>
-									<th>Info</th>
-									<th>Low</th>
-									<th>Medium</th>
-									<th>High</th>
-									<th>Critical</th>
-									<th>Todos</th>
-									<th>Is Important</th>
-									<th>Webserver</th>
-									<th>Content Type</th>
-									<th class="col-action">Action</th>
-									<th>Directories Count</th>
-									<th>Subscan Count</th>
-									<th>WAF</th>
-									<th>Attack Surface</th>
-									<th>Verified</th>
-									<th>Sources</th>
-								</tr>
-							</thead>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="card-premium !p-0 overflow-hidden">
+    <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      <h3 class="text-base font-semibold text-slate-800 dark:text-slate-200">Asset Inventory</h3>
+      <div class="flex items-center gap-2">
+        <button id="load_important_subdomain_table_btn" class="p-1.5 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors" title="Toggle Important">
+          <i data-lucide="alert-circle" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table id="subdomain_scan_results" class="table w-full border-collapse !mb-0">
+        <thead class="bg-slate-50 dark:bg-slate-900/50">
+          <tr>
+            <th class="px-4 py-3 text-left">
+              <div class="flex items-center">
+                <input type="checkbox" id="head_checkbox" onclick="mainCheckBoxSelected(this)" class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-sky-500 focus:ring-sky-500/20 bg-white dark:bg-slate-900">
+              </div>
+            </th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Subdomain</th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Endpoints</th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Vulns</th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Title</th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">IP</th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Ports</th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Length</th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Latency</th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Technology</th>
+            <!-- Hidden technical columns -->
+            <th class="hidden">HTTP URL</th>
+            <th class="hidden">CNAME</th>
+            <th class="hidden">is_interesting</th>
+            <th class="hidden">Info</th>
+            <th class="hidden">Low</th>
+            <th class="hidden">Medium</th>
+            <th class="hidden">High</th>
+            <th class="hidden">Critical</th>
+            <th class="hidden">Todos</th>
+            <th class="hidden">Is Important</th>
+            <th class="hidden">Webserver</th>
+            <th class="hidden">Content Type</th>
+            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Action</th>
+            <th class="hidden">Dirs</th>
+            <th class="hidden">Subscans</th>
+            <th class="hidden">WAF</th>
+            <th class="hidden">Attack Surface</th>
+            <th class="hidden">Verified</th>
+            <th class="hidden">Sources</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
 </div>
+

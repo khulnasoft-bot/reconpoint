@@ -4,6 +4,7 @@ import re
 from urllib.parse import urlparse
 
 from django import template
+from rolepermissions.checkers import has_permission
 
 from dashboard.utils import get_user_groups
 from reconPoint.utilities.logger import get_module_logger
@@ -78,6 +79,12 @@ def previous(some_list, current_index):
 @register.filter(name="get_user_role")
 def get_user_role(user):
     return get_user_groups(user)
+
+
+@register.filter(name="can")
+def can(user, permission):
+    """Check if user has a specific permission."""
+    return has_permission(permission, user)
 
 
 @register.filter(name="parse_references")

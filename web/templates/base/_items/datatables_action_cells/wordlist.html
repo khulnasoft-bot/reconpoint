@@ -1,5 +1,5 @@
 <td class="text-center">
-  <div class="d-flex flex-wrap gap-1 justify-content-center mb-2">
-    <a href="#" class="btn btn-sm btn-soft-danger btnDelWordlist" data-toggle="tooltip" data-placement="top" title="Delete Wordlist" onclick="delete_api({{ wordlist.id }}, '{{ wordlist.name|escapejs }}', 'wordlist'); return false;"><i class="fe-trash-2"></i></a>
+  <div class="flex flex-wrap gap-1 justify-center mb-2">
+    <a href="#" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors btnDelWordlist" data-toggle="tooltip" data-placement="top" title="Delete Wordlist" onclick="delete_api({{ wordlist.id }}, '{{ wordlist.name|escapejs }}', 'wordlist'); return false;"><i data-lucide="trash-2" class="w-4 h-4"></i></a>
   </div>
 </td>

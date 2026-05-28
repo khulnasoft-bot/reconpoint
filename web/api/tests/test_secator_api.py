@@ -5,11 +5,13 @@ Tests for SecatorRunnerCreate, SecatorRunnerUpdate, SecatorFindingCreate, Secato
 
 from unittest.mock import MagicMock, patch
 
-from django.test import Client, override_settings
+from django.contrib.auth.models import AnonymousUser
+from django.test import Client, RequestFactory, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 
+from api.permissions import HasAPIKeyOrIsAuthenticated
 from dashboard.models import UserAPIKey
 from reconPoint.definitions import RUNNING_TASK, SUCCESS_TASK
 from startScan.models import Domain, IpAddress, ScanHistory, SecatorRunner, Subdomain, SubScan
@@ -602,6 +604,38 @@ class TestSecatorAPIAuthentication(BaseTestCase):
         finding_data = {"_type": "subdomain", "name": "test.example.com"}
         response = self.client.post(url, finding_data, content_type="application/json")
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+
+
+class TestHasAPIKeyOrIsAuthenticatedPermission(BaseTestCase):
+    """Unit tests for the DRF API auth / permission boundary."""
+
+    def setUp(self):
+        super().setUp()
+        self.factory = RequestFactory()
+        self.permission = HasAPIKeyOrIsAuthenticated()
+
+    def test_allows_authenticated_session_user(self):
+        request = self.factory.get("/api/test/")
+        request.user = self.user
+
+        self.assertTrue(self.permission.has_permission(request, None))
+
+    def test_allows_api_key_authenticated_request(self):
+        api_key_obj, raw_key = UserAPIKey.objects.create_key(name="secator-hook", user=self.user, is_active=True)
+        self.assertIsNotNone(api_key_obj)
+
+        request = self.factory.get("/api/test/")
+        request.user = AnonymousUser()
+        request.auth = api_key_obj
+
+        self.assertTrue(self.permission.has_permission(request, None))
+
+    def test_rejects_unauthenticated_request(self):
+        request = self.factory.get("/api/test/")
+        request.user = AnonymousUser()
+        request.auth = None
+
+        self.assertFalse(self.permission.has_permission(request, None))
 
 
 class TestGetSecatorInputTypesAndTargets(BaseTestCase):

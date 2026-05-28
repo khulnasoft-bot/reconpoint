@@ -46,6 +46,20 @@ PREFIX_DASHBOARD = "[DASHBOARD]"
 logger = get_module_logger(__name__)
 
 
+@login_required
+def activity_feed_partial(request, slug):
+    project = get_object_or_404(Project, slug=slug)
+    activity_feed = (
+        ScanActivity.objects.filter(scan_of__target__project=project)
+        .select_related("scan_of", "scan_of__target")
+        .order_by("-time")[:50]
+    )
+    return render(request, "dashboard/activity_feed_partial.html", {
+        "activity_feed": activity_feed,
+        "current_project": project
+    })
+
+
 def index(request, slug):
     try:
         project = Project.get_from_slug(slug)

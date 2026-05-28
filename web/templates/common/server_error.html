@@ -4,167 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Server Error - reconPoint</title>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 40px; 
-            background-color: #f5f5f5; 
-            color: #333;
-        }
-        .container { 
-            max-width: 600px; 
-            margin: 0 auto; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-        }
-        .error-header { 
-            color: #dc3545; 
-            border-bottom: 2px solid #dc3545; 
-            padding-bottom: 10px; 
-            margin-bottom: 20px; 
-            font-size: 24px;
-        }
-        .error-message { 
-            color: #6c757d; 
-            margin-bottom: 20px; 
-            font-size: 16px;
-            line-height: 1.5;
-        }
-        .actions { 
-            margin-top: 20px; 
-            text-align: center;
-        }
-        .btn { 
-            display: inline-block; 
-            padding: 12px 24px; 
-            margin: 5px; 
-            text-decoration: none; 
-            border-radius: 4px; 
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .btn-primary { 
-            background-color: #007bff; 
-            color: white; 
-        }
-        .btn-primary:hover { 
-            background-color: #0056b3; 
-        }
-        .btn-secondary { 
-            background-color: #6c757d; 
-            color: white; 
-        }
-        .btn-secondary:hover { 
-            background-color: #545b62; 
-        }
-        .help-section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #dee2e6;
-        }
-        .help-section h4 {
-            color: #495057;
-            margin-bottom: 15px;
-        }
-        .help-section ul {
-            color: #6c757d;
-            line-height: 1.6;
-        }
-        .help-section li {
-            margin-bottom: 5px;
-        }
-        .troubleshooting-steps {
-            margin-top: 20px;
-        }
-        .step {
-            margin-bottom: 25px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            border-left: 4px solid #007bff;
-        }
-        .step h5 {
-            color: #007bff;
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .step ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .step li {
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-        .step strong {
-            color: #495057;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h1 class="error-header">500 - Internal Server Error</h1>
-        <p class="error-message">
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+    <div class="max-w-2xl mx-auto my-10 bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold text-rose-600 dark:text-rose-400 border-b-2 border-rose-600 dark:border-rose-400 pb-3 mb-6">500 - Internal Server Error</h1>
+        <p class="text-slate-600 dark:text-slate-400 mb-6 text-base leading-relaxed">
             We're sorry, but something went wrong on our end. 
             Our team has been notified and is working to fix the issue.
         </p>
         
-        <div class="actions">
-            <a href="/" class="btn btn-primary">Go to Dashboard</a>
-            <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+        <div class="mt-6 text-center">
+            <a href="/" class="inline-block px-6 py-3 text-sm font-bold text-white bg-sky-500 hover:bg-sky-600 rounded-lg transition-colors mr-2">Go to Dashboard</a>
+            <a href="javascript:history.back()" class="inline-block px-6 py-3 text-sm font-bold text-white bg-slate-500 hover:bg-slate-600 rounded-lg transition-colors">Go Back</a>
         </div>
         
-        <div class="help-section">
-            <h4>Troubleshooting Steps:</h4>
-            <div class="troubleshooting-steps">
-                <div class="step">
-                    <h5>1. Basic Actions</h5>
-                    <ul>
-                        <li>Try refreshing the page (F5 or Ctrl+R)</li>
-                        <li>Go back to the previous page</li>
+        <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+            <h4 class="text-slate-700 dark:text-slate-300 font-semibold mb-4">Troubleshooting Steps:</h4>
+            <div class="space-y-4">
+                <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-sky-500">
+                    <h5 class="text-sky-600 dark:text-sky-400 font-bold mb-2">1. Basic Actions</h5>
+                    <ul class="text-slate-600 dark:text-slate-400 leading-relaxed list-disc list-inside">
+                        <li class="mb-1">Try refreshing the page (F5 or Ctrl+R)</li>
+                        <li class="mb-1">Go back to the previous page</li>
                         <li>Return to the dashboard</li>
                     </ul>
                 </div>
                 
-                <div class="step">
-                    <h5>2. Clear Browser Data</h5>
-                    <ul>
-                        <li><strong>Clear cache:</strong> Ctrl+Shift+Delete (Chrome/Firefox) or Cmd+Shift+Delete (Mac)</li>
-                        <li><strong>Clear cookies:</strong> Remove reconPoint cookies from browser settings</li>
-                        <li><strong>Clear local storage:</strong> Developer Tools → Application → Local Storage → Clear</li>
-                        <li><strong>Hard refresh:</strong> Ctrl+Shift+R (Chrome/Firefox) or Cmd+Shift+R (Mac)</li>
+                <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-sky-500">
+                    <h5 class="text-sky-600 dark:text-sky-400 font-bold mb-2">2. Clear Browser Data</h5>
+                    <ul class="text-slate-600 dark:text-slate-400 leading-relaxed list-disc list-inside">
+                        <li class="mb-1"><strong class="text-slate-700 dark:text-slate-300">Clear cache:</strong> Ctrl+Shift+Delete (Chrome/Firefox) or Cmd+Shift+Delete (Mac)</li>
+                        <li class="mb-1"><strong class="text-slate-700 dark:text-slate-300">Clear cookies:</strong> Remove reconPoint cookies from browser settings</li>
+                        <li class="mb-1"><strong class="text-slate-700 dark:text-slate-300">Clear local storage:</strong> Developer Tools → Application → Local Storage → Clear</li>
+                        <li><strong class="text-slate-700 dark:text-slate-300">Hard refresh:</strong> Ctrl+Shift+R (Chrome/Firefox) or Cmd+Shift+R (Mac)</li>
                     </ul>
                 </div>
                 
-                <div class="step">
-                    <h5>3. Browser Issues</h5>
-                    <ul>
-                        <li>Try a different browser (Chrome, Firefox, Safari, Edge)</li>
-                        <li>Disable browser extensions temporarily</li>
-                        <li>Try incognito/private browsing mode</li>
+                <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-sky-500">
+                    <h5 class="text-sky-600 dark:text-sky-400 font-bold mb-2">3. Browser Issues</h5>
+                    <ul class="text-slate-600 dark:text-slate-400 leading-relaxed list-disc list-inside">
+                        <li class="mb-1">Try a different browser (Chrome, Firefox, Safari, Edge)</li>
+                        <li class="mb-1">Disable browser extensions temporarily</li>
+                        <li class="mb-1">Try incognito/private browsing mode</li>
                         <li>Check if JavaScript is enabled</li>
                     </ul>
                 </div>
                 
-                <div class="step">
-                    <h5>4. Network & Connection</h5>
-                    <ul>
-                        <li>Check your internet connection</li>
-                        <li>Try accessing from a different network</li>
-                        <li>Disable VPN or proxy if used</li>
+                <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-sky-500">
+                    <h5 class="text-sky-600 dark:text-sky-400 font-bold mb-2">4. Network & Connection</h5>
+                    <ul class="text-slate-600 dark:text-slate-400 leading-relaxed list-disc list-inside">
+                        <li class="mb-1">Check your internet connection</li>
+                        <li class="mb-1">Try accessing from a different network</li>
+                        <li class="mb-1">Disable VPN or proxy if used</li>
                         <li>Check firewall settings</li>
                     </ul>
                 </div>
                 
-                <div class="step">
-                    <h5>5. Still Having Issues?</h5>
-                    <ul>
-                        <li>Contact us on Discord channel #support, check wiki for link</li>
-                        <li>Check if other users are experiencing the same issue</li>
+                <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border-l-4 border-sky-500">
+                    <h5 class="text-sky-600 dark:text-sky-400 font-bold mb-2">5. Still Having Issues?</h5>
+                    <ul class="text-slate-600 dark:text-slate-400 leading-relaxed list-disc list-inside">
+                        <li class="mb-1">Contact us on Discord channel #support, check wiki for link</li>
+                        <li class="mb-1">Check if other users are experiencing the same issue</li>
                         <li>Try again in a few minutes (server might be restarting)</li>
                     </ul>
                 </div>

@@ -21,7 +21,7 @@
 						<div class="tab-content pt-0">
 							<div class="tab-pane fade active show" id="domain-card-{{ domain.id }}-v-pills-domain" role="tabpanel" aria-labelledby="domain-card-{{ domain.id }}-v-pills-domain-tab" data-simplebar style="min-height: 260px;">
 								{% if not domain_info %}
-								<div class="alert alert-info mb-0">WHOIS not fetched. Run a scan that includes WHOIS (e.g. domain_recon) to populate this.</div>
+								<div class="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 text-indigo-600 dark:text-indigo-400 mb-0">WHOIS not fetched. Run a scan that includes WHOIS (e.g. domain_recon) to populate this.</div>
 								{% else %}
 								<div class="row">
 									<div class="col-12">
@@ -44,9 +44,9 @@
 									<div class="col-12 mt-1">
 										{% for status in domain_info.status.all %}
 										{% if 'prohibited' in status.name %}
-										<span class="badge badge-soft-danger mt-1">{{ status.name }}</span>
+										<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 mt-1">{{ status.name }}</span>
 										{% else %}
-										<span class="badge badge-soft-success mt-1">{{ status.name }}</span>
+										<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mt-1">{{ status.name }}</span>
 										{% endif %}
 										{% endfor %}
 									</div>
@@ -84,7 +84,7 @@
 											</table>
 										</div>
 										{% else %}
-										<div class="alert alert-info mb-0">No registrant data.</div>
+										<div class="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 text-indigo-600 dark:text-indigo-400 mb-0">No registrant data.</div>
 										{% endif %}
 									</div>
 									<div class="tab-pane" id="domain-card-{{ domain.id }}-admin-tab">
@@ -100,7 +100,7 @@
 											</table>
 										</div>
 										{% else %}
-										<div class="alert alert-info mb-0">No admin data.</div>
+										<div class="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 text-indigo-600 dark:text-indigo-400 mb-0">No admin data.</div>
 										{% endif %}
 									</div>
 									<div class="tab-pane" id="domain-card-{{ domain.id }}-technical-tab">
@@ -116,40 +116,40 @@
 											</table>
 										</div>
 										{% else %}
-										<div class="alert alert-info mb-0">No technical data.</div>
+										<div class="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 text-indigo-600 dark:text-indigo-400 mb-0">No technical data.</div>
 										{% endif %}
 									</div>
 									<div class="tab-pane" id="domain-card-{{ domain.id }}-raw-whois-tab">
 										{% if domain_info.extra_data and domain_info.extra_data.raw_whois %}
-										<pre class="mb-0 p-2 bg-light border rounded font-13">{{ domain_info.extra_data.raw_whois|escape }}</pre>
+										<pre class="mb-0 p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm">{{ domain_info.extra_data.raw_whois|escape }}</pre>
 										{% else %}
-										<div class="alert alert-info mb-0">No raw WHOIS data.</div>
+										<div class="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 text-indigo-600 dark:text-indigo-400 mb-0">No raw WHOIS data.</div>
 										{% endif %}
 									</div>
 								</div>
 								{% else %}
-								<div class="alert alert-info mb-0">WHOIS not fetched. Run a scan that includes WHOIS (e.g. domain_recon) to populate this.</div>
+								<div class="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 text-indigo-600 dark:text-indigo-400 mb-0">WHOIS not fetched. Run a scan that includes WHOIS (e.g. domain_recon) to populate this.</div>
 								{% endif %}
 							</div>
 							<div class="tab-pane fade" id="domain-card-{{ domain.id }}-v-pills-dns" role="tabpanel" aria-labelledby="domain-card-{{ domain.id }}-v-pills-dns-tab" data-simplebar style="min-height: 260px;">
 								{% if domain_info and domain_info.dns_records.all %}
-								<h6 class="font-13">A Records</h6>
-								{% for dns in domain_info.dns_records.all %}{% if dns.type|lower == 'a' %}<span class="badge badge-soft-primary me-1 mt-1">{{ dns.name }}</span>{% endif %}{% endfor %}
-								<h6 class="font-13 mt-2">MX Records</h6>
-								{% for dns in domain_info.dns_records.all %}{% if dns.type|lower == 'mx' %}<span class="badge badge-soft-primary me-1 mt-1">{{ dns.name }}</span>{% endif %}{% endfor %}
-								<h6 class="font-13 mt-2">TXT Records</h6>
-								{% for dns in domain_info.dns_records.all %}{% if dns.type|lower == 'txt' %}<span class="badge badge-soft-secondary me-1 mt-1">{{ dns.name }}</span>{% endif %}{% endfor %}
+								<h6 class="text-sm font-semibold text-slate-900 dark:text-slate-100">A Records</h6>
+								{% for dns in domain_info.dns_records.all %}{% if dns.type|lower == 'a' %}<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-sky-500/10 text-sky-600 dark:text-sky-400 me-1 mt-1">{{ dns.name }}</span>{% endif %}{% endfor %}
+								<h6 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mt-2">MX Records</h6>
+								{% for dns in domain_info.dns_records.all %}{% if dns.type|lower == 'mx' %}<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-sky-500/10 text-sky-600 dark:text-sky-400 me-1 mt-1">{{ dns.name }}</span>{% endif %}{% endfor %}
+								<h6 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mt-2">TXT Records</h6>
+								{% for dns in domain_info.dns_records.all %}{% if dns.type|lower == 'txt' %}<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-500/10 text-slate-600 dark:text-slate-400 me-1 mt-1">{{ dns.name }}</span>{% endif %}{% endfor %}
 								{% else %}
-								<div class="alert alert-info mb-0">No DNS records.</div>
+								<div class="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 text-indigo-600 dark:text-indigo-400 mb-0">No DNS records.</div>
 								{% endif %}
 							</div>
 							<div class="tab-pane fade" id="domain-card-{{ domain.id }}-v-pills-nameserver" role="tabpanel" aria-labelledby="domain-card-{{ domain.id }}-v-pills-nameserver-tab" data-simplebar style="min-height: 260px;">
 								{% if domain_info and domain_info.name_servers.all %}
 								{% for nameserver in domain_info.name_servers.all %}
-								<span class="badge badge-soft-primary me-1 mt-1">{{ nameserver.name }}</span>
+								<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-sky-500/10 text-sky-600 dark:text-sky-400 me-1 mt-1">{{ nameserver.name }}</span>
 								{% endfor %}
 								{% else %}
-								<div class="alert alert-info mb-0">No nameservers.</div>
+								<div class="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 text-indigo-600 dark:text-indigo-400 mb-0">No nameservers.</div>
 								{% endif %}
 							</div>
 							<div class="tab-pane fade" id="domain-card-{{ domain.id }}-v-pills-history" role="tabpanel" aria-labelledby="domain-card-{{ domain.id }}-v-pills-history-tab" data-simplebar style="min-height: 260px;">
@@ -165,7 +165,7 @@
 									</table>
 								</div>
 								{% else %}
-								<div class="alert alert-info mb-0">No historical IPs.</div>
+								<div class="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 text-indigo-600 dark:text-indigo-400 mb-0">No historical IPs.</div>
 								{% endif %}
 							</div>
 						</div>
@@ -178,5 +178,5 @@
 	{% endfor %}
 </div>
 {% else %}
-<div class="alert alert-info">No domains discovered for this target yet. Run a scan to discover domains.</div>
+<div class="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-4 text-indigo-600 dark:text-indigo-400">No domains discovered for this target yet. Run a scan to discover domains.</div>
 {% endif %}

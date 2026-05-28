@@ -1,15 +1,15 @@
 {% load permission_tags %}
 <td class="text-center">
-  <div class="d-flex justify-content-center mb-2">
-    <div class="btn-group btn-group-sm" role="group">
-      <a href="#" class="btn btn-sm btn-soft-primary" data-toggle="tooltip" data-placement="top" title="View Results" aria-label="View results" onclick="show_subscan_results('{% url 'api:fetch_subscan_results' %}', {{ subscan.id }}); return false;"><i class="fe-eye"></i></a>
+  <div class="flex justify-center mb-2">
+    <div class="inline-flex rounded-lg overflow-hidden" role="group">
+      <a href="#" class="inline-flex items-center justify-center w-8 h-8 bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-colors border-r border-slate-200 dark:border-slate-700 first:rounded-l-lg last:rounded-r-lg" data-toggle="tooltip" data-placement="top" title="View Results" aria-label="View results" onclick="show_subscan_results('{% url 'api:fetch_subscan_results' %}', {{ subscan.id }}); return false;"><i data-lucide="eye" class="w-4 h-4"></i></a>
       {% if user|can:'initiate_scans_subscans' %}
         {% if subscan.status_code == 1 %}
-      <a href="#" class="btn btn-sm btn-soft-danger" data-toggle="tooltip" data-placement="top" title="Stop Subscan" aria-label="Stop subscan" onclick="stop_scan('{% url 'api:stop_scan' %}', scan_id=null, subscan_id={{ subscan.id }}, reload_scan_bar=false, reload_location=true); return false;"><i class="fe-alert-triangle"></i></a>
+      <a href="#" class="inline-flex items-center justify-center w-8 h-8 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors border-r border-slate-200 dark:border-slate-700 first:rounded-l-lg last:rounded-r-lg" data-toggle="tooltip" data-placement="top" title="Stop Subscan" aria-label="Stop subscan" onclick="stop_scan('{% url 'api:stop_scan' %}', scan_id=null, subscan_id={{ subscan.id }}, reload_scan_bar=false, reload_location=true); return false;"><i data-lucide="alert-triangle" class="w-4 h-4"></i></a>
         {% endif %}
       {% endif %}
       {% if user|can:'modify_scan_results' %}
-      <a href="#" class="btn btn-sm btn-soft-danger" data-toggle="tooltip" data-placement="top" title="Delete Subscan" aria-label="Delete subscan" onclick="delete_subscan('{% url 'api:delete_rows' %}', {{ subscan.id }}); return false;"><i class="fe-trash-2"></i></a>
+      <a href="#" class="inline-flex items-center justify-center w-8 h-8 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors first:rounded-l-lg last:rounded-r-lg" data-toggle="tooltip" data-placement="top" title="Delete Subscan" aria-label="Delete subscan" onclick="delete_subscan('{% url 'api:delete_rows' %}', {{ subscan.id }}); return false;"><i data-lucide="trash-2" class="w-4 h-4"></i></a>
       {% endif %}
     </div>
   </div>

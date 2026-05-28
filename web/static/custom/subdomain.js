@@ -7,6 +7,10 @@ function checkedCount() {
       count++;
     }
   }
+  
+  // Dispatch event for Alpine.js
+  window.dispatchEvent(new CustomEvent('subdomain-selection-change', { detail: { count: count } }));
+  
   return count;
 }
 
@@ -36,4 +40,16 @@ function uncheckSubdomains(){
   $(".subdomain_checkbox").prop('checked', false);
   $("#head_checkbox").prop('checked', false);
   $('#subdomain_selected_count').empty();
+  
+  // Dispatch event for Alpine.js
+  window.dispatchEvent(new CustomEvent('subdomain-selection-change', { detail: { count: 0 } }));
 }
+
+// Link custom search input to DataTable
+$(document).ready(function() {
+  $('#subdomain-table-filter').on('keyup', function() {
+    var table = $('#subdomain_scan_results').DataTable();
+    table.search(this.value).draw();
+  });
+});
+
