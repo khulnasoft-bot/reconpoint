@@ -4,21 +4,21 @@
 		<div class="card">
 			<div class="card-body">
 				<div class="row">
-					<div class="col-8 float-start d-flex align-items-center flex-wrap gap-1">
-						<span class="small text-muted me-1">Bulk actions:</span>
-						<div class="btn-group" role="group">
-							<a class="btn btn-sm btn-soft-primary disabled" id="initiate_selected_ips_subscan_btn" data-button="ip_btns" data-toggle="tooltip" title="Initiate multiple subscans for selected IPs" aria-label="Initiate multiple subscans for selected IPs" onclick="initiateMultipleIpSubscan(); return false;"><i class="fe-zap"></i></a>
-							<a class="btn btn-sm btn-soft-info disabled" id="download_selected_ips_btn" data-button="ip_btns" data-toggle="tooltip" title="Download selected IPs" aria-label="Download selected IPs"><i class="fe-download"></i></a>
-							<a class="btn btn-sm btn-soft-danger disabled" data-button="ip_btns" data-toggle="tooltip" title="Delete multiple IPs (not available yet)" aria-label="Delete multiple IPs"><i class="fe-trash-2"></i></a>
+					<div class="col-8 float-start flex items-center flex-wrap gap-1">
+						<span class="text-sm text-slate-500 dark:text-slate-400 me-1">Bulk actions:</span>
+						<div class="inline-flex rounded-lg overflow-hidden" role="group">
+							<a class="inline-flex items-center justify-center w-8 h-8 bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-colors border-r border-slate-200 dark:border-slate-700 first:rounded-l-lg last:rounded-r-lg disabled" id="initiate_selected_ips_subscan_btn" data-button="ip_btns" data-toggle="tooltip" title="Initiate multiple subscans for selected IPs" aria-label="Initiate multiple subscans for selected IPs" onclick="initiateMultipleIpSubscan(); return false;"><i data-lucide="zap" class="w-4 h-4"></i></a>
+							<a class="inline-flex items-center justify-center w-8 h-8 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 transition-colors border-r border-slate-200 dark:border-slate-700 disabled" id="download_selected_ips_btn" data-button="ip_btns" data-toggle="tooltip" title="Download selected IPs" aria-label="Download selected IPs"><i data-lucide="download" class="w-4 h-4"></i></a>
+							<a class="inline-flex items-center justify-center w-8 h-8 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors disabled" data-button="ip_btns" data-toggle="tooltip" title="Delete multiple IPs (not available yet)" aria-label="Delete multiple IPs"><i data-lucide="trash-2" class="w-4 h-4"></i></a>
 						</div>
 						<div class="ms-1">
-							<a href="#" class="badge badge-soft-primary" id="ip_selected_count" onclick="uncheckIps(); return false;" data-toggle="tooltip" data-placement="top" title="Clear IP selection" aria-label="Clear IP selection"></a>
+							<a href="#" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-500/10 text-sky-600 dark:text-sky-400" id="ip_selected_count" onclick="uncheckIps(); return false;" data-toggle="tooltip" data-placement="top" title="Clear IP selection" aria-label="Clear IP selection"></a>
 						</div>
 					</div>
 					<div class="col-4">
-						<div class="btn-group btn-group-sm mb-2 float-end dropstart">
-							<button class="btn btn-sm btn-soft-primary dropdown-toggle ms-1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-toggle="tooltip" data-placement="left" title="Filter Columns" aria-label="Filter columns">
-								<i class="fe-filter"></i>
+						<div class="inline-flex mb-2 float-end dropstart">
+							<button class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-colors dropdown-toggle ms-1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-toggle="tooltip" data-placement="left" title="Filter Columns" aria-label="Filter columns">
+								<i data-lucide="filter" class="w-4 h-4"></i>
 							</button>
 							<div class="dropdown-menu" style="">
 								<div class="dropdown-item">

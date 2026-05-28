@@ -18,10 +18,7 @@
   <script src="https://unpkg.com/htmx.org@1.10.3"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-  <link href="{% static 'bootstrap/bootstrap.min.css' %}" rel="stylesheet" type="text/css" id="bootstrap-stylesheet" />
   <link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet" type="text/css" id="main-stylesheet" />
-  <link href="{% static 'bootstrap/bootstrap-dark.min.css' %}" rel="stylesheet" type="text/css"
-    id="bootstrap-dark-stylesheet" />
   <link href="{% static 'assets/css/app-dark.min.css' %}" rel="stylesheet" type="text/css" id="main-dark-stylesheet" />
   <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
   <link href="{% static 'plugins/snackbar/snackbar.min.css' %}" rel="stylesheet" type="text/css" />
@@ -170,15 +167,21 @@
     {# Persistent OAuth info banner for OAuth users without project access #}
     {% if is_oauth_user %}
       {% if not current_project|default:"" %}
-        <div class="container-fluid">
-          <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
-            <i class="mdi mdi-shield-account me-2"></i>
-            <strong>OAuth Account</strong> &mdash;
-            Your account is managed via OAuth. An administrator needs to assign you to a project before you can access scan features.
-            <a href="https://github.com/KhulnaSoft/reconpoint/wiki/usage-oauth" target="_blank" class="alert-link">
-              <i class="mdi mdi-open-in-new"></i> Learn more on the Wiki
-            </a>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="w-full">
+          <div class="mx-4 mt-3 p-4 bg-sky-500/10 border border-sky-500/20 rounded-lg text-sky-600 dark:text-sky-400 flex items-start justify-between" role="alert">
+            <div class="flex items-start">
+              <i class="mdi mdi-shield-account me-2 mt-0.5"></i>
+              <div>
+                <strong>OAuth Account</strong> &mdash;
+                Your account is managed via OAuth. An administrator needs to assign you to a project before you can access scan features.
+                <a href="https://github.com/KhulnaSoft/reconpoint/wiki/usage-oauth" target="_blank" class="text-sky-600 dark:text-sky-400 hover:underline ml-1">
+                  <i class="mdi mdi-open-in-new"></i> Learn more on the Wiki
+                </a>
+              </div>
+            </div>
+            <button type="button" class="text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200 ml-4" onclick="this.parentElement.style.display='none'" aria-label="Close">
+              <i class="mdi mdi-close"></i>
+            </button>
           </div>
         </div>
       {% endif %}

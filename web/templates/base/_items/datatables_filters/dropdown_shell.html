@@ -3,17 +3,41 @@
   Pass id_prefix (e.g. "scanHistory") so IDs are unique when multiple dropdowns exist on one page.
   Variables: inner_template (required), id_prefix (required for unique IDs), filter_menu_id, filtering_text_id, reset_filters_id (optional overrides when id_prefix not used)
 {% endcomment %}
-<div class="btn-group ms-1 dropstart position-relative">
-  <button type="button" class="btn btn-soft-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Filters" id="{% if filter_menu_id %}{{ filter_menu_id }}{% elif id_prefix %}{{ id_prefix }}FilterMenu{% else %}filterMenu{% endif %}">
-    <i class="fe-filter"></i>
+<div class="relative inline-block text-left" x-data="{ open: false }">
+  <button @click="open = !open" 
+          @click.away="open = false"
+          type="button" 
+          class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-sky-500/10 text-sky-600 hover:bg-sky-500/20 focus:ring-sky-500 dark:text-sky-400 dark:focus:ring-offset-slate-950"
+          title="Filters"
+          id="{% if filter_menu_id %}{{ filter_menu_id }}{% elif id_prefix %}{{ id_prefix }}FilterMenu{% else %}filterMenu{% endif %}"
+          aria-haspopup="true"
+          :aria-expanded="open">
+    <i data-lucide="filter" class="w-4 h-4"></i>
+    <span class="sr-only">Filters</span>
   </button>
-  <div id="{% if filtering_text_id %}{{ filtering_text_id }}{% elif id_prefix %}{{ id_prefix }}FilteringText{% else %}filteringText{% endif %}" class="position-absolute mt-2 d-flex flex-wrap gap-1" style="top:100%; left:0; z-index:2;"></div>
-  <div class="dropdown-menu" style="min-width: 320px;">
-    <div class="dropdown-item-text px-3 py-2">
-      <h6 class="dropdown-header px-0 pt-0">Filters</h6>
+  
+  <div id="{% if filtering_text_id %}{{ filtering_text_id }}{% elif id_prefix %}{{ id_prefix }}FilteringText{% else %}filteringText{% endif %}" class="absolute mt-2 flex flex-wrap gap-1" style="top:100%; left:0; z-index:2;"></div>
+  
+  <div x-show="open"
+       x-transition:enter="transition ease-out duration-100"
+       x-transition:enter-start="transform opacity-0 scale-95"
+       x-transition:enter-end="transform opacity-100 scale-100"
+       x-transition:leave="transition ease-in duration-75"
+       x-transition:leave-start="transform opacity-100 scale-100"
+       x-transition:leave-end="transform opacity-0 scale-95"
+       class="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden">
+    <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+      <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Filters</p>
+    </div>
+    <div class="p-3">
       {% include inner_template with id_prefix=id_prefix|default:"" %}
     </div>
-    <div class="dropdown-divider"></div>
-    <a href="#" class="dropdown-item text-primary text-end" id="{% if reset_filters_id %}{{ reset_filters_id }}{% elif id_prefix %}{{ id_prefix }}ResetFilters{% else %}resetFilters{% endif %}">Reset Filters</a>
+    <div class="border-t border-slate-200 dark:border-slate-800 p-2">
+      <a href="#" 
+         class="block w-full text-right px-3 py-2 text-sm font-medium text-sky-600 dark:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+         id="{% if reset_filters_id %}{{ reset_filters_id }}{% elif id_prefix %}{{ id_prefix }}ResetFilters{% else %}resetFilters{% endif %}">
+        Reset Filters
+      </a>
+    </div>
   </div>
 </div>

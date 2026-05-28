@@ -1,3 +1,4 @@
+{% load humanize %}
 <div data-simplebar style="max-height: 650px;" class="p-2" id="activity-feed-container" hx-get="{% url 'activity_feed_partial' current_project.slug %}" hx-trigger="every 30s" hx-swap="outerHTML">
   <div class="track-order-list">
     <ul class="list-unstyled">

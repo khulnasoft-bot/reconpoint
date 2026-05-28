@@ -1,0 +1,105 @@
+{% comment %}
+Modern Button Component
+Usage: {% include 'components/button.html' with variant='primary' size='md' icon='plus' text='Add Target' href='url' %}
+
+Variants: primary, secondary, danger, success, info, warning, soft-primary, soft-secondary, soft-danger, soft-success, soft-info, soft-warning
+Sizes: sm, md, lg
+Icons: Any Lucide icon name (e.g., 'plus', 'trash', 'edit')
+{% endcomment %}
+
+{% if not variant %}{% spaceless %}
+  {% if variant_name %}{% with variant=variant_name %}{% include 'components/button.html' %}{% endwith %}
+  {% else %}
+    {% with variant='primary' %}{% include 'components/button.html' %}{% endwith %}
+  {% endif %}
+{% else %}
+  {% if href %}
+    <a href="{{ href }}" 
+       class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
+       {% if variant == 'primary' %}bg-sky-500 text-white hover:bg-sky-600 focus:ring-sky-500 dark:focus:ring-offset-slate-950
+       {% elif variant == 'secondary' %}bg-slate-100 text-slate-900 hover:bg-slate-200 focus:ring-slate-500 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-950
+       {% elif variant == 'danger' %}bg-rose-500 text-white hover:bg-rose-600 focus:ring-rose-500 dark:focus:ring-offset-slate-950
+       {% elif variant == 'success' %}bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-500 dark:focus:ring-offset-slate-950
+       {% elif variant == 'info' %}bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-indigo-500 dark:focus:ring-offset-slate-950
+       {% elif variant == 'warning' %}bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-500 dark:focus:ring-offset-slate-950
+       {% elif variant == 'soft-primary' %}bg-sky-500/10 text-sky-600 hover:bg-sky-500/20 focus:ring-sky-500 dark:text-sky-400 dark:focus:ring-offset-slate-950
+       {% elif variant == 'soft-secondary' %}bg-slate-100 text-slate-600 hover:bg-slate-200 focus:ring-slate-500 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-950
+       {% elif variant == 'soft-danger' %}bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 focus:ring-rose-500 dark:text-rose-400 dark:focus:ring-offset-slate-950
+       {% elif variant == 'soft-success' %}bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 focus:ring-emerald-500 dark:text-emerald-400 dark:focus:ring-offset-slate-950
+       {% elif variant == 'soft-info' %}bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 focus:ring-indigo-500 dark:text-indigo-400 dark:focus:ring-offset-slate-950
+       {% elif variant == 'soft-warning' %}bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 focus:ring-amber-500 dark:text-amber-400 dark:focus:ring-offset-slate-950
+       {% endif %}
+       {% if size == 'sm' %}px-3 py-1.5 text-xs
+       {% elif size == 'lg' %}px-6 py-3 text-base
+       {% endif %}
+       {{ extra_classes }}"
+       {% if onclick %}onclick="{{ onclick }}"{% endif %}
+       {% if id %}id="{{ id }}"{% endif %}
+       {% if disabled %}disabled{% endif %}
+       {% if title %}title="{{ title }}"{% endif %}
+       {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}>
+      {% if icon %}<i data-lucide="{{ icon }}" class="w-4 h-4{% if size == 'lg' %} w-5 h-5{% endif %}"></i>{% endif %}
+      {% if text %}{{ text }}{% endif %}
+      {% if content %}{{ content }}{% endif %}
+    </a>
+  {% elif button_type == 'submit' %}
+    <button type="submit"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
+            {% if variant == 'primary' %}bg-sky-500 text-white hover:bg-sky-600 focus:ring-sky-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'secondary' %}bg-slate-100 text-slate-900 hover:bg-slate-200 focus:ring-slate-500 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'danger' %}bg-rose-500 text-white hover:bg-rose-600 focus:ring-rose-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'success' %}bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'info' %}bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-indigo-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'warning' %}bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-primary' %}bg-sky-500/10 text-sky-600 hover:bg-sky-500/20 focus:ring-sky-500 dark:text-sky-400 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-secondary' %}bg-slate-100 text-slate-600 hover:bg-slate-200 focus:ring-slate-500 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-danger' %}bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 focus:ring-rose-500 dark:text-rose-400 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-success' %}bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 focus:ring-emerald-500 dark:text-emerald-400 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-info' %}bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 focus:ring-indigo-500 dark:text-indigo-400 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-warning' %}bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 focus:ring-amber-500 dark:text-amber-400 dark:focus:ring-offset-slate-950
+            {% endif %}
+            {% if size == 'sm' %}px-3 py-1.5 text-xs
+            {% elif size == 'lg' %}px-6 py-3 text-base
+            {% endif %}
+            {{ extra_classes }}"
+            {% if id %}id="{{ id }}"{% endif %}
+            {% if disabled %}disabled{% endif %}
+            {% if title %}title="{{ title }}"{% endif %}
+            {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}>
+      {% if icon %}<i data-lucide="{{ icon }}" class="w-4 h-4{% if size == 'lg' %} w-5 h-5{% endif %}"></i>{% endif %}
+      {% if text %}{{ text }}{% endif %}
+      {% if content %}{{ content }}{% endif %}
+    </button>
+  {% else %}
+    <button type="button"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
+            {% if variant == 'primary' %}bg-sky-500 text-white hover:bg-sky-600 focus:ring-sky-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'secondary' %}bg-slate-100 text-slate-900 hover:bg-slate-200 focus:ring-slate-500 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'danger' %}bg-rose-500 text-white hover:bg-rose-600 focus:ring-rose-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'success' %}bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'info' %}bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-indigo-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'warning' %}bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-primary' %}bg-sky-500/10 text-sky-600 hover:bg-sky-500/20 focus:ring-sky-500 dark:text-sky-400 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-secondary' %}bg-slate-100 text-slate-600 hover:bg-slate-200 focus:ring-slate-500 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-danger' %}bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 focus:ring-rose-500 dark:text-rose-400 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-success' %}bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 focus:ring-emerald-500 dark:text-emerald-400 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-info' %}bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 focus:ring-indigo-500 dark:text-indigo-400 dark:focus:ring-offset-slate-950
+            {% elif variant == 'soft-warning' %}bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 focus:ring-amber-500 dark:text-amber-400 dark:focus:ring-offset-slate-950
+            {% endif %}
+            {% if size == 'sm' %}px-3 py-1.5 text-xs
+            {% elif size == 'lg' %}px-6 py-3 text-base
+            {% endif %}
+            {{ extra_classes }}"
+            {% if onclick %}onclick="{{ onclick }}"{% endif %}
+            {% if id %}id="{{ id }}"{% endif %}
+            {% if disabled %}disabled{% endif %}
+            {% if title %}title="{{ title }}"{% endif %}
+            {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
+            {% if data_attributes %}{{ data_attributes|safe }}{% endif %}>
+      {% if icon %}<i data-lucide="{{ icon }}" class="w-4 h-4{% if size == 'lg' %} w-5 h-5{% endif %}"></i>{% endif %}
+      {% if text %}{{ text }}{% endif %}
+      {% if content %}{{ content }}{% endif %}
+    </button>
+  {% endif %}
+{% endif %}
+{% endspaceless %}

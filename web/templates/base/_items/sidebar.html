@@ -95,13 +95,13 @@
         <span x-show="open">Workers</span>
       </a>
 
-      <a href="{% if current_project %}{% url 'api_keys' current_project.slug %}{% else %}{% url 'api_keys' %}{% endif %}" 
+      <a href="{% url 'api_keys' %}" 
          class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'api-keys' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
         <i data-lucide="key" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if 'api-keys' in request.path %} text-sky-400 {% endif %}"></i>
         <span x-show="open">API Keys</span>
       </a>
 
-      <a href="{% if current_project %}{% url 'interface_settings' current_project.slug %}{% else %}{% url 'interface_settings' %}{% endif %}" 
+      <a href="{% url 'interface_settings' %}"
          class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors {% if 'interface' in request.path %} text-white bg-slate-900 shadow-sm {% else %} text-slate-400 hover:text-white hover:bg-slate-900/50 {% endif %} group">
         <i data-lucide="settings" class="w-5 h-5 mr-3 flex-shrink-0 group-hover:text-sky-400 {% if 'interface' in request.path %} text-sky-400 {% endif %}"></i>
         <span x-show="open">Settings</span>

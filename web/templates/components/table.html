@@ -1,0 +1,14 @@
+{% comment %}
+Modern Table Wrapper for DataTables
+Usage: {% include 'components/table.html' with table_id='myTable' table_class='dt-responsive w-100' %}
+
+This component wraps DataTables tables with modern Tailwind styling
+{% endcomment %}
+
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+  <div class="overflow-x-auto">
+    <table id="{{ table_id }}" class="w-full text-sm text-left text-slate-600 dark:text-slate-400 {{ table_class }}">
+      {% block table_content %}{% endblock %}
+    </table>
+  </div>
+</div>

@@ -1,0 +1,123 @@
+{% comment %}
+Modern Form Input Components
+Usage: {% include 'components/form.html' with input_type='text' input_id='myInput' input_name='myInput' label='My Input' placeholder='Enter value' %}
+
+Input types: text, email, password, number, search, date, select, textarea
+{% endcomment %}
+
+{% if input_type == 'select' %}
+<div class="mb-4">
+  {% if label %}
+  <label for="{{ input_id }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{{ label }}</label>
+  {% endif %}
+  <select id="{{ input_id }}" 
+          name="{{ input_name }}"
+          class="w-full px-4 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-colors
+          {% if disabled %}opacity-50 cursor-not-allowed{% endif %}
+          {{ extra_classes }}"
+          {% if required %}required{% endif %}
+          {% if multiple %}multiple{% endif %}
+          {% if onchange %}onchange="{{ onchange }}"{% endif %}>
+    {% if placeholder %}
+    <option value="" disabled {% if not selected_value %}selected{% endif %}>{{ placeholder }}</option>
+    {% endif %}
+    {% for option_value, option_label in options.items %}
+    <option value="{{ option_value }}" {% if option_value == selected_value %}selected{% endif %}>{{ option_label }}</option>
+    {% endfor %}
+  </select>
+  {% if error %}
+  <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ error }}</p>
+  {% endif %}
+</div>
+
+{% elif input_type == 'textarea' %}
+<div class="mb-4">
+  {% if label %}
+  <label for="{{ input_id }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{{ label }}</label>
+  {% endif %}
+  <textarea id="{{ input_id}"
+            name="{{ input_name }}"
+            rows="{{ rows|default:4 }}"
+            placeholder="{{ placeholder|default:'' }}"
+            class="w-full px-4 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-colors resize-none
+            {% if disabled %}opacity-50 cursor-not-allowed{% endif %}
+            {{ extra_classes }}"
+            {% if required %}required{% endif %}
+            {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}>{% if value %}{{ value }}{% endif %}</textarea>
+  {% if error %}
+  <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ error }}</p>
+  {% endif %}
+</div>
+
+{% elif input_type == 'checkbox' %}
+<div class="mb-4">
+  <div class="flex items-center">
+    <input type="checkbox"
+           id="{{ input_id }}"
+           name="{{ input_name }}"
+           value="{{ checkbox_value|default:'on' }}"
+           {% if checked %}checked{% endif %}
+           class="w-4 h-4 text-sky-500 border-slate-300 dark:border-slate-700 rounded focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 bg-white dark:bg-slate-900
+           {% if disabled %}opacity-50 cursor-not-allowed{% endif %}
+           {{ extra_classes }}"
+           {% if required %}required{% endif %}
+           {% if onchange %}onchange="{{ onchange }}"{% endif %}>
+    {% if label %}
+    <label for="{{ input_id }}" class="ml-2 text-sm text-slate-700 dark:text-slate-300">{{ label }}</label>
+    {% endif %}
+  </div>
+  {% if error %}
+  <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ error }}</p>
+  {% endif %}
+</div>
+
+{% elif input_type == 'radio' %}
+<div class="mb-4">
+  {% if label %}
+  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{{ label }}</label>
+  {% endif %}
+  <div class="space-y-2">
+    {% for radio_value, radio_label in options.items %}
+    <div class="flex items-center">
+      <input type="radio"
+             id="{{ input_id }}_{{ forloop.counter }}"
+             name="{{ input_name }}"
+             value="{{ radio_value }}"
+             {% if radio_value == selected_value %}checked{% endif %}
+             class="w-4 h-4 text-sky-500 border-slate-300 dark:border-slate-700 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 bg-white dark:bg-slate-900
+             {% if disabled %}opacity-50 cursor-not-allowed{% endif %}
+             {{ extra_classes }}"
+             {% if required %}required{% endif %}>
+      <label for="{{ input_id }}_{{ forloop.counter }}" class="ml-2 text-sm text-slate-700 dark:text-slate-300">{{ radio_label }}</label>
+    </div>
+    {% endfor %}
+  </div>
+  {% if error %}
+  <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ error }}</p>
+  {% endif %}
+</div>
+
+{% else %}
+<div class="mb-4">
+  {% if label %}
+  <label for="{{ input_id }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{{ label }}</label>
+  {% endif %}
+  <input type="{{ input_type|default:'text' }}"
+         id="{{ input_id }}"
+         name="{{ input_name }}"
+         value="{{ value|default:'' }}"
+         placeholder="{{ placeholder|default:'' }}"
+         {% if min %}min="{{ min }}"{% endif %}
+         {% if max %}max="{{ max }}"{% endif %}
+         {% if step %}step="{{ step }}"{% endif %}
+         class="w-full px-4 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-colors
+         {% if disabled %}opacity-50 cursor-not-allowed{% endif %}
+         {{ extra_classes }}"
+         {% if required %}required{% endif %}
+         {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+         {% if pattern %}pattern="{{ pattern }}"{% endif %}>
+  {% if error %}
+  <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ error }}</p>
+  {% endif %}
+</div>
+{% endif %}

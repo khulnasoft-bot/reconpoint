@@ -44,162 +44,130 @@ Scan Findings
 })();
 </script>
 <span aria-current="page" style="display: none">{{ scan_display_name }}</span>
-<div class="row">
-	<div class="col-12">
-		<div class="card">
-			<ul class="nav nav-tabs nav-bordered m-1">
-				<li class="nav-item">
-					<a class="nav-link active" id="pills-summary-tab" data-bs-toggle="tab" aria-expanded="false" href="#summary-tab">Home</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" id="pills-domain-tab" data-bs-toggle="tab" aria-expanded="false" href="#domain-tab">Domains</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" id="pills-subdomain-tab" data-bs-toggle="tab" aria-expanded="false" href="#subdomain-tab">Subdomains</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" id="pills-ip-tab" data-bs-toggle="tab" aria-expanded="false" href="#ip-tab">IP Addresses</a>
-				</li>
-				{% if history.buckets.all %}
-				<li class="nav-item">
-					<a class="nav-link" id="pills-buckets-tab" data-bs-toggle="tab" aria-expanded="false" href="#buckets-tab">S3 Buckets</a>
-				</li>
-				{% endif %}
-				<li class="nav-item interesting-tab-show">
-					<a class="nav-link" data-bs-toggle="tab" aria-expanded="false" href="#interesting-tab">Interesting Recon</a>
-				</li>
-				<li class="nav-item recon-changes-tab-show" style="display: none">
-					<a class="nav-link" data-bs-toggle="tab" aria-expanded="false" href="#recon-changes-tab">Recon Data Changes</a>
-				</li>
-				{% if has_screenshots %}
-				<li class="nav-item">
-					<a class="nav-link" id="pills-screenshot-tab" data-bs-toggle="tab" aria-expanded="false" href="#screenshot-tab">Screenshots</a>
-				</li>
-				{% endif %}
-				{% if 'dir_file_fuzz' in history.tasks %}
-				<li class="nav-item">
-					<a class="nav-link" id="pills-directories-tab" data-bs-toggle="tab" aria-expanded="false" href="#directories-tab">Directories</a>
-				</li>
-				{% endif %}
-				<li class="nav-item">
-					<a class="nav-link" id="pills-endpoints-tab" data-bs-toggle="tab" aria-expanded="false" href="#endpoints-tab">URLs</a>
-				</li>
-				{% if history.get_exploit_count %}
-				<li class="nav-item">
-					<a class="nav-link" id="pills-exploits-tab" data-bs-toggle="tab" aria-expanded="false" href="#exploits-tab">Exploits</a>
-				</li>
-				{% endif %}
-				{% if total_vulnerability_count > 0 %}
-				<li class="nav-item">
-					<a class="nav-link" id="pills-vulnerabilities-tab" data-bs-toggle="tab" aria-expanded="false" href="#vulnerabilities-tab">Vulnerabilities</a>
-				</li>
-				{% endif %}
-				{% if total_secret_count > 0 %}
-				<li class="nav-item">
-					<a class="nav-link" id="pills-secrets-tab" data-bs-toggle="tab" aria-expanded="false" href="#secrets-tab">Secret</a>
-				</li>
-				{% endif %}
-				{% if 'osint' in history.tasks %}
-				<li class="nav-item">
-					<a class="nav-link" id="pills-osint-tab" data-bs-toggle="tab" aria-expanded="false" href="#osint-tab">OSINT</a>
-				</li>
-				{% endif %}
-				<li class="nav-item">
-					<a class="nav-link" id="pills-visualisation-tab" data-bs-toggle="tab" aria-expanded="false" href="#visualisation-tab">Visualization</a>
-				</li>
-			</ul>
-		</div>
-	</div>
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm mb-6">
+  <div class="border-b border-slate-200 dark:border-slate-800">
+    <nav class="flex space-x-8 -mb-px px-6" aria-label="Tabs">
+      <button onclick="switchTab('summary-tab')" class="tab-button active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-sky-500 text-sky-600 dark:text-sky-400" data-tab="summary-tab">Home</button>
+      <button onclick="switchTab('domain-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="domain-tab">Domains</button>
+      <button onclick="switchTab('subdomain-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="subdomain-tab">Subdomains</button>
+      <button onclick="switchTab('ip-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="ip-tab">IP Addresses</button>
+      {% if history.buckets.all %}
+      <button onclick="switchTab('buckets-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="buckets-tab">S3 Buckets</button>
+      {% endif %}
+      <button onclick="switchTab('interesting-tab')" class="tab-button interesting-tab-show whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="interesting-tab">Interesting Recon</button>
+      <button onclick="switchTab('recon-changes-tab')" class="tab-button recon-changes-tab-show whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600 hidden" data-tab="recon-changes-tab">Recon Data Changes</button>
+      {% if has_screenshots %}
+      <button onclick="switchTab('screenshot-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="screenshot-tab">Screenshots</button>
+      {% endif %}
+      {% if 'dir_file_fuzz' in history.tasks %}
+      <button onclick="switchTab('directories-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="directories-tab">Directories</button>
+      {% endif %}
+      <button onclick="switchTab('endpoints-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="endpoints-tab">URLs</button>
+      {% if history.get_exploit_count %}
+      <button onclick="switchTab('exploits-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="exploits-tab">Exploits</button>
+      {% endif %}
+      {% if total_vulnerability_count > 0 %}
+      <button onclick="switchTab('vulnerabilities-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="vulnerabilities-tab">Vulnerabilities</button>
+      {% endif %}
+      {% if total_secret_count > 0 %}
+      <button onclick="switchTab('secrets-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="secrets-tab">Secret</button>
+      {% endif %}
+      {% if 'osint' in history.tasks %}
+      <button onclick="switchTab('osint-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="osint-tab">OSINT</button>
+      {% endif %}
+      <button onclick="switchTab('visualisation-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:border-slate-600" data-tab="visualisation-tab">Visualization</button>
+    </nav>
+  </div>
 </div>
 <div class="tab-content no-padding-tab">
 	<!-- start tab contents  -->
 	<div class="tab-pane show active" id="summary-tab">
-		<div class="row">
-			<div class="col-xl-3 col-lg-4">
-				<div class="card">
-					<div class="card-body">
-						<div class="d-flex align-items-start mb-3">
-							<div class="w-100" data-scan-id="{{history.id}}">
-								<h5 class="mt-0 mb-0 font-15">
-									Scan Status for <span class="badge badge-soft-primary">{{ scan_display_name }}</span>
-									{% if not history.is_legacy_scan %}
-									<span class="badge badge-soft-info ms-2">Secator</span>
-									{% endif %}
-								</h5>
-								<p class="mt-1 mb-0 text-muted font-14 scan-status-badge">
-									{% if history.scan_status == -1 %}
-									<span class="mdi mdi-circle text-warning"></span>
-									<span class="badge badge-soft-warning">Pending</span>
-									{% elif history.scan_status == 0 %}
-									<span class="mdi mdi-circle text-danger"></span>
-									<span class="badge badge-soft-danger">Failed</span>
-									{% elif history.scan_status == 1 %}
-									<span class="mdi mdi-circle text-info"></span>
-									<span class="badge badge-soft-info">In Progress</span>
-									{% if history.get_current_task %}
-									<br><small class="text-muted font-weight-bold scan-current-task">{{ history.get_current_task }}</small>
-									{% endif %}
-									{% elif history.scan_status == 2 %}
-									<span class="mdi mdi-circle text-success"></span>
-									<span class="badge badge-soft-success">Completed</span>
-									{% elif history.scan_status == 3 %}
-									<span class="mdi mdi-circle text-danger"></span>
-									<span class="badge badge-soft-danger">Aborted</span>
-									{% elif history.scan_status == 4 %}
-									<span class="mdi mdi-circle text-info"></span>
-									<span class="badge badge-soft-info">Finalizing</span>
-									{% if history.get_current_task %}
-									<br><small class="text-muted font-weight-bold scan-current-task">{{ history.get_current_task }}</small>
-									{% endif %}
-									{% else %}
-									<span class="mdi mdi-circle text-danger"></span>
-									<span class="badge badge-danger">Unknown</span>
-									{% endif %}
-								</p>
-							</div>
-							<div class="btn-group mb-2">
-								<a href="#" class="text-dark dropdown-toggle float-end" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									<i class="fe-more-vertical"></i>
-								</a>
-								<div class="dropdown-menu" style="">
-									<a class="dropdown-item" href="javascript:download_subdomains({{scan_history_id}}, '{{ scan_display_name|escapejs }}')">Download All Subdomains</a>
-									<a class="dropdown-item" href="javascript:download_endpoints({{scan_history_id}}, '{{ scan_display_name|escapejs }}')">Download All Endpoints</a>
-									<a class="dropdown-item" href="javascript:download_important_subdomains({{scan_history_id}}, '{{ scan_display_name|escapejs }}');">Download Important Subdomains</a>
-									<a class="dropdown-item" href="javascript:download_interesting_subdomains({{scan_history_id}}, '{{ scan_display_name|escapejs }}');">Download Interesting Subdomains</a>
-									<a class="dropdown-item" href="javascript:download_interesting_endpoints({{scan_history_id}}, '{{ scan_display_name|escapejs }}');">Download Interesting Endpoints</a>
+		<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+			<div class="lg:col-span-1">
+				<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+					<div class="flex items-start mb-4">
+						<div class="w-full" data-scan-id="{{history.id}}">
+							<h5 class="text-base font-semibold text-slate-900 dark:text-white mb-2">
+								Scan Status for <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-500/10 text-sky-600 dark:text-sky-400">{{ scan_display_name }}</span>
+								{% if not history.is_legacy_scan %}
+								<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 ml-2">Secator</span>
+								{% endif %}
+							</h5>
+							<p class="mt-1 mb-0 text-slate-500 dark:text-slate-400 text-sm scan-status-badge">
+								{% if history.scan_status == -1 %}
+								<span class="inline-flex items-center gap-1"><i data-lucide="circle" class="w-2 h-2 text-amber-500 fill-amber-500"></i><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400">Pending</span></span>
+								{% elif history.scan_status == 0 %}
+								<span class="inline-flex items-center gap-1"><i data-lucide="circle" class="w-2 h-2 text-rose-500 fill-rose-500"></i><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400">Failed</span></span>
+								{% elif history.scan_status == 1 %}
+								<span class="inline-flex items-center gap-1"><i data-lucide="circle" class="w-2 h-2 text-indigo-500 fill-indigo-500"></i><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">In Progress</span></span>
+								{% if history.get_current_task %}
+								<br><small class="text-slate-500 dark:text-slate-400 font-semibold scan-current-task">{{ history.get_current_task }}</small>
+								{% endif %}
+								{% elif history.scan_status == 2 %}
+								<span class="inline-flex items-center gap-1"><i data-lucide="circle" class="w-2 h-2 text-emerald-500 fill-emerald-500"></i><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">Completed</span></span>
+								{% elif history.scan_status == 3 %}
+								<span class="inline-flex items-center gap-1"><i data-lucide="circle" class="w-2 h-2 text-rose-500 fill-rose-500"></i><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400">Aborted</span></span>
+								{% elif history.scan_status == 4 %}
+								<span class="inline-flex items-center gap-1"><i data-lucide="circle" class="w-2 h-2 text-indigo-500 fill-indigo-500"></i><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">Finalizing</span></span>
+								{% else %}
+								<span class="inline-flex items-center gap-1"><i data-lucide="circle" class="w-2 h-2 text-rose-500 fill-rose-500"></i><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400">Unknown</span></span>
+								{% endif %}
+							</p>
+						</div>
+						<div class="flex flex-wrap gap-2 mb-3" x-data="{ open: false }">
+							<div class="relative">
+								<button @click="open = !open" @click.away="open = false" class="inline-flex items-center justify-center p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+									<i data-lucide="more-vertical" class="w-4 h-4"></i>
+								</button>
+								<div x-show="open" 
+									 x-transition:enter="transition ease-out duration-100"
+									 x-transition:enter-start="transform opacity-0 scale-95"
+									 x-transition:enter-end="transform opacity-100 scale-100"
+									 x-transition:leave="transition ease-in duration-75"
+									 x-transition:leave-start="transform opacity-100 scale-100"
+									 x-transition:leave-end="transform opacity-0 scale-95"
+										class="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden">
+									<div class="py-1">
+										<a href="javascript:download_subdomains({{scan_history_id}}, '{{ scan_display_name|escapejs }}')" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Download All Subdomains</a>
+										<a href="javascript:download_endpoints({{scan_history_id}}, '{{ scan_display_name|escapejs }}')" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Download All Endpoints</a>
+										<a href="javascript:download_important_subdomains({{scan_history_id}}, '{{ scan_display_name|escapejs }}');" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Download Important Subdomains</a>
+										<a href="javascript:download_interesting_subdomains({{scan_history_id}}, '{{ scan_display_name|escapejs }}');" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Download Interesting Subdomains</a>
+										<a href="javascript:download_interesting_endpoints({{scan_history_id}}, '{{ scan_display_name|escapejs }}');" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Download Interesting Endpoints</a>
+									</div>
 								</div>
+							</div>
 							</div>
 						</div>
 						{% if history.scan_status == 0 %}
 						{% if history.error_message %}
-							<p class="text-danger">Scan failed due to ERROR: {{history.error_message}}</p>
+							<p class="text-rose-600 dark:text-rose-400">Scan failed due to ERROR: {{history.error_message}}</p>
 						{% endif %}
 						{% endif %}
 						
-						<h6 class="font-13 text-muted text-uppercase mt-3">Scan Name</h6>
-						<span class="badge badge-soft-primary" id="scan-name-display">{{ history.display_runner_type }}: {{ history.display_scan_name }}</span>
+						<h6 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-4 mb-2">Scan Name</h6>
+						<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-500/10 text-sky-600 dark:text-sky-400" id="scan-name-display">{{ history.display_runner_type }}: {{ history.display_scan_name }}</span>
 
-						<h6 class="font-13 text-muted text-uppercase mt-3">Worker</h6>
-						<span class="badge badge-soft-secondary">{{ history.secator_worker_name|default:"Local" }}</span>
+						<h6 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-4 mb-2">Worker</h6>
+						<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-500/10 text-slate-600 dark:text-slate-400">{{ history.secator_worker_name|default:"Local" }}</span>
 
 						{% if scan_config_display %}
-						<h6 class="font-13 text-muted text-uppercase mt-3 mb-1">Scan config</h6>
+						<h6 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-4 mb-2">Scan config</h6>
 						<p class="mb-0">
-							<a class="text-primary text-decoration-none small" data-bs-toggle="collapse" href="#scan-config-collapse" aria-expanded="false" aria-controls="scan-config-collapse">
-								<i class="fe-chevron-down me-1"></i>Show scan parameters
+							<a class="text-sky-600 dark:text-sky-400 text-sm no-underline" data-bs-toggle="collapse" href="#scan-config-collapse" aria-expanded="false" aria-controls="scan-config-collapse">
+								<i data-lucide="chevron-down" class="w-4 h-4 mr-1 inline"></i>Show scan parameters
 							</a>
 						</p>
 						<div class="collapse mt-1" id="scan-config-collapse">
-							<div class="small border rounded p-2 bg-light">
+							<div class="text-sm border border-slate-200 dark:border-slate-800 rounded-lg p-2 bg-slate-50 dark:bg-slate-900/50">
 								{% for key, value in scan_config_display.items %}
-								<div class="d-flex flex-wrap gap-1 mb-1">
-									<span class="text-muted fw-medium">{{ key }}:</span>
+								<div class="flex flex-wrap gap-1 mb-1">
+									<span class="text-slate-500 dark:text-slate-400 font-medium">{{ key }}:</span>
 									{% if value is None or value == "" %}
-									<span class="text-muted">—</span>
+									<span class="text-slate-500 dark:text-slate-400">—</span>
 									{% elif key == "profiles" and value %}
-									{% for p in value %}{% if not forloop.first %}, {% endif %}<span class="badge badge-soft-info">{{ p|escape }}</span>{% endfor %}
+									{% for p in value %}{% if not forloop.first %}, {% endif %}<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">{{ p|escape }}</span>{% endfor %}
 									{% elif key == "header" or key == "extra_config" %}
-									<pre class="mb-0 small text-break">{{ value|escape }}</pre>
+									<pre class="mb-0 text-sm break-words">{{ value|escape }}</pre>
 									{% elif key == "follow_redirect" %}
 									<span>{{ value|yesno:"Yes,No" }}</span>
 									{% else %}
@@ -1703,5 +1671,32 @@ $(document).ready(function() {
   }
 
 });
+
+// Modern tab switching function
+function switchTab(tabId) {
+  // Hide all tab panes
+  document.querySelectorAll('.tab-pane').forEach(pane => {
+    pane.classList.remove('show', 'active');
+  });
+  
+  // Show selected tab pane
+  const selectedPane = document.getElementById(tabId);
+  if (selectedPane) {
+    selectedPane.classList.add('show', 'active');
+  }
+  
+  // Update tab button states
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.classList.remove('active', 'border-sky-500', 'text-sky-600', 'dark:text-sky-400');
+    btn.classList.add('border-transparent', 'text-slate-500', 'dark:text-slate-400');
+  });
+  
+  // Activate selected tab button
+  const selectedButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+  if (selectedButton) {
+    selectedButton.classList.add('active', 'border-sky-500', 'text-sky-600', 'dark:text-sky-400');
+    selectedButton.classList.remove('border-transparent', 'text-slate-500', 'dark:text-slate-400');
+  }
+}
 </script>
 {% endblock page_level_script %}

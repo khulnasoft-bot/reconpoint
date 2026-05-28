@@ -115,12 +115,12 @@ if not CSRF_TRUSTED_ORIGINS:
     if DEBUG:
         default_csrf_origins.extend(
             [
+                "http://localhost",
                 "https://localhost",
+                "http://127.0.0.1",
                 "https://127.0.0.1",
-                "http://localhost:8000",
-                "https://localhost:8000",
-                "http://127.0.0.1:8000",
-                "https://127.0.0.1:8000",
+                "http://127.0.0.1:51545",
+                "https://127.0.0.1:51545",
             ]
         )
     CSRF_TRUSTED_ORIGINS = default_csrf_origins
@@ -382,7 +382,18 @@ X_FRAME_OPTIONS = env("X_FRAME_OPTIONS", default="DENY")
 # CORS settings exist for future hardened browser APIs. Install django-cors-headers
 # and add it to INSTALLED_APPS / MIDDLEWARE when ready.
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
-
+WEBSOCKET_ALLOWED_ORIGINS = env.list("WEBSOCKET_ALLOWED_ORIGINS", default=[])
+if DEBUG and not WEBSOCKET_ALLOWED_ORIGINS:
+    WEBSOCKET_ALLOWED_ORIGINS = [
+        "ws://localhost",
+        "ws://127.0.0.1",
+        "ws://localhost:8000",
+        "ws://127.0.0.1:8000",
+        "wss://localhost",
+        "wss://127.0.0.1",
+        "wss://localhost:8000",
+        "wss://127.0.0.1:8000",
+    ]
 # OAuth Provider Settings
 # Note: OpenID Connect providers are configured via Django admin
 # after creating SocialApp entries with provider_id='openid_connect'
@@ -649,10 +660,9 @@ CHANNEL_LAYERS = {
 }
 
 # WebSocket settings
-WEBSOCKET_ALLOWED_ORIGINS = env.list(
-    "WEBSOCKET_ALLOWED_ORIGINS",
-    default=["http://localhost:8000", "http://127.0.0.1:8000"] if DEBUG else [],
-)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# CSRF_TRUSTED_ORIGINS is configured earlier based on DOMAIN_NAME and DEBUG.
+
 if not DEBUG and not WEBSOCKET_ALLOWED_ORIGINS:
     raise ImproperlyConfigured("WEBSOCKET_ALLOWED_ORIGINS must be configured in production")
 WEBSOCKET_SCAN_STATUS_THROTTLE_SECONDS = 2
